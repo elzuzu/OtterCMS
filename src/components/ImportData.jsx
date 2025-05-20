@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 const FIELD_TYPES = [
   { value: 'text', label: 'Texte' },
   { value: 'number', label: 'Nombre' },
+  { value: 'history-number', label: 'Historique numérique' },
   { value: 'date', label: 'Date' },
   { value: 'list', label: 'Liste déroulante' },
   { value: 'checkbox', label: 'Case à cocher' }

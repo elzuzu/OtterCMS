@@ -38,6 +38,12 @@ Développer une application Electron Node.js modulaire dédiée à Windows 10/11
 * Interface utilisant des composants modernes (React, Vue.js, Angular) pour une expérience fluide et ergonomique.
 * Implémenter une gestion de suppression logique permettant de masquer temporairement ou définitivement des champs sans suppression physique.
 
+**7. Historisation visuelle des valeurs :**
+
+* Nouveau type de champ **Historique numérique** permettant de stocker plusieurs paires {date, valeur}.
+* Saisie dynamique via l'interface et import possible en fournissant un tableau JSON.
+* Affichage en fiche individuelle sous forme de tableau et de courbe pour une lecture rapide de l'évolution.
+
 **5. Schéma de données obligatoire :**
 
 * Numéro d'individu unique (type entier).
