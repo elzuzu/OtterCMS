@@ -1,0 +1,53 @@
+{
+  "name": "indi-suivi-nodejs",
+  "version": "2.0.0",
+  "description": "Application Electron Node.js full modulaire, champs dynamiques, audit trail complet.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "install-app": "node ./scripts/install.js",
+    "dev-app": "npm run build && npm start",
+    "build-win": "npx vite build"
+  },
+  "keywords": [
+    "electron",
+    "modulaire",
+    "champs dynamiques",
+    "audit",
+    "suivi",
+    "sqlite",
+    "react",
+    "better-sqlite3"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.4.3",
+    "chart.js": "^4.4.3",
+    "electron-squirrel-startup": "^1.0.0",
+    "lucide-react": "^0.363.0",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/maker-deb": "^7.4.0",
+    "@electron-forge/maker-rpm": "^7.4.0",
+    "@electron-forge/maker-squirrel": "^7.4.0",
+    "@electron-forge/maker-zip": "^7.4.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
+    "@electron-forge/plugin-vite": "^7.4.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^29.1.5",
+    "vite": "^5.2.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "appId": "com.indi-suivi",
+  "productName": "Indi-Suivi",
+  "directories": {
+    "output": "release-builds"
+  },
+  "files": [
+    "dist/**/*",
+    "main.js",
+    "preload.js",
+    "config/**/*"
+  ],
+  "win": {
+    "target": ["portable", "zip"],
+    "icon": "src/assets/app-icon.ico"
+  },
+  "forceCodeSigning": false,
+  "signingHashAlgorithms": null,
+  "signDlls": false
+}
