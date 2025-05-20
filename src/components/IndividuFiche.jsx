@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck, Users, CalendarDays, Tag, Info, PlusCircle, Clock } from 'lucide-react';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [individu, setIndividu] = useState(null);
@@ -176,6 +178,44 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     if (champ.type === 'checkbox') {
       return valeur ? 'Oui' : 'Non';
     }
+    if (champ.type === 'history-number') {
+      const entries = Array.isArray(valeur) ? valeur : [];
+      if (entries.length === 0) {
+        return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Aucune donnée</span>;
+      }
+      const chartData = {
+        labels: entries.map(e => e.date),
+        datasets: [
+          {
+            label: champ.label,
+            data: entries.map(e => Number(e.value)),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.2)',
+            tension: 0.1,
+          },
+        ],
+      };
+      return (
+        <div className="history-number-view">
+          <div className="history-number-chart">
+            <Line data={chartData} options={{ plugins: { legend: { display: false } } }} />
+          </div>
+          <table className="data-table history-number-table">
+            <thead>
+              <tr><th>Date</th><th>Valeur</th></tr>
+            </thead>
+            <tbody>
+              {entries.map((e, i) => (
+                <tr key={i}>
+                  <td>{e.date}</td>
+                  <td>{e.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
     if (valeur === null || valeur === undefined || valeur === '') {
       return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
     }
@@ -202,6 +242,35 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
       case 'number':
         return <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
+      case 'history-number': {
+        const entries = Array.isArray(valeurs[champ.key]) ? valeurs[champ.key] : [];
+        const handleEntryChange = (idx, field, val) => {
+          const updated = entries.map((e, i) => i === idx ? { ...e, [field]: val } : e);
+          updateValeur(champ.key, updated);
+        };
+        const addEntry = () => updateValeur(champ.key, [...entries, { date: '', value: '' }]);
+        const removeEntry = (idx) => updateValeur(champ.key, entries.filter((_, i) => i !== idx));
+        return (
+          <div className="history-number-edit">
+            {entries.map((entry, i) => (
+              <div key={i} className="history-number-entry">
+                <input type="date" value={entry.date || ''} onChange={e => handleEntryChange(i, 'date', e.target.value)} disabled={isReadOnly} />
+                <input type="number" value={entry.value || ''} onChange={e => handleEntryChange(i, 'value', e.target.value)} disabled={isReadOnly} />
+                {!isReadOnly && (
+                  <button type="button" onClick={() => removeEntry(i)} className="btn-danger btn-small btn-icon" aria-label="Supprimer cette entrée">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+            {!isReadOnly && (
+              <button type="button" onClick={addEntry} className="btn-secondary btn-small btn-icon-text">
+                <PlusCircle size={14} /> Ajouter
+              </button>
+            )}
+          </div>
+        );
+      }
       case 'date':
         return <input type="date" {...commonProps} className={isReadOnly ? "form-input-readonly" : ""} />;
       case 'list':
