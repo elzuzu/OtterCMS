@@ -19,6 +19,7 @@ Développer une application Electron Node.js modulaire dédiée à Windows 10/11
   * **Manager :** possibilité d'attribuer et gérer les données des utilisateurs.
   * **Utilisateur :** accès limité aux données spécifiquement assignées.
 * Possibilité de rattacher un compte à un login Windows local (sans le domaine) pour une connexion automatique.
+* Les rôles sont personnalisables avec des permissions fines (accès aux écrans, actions ou onglets) configurables depuis l'onglet **Rôles**.
 
 **3. Base de données :**
 

@@ -117,6 +117,13 @@ function initPreparedStatements() {
     preparedStatements.associateWindowsLogin = db.prepare('UPDATE users SET windows_login = ? WHERE id = ? AND deleted = 0');
     preparedStatements.getAllUsers = db.prepare('SELECT id, username, role, windows_login FROM users WHERE deleted = 0 ORDER BY username ASC');
 
+    // Roles
+    preparedStatements.getAllRoles = db.prepare('SELECT name, permissions FROM roles ORDER BY name ASC');
+    preparedStatements.getRoleByName = db.prepare('SELECT name, permissions FROM roles WHERE name = ?');
+    preparedStatements.insertRole = db.prepare('INSERT INTO roles (name, permissions) VALUES (?, ?)');
+    preparedStatements.updateRole = db.prepare('UPDATE roles SET permissions = ? WHERE name = ?');
+    preparedStatements.deleteRole = db.prepare('DELETE FROM roles WHERE name = ?');
+
     // Categories
     preparedStatements.getAllCategories = db.prepare('SELECT * FROM categories ORDER BY ordre ASC, nom ASC');
     preparedStatements.insertCategory = db.prepare('INSERT INTO categories (nom, champs, ordre, deleted) VALUES (?, ?, ?, 0)');
@@ -177,13 +184,18 @@ function initializeDatabaseSync() {
   applyPragmas(newDb); // Appliquer les PRAGMA
 
   const schema = `
+    CREATE TABLE IF NOT EXISTS roles (
+      name TEXT PRIMARY KEY,
+      permissions TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
-      role TEXT NOT NULL CHECK(role IN ('admin', 'manager', 'user')),
+      role TEXT NOT NULL,
       windows_login TEXT,
-      deleted INTEGER DEFAULT 0
+      deleted INTEGER DEFAULT 0,
+      FOREIGN KEY(role) REFERENCES roles(name)
     );
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -215,6 +227,16 @@ function initializeDatabaseSync() {
   newDb.exec(schema);
   log('Schéma vérifié/créé.');
 
+  // Insérer les rôles par défaut s'ils n'existent pas
+  const rolesCount = newDb.prepare('SELECT COUNT(*) as count FROM roles').get().count;
+  if (rolesCount === 0) {
+    const insertRole = newDb.prepare('INSERT INTO roles (name, permissions) VALUES (?, ?)');
+    insertRole.run('admin', JSON.stringify(['view_dashboard','view_individus','import_data','mass_attribution','manage_categories','manage_users','manage_roles','manage_columns']));
+    insertRole.run('manager', JSON.stringify(['view_dashboard','view_individus','import_data','mass_attribution']));
+    insertRole.run('user', JSON.stringify(['view_dashboard','view_individus']));
+    log('Rôles par défaut créés.');
+  }
+
   const adminUser = newDb.prepare("SELECT * FROM users WHERE username = 'admin'").get();
   if (adminUser) {
     log('L\'utilisateur admin existe déjà.');
@@ -235,8 +257,9 @@ function initDb() {
     applyPragmas(db); // Appliquer les PRAGMA
 
     const usersTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
-    if (!usersTableExists) {
-      log('La table users n\'existe pas. Initialisation du schéma complet...');
+    const rolesTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='roles'").get();
+    if (!usersTableExists || !rolesTableExists) {
+      log('Tables principales manquantes. Initialisation du schéma complet...');
       db.close();
       db = initializeDatabaseSync(); // Réassigner db
       log('Base de données et schéma initialisés.');
@@ -358,9 +381,11 @@ ipcMain.handle('auth-login', async (event, { username, password }) => {
     if (!match) {
       return { success: false, error: 'Mot de passe incorrect.' };
     }
+    const permissions = getPermissionsForRoleSync(user.role);
     return {
       success: true,
       role: user.role,
+      permissions,
       userId: user.id,
       username: user.username,
       windows_login: user.windows_login
@@ -388,6 +413,18 @@ function findUserByUsernameSync(username) {
   return preparedStatements.getUserByUsername.get(username);
 }
 
+function getPermissionsForRoleSync(roleName) {
+  if (!db || !preparedStatements.getRoleByName) throw new Error('DB non prête pour getPermissionsForRoleSync');
+  const role = preparedStatements.getRoleByName.get(roleName);
+  if (!role) return [];
+  try {
+    return JSON.parse(role.permissions || '[]');
+  } catch (e) {
+    logError('getPermissionsForRoleSync (parse)', e);
+    return [];
+  }
+}
+
 ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
   logIPC('auto-login-windows', windowsUsername);
   try {
@@ -398,11 +435,13 @@ ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
     if (!user) {
       return { success: false, error: 'Aucun utilisateur associé à ce compte Windows' };
     }
+    const permissions = getPermissionsForRoleSync(user.role);
     return {
       success: true,
       userId: user.id,
       username: user.username,
       role: user.role,
+      permissions,
       windows_login: user.windows_login
     };
   } catch (error) {
@@ -509,6 +548,55 @@ ipcMain.handle('getUsers', async () => {
   } catch (err) {
     logError('getUsers', err);
     return { success: false, error: err.message, data: [] };
+  }
+});
+
+ipcMain.handle('getRoles', async () => {
+  logIPC('getRoles');
+  if (!db || !preparedStatements.getAllRoles) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.', data: [] };
+  try {
+    const rows = preparedStatements.getAllRoles.all();
+    const roles = rows.map(r => ({ name: r.name, permissions: JSON.parse(r.permissions || '[]') }));
+    return { success: true, data: roles };
+  } catch (err) {
+    logError('getRoles', err);
+    return { success: false, error: err.message, data: [] };
+  }
+});
+
+ipcMain.handle('createRole', async (event, roleData) => {
+  logIPC('createRole', roleData.name);
+  if (!db || !preparedStatements.insertRole) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
+  try {
+    preparedStatements.insertRole.run(roleData.name, JSON.stringify(roleData.permissions || []));
+    return { success: true };
+  } catch (err) {
+    logError('createRole', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('updateRole', async (event, roleData) => {
+  logIPC('updateRole', roleData.name);
+  if (!db || !preparedStatements.updateRole) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
+  try {
+    preparedStatements.updateRole.run(JSON.stringify(roleData.permissions || []), roleData.name);
+    return { success: true };
+  } catch (err) {
+    logError('updateRole', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('deleteRole', async (event, roleName) => {
+  logIPC('deleteRole', roleName);
+  if (!db || !preparedStatements.deleteRole) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
+  try {
+    preparedStatements.deleteRole.run(roleName);
+    return { success: true };
+  } catch (err) {
+    logError('deleteRole', err);
+    return { success: false, error: err.message };
   }
 });
 
