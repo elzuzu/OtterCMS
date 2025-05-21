@@ -152,14 +152,6 @@ contextBridge.exposeInMainWorld('api', {
       return { success: false, error: error.message };
     }
   },
-  // Ancienne fonction, renommée ou à supprimer si la nouvelle la remplace complètement
-  attributionMasse: async (data) => { 
-    try {
-      return await ipcRenderer.invoke('attributionMasse', data);
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  },
   getDashboardStats: async (params) => {
     try {
       return await ipcRenderer.invoke('getDashboardStats', params);
@@ -173,15 +165,6 @@ contextBridge.exposeInMainWorld('api', {
       return await ipcRenderer.invoke('attribuerIndividusEnMasse', params);
     } catch (error) {
       console.error('Erreur dans attribuerIndividusEnMasse:', error);
-      return { success: false, error: error.message };
-    }
-  },
-  // API pour obtenir les statistiques d'attribution
-  getAttributionStats: async (params) => {
-    try {
-      return await ipcRenderer.invoke('getAttributionStats', params);
-    } catch (error) {
-      console.error('Erreur dans getAttributionStats:', error);
       return { success: false, error: error.message };
     }
   }

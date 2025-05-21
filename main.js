@@ -58,46 +58,6 @@ function loadConfig() {
 // Load configuration at startup
 const config = loadConfig();
 
-// Function to save configuration
-function saveConfig(newConfig) {
-  // Try to save to the standard location, which is usually process.cwd() during dev,
-  // or app.getAppPath() for packaged app's internal config (though this might not be writable).
-  // A more robust solution for user-modifiable settings in packaged apps is app.getPath('userData').
-  // For simplicity here, we'll try the most likely dev path first.
-  
-  let configPathToSave = path.join(process.cwd(), 'config', 'app-config.json');
-
-  // If packaged, it's better to save user-specific config in userData directory
-  // However, the initial loadConfig tries multiple paths. We need a consistent writable path.
-  // Let's assume for now that if config/app-config.json exists in cwd (dev), we write there.
-  // If not (e.g. packaged and it was loaded from app.getAppPath()), this might fail or be non-persistent.
-  // The provided logs imply config/app-config.json is the target.
-
-  if (!fs.existsSync(path.dirname(configPathToSave))) {
-      try {
-          fs.mkdirSync(path.dirname(configPathToSave), { recursive: true });
-          log('Répertoire de configuration créé:', path.dirname(configPathToSave));
-      } catch (mkdirErr) {
-          logError('saveConfig (mkdir config dir)', mkdirErr);
-          // If we can't create the dir, saving will likely fail.
-      }
-  }
-
-  try {
-    // Ensure the config object has all necessary fields before saving,
-    // especially if newConfig might be partial.
-    const fullConfigToSave = { ...loadConfig(), ...newConfig }; // Merge with potentially existing or default config
-    fs.writeFileSync(configPathToSave, JSON.stringify(fullConfigToSave, null, 2) + '\n', 'utf8'); // Added newline
-    log('Configuration sauvegardée dans', configPathToSave);
-  } catch (err) {
-    logError('saveConfig', err);
-    // Consider where to save if the primary path isn't writable in a packaged app.
-    // For now, this will throw if the path isn't writable.
-    throw err; 
-  }
-}
-
-
 // Fonctions de log
 function log(...args) {
   console.log('[MAIN]', ...args); // Changed prefix to [MAIN] for clarity
@@ -989,58 +949,6 @@ ipcMain.handle('getAuditIndividu', async (event, individu_id) => {
   } catch (err) {
     logError('getAuditIndividu', err);
     return { success: false, error: err.message, data: [] };
-  }
-});
-
-// Handles mass assignment to a single user or unassignment
-ipcMain.handle('attributionMasse', async (event, { ids, newUserId, currentUserId }) => {
-  logIPC('attributionMasse', { numIds: ids ? ids.length : 0, newUserId, currentUserId });
-  if (!db) return { success: false, error: 'Base de données non initialisée', count: 0 };
-  if (!ids || ids.length === 0) return { success: false, error: 'Aucun individu sélectionné', count: 0 };
-  if (newUserId === undefined) return { success: false, error: 'Aucun utilisateur cible sélectionné pour l\'attribution (même pour désassigner, newUserId doit être null).', count: 0 };
-
-  const actualNewUserId = newUserId === null || newUserId === '' ? null : parseInt(newUserId, 10);
-  if (newUserId !== null && newUserId !== '' && isNaN(actualNewUserId)) {
-    return { success: false, error: 'ID du nouvel utilisateur invalide.', count: 0 };
-  }
-
-  const attributionTransaction = db.transaction(() => {
-    const selectStmt = db.prepare(`SELECT id, en_charge FROM individus WHERE id = ? AND deleted = 0`);
-    const updateStmt = db.prepare( `UPDATE individus SET en_charge = ? WHERE id = ? AND deleted = 0`);
-    
-    let changesCount = 0;
-    let auditsCount = 0;
-
-    for (const id of ids) {
-        const oldIndividu = selectStmt.get(id);
-        if (oldIndividu) {
-            // Only update if the 'en_charge' is actually different
-            if (String(oldIndividu.en_charge || '') !== String(actualNewUserId || '')) { // Compare as strings to handle null/undefined consistently
-                const updateInfo = updateStmt.run(actualNewUserId, id);
-                if (updateInfo.changes > 0) {
-                    changesCount += updateInfo.changes;
-                    try {
-                        preparedStatements.insertAudit.run(id, 'en_charge', String(oldIndividu.en_charge || ''), String(actualNewUserId || ''), currentUserId, 'attribution_masse', null);
-                        auditsCount++;
-                    } catch (auditErr) {
-                        logError(`attributionMasse (audit pour ID ${id})`, auditErr);
-                    }
-                }
-            }
-        }
-    }
-    return { success: true, count: changesCount, audits: auditsCount };
-  });
-
-  try {
-    const result = attributionTransaction();
-    if (result.count === 0 && result.audits === 0 && ids.length > 0) { // Check if any IDs were provided
-        return { success: true, count: 0, message: 'Aucune mise à jour nécessaire (individus déjà attribués correctement ou non trouvés/supprimés).' };
-    }
-    return result;
-  } catch (err) {
-    logError('attributionMasse (transaction)', err);
-    return { success: false, error: err.message, count: 0 };
   }
 });
 
