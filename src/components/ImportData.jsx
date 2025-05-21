@@ -291,7 +291,6 @@ export default function ImportData({ user }) {
 
     try {
       // Remplacer par: const res = await window.api.importCSV(params);
-      console.log("Données envoyées à l'API:", params);
       const res = await new Promise(resolve => setTimeout(() => {
           let newFieldsCount = 0;
           Object.values(params.columns).forEach(col => {
