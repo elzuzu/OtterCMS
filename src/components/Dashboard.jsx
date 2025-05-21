@@ -169,7 +169,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 className="btn-primary"
                 style={cardButtonStyle}
                 onClick={() => {
-                  console.log("[Dashboard] Clic sur bouton 'Voir mes dossiers'.");
+                  console.log("[Dashboard] Clic sur bouton 'Voir mes individus suivis'.");
                   if (typeof onNavigateToMyIndividus === 'function') {
                     onNavigateToMyIndividus();
                   } else {
@@ -177,7 +177,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                   }
                 }}
               >
-                Voir mes dossiers
+                Voir mes individus suivis
               </button>
             </div>
           )}
@@ -199,7 +199,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 className="btn-primary"
                 style={cardButtonStyle}
                 onClick={() => {
-                  console.log("[Dashboard] Clic sur bouton 'Voir tous les dossiers'.");
+                  console.log("[Dashboard] Clic sur bouton 'Voir tous les individus'.");
                   if (typeof onNavigateToAllIndividus === 'function') {
                     onNavigateToAllIndividus();
                   } else {
@@ -207,7 +207,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                   }
                 }}
               >
-                Voir tous les dossiers
+                Voir tous les individus
               </button>
             </div>
           )}

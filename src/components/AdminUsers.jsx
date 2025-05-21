@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { hasPermission } from '../utils/permissions';
 
-export default function AdminUsers({ user }) {
+export default function AdminUsers() {
   const [users, setUsers] = useState([]);
-  const [roles, setRoles] = useState([]);
   const [newUser, setNewUser] = useState({
     username: '',
     password: '',
@@ -14,20 +12,9 @@ export default function AdminUsers({ user }) {
   const [loading, setLoading] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  if (!hasPermission(user, 'manage_users')) {
-    return <div>Accès refusé.</div>;
-  }
-
   useEffect(() => {
     loadUsers();
-    loadRoles();
   }, []);
-
-  useEffect(() => {
-    if (roles.length > 0 && !editingUser) {
-      setNewUser(prev => ({ ...prev, role: roles[0].name }));
-    }
-  }, [roles, editingUser]);
 
   const loadUsers = async () => {
     try {
@@ -42,17 +29,6 @@ export default function AdminUsers({ user }) {
       setMessage(`Erreur critique: ${err.message}`);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadRoles = async () => {
-    try {
-      const result = await window.api.getRoles();
-      if (result.success) {
-        setRoles(result.data);
-      }
-    } catch (err) {
-      console.error('Erreur chargement roles:', err);
     }
   };
 
@@ -184,10 +160,14 @@ export default function AdminUsers({ user }) {
           </div>
           <div className="form-group">
             <label>Rôle:</label>
-            <select name="role" value={newUser.role} onChange={handleInputChange}>
-              {roles.map(r => (
-                <option key={r.name} value={r.name}>{r.name}</option>
-              ))}
+            <select
+              name="role"
+              value={newUser.role}
+              onChange={handleInputChange}
+            >
+              <option value="user">Utilisateur</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Administrateur</option>
             </select>
           </div>
           <div className="form-group">

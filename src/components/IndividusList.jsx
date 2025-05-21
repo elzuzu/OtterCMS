@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
-import { hasPermission } from '../utils/permissions';
 
 // Icône d'édition simple
 const EditIcon = () => (
@@ -355,12 +354,12 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
     setColonnesAffichees(newConfig);
     
     // Sauvegarde la configuration des colonnes (via API si admin, sinon localStorage).
-    if (hasPermission(user, 'manage_columns') && window.api && window.api.saveColumnConfiguration) {
+    if (user.role === 'admin' && window.api && window.api.saveColumnConfiguration) {
       window.api.saveColumnConfiguration(newConfig).catch(err => console.error("Erreur sauvegarde config colonnes (API):", err));
     } else {
       localStorage.setItem('individusListColumnConfig', JSON.stringify(newConfig));
     }
-  }, [colonnesAffichees, user.permissions]);
+  }, [colonnesAffichees, user.role]);
   
   const handleSort = useCallback((key) => {
     let direction = 'ascending';
@@ -425,7 +424,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         </div>
         <div className="buttons-container">
           <button onClick={handleAddIndividu} className="btn-success add-button">Ajouter un individu</button>
-          {hasPermission(user, 'manage_columns') && (
+          {user.role === 'admin' && (
             <button onClick={handleConfigColonnes} className="btn-secondary columns-button">
               {showColonnesPicker ? 'Masquer le sélecteur de colonnes' : 'Configurer les colonnes'}
             </button>
@@ -433,7 +432,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         </div>
       </div>
       
-      {hasPermission(user, 'manage_columns') && showColonnesPicker && (
+      {user.role === 'admin' && showColonnesPicker && (
         <div className="colonnes-picker">
           <h4>Choisir les colonnes de champs supplémentaires à afficher:</h4>
           <div className="colonnes-grid">

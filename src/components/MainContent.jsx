@@ -5,8 +5,6 @@ import ImportData from './ImportData';
 import MassAttribution from './MassAttribution';
 import AdminCategories from './AdminCategories';
 import AdminUsers from './AdminUsers';
-import AdminRoles from './AdminRoles';
-import { hasPermission } from '../utils/permissions';
 import UserSettings from './UserSettings';
 
 /**
@@ -62,13 +60,23 @@ export default function MainContent({ user, onLogout }) {
     //   - `activeTab` is NOT one of the `nonDefaultTabs` (e.g., it's 'dashboard', 'individus', or initial state).
     // This is where we apply the default tab based on the user's role,
     // typically on initial load or if the role changes and the user is on a "defaultable" tab.
-    console.log(`[MainContent Effect] Application de la logique d'onglet par défaut. activeTab actuel: ${activeTab}`);
-    if (hasPermission(user, 'view_dashboard')) {
-      if (activeTab !== 'dashboard') setActiveTab('dashboard');
-    } else if (hasPermission(user, 'view_individus')) {
-      if (activeTab !== 'individus') setActiveTab('individus');
+    console.log(`[MainContent Effect] Application de la logique d'onglet par défaut. activeTab actuel: ${activeTab}, role: ${user.role}`);
+    if (user.role === 'admin' || user.role === 'manager') {
+      if (activeTab !== 'dashboard') {
+        console.log("[MainContent Effect] Rôle admin/manager. Passage à l'onglet 'dashboard' par défaut.");
+        setActiveTab('dashboard');
+      } else {
+        console.log("[MainContent Effect] Rôle admin/manager. Déjà sur 'dashboard'. Maintien.");
+      }
+    } else { // user.role === 'user'
+      if (activeTab !== 'individus') {
+        console.log("[MainContent Effect] Rôle utilisateur. Passage à l'onglet 'individus' par défaut.");
+        setActiveTab('individus');
+      } else {
+        console.log("[MainContent Effect] Rôle utilisateur. Déjà sur 'individus'. Maintien.");
+      }
     }
-  }, [user.permissions, requestedViewForIndividus, activeTab]);
+  }, [user.role, requestedViewForIndividus, activeTab]);
 
   const handleNavigateToMyIndividus = useCallback(() => {
     console.log("[MainContent] handleNavigateToMyIndividus: Début. Demande de vue 'mine'.");
@@ -114,9 +122,7 @@ export default function MainContent({ user, onLogout }) {
       case 'categories':
         return <AdminCategories />;
       case 'users':
-        return <AdminUsers user={user} />;
-      case 'roles':
-        return <AdminRoles user={user} />;
+        return <AdminUsers />;
       case 'settings':
         return <UserSettings user={user} />;
       default:
@@ -131,27 +137,23 @@ export default function MainContent({ user, onLogout }) {
   };
 
   const tabs = [];
-  if (hasPermission(user, 'view_dashboard')) tabs.push({ id: 'dashboard', label: 'Tableau de bord' });
-  if (hasPermission(user, 'view_individus')) tabs.push({ id: 'individus', label: 'Individus' });
+  tabs.push(
+    { id: 'dashboard', label: 'Tableau de bord' },
+    { id: 'individus', label: 'Individus' }
+  );
 
-  if (hasPermission(user, 'import_data')) {
-    tabs.push({ id: 'import', label: 'Import de données' });
+  if (user.role === 'admin' || user.role === 'manager') {
+    tabs.push(
+      { id: 'import', label: 'Import de données' },
+      { id: 'attribution', label: 'Attribution de masse' }
+    );
   }
 
-  if (hasPermission(user, 'mass_attribution')) {
-    tabs.push({ id: 'attribution', label: 'Attribution de masse' });
-  }
-
-  if (hasPermission(user, 'manage_categories')) {
-    tabs.push({ id: 'categories', label: 'Gérer les catégories' });
-  }
-
-  if (hasPermission(user, 'manage_users')) {
-    tabs.push({ id: 'users', label: 'Gérer les utilisateurs' });
-  }
-
-  if (hasPermission(user, 'manage_roles')) {
-    tabs.push({ id: 'roles', label: 'Gérer les rôles' });
+  if (user.role === 'admin') {
+    tabs.push(
+      { id: 'categories', label: 'Gérer les catégories' },
+      { id: 'users', label: 'Gérer les utilisateurs' }
+    );
   }
 
   return (

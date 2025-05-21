@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { hasPermission } from '../utils/permissions';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
   const [allCategories, setAllCategories] = useState([]);
@@ -20,7 +19,7 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
     try {
         const [catResult, usersResult] = await Promise.all([
             window.api.getCategories(),
-            (hasPermission(user, 'manage_users')) ? window.api.getUsers() : Promise.resolve({ success: true, data: [user] })
+            (user.role === 'admin' || user.role === 'manager') ? window.api.getUsers() : Promise.resolve({ success: true, data: [user] })
         ]);
 
         if (catResult.success) {
@@ -39,7 +38,7 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
         if (usersResult.success) {
             setUsers(usersResult.data || []);
         } else {
-            setUsers(hasPermission(user, 'manage_users') ? [] : [user]);
+            setUsers(user.role === 'admin' || user.role === 'manager' ? [] : [user]);
             setMessage(prev => prev + (prev ? '; ' : '') + 'Erreur chargement utilisateurs: ' + (usersResult.error || 'Inconnue'));
         }
         

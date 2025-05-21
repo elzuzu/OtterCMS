@@ -1,35 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Auth from './components/Auth';
 import MainContent from './components/MainContent';
-import './styles/App.css';
+import './styles/App.css'; // Ensure this is imported for global styles
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [loadingTheme, setLoadingTheme] = useState(true);
+
+  useEffect(() => {
+    async function loadThemeAndUser() {
+      // Load theme first
+      if (window.api && window.api.getThemeColor) {
+        try {
+          const res = await window.api.getThemeColor();
+          if (res && res.success && res.color) {
+            // Remove any existing theme classes
+            ['blue', 'green', 'purple', 'orange', 'red'].forEach(c => document.body.classList.remove('theme-' + c));
+            // Add the new theme class
+            document.body.classList.add('theme-' + res.color);
+          } else {
+            // Fallback to default blue if not successful or color not returned
+            document.body.classList.add('theme-blue');
+            if (res && !res.success) console.error("Failed to load theme:", res.error);
+          }
+        } catch (error) {
+          console.error("Error calling getThemeColor:", error);
+          document.body.classList.add('theme-blue'); // Fallback on API error
+        }
+      } else {
+        // API not available, default to blue
+        document.body.classList.add('theme-blue');
+      }
+      setLoadingTheme(false);
+
+      // Potentially load persisted user session here if you implement that
+      // For now, it relies on Auth component to set user
+    }
+    loadThemeAndUser();
+  }, []);
 
   const handleLogout = () => {
     setUser(null);
+    // Optionally, clear any persisted user session data here
   };
+
+  if (loadingTheme) {
+    // Optional: a very simple loading state to prevent FOUC for theme
+    return <div>Chargement...</div>; 
+  }
 
   if (!user) {
     return <Auth setUser={setUser} />;
   }
 
-  if (!user.username || !user.role) {
+  // Basic validation for user object after login
+  if (!user.username || !user.role || user.userId === undefined) {
+    console.error("Invalid user object:", user);
     return (
       <div className="auth-container">
         <div className="auth-form" style={{ textAlign: 'center' }}>
           <h2>Erreur d'authentification</h2>
-          <p>Les informations utilisateur sont invalides. Veuillez vous reconnecter.</p>
+          <p>Les informations utilisateur sont corrompues ou incomplètes. Veuillez vous reconnecter.</p>
           <button onClick={handleLogout} className="btn-primary">Retour à la connexion</button>
         </div>
       </div>
     );
   }
-
+  
+  // Normalize userId just in case it comes as 'id' from some auth paths
   const normalizedUser = {
     ...user,
-    id: user.id || user.userId,
-    userId: user.userId || user.id
+    id: user.id || user.userId, // Ensure 'id' is present if needed by components
+    userId: user.userId || user.id // Ensure 'userId' is present
   };
 
   return (

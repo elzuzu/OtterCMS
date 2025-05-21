@@ -39,7 +39,6 @@ const HideIcon = () => (
 const champTypes = [
   { value: 'text', label: 'Texte' },
   { value: 'number', label: 'Nombre' },
-  { value: 'history-number', label: 'Historique numérique' },
   { value: 'date', label: 'Date' },
   { value: 'list', label: 'Liste déroulante' }, // Libellé plus clair
   { value: 'checkbox', label: 'Case à cocher' }

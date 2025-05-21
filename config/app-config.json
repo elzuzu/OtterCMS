@@ -1,5 +1,6 @@
 {
   "appTitle": "indi-suivi-nodejs",
   "dbPath": "D:\\projets\\indi-suivi\\db\\indi-suivi.sqlite",
-  "defaultLanguage": "fr"
+  "defaultLanguage": "fr",
+  "themeColor": "green"
 }

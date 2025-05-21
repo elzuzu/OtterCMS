@@ -111,33 +111,6 @@
   --border-color-info: var(--color-primary-500); 
 }
 
-.history-number-edit {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.history-number-entry {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-}
-
-.history-number-table {
-  margin-top: var(--spacing-2);
-}
-
-.history-number-view {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.history-number-chart {
-  width: 100%;
-  max-width: 400px;
-}
-
 /* ===== RÉINITIALISATION ET STYLES DE BASE ===== */
 *,
 *::before,

@@ -1,12 +1,12 @@
-const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron'); // Ajout de dialog
-const path =require('path');
+const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron');
+const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
 
 // Variable globale pour la base de données
-let db; 
+let db;
 
 // Objet pour stocker les requêtes préparées
 const preparedStatements = {};
@@ -14,43 +14,94 @@ const preparedStatements = {};
 // Fonction pour charger la configuration
 function loadConfig() {
   const configPaths = [
-    path.join(process.cwd(), 'config', 'app-config.json'),
-    path.join(process.cwd(), '..', 'config', 'app-config.json'),
-    path.join(__dirname, 'config', 'app-config.json')
+    path.join(process.cwd(), 'config', 'app-config.json'), // For running with npm start from project root
+    path.join(app.getAppPath(), 'config', 'app-config.json'), // For packaged app (inside resources/app)
+    path.join(__dirname, 'config', 'app-config.json') // Fallback for other scenarios
   ];
+  
+  let loadedConfigPath = null;
 
   for (const configPath of configPaths) {
     try {
       if (fs.existsSync(configPath)) {
-        console.log('[APP] Configuration chargée depuis:', configPath);
+        log('Configuration chargée depuis:', configPath);
+        loadedConfigPath = configPath;
         return JSON.parse(fs.readFileSync(configPath, 'utf8'));
       }
     } catch (error) {
-      console.log('[APP] Erreur lors du chargement de la configuration depuis', configPath, ':', error.message);
+      logError('loadConfig from ' + configPath, error);
     }
   }
-  console.log('[APP] ATTENTION: Aucun fichier de configuration trouvé, utilisation des valeurs par défaut');
-  const defaultDbPath = app.isPackaged ? path.join(path.dirname(app.getPath('exe')), 'data', 'database.db') : path.join(process.cwd(), 'data', 'database.db');
+  
+  log('ATTENTION: Aucun fichier de configuration trouvé, utilisation des valeurs par défaut.');
+  // Determine a sensible default path for the database in a packaged app
+  const defaultDbPath = app.isPackaged ? 
+    path.join(app.getPath('userData'), 'data', 'database.db') : 
+    path.join(process.cwd(), 'db', 'database.db'); // Changed default dev path to project_root/db/
+
   const defaultDataDir = path.dirname(defaultDbPath);
    if (!fs.existsSync(defaultDataDir)) {
       try {
         fs.mkdirSync(defaultDataDir, { recursive: true });
-        console.log('[APP] Répertoire de données par défaut créé:', defaultDataDir);
+        log('Répertoire de données par défaut créé:', defaultDataDir);
       } catch (mkdirErr) {
-        console.log('[APP] Erreur création répertoire de données par défaut:', mkdirErr);
+        logError('loadConfig (mkdir defaultDataDir)', mkdirErr);
       }
     }
+
   return {
     dbPath: defaultDbPath,
-    appTitle: "Indi-Suivi (Config par défaut)"
+    appTitle: "Indi-Suivi (Config par défaut)",
+    themeColor: "blue" // Default theme color
   };
 }
 
+// Load configuration at startup
 const config = loadConfig();
+
+// Function to save configuration
+function saveConfig(newConfig) {
+  // Try to save to the standard location, which is usually process.cwd() during dev,
+  // or app.getAppPath() for packaged app's internal config (though this might not be writable).
+  // A more robust solution for user-modifiable settings in packaged apps is app.getPath('userData').
+  // For simplicity here, we'll try the most likely dev path first.
+  
+  let configPathToSave = path.join(process.cwd(), 'config', 'app-config.json');
+
+  // If packaged, it's better to save user-specific config in userData directory
+  // However, the initial loadConfig tries multiple paths. We need a consistent writable path.
+  // Let's assume for now that if config/app-config.json exists in cwd (dev), we write there.
+  // If not (e.g. packaged and it was loaded from app.getAppPath()), this might fail or be non-persistent.
+  // The provided logs imply config/app-config.json is the target.
+
+  if (!fs.existsSync(path.dirname(configPathToSave))) {
+      try {
+          fs.mkdirSync(path.dirname(configPathToSave), { recursive: true });
+          log('Répertoire de configuration créé:', path.dirname(configPathToSave));
+      } catch (mkdirErr) {
+          logError('saveConfig (mkdir config dir)', mkdirErr);
+          // If we can't create the dir, saving will likely fail.
+      }
+  }
+
+  try {
+    // Ensure the config object has all necessary fields before saving,
+    // especially if newConfig might be partial.
+    const fullConfigToSave = { ...loadConfig(), ...newConfig }; // Merge with potentially existing or default config
+    fs.writeFileSync(configPathToSave, JSON.stringify(fullConfigToSave, null, 2) + '\n', 'utf8'); // Added newline
+    log('Configuration sauvegardée dans', configPathToSave);
+  } catch (err) {
+    logError('saveConfig', err);
+    // Consider where to save if the primary path isn't writable in a packaged app.
+    // For now, this will throw if the path isn't writable.
+    throw err; 
+  }
+}
+
 
 // Fonctions de log
 function log(...args) {
-  console.log('[APP]', ...args);
+  console.log('[MAIN]', ...args); // Changed prefix to [MAIN] for clarity
 }
 
 /**
@@ -59,7 +110,7 @@ function log(...args) {
  * @param {Error} error - The error object.
  */
 function logError(operation, error) {
-  log(`[DB ERROR] Opération: ${operation}, Code: ${error.code}, Message: ${error.message}`, error.stack);
+  log(`[ERROR] Opération: ${operation}, Code: ${error.code || 'N/A'}, Message: ${error.message}`, error.stack);
 }
 
 function logIPC(name, ...args) {
@@ -73,26 +124,25 @@ function logIPC(name, ...args) {
     return arg;
   });
   console.log(`[IPC-MAIN] ${name} called with:`, ...loggedArgs);
-  return args;
+  return args; // Return args for potential chaining or verification if needed
 }
 
 /**
  * Applies recommended PRAGMA settings to the database.
- * @param {Database} databaseInstance - The better-sqlite3 database instance.
+ * @param {Database.Database} databaseInstance - The better-sqlite3 database instance.
  */
 function applyPragmas(databaseInstance) {
   log('Application des PRAGMAs...');
   try {
-    databaseInstance.pragma('journal_mode = WAL');            // Active Write-Ahead Logging
-    databaseInstance.pragma('synchronous = NORMAL');          // Bon équilibre entre performance et sécurité
-    databaseInstance.pragma('foreign_keys = ON');             // Active les contraintes de clés étrangères
-    databaseInstance.pragma('cache_size = -2000');            // ~2MB de cache (valeur négative = kilobytes)
-    databaseInstance.pragma('busy_timeout = 5000');           // Attendre 5s si la DB est verrouillée (ms)
-    databaseInstance.pragma('temp_store = MEMORY');           // Stockage temporaire en mémoire
+    databaseInstance.pragma('journal_mode = WAL');
+    databaseInstance.pragma('synchronous = NORMAL');
+    databaseInstance.pragma('foreign_keys = ON');
+    databaseInstance.pragma('cache_size = -2000'); // ~2MB
+    databaseInstance.pragma('busy_timeout = 5000'); // 5 seconds
+    databaseInstance.pragma('temp_store = MEMORY');
     log('PRAGMAs appliqués avec succès.');
   } catch (error) {
     logError('applyPragmas', error);
-    // Ne pas bloquer le démarrage pour une erreur PRAGMA, mais la logger.
   }
 }
 
@@ -113,27 +163,18 @@ function initPreparedStatements() {
     preparedStatements.insertUser = db.prepare('INSERT INTO users (username, password_hash, role, windows_login) VALUES (?, ?, ?, ?)');
     preparedStatements.updateUser = db.prepare('UPDATE users SET username = ?, role = ?, windows_login = ? WHERE id = ? AND deleted = 0');
     preparedStatements.updateUserWithPassword = db.prepare('UPDATE users SET username = ?, password_hash = ?, role = ?, windows_login = ? WHERE id = ? AND deleted = 0');
-    preparedStatements.deleteUser = db.prepare('UPDATE users SET deleted = 1 WHERE id = ? AND deleted = 0');
+    preparedStatements.deleteUser = db.prepare('UPDATE users SET deleted = 1 WHERE id = ? AND deleted = 0'); // Soft delete
     preparedStatements.associateWindowsLogin = db.prepare('UPDATE users SET windows_login = ? WHERE id = ? AND deleted = 0');
     preparedStatements.getAllUsers = db.prepare('SELECT id, username, role, windows_login FROM users WHERE deleted = 0 ORDER BY username ASC');
-
-    // Roles
-    preparedStatements.getAllRoles = db.prepare('SELECT name, permissions FROM roles ORDER BY name ASC');
-    preparedStatements.getRoleByName = db.prepare('SELECT name, permissions FROM roles WHERE name = ?');
-    preparedStatements.insertRole = db.prepare('INSERT INTO roles (name, permissions) VALUES (?, ?)');
-    preparedStatements.updateRole = db.prepare('UPDATE roles SET permissions = ? WHERE name = ?');
-    preparedStatements.deleteRole = db.prepare('DELETE FROM roles WHERE name = ?');
 
     // Categories
     preparedStatements.getAllCategories = db.prepare('SELECT * FROM categories ORDER BY ordre ASC, nom ASC');
     preparedStatements.insertCategory = db.prepare('INSERT INTO categories (nom, champs, ordre, deleted) VALUES (?, ?, ?, 0)');
-    preparedStatements.updateCategory = db.prepare('UPDATE categories SET nom = ?, champs = ?, ordre = ?, deleted = ? WHERE id = ?'); // Pour update complet (y.c. deleted)
-    preparedStatements.updateActiveCategory = db.prepare('UPDATE categories SET nom = ?, champs = ?, ordre = ? WHERE id = ? AND deleted = 0'); // Pour update sans toucher à 'deleted'
-    preparedStatements.hideCategory = db.prepare('UPDATE categories SET deleted = 1 WHERE id = ?');
-    
+    preparedStatements.updateCategory = db.prepare('UPDATE categories SET nom = ?, champs = ?, ordre = ?, deleted = ? WHERE id = ?');
+    preparedStatements.updateActiveCategory = db.prepare('UPDATE categories SET nom = ?, champs = ?, ordre = ? WHERE id = ? AND deleted = 0');
+    preparedStatements.hideCategory = db.prepare('UPDATE categories SET deleted = 1 WHERE id = ?'); // Soft delete for categories
+
     // Individus
-    // Base query for getIndividus, specific parts will be appended
-    // preparedStatements.getIndividuBase = db.prepare(`...`); // Not used directly, dynamic query in handler
     preparedStatements.getIndividuById = db.prepare(`
         SELECT i.*, c.nom as categorie_nom, u.username as en_charge_username
         FROM individus i
@@ -145,26 +186,21 @@ function initPreparedStatements() {
         `INSERT INTO individus (numero_unique, en_charge, champs_supplementaires, categorie_id, deleted) VALUES (?, ?, ?, ?, 0)`
       );
     preparedStatements.updateIndividu = db.prepare(
-        `UPDATE individus SET numero_unique = ?, en_charge = ?, champs_supplementaires = ?, categorie_id = ? WHERE id = ?`
+        `UPDATE individus SET numero_unique = ?, en_charge = ?, champs_supplementaires = ?, categorie_id = ? WHERE id = ? AND deleted = 0` // Ensure not to update deleted individuals
       );
-    preparedStatements.deleteIndividu = db.prepare("UPDATE individus SET deleted = 1 WHERE id = ? AND deleted = 0");
+    preparedStatements.deleteIndividu = db.prepare("UPDATE individus SET deleted = 1 WHERE id = ? AND deleted = 0"); // Soft delete
 
     // Audit
     preparedStatements.insertAudit = db.prepare( `INSERT INTO individu_audit (individu_id, champ, ancienne_valeur, nouvelle_valeur, utilisateur_id, action, fichier_import) VALUES (?, ?, ?, ?, ?, ?, ?)`);
     preparedStatements.getAuditsForIndividu = db.prepare( `SELECT a.*, u.username as utilisateur_username FROM individu_audit a LEFT JOIN users u ON a.utilisateur_id = u.id WHERE a.individu_id = ? ORDER BY a.date_modif DESC, a.id DESC`);
     
-    // Mass assignment (single user target)
-    // La version avec liste d'IDs dynamique est gérée dans le handler directement.
-    // preparedStatements.updateIndividuEnCharge = db.prepare( `UPDATE individus SET en_charge = ? WHERE id = ? AND deleted = 0`); // Pour assignation individuelle
-
     log('[PREPARED STATEMENTS] Initialisation terminée.');
   } catch (error) {
     logError('initPreparedStatements', error);
   }
 }
 
-
-// Initialisation de la base de données (adaptée pour better-sqlite3)
+// Initialisation de la base de données
 function initializeDatabaseSync() {
   log('Initialisation de la base de données (synchrone)...');
   const dbDir = path.dirname(config.dbPath);
@@ -173,43 +209,38 @@ function initializeDatabaseSync() {
       fs.mkdirSync(dbDir, { recursive: true });
       log('Répertoire de la base de données créé:', dbDir);
     } catch (mkdirErr) {
-      log('Erreur création répertoire DB:', mkdirErr);
-      throw mkdirErr;
+      logError('initializeDatabaseSync (mkdir dbDir)', mkdirErr);
+      throw mkdirErr; // Rethrow to be caught by caller
     }
   }
 
   const newDb = new Database(config.dbPath, { verbose: console.log });
   log('Base de données ouverte/créée avec succès à', config.dbPath);
   
-  applyPragmas(newDb); // Appliquer les PRAGMA
+  applyPragmas(newDb);
 
   const schema = `
-    CREATE TABLE IF NOT EXISTS roles (
-      name TEXT PRIMARY KEY,
-      permissions TEXT NOT NULL
-    );
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
-      role TEXT NOT NULL,
+      role TEXT NOT NULL CHECK(role IN ('admin', 'manager', 'user')),
       windows_login TEXT,
-      deleted INTEGER DEFAULT 0,
-      FOREIGN KEY(role) REFERENCES roles(name)
+      deleted INTEGER DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nom TEXT NOT NULL,
-      champs TEXT NOT NULL,
+      champs TEXT NOT NULL, -- JSON string
       ordre INTEGER DEFAULT 0,
       deleted INTEGER DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS individus (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      numero_unique TEXT,
+      numero_unique TEXT, -- Should ideally be UNIQUE if not nullable
       en_charge INTEGER REFERENCES users(id) ON DELETE SET NULL,
       categorie_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
-      champs_supplementaires TEXT,
+      champs_supplementaires TEXT, -- JSON string
       deleted INTEGER DEFAULT 0
     );
     CREATE TABLE IF NOT EXISTS individu_audit (
@@ -220,30 +251,24 @@ function initializeDatabaseSync() {
       nouvelle_valeur TEXT,
       utilisateur_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
       date_modif DATETIME NOT NULL DEFAULT (datetime('now', 'localtime')),
-      action TEXT NOT NULL,
-      fichier_import TEXT
+      action TEXT NOT NULL, -- e.g., 'create', 'update', 'delete', 'import_create', 'import_update', 'attribution_masse'
+      fichier_import TEXT -- Name of the import file if applicable
     );
+    CREATE INDEX IF NOT EXISTS idx_individus_deleted_en_charge ON individus(deleted, en_charge);
+    CREATE INDEX IF NOT EXISTS idx_individus_deleted_numero_unique ON individus(deleted, numero_unique);
+    CREATE INDEX IF NOT EXISTS idx_individu_audit_individu_id ON individu_audit(individu_id);
   `;
   newDb.exec(schema);
   log('Schéma vérifié/créé.');
 
-  // Insérer les rôles par défaut s'ils n'existent pas
-  const rolesCount = newDb.prepare('SELECT COUNT(*) as count FROM roles').get().count;
-  if (rolesCount === 0) {
-    const insertRole = newDb.prepare('INSERT INTO roles (name, permissions) VALUES (?, ?)');
-    insertRole.run('admin', JSON.stringify(['view_dashboard','view_individus','import_data','mass_attribution','manage_categories','manage_users','manage_roles','manage_columns']));
-    insertRole.run('manager', JSON.stringify(['view_dashboard','view_individus','import_data','mass_attribution']));
-    insertRole.run('user', JSON.stringify(['view_dashboard','view_individus']));
-    log('Rôles par défaut créés.');
-  }
-
-  const adminUser = newDb.prepare("SELECT * FROM users WHERE username = 'admin'").get();
-  if (adminUser) {
-    log('L\'utilisateur admin existe déjà.');
-  } else {
-    const admin_hash = bcrypt.hashSync('admin', 10);
+  // Ensure admin user exists
+  const adminUser = newDb.prepare("SELECT * FROM users WHERE username = 'admin' AND deleted = 0").get();
+  if (!adminUser) {
+    const admin_hash = bcrypt.hashSync('admin', 10); // Default password 'admin'
     const info = newDb.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)').run('admin', admin_hash, 'admin');
     log('Utilisateur admin créé avec succès (mot de passe: admin). ID:', info.lastInsertRowid);
+  } else {
+    log('L\'utilisateur admin existe déjà.');
   }
   return newDb;
 }
@@ -251,97 +276,115 @@ function initializeDatabaseSync() {
 function initDb() {
   try {
     log('Connexion à la base de données...');
-    db = new Database(config.dbPath, { verbose: console.log });
-    log('Connexion à la base de données réussie (ou fichier créé).');
+    db = new Database(config.dbPath, { verbose: console.log /*, fileMustExist: true */ }); // fileMustExist can be true if init is separate
+    log('Connexion à la base de données réussie.');
     
-    applyPragmas(db); // Appliquer les PRAGMA
+    applyPragmas(db);
 
+    // Check if tables exist, if not, initialize schema. This is a simple check.
     const usersTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
-    const rolesTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='roles'").get();
-    if (!usersTableExists || !rolesTableExists) {
-      log('Tables principales manquantes. Initialisation du schéma complet...');
-      db.close();
-      db = initializeDatabaseSync(); // Réassigner db
+    if (!usersTableExists) {
+      log('La table users n\'existe pas. Initialisation du schéma complet...');
+      db.close(); // Close current empty/corrupt DB if any
+      db = initializeDatabaseSync(); // Re-initialize and create schema
       log('Base de données et schéma initialisés.');
     } else {
-      log('La table users existe. Schéma probablement déjà initialisé.');
-      const adminUser = db.prepare("SELECT * FROM users WHERE username = 'admin'").get();
-      if (!adminUser) {
-          log('ATTENTION: L\'utilisateur admin n\'existe pas bien que la table users existe! Envisagez d\'utiliser "Initialiser la base de données".');
-      }
+        // Ensure admin user exists even if tables are there (e.g. after manual deletion)
+        const adminUser = db.prepare("SELECT * FROM users WHERE username = 'admin' AND deleted = 0").get();
+        if (!adminUser) {
+            const admin_hash = bcrypt.hashSync('admin', 10);
+            db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)').run('admin', admin_hash, 'admin');
+            log('Utilisateur admin manquant recréé.');
+        }
     }
-    initPreparedStatements(); // Initialiser les requêtes préparées après connexion/initialisation réussie
+    initPreparedStatements();
   } catch (error) {
     logError('initDb', error);
-    if (error.code === 'SQLITE_CANTOPEN' || (error.message && error.message.includes("no such table")) ) {
-        log('Tentative d\'initialisation complète de la base de données suite à une erreur...');
+    if (error.code === 'SQLITE_CANTOPEN' || (error.message && error.message.includes("no such table")) || (error.message && error.message.includes("file is not a database")) ) {
+        log('Tentative d\'initialisation complète de la base de données suite à une erreur critique...');
         try {
             if (db && db.open) db.close();
-            db = initializeDatabaseSync(); // Réassigner db
-            initPreparedStatements(); // Initialiser aussi ici
+            db = initializeDatabaseSync();
+            initPreparedStatements();
             log('Base de données initialisée avec succès après erreur critique.');
         } catch (initError) {
             logError('initDb (fallback init)', initError);
-            dialog.showErrorBox('Erreur Base de Données Critique', `Impossible d'initialiser la base de données: ${initError.message}. L'application va se fermer.`);
+            dialog.showErrorBox('Erreur Base de Données Critique', `Impossible d'initialiser ou d'ouvrir la base de données: ${initError.message}. L'application va se fermer.`);
             app.quit();
         }
     } else {
-        dialog.showErrorBox('Erreur Base de Données', `Erreur de base de données non gérée: ${error.message}. L'application va se fermer.`);
+        dialog.showErrorBox('Erreur Base de Données Inconnue', `Erreur de base de données non gérée: ${error.message}. L'application va se fermer.`);
         app.quit();
     }
   }
 }
 
+// Helper to infer data types from strings (e.g., from CSV)
 function inferType(value) {
   if (value === null || value === undefined) return null;
-  if (typeof value === 'number') return value;
-  if (value instanceof Date) {
+  if (typeof value === 'number' || typeof value === 'boolean') return value; // Already correct type
+  
+  if (value instanceof Date) { // Handle Excel date objects
     if (!isNaN(value.getTime())) {
-        const year = value.getUTCFullYear();
-        const month = String(value.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(value.getUTCDate()).padStart(2, '0');
+        // Format as YYYY-MM-DD
+        const year = value.getFullYear(); // Use getFullYear for local timezone from Excel
+        const month = String(value.getMonth() + 1).padStart(2, '0');
+        const day = String(value.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     } else {
-        return String(value);
+        return String(value); // Invalid date object
     }
   }
-  if (typeof value !== 'string') return value; 
+
+  if (typeof value !== 'string') return value; // If not a string after date check, return as is
+
   const trimmedValue = value.trim();
+  if (trimmedValue === "") return null; // Treat empty strings as null
+
   const lowerValue = trimmedValue.toLowerCase();
   if (lowerValue === 'true') return true;
   if (lowerValue === 'false') return false;
-  if (lowerValue === '' || lowerValue === 'null' || lowerValue === 'undefined') return null;
+  if (lowerValue === 'null' || lowerValue === 'undefined' || lowerValue === 'vide' || lowerValue === 'na' || lowerValue === 'n/a') return null;
+  
+  // Number check (integer or float)
   if (/^-?\d+(\.\d+)?$/.test(trimmedValue)) {
     const num = Number(trimmedValue);
     if (!isNaN(num)) return num;
   }
+
+  // Date check (YYYY-MM-DD)
   const dateRegexYYYYMMDD = /^\d{4}-\d{2}-\d{2}$/;
   if (dateRegexYYYYMMDD.test(trimmedValue)) {
-    const date = new Date(trimmedValue + "T00:00:00Z"); 
+    const date = new Date(trimmedValue + "T00:00:00Z"); // Assume UTC if no timezone
     if (!isNaN(date.getTime())) {
       return date.toISOString().split('T')[0];
     }
   }
-  const dateRegexDMY = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+
+  // Date check (DD/MM/YYYY or MM/DD/YYYY - attempt to parse common formats)
+  const dateRegexDMY = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
   if (dateRegexDMY.test(trimmedValue)) {
-    const match = trimmedValue.match(dateRegexDMY);
-    const dayOrMonth1 = parseInt(match[1], 10);
-    const monthOrDay2 = parseInt(match[2], 10);
-    const year = parseInt(match[3], 10);
-    if (dayOrMonth1 > 0 && dayOrMonth1 <= 31 && monthOrDay2 > 0 && monthOrDay2 <= 12) {
-        const date = new Date(Date.UTC(year, monthOrDay2 - 1, dayOrMonth1));
-        if (date.getUTCFullYear() === year && date.getUTCMonth() === monthOrDay2 - 1 && date.getUTCDate() === dayOrMonth1) {
-            return date.toISOString().split('T')[0];
-        }
+    const parts = trimmedValue.split(/[\/\-]/);
+    const d = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const y = parseInt(parts[2], 10);
+
+    // Try DD/MM/YYYY first (common in France)
+    if (d > 0 && d <= 31 && m > 0 && m <= 12 && y > 1000 && y < 3000) {
+      const date = new Date(Date.UTC(y, m - 1, d));
+      if (date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d) {
+        return date.toISOString().split('T')[0];
+      }
     }
-    if (monthOrDay2 > 0 && monthOrDay2 <= 31 && dayOrMonth1 > 0 && dayOrMonth1 <= 12) { 
-        const date = new Date(Date.UTC(year, dayOrMonth1 - 1, monthOrDay2));
-         if (date.getUTCFullYear() === year && date.getUTCMonth() === dayOrMonth1 - 1 && date.getUTCDate() === monthOrDay2) {
+    // Try MM/DD/YYYY as a fallback
+    if (m > 0 && m <= 31 && d > 0 && d <= 12 && y > 1000 && y < 3000) {
+         const date = new Date(Date.UTC(y, d - 1, m));
+         if (date.getUTCFullYear() === y && date.getUTCMonth() === d - 1 && date.getUTCDate() === m) {
             return date.toISOString().split('T')[0];
         }
     }
   }
-  return value;
+  return value; // Return original string if no other type matches
 }
 
 // --- IPC Handlers ---
@@ -356,10 +399,10 @@ ipcMain.handle('init-database', async (event) => {
   try {
     if (db && db.open) {
       db.close(); 
-      log('[IPC-MAIN] Base de données existante fermée avant réinitialisation.');
+      log('Base de données existante fermée avant réinitialisation.');
     }
     db = initializeDatabaseSync(); 
-    initPreparedStatements(); // Réinitialiser les requêtes après réinitialisation DB
+    initPreparedStatements();
     return { success: true, message: 'Base de données initialisée avec succès' };
   } catch (error) {
     logError('init-database IPC', error);
@@ -368,7 +411,7 @@ ipcMain.handle('init-database', async (event) => {
 });
 
 ipcMain.handle('auth-login', async (event, { username, password }) => {
-  logIPC('auth-login', { username, password: '***' });
+  logIPC('auth-login', { username, password: '***' }); // Log username, hide password
   if (!db || !preparedStatements.getUserByUsername) {
     return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
   }
@@ -381,12 +424,10 @@ ipcMain.handle('auth-login', async (event, { username, password }) => {
     if (!match) {
       return { success: false, error: 'Mot de passe incorrect.' };
     }
-    const permissions = getPermissionsForRoleSync(user.role);
     return {
       success: true,
       role: user.role,
-      permissions,
-      userId: user.id,
+      userId: user.id, // Ensure consistent ID field
       username: user.username,
       windows_login: user.windows_login
     };
@@ -413,18 +454,6 @@ function findUserByUsernameSync(username) {
   return preparedStatements.getUserByUsername.get(username);
 }
 
-function getPermissionsForRoleSync(roleName) {
-  if (!db || !preparedStatements.getRoleByName) throw new Error('DB non prête pour getPermissionsForRoleSync');
-  const role = preparedStatements.getRoleByName.get(roleName);
-  if (!role) return [];
-  try {
-    return JSON.parse(role.permissions || '[]');
-  } catch (e) {
-    logError('getPermissionsForRoleSync (parse)', e);
-    return [];
-  }
-}
-
 ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
   logIPC('auto-login-windows', windowsUsername);
   try {
@@ -435,14 +464,12 @@ ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
     if (!user) {
       return { success: false, error: 'Aucun utilisateur associé à ce compte Windows' };
     }
-    const permissions = getPermissionsForRoleSync(user.role);
     return {
       success: true,
       userId: user.id,
       username: user.username,
       role: user.role,
-      permissions,
-      windows_login: user.windows_login
+      windows_login: user.windows_login // Send back the stored login for consistency
     };
   } catch (error) {
     logError('auto-login-windows', error);
@@ -451,7 +478,7 @@ ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
 });
 
 ipcMain.handle('create-user', async (event, userData) => {
-  logIPC('create-user', userData.username, userData.role);
+  logIPC('create-user', userData.username, userData.role, userData.windows_login);
   try {
     if (!userData.username || !userData.password) {
       return { success: false, error: 'Nom d\'utilisateur et mot de passe obligatoires' };
@@ -470,7 +497,7 @@ ipcMain.handle('create-user', async (event, userData) => {
 });
 
 ipcMain.handle('update-user', async (event, userData) => {
-  logIPC('update-user', userData.id, userData.username, userData.role);
+  logIPC('update-user', userData.id, userData.username, userData.role, userData.windows_login);
   try {
     if (!userData.id || !userData.username) {
       return { success: false, error: 'ID et nom d\'utilisateur obligatoires' };
@@ -479,23 +506,29 @@ ipcMain.handle('update-user', async (event, userData) => {
     if (!existingUser) {
       return { success: false, error: 'Utilisateur non trouvé ou déjà supprimé' };
     }
+    // Check if new username is already taken by another user
     if (userData.username !== existingUser.username) {
         const otherUserWithNewName = findUserByUsernameSync(userData.username);
-        if (otherUserWithNewName) {
-            return { success: false, error: 'Ce nom d\'utilisateur est déjà utilisé.' };
+        if (otherUserWithNewName && otherUserWithNewName.id !== userData.id) { // Check if it's not the same user
+            return { success: false, error: 'Ce nom d\'utilisateur est déjà utilisé par un autre compte.' };
         }
     }
 
     let info;
+    const windowsLoginToSet = userData.windows_login === undefined ? existingUser.windows_login : (userData.windows_login || null);
+
     if (userData.password && userData.password.trim() !== "") {
       const hashedPassword = bcrypt.hashSync(userData.password, 10);
-      info = preparedStatements.updateUserWithPassword.run(userData.username, hashedPassword, userData.role || existingUser.role, userData.windows_login === undefined ? existingUser.windows_login : (userData.windows_login || null), userData.id);
+      info = preparedStatements.updateUserWithPassword.run(userData.username, hashedPassword, userData.role || existingUser.role, windowsLoginToSet, userData.id);
     } else {
-      info = preparedStatements.updateUser.run(userData.username, userData.role || existingUser.role, userData.windows_login === undefined ? existingUser.windows_login : (userData.windows_login || null), userData.id);
+      info = preparedStatements.updateUser.run(userData.username, userData.role || existingUser.role, windowsLoginToSet, userData.id);
     }
 
     if (info.changes === 0) {
-        return { success: false, error: 'Utilisateur non trouvé ou aucune modification nécessaire.' };
+        // This can happen if no actual data changed, which isn't strictly an error.
+        // However, if the user intended changes, it might indicate an issue.
+        // For now, consider it success if no error, but acknowledge no DB rows affected.
+        return { success: true, message: 'Aucune modification effectuée (données identiques ou utilisateur non trouvé).' };
     }
     return { success: true };
   } catch (error) {
@@ -508,7 +541,10 @@ ipcMain.handle('delete-user', async (event, userId) => {
   logIPC('delete-user', userId);
   try {
     if (!userId) return { success: false, error: 'ID utilisateur obligatoire' };
-    if (userId === 1) return { success: false, error: "L'administrateur par défaut ne peut pas être supprimé." };
+    const userToDelete = findUserByIdSync(userId);
+    if (!userToDelete) return { success: false, error: 'Utilisateur non trouvé.' };
+    if (userToDelete.username === 'admin') return { success: false, error: "L'administrateur par défaut (admin) ne peut pas être supprimé." };
+    
     const info = preparedStatements.deleteUser.run(userId);
     if (info.changes === 0) {
         return { success: false, error: 'Utilisateur non trouvé ou déjà marqué comme supprimé.' };
@@ -524,7 +560,7 @@ ipcMain.handle('associer-login-windows', async (event, { userId, loginWindows })
   logIPC('associer-login-windows', userId, loginWindows);
   try {
     let cleanLoginWindows = loginWindows;
-    if (loginWindows && loginWindows.includes('\\')) {
+    if (loginWindows && loginWindows.includes('\\')) { // Keep only username part if domain\username is provided
       cleanLoginWindows = loginWindows.split('\\').pop();
     }
     const windowsLoginToStore = cleanLoginWindows && cleanLoginWindows.trim() !== "" ? cleanLoginWindows.trim() : null;
@@ -551,55 +587,6 @@ ipcMain.handle('getUsers', async () => {
   }
 });
 
-ipcMain.handle('getRoles', async () => {
-  logIPC('getRoles');
-  if (!db || !preparedStatements.getAllRoles) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.', data: [] };
-  try {
-    const rows = preparedStatements.getAllRoles.all();
-    const roles = rows.map(r => ({ name: r.name, permissions: JSON.parse(r.permissions || '[]') }));
-    return { success: true, data: roles };
-  } catch (err) {
-    logError('getRoles', err);
-    return { success: false, error: err.message, data: [] };
-  }
-});
-
-ipcMain.handle('createRole', async (event, roleData) => {
-  logIPC('createRole', roleData.name);
-  if (!db || !preparedStatements.insertRole) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
-  try {
-    preparedStatements.insertRole.run(roleData.name, JSON.stringify(roleData.permissions || []));
-    return { success: true };
-  } catch (err) {
-    logError('createRole', err);
-    return { success: false, error: err.message };
-  }
-});
-
-ipcMain.handle('updateRole', async (event, roleData) => {
-  logIPC('updateRole', roleData.name);
-  if (!db || !preparedStatements.updateRole) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
-  try {
-    preparedStatements.updateRole.run(JSON.stringify(roleData.permissions || []), roleData.name);
-    return { success: true };
-  } catch (err) {
-    logError('updateRole', err);
-    return { success: false, error: err.message };
-  }
-});
-
-ipcMain.handle('deleteRole', async (event, roleName) => {
-  logIPC('deleteRole', roleName);
-  if (!db || !preparedStatements.deleteRole) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
-  try {
-    preparedStatements.deleteRole.run(roleName);
-    return { success: true };
-  } catch (err) {
-    logError('deleteRole', err);
-    return { success: false, error: err.message };
-  }
-});
-
 ipcMain.handle('getCategories', async () => {
   logIPC('getCategories');
   if (!db || !preparedStatements.getAllCategories) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.', data: [] };
@@ -610,7 +597,7 @@ ipcMain.handle('getCategories', async () => {
         return { ...row, champs: JSON.parse(row.champs || '[]') };
       } catch (e) {
         logError(`getCategories (parsing JSON catégorie ID ${row.id})`, e);
-        return { ...row, champs: [] };
+        return { ...row, champs: [] }; // Return empty array for champs on error
       }
     });
     return { success: true, data: categories };
@@ -634,42 +621,44 @@ ipcMain.handle('addCategorie', async (event, { nom, champs, ordre }) => {
 
 ipcMain.handle('updateCategorie', async (event, { id, nom, champs, ordre, deleted }) => {
   logIPC('updateCategorie', id, nom, champs, ordre, deleted);
-  if (!db) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
+  if (!db) return { success: false, error: 'Base de données non initialisée.' };
   try {
     let info;
+    // Ensure 'deleted' is explicitly 0 or 1 if provided, otherwise use the specific update statement
     if (deleted === 0 || deleted === 1) {
       info = preparedStatements.updateCategory.run(nom, JSON.stringify(champs || []), ordre || 0, deleted, id);
     } else {
+      // This means we only update active categories and don't touch the 'deleted' flag
       info = preparedStatements.updateActiveCategory.run(nom, JSON.stringify(champs || []), ordre || 0, id);
     }
-    return { success: info.changes > 0 };
+    return { success: info.changes > 0, changes: info.changes };
   } catch (err) {
     logError('updateCategorie', err);
     return { success: false, error: err.message };
   }
 });
 
-ipcMain.handle('deleteCategorie', async (event, id) => {
-  logIPC('deleteCategorie (masquer)', id);
+ipcMain.handle('deleteCategorie', async (event, id) => { // This is actually hideCategorie
+  logIPC('hideCategorie', id);
   if (!db || !preparedStatements.hideCategory) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.' };
   try {
     const info = preparedStatements.hideCategory.run(id);
     return { success: info.changes > 0 };
   } catch (err) {
-    logError('deleteCategorie', err);
+    logError('hideCategorie', err);
     return { success: false, error: err.message };
   }
 });
 
 ipcMain.handle('getIndividus', async (event, { userId, role }) => {
-  logIPC('getIndividus', userId, role);
-  if (!db) return { success: false, error: 'Base de données non initialisée ou requêtes non préparées.', data: [] };
+  logIPC('getIndividus', { userId, role });
+  if (!db) return { success: false, error: 'Base de données non initialisée.', data: [] };
   try {
     let sql = `
       SELECT i.*, c.nom as categorie_nom, u.username as en_charge_username
       FROM individus i
-      LEFT JOIN categories c ON i.categorie_id = c.id
-      LEFT JOIN users u ON i.en_charge = u.id
+      LEFT JOIN categories c ON i.categorie_id = c.id AND c.deleted = 0
+      LEFT JOIN users u ON i.en_charge = u.id AND u.deleted = 0
       WHERE i.deleted = 0`; 
     const params = [];
 
@@ -677,7 +666,7 @@ ipcMain.handle('getIndividus', async (event, { userId, role }) => {
       sql += " AND i.en_charge = ?";
       params.push(userId);
     }
-    sql += " ORDER BY i.id DESC";
+    sql += " ORDER BY i.id DESC"; // Consider if other sorting is needed
     
     const stmt = db.prepare(sql); 
     const rows = stmt.all(...params);
@@ -717,35 +706,41 @@ ipcMain.handle('getIndividu', async (event, id) => {
   }
 });
 
+// Centralized logic for adding or updating an individu, including audit trail
 function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, importFile = null }) {
   if (!db) throw new Error('DB non prête pour addOrUpdateIndividuLogicSync');
 
-  const { id, numero_unique, en_charge, champs_supplementaires } = individu;
+  const { id, numero_unique, en_charge, categorie_id, champs_supplementaires } = individu;
 
   const transaction = db.transaction(() => {
-    if (id) { 
+    let newId = id;
+    let resultInfo = { changes: 0 };
+
+    if (id) { // Update existing
       const oldIndividu = preparedStatements.getIndividuById.get(id); 
       if (!oldIndividu) { 
         throw new Error('Individu à mettre à jour non trouvé ou supprimé.');
       }
       const oldChampsSupp = JSON.parse(oldIndividu.champs_supplementaires || '{}');
-      const updatedNumeroUnique = numero_unique !== undefined ? String(numero_unique) : oldIndividu.numero_unique;
-      const updatedEnCharge = en_charge !== undefined ? (isNaN(parseInt(en_charge,10)) ? null : parseInt(en_charge,10) ) : oldIndividu.en_charge;
-      const updatedCategorieId = individu.categorie_id !== undefined ? (isNaN(parseInt(individu.categorie_id,10)) ? null : parseInt(individu.categorie_id,10) ) : oldIndividu.categorie_id;
+      
+      // Prepare values for update, using existing if not provided
+      const updatedNumeroUnique = numero_unique !== undefined ? String(numero_unique).trim() : oldIndividu.numero_unique;
+      const updatedEnCharge = en_charge !== undefined ? (en_charge === null || en_charge === '' || isNaN(parseInt(en_charge,10)) ? null : parseInt(en_charge,10) ) : oldIndividu.en_charge;
+      const updatedCategorieId = categorie_id !== undefined ? (categorie_id === null || categorie_id === '' || isNaN(parseInt(categorie_id,10)) ? null : parseInt(categorie_id,10) ) : oldIndividu.categorie_id;
       const updatedChampsSupp = JSON.stringify(champs_supplementaires || {});
       
-      const updateInfo = preparedStatements.updateIndividu.run(updatedNumeroUnique, updatedEnCharge, updatedChampsSupp, updatedCategorieId, id);
+      resultInfo = preparedStatements.updateIndividu.run(updatedNumeroUnique, updatedEnCharge, updatedChampsSupp, updatedCategorieId, id);
 
+      // Audit changes
       const auditEntries = [];
-      const newValues = { numero_unique: updatedNumeroUnique, en_charge: updatedEnCharge, categorie_id: updatedCategorieId };
-      if (String(oldIndividu.numero_unique || '') !== String(newValues.numero_unique || '')) {
-        auditEntries.push({ champ: 'numero_unique', ancienne_valeur: String(oldIndividu.numero_unique || ''), nouvelle_valeur: String(newValues.numero_unique || '') });
+      if (String(oldIndividu.numero_unique || '') !== String(updatedNumeroUnique || '')) {
+        auditEntries.push({ champ: 'numero_unique', ancienne_valeur: String(oldIndividu.numero_unique || ''), nouvelle_valeur: String(updatedNumeroUnique || '') });
       }
-      if (String(oldIndividu.en_charge || '') !== String(newValues.en_charge || '')) {
-         auditEntries.push({ champ: 'en_charge', ancienne_valeur: String(oldIndividu.en_charge || ''), nouvelle_valeur: String(newValues.en_charge || '') });
+      if (String(oldIndividu.en_charge || '') !== String(updatedEnCharge || '')) {
+         auditEntries.push({ champ: 'en_charge', ancienne_valeur: String(oldIndividu.en_charge || ''), nouvelle_valeur: String(updatedEnCharge || '') });
       }
-      if (String(oldIndividu.categorie_id || '') !== String(newValues.categorie_id || '')) {
-         auditEntries.push({ champ: 'categorie_id', ancienne_valeur: String(oldIndividu.categorie_id || ''), nouvelle_valeur: String(newValues.categorie_id || '') });
+      if (String(oldIndividu.categorie_id || '') !== String(updatedCategorieId || '')) {
+         auditEntries.push({ champ: 'categorie_id', ancienne_valeur: String(oldIndividu.categorie_id || ''), nouvelle_valeur: String(updatedCategorieId || '') });
       }
       const newChampsSuppParsed = champs_supplementaires || {};
       const allSuppKeys = new Set([...Object.keys(newChampsSuppParsed), ...Object.keys(oldChampsSupp)]);
@@ -756,53 +751,66 @@ function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, impo
           auditEntries.push({ champ: key, ancienne_valeur: oldValue, nouvelle_valeur: newValue });
         }
       });
-      if (auditEntries.length > 0 || (isImport && updateInfo.changes > 0) ) {
+
+      if (auditEntries.length > 0 || (isImport && resultInfo.changes > 0) ) {
         const auditAction = isImport ? 'import_update' : 'update';
         for (const entry of auditEntries) {
             try { preparedStatements.insertAudit.run(id, entry.champ, entry.ancienne_valeur, entry.nouvelle_valeur, userId, auditAction, importFile); }
             catch (auditErr) { logError(`addOrUpdateIndividuLogicSync (audit update, champ ${entry.champ})`, auditErr); }
         }
       }
-      return { success: true, id: id, changes: updateInfo.changes };
-    } else { 
-      const insertNumeroUnique = String(numero_unique || '');
-      const insertEnCharge = en_charge !== undefined && !isNaN(parseInt(en_charge,10)) ? parseInt(en_charge,10) : null;
-      const insertCategorieId = individu.categorie_id !== undefined && !isNaN(parseInt(individu.categorie_id,10)) ? parseInt(individu.categorie_id,10) : null;
+    } else { // Create new
+      const insertNumeroUnique = String(numero_unique || '').trim();
+      if (!insertNumeroUnique && !isImport) { // For manual creation, numero_unique might be optional initially depending on rules
+          // throw new Error('Le numéro unique est requis pour la création manuelle.');
+          // Or allow creation and let user fill it later. For now, let's be strict for non-imports.
+      }
+      const insertEnCharge = en_charge !== undefined && en_charge !== null && en_charge !== '' && !isNaN(parseInt(en_charge,10)) ? parseInt(en_charge,10) : null;
+      const insertCategorieId = categorie_id !== undefined && categorie_id !== null && categorie_id !== '' && !isNaN(parseInt(categorie_id,10)) ? parseInt(categorie_id,10) : null;
       const insertChampsSupp = JSON.stringify(champs_supplementaires || {});
       
-      const existingWithNumeroUnique = preparedStatements.getIndividuByNumeroUnique.get(insertNumeroUnique);
-      if (existingWithNumeroUnique) {
-          throw new Error(`Le numéro unique "${insertNumeroUnique}" existe déjà.`);
+      if (insertNumeroUnique) { // Only check for existing if numero_unique is provided
+        const existingWithNumeroUnique = preparedStatements.getIndividuByNumeroUnique.get(insertNumeroUnique);
+        if (existingWithNumeroUnique) {
+            throw new Error(`Le numéro unique "${insertNumeroUnique}" existe déjà.`);
+        }
       }
+
       const insertInfo = preparedStatements.insertIndividu.run(insertNumeroUnique, insertEnCharge, insertChampsSupp, insertCategorieId);
-      const newId = insertInfo.lastInsertRowid;
-      const auditEntries = [];
+      newId = insertInfo.lastInsertRowid;
+      resultInfo.changes = 1; // An insert is a change
+
+      // Audit creation
       const auditAction = isImport ? 'import_create' : 'create';
-      auditEntries.push({ champ: 'numero_unique', ancienne_valeur: null, nouvelle_valeur: insertNumeroUnique });
-      auditEntries.push({ champ: 'en_charge', ancienne_valeur: null, nouvelle_valeur: String(insertEnCharge === null ? '' : insertEnCharge) });
-      if (insertCategorieId !== null) {
-          auditEntries.push({ champ: 'categorie_id', ancienne_valeur: null, nouvelle_valeur: String(insertCategorieId) });
-      }
+      const creationAuditEntries = [
+        { champ: 'numero_unique', ancienne_valeur: null, nouvelle_valeur: insertNumeroUnique },
+        { champ: 'en_charge', ancienne_valeur: null, nouvelle_valeur: String(insertEnCharge === null ? '' : insertEnCharge) },
+        { champ: 'categorie_id', ancienne_valeur: null, nouvelle_valeur: String(insertCategorieId === null ? '' : insertCategorieId) }
+      ];
       Object.entries(champs_supplementaires || {}).forEach(([key, value]) => {
-        auditEntries.push({ champ: key, ancienne_valeur: null, nouvelle_valeur: String(value || '') });
+        creationAuditEntries.push({ champ: key, ancienne_valeur: null, nouvelle_valeur: String(value || '') });
       });
-      for (const entry of auditEntries) {
-          try { preparedStatements.insertAudit.run(newId, entry.champ, entry.ancienne_valeur, entry.nouvelle_valeur, userId, auditAction, importFile); }
-          catch (auditErr) { logError(`addOrUpdateIndividuLogicSync (audit create, champ ${entry.champ})`, auditErr); }
+      for (const entry of creationAuditEntries) {
+          if (entry.nouvelle_valeur !== '' && entry.nouvelle_valeur !== 'null') { // Audit only if value is set
+            try { preparedStatements.insertAudit.run(newId, entry.champ, entry.ancienne_valeur, entry.nouvelle_valeur, userId, auditAction, importFile); }
+            catch (auditErr) { logError(`addOrUpdateIndividuLogicSync (audit create, champ ${entry.champ})`, auditErr); }
+          }
       }
-      return { success: true, id: newId };
     }
+    return { success: true, id: newId, changes: resultInfo.changes };
   });
+  
   try {
     return transaction();
   } catch (err) {
     logError('addOrUpdateIndividuLogicSync (transaction)', err);
-    return { success: false, error: err.message };
+    // Ensure the error message from the transaction (like "numéro unique existe déjà") is propagated
+    return { success: false, error: err.message }; 
   }
 }
 
 ipcMain.handle('importCSV', async (event, { fileContent, mapping, userId, importFileName }) => {
-  logIPC('importCSV', { mapping: Object.keys(mapping), userId, importFileName, fileContent: `[contenu fichier ${fileContent?.length || 0} octets]` });
+  logIPC('importCSV', { mappingKeys: Object.keys(mapping), userId, importFileName, fileContentLength: fileContent?.length || 0 });
   if (!db) return { success: false, error: 'Base de données non initialisée.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Base de données non initialisée.'] };
   
   let insertedCount = 0;
@@ -812,70 +820,92 @@ ipcMain.handle('importCSV', async (event, { fileContent, mapping, userId, import
   let jsonData = [];
 
   try {
-    const workbook = xlsx.read(fileContent, { type: 'binary', cellDates: true, codepage: 65001 });
+    const workbook = xlsx.read(fileContent, { type: 'binary', cellDates: true, codepage: 65001 }); // cellDates true to parse Excel dates
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1, defval: null });
+    jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1, defval: null, raw: false }); // raw: false to get formatted strings for dates if not parsed by cellDates
 
     if (jsonData.length < 2) { 
         return { success: false, error: 'Le fichier ne contient pas de données ou seulement des en-têtes.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Données insuffisantes dans le fichier.'] };
     }
     const csvHeadersFromFile = jsonData[0].map(h => String(h || '').trim());
     const dataRows = jsonData.slice(1);
+    
+    // Create a direct mapping from target DB field to CSV header name
     const activeMapping = {};
-    for (const [csvHeaderFromUserMapping, targetDbField] of Object.entries(mapping)) {
-        if (targetDbField && targetDbField.trim() !== "") {
-            activeMapping[targetDbField.trim()] = csvHeaderFromUserMapping.trim();
+    for (const [csvHeaderFromUserMapping, targetDbFieldConfig] of Object.entries(mapping)) {
+        if (targetDbFieldConfig && targetDbFieldConfig.target && targetDbFieldConfig.target.trim() !== "") {
+            // csvHeaderFromUserMapping is the actual header from the CSV file
+            // targetDbFieldConfig.target is the DB field (e.g., 'numero_unique', 'champs_supplementaires.nom_client')
+            activeMapping[targetDbFieldConfig.target.trim()] = csvHeaderFromUserMapping.trim();
         }
     }
+
     if (!activeMapping['numero_unique']) { 
         return { success: false, error: 'Le champ de destination "numero_unique" doit être mappé.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Mapping de "numero_unique" manquant.'] };
     }
     
-    const BATCH_SIZE = 100;
-    let currentBatch = [];
+    const BATCH_SIZE = 100; // Process in batches
+    let currentBatchData = [];
 
     for (let i = 0; i < dataRows.length; i++) {
       const rowArray = dataRows[i];
-      const normalizedRowArray = [...rowArray];
+      const normalizedRowArray = [...rowArray]; // Ensure array has enough elements
       while(normalizedRowArray.length < csvHeadersFromFile.length) {
           normalizedRowArray.push(null);
       }
-      const individuData = { numero_unique: null, en_charge: null, champs_supplementaires: {} };
+
+      const individuToProcess = { champs_supplementaires: {} };
       let hasNumeroUnique = false;
 
-      for (const [targetDbField, csvHeaderMapped] of Object.entries(activeMapping)) {
+      for (const [targetDbFieldKey, csvHeaderMapped] of Object.entries(activeMapping)) {
         const csvHeaderIndex = csvHeadersFromFile.findIndex(h => h === csvHeaderMapped);
         if (csvHeaderIndex !== -1 && csvHeaderIndex < normalizedRowArray.length) {
           const rawValue = normalizedRowArray[csvHeaderIndex];
-          const typedValue = inferType(rawValue);
-          if (targetDbField === 'numero_unique') {
-            individuData.numero_unique = typedValue !== null ? String(typedValue) : null;
-            if (individuData.numero_unique && individuData.numero_unique.trim() !== '') hasNumeroUnique = true;
-          } else if (targetDbField === 'en_charge') {
-            individuData.en_charge = typedValue !== null && !isNaN(parseInt(typedValue, 10)) ? parseInt(typedValue, 10) : null;
-          } else {
-            individuData.champs_supplementaires[targetDbField] = typedValue;
+          const typedValue = inferType(rawValue); // Infer type
+
+          if (targetDbFieldKey === 'numero_unique') {
+            individuToProcess.numero_unique = typedValue !== null ? String(typedValue) : null;
+            if (individuToProcess.numero_unique && individuToProcess.numero_unique.trim() !== '') hasNumeroUnique = true;
+          } else if (targetDbFieldKey === 'en_charge') { // Assuming 'en_charge' maps to user ID or username
+            // If it's a username, you'd need to resolve it to an ID.
+            // For now, assuming it's an ID or can be parsed as such.
+            individuToProcess.en_charge = typedValue !== null && !isNaN(parseInt(typedValue, 10)) ? parseInt(typedValue, 10) : null;
+          } else if (targetDbFieldKey === 'categorie_id') { // Assuming 'categorie_id' maps to category ID or name
+            // If it's a name, resolve to ID. For now, assuming ID.
+            individuToProcess.categorie_id = typedValue !== null && !isNaN(parseInt(typedValue, 10)) ? parseInt(typedValue, 10) : null;
+          } else if (targetDbFieldKey.startsWith('champs_supplementaires.')) {
+            const actualChampKey = targetDbFieldKey.substring('champs_supplementaires.'.length);
+            individuToProcess.champs_supplementaires[actualChampKey] = typedValue;
+          } else { // Direct mapping to a root field if not special
+            individuToProcess[targetDbFieldKey] = typedValue;
           }
         }
       }
 
-      if (!hasNumeroUnique) {
-        errorCount++;
-        errorsDetailed.push(`Ligne ${i + 2}: "numero_unique" manquant, vide ou non mappé correctement.`);
-        continue; 
+      if (!hasNumeroUnique && Object.values(individuToProcess.champs_supplementaires).every(v => v === null || v === '')) {
+        // Skip entirely empty rows or rows without a numero_unique
+        // errorsDetailed.push(`Ligne ${i + 2}: Données vides ou "numero_unique" manquant.`);
+        // errorCount++; // Optionally count as error or just skip
+        continue;
       }
-      currentBatch.push(individuData); 
+      if (!hasNumeroUnique) {
+         errorsDetailed.push(`Ligne ${i + 2}: "numero_unique" manquant ou vide. La ligne sera ignorée.`);
+         errorCount++;
+         continue;
+      }
 
-      if (currentBatch.length >= BATCH_SIZE || i === dataRows.length - 1) {
-        log(`[importCSV] Traitement du lot de ${currentBatch.length} lignes.`);
+      currentBatchData.push(individuToProcess); 
+
+      if (currentBatchData.length >= BATCH_SIZE || i === dataRows.length - 1) {
+        log(`[importCSV] Traitement du lot de ${currentBatchData.length} lignes.`);
         const batchTransaction = db.transaction((batchToProcess) => {
           for (const indData of batchToProcess) {
             try {
-              const existingIndividu = preparedStatements.getIndividuByNumeroUnique.get(indData.numero_unique);
+              const existingIndividu = indData.numero_unique ? preparedStatements.getIndividuByNumeroUnique.get(indData.numero_unique) : null;
               let operationType = '';
               if (existingIndividu) {
-                indData.id = existingIndividu.id;
+                indData.id = existingIndividu.id; // Set ID for update
                 operationType = 'update';
               } else {
                 operationType = 'create';
@@ -883,35 +913,40 @@ ipcMain.handle('importCSV', async (event, { fileContent, mapping, userId, import
               const result = addOrUpdateIndividuLogicSync({
                 individu: indData, userId: userId, isImport: true, importFile: importFileName
               });
+
               if (result.success && result.id) {
                 if (operationType === 'create') insertedCount++;
-                else if (operationType === 'update') updatedCount++;
+                else if (operationType === 'update' && result.changes > 0) updatedCount++;
+                else if (operationType === 'update' && result.changes === 0) { /* No actual change, not an error */ }
               } else {
                 errorCount++;
-                errorsDetailed.push(`Ligne (approx ${i + 2 - currentBatch.length + batchToProcess.indexOf(indData) +1}, NumUnique: ${indData.numero_unique || 'N/A'}): ${result.error || 'Erreur inconnue sauvegarde.'}`);
+                errorsDetailed.push(`Ligne (NumUnique: ${indData.numero_unique || 'N/A'}): ${result.error || 'Erreur inconnue sauvegarde.'}`);
               }
-            } catch (rowError) {
+            } catch (rowError) { // Catch errors from within the loop (e.g., from addOrUpdateIndividuLogicSync if it throws)
                 errorCount++;
-                errorsDetailed.push(`Ligne (approx ${i + 2 - currentBatch.length + batchToProcess.indexOf(indData) +1}, NumUnique: ${indData.numero_unique || 'N/A'}): Erreur interne - ${rowError.message}`);
+                errorsDetailed.push(`Ligne (NumUnique: ${indData.numero_unique || 'N/A'}): Erreur interne - ${rowError.message}`);
             }
           }
         });
         try {
-            batchTransaction(currentBatch); 
-        } catch (batchError) {
+            batchTransaction(currentBatchData); 
+        } catch (batchError) { // Catch error from the transaction itself
             logError('importCSV (batch transaction)', batchError);
             errorsDetailed.push(`Erreur critique lors du traitement d'un lot: ${batchError.message}. Certaines lignes de ce lot pourraient ne pas avoir été traitées.`);
-            errorCount += currentBatch.length; // Assume all in batch failed if transaction fails
+            errorCount += currentBatchData.length - (insertedCount + updatedCount); // Estimate failures
         }
-        currentBatch = []; 
+        currentBatchData = []; 
       }
     }
     return { success: true, insertedCount, updatedCount, errorCount, errors: errorsDetailed };
   } catch (e) {
-    logError('importCSV (critique)', e);
+    logError('importCSV (critique, hors boucle)', e);
     errorsDetailed.push(`Erreur générale du processus d'import: ${e.message}`);
     const totalRowsToProcess = jsonData && jsonData.length > 1 ? jsonData.length - 1 : 0;
-    return { success: false, error: `Erreur critique: ${e.message}`, insertedCount, updatedCount, errorCount: totalRowsToProcess - insertedCount - updatedCount, errors: errorsDetailed };
+    // Adjust error count if some were processed before critical error
+    const processedCount = insertedCount + updatedCount;
+    const remainingErrorCount = totalRowsToProcess > processedCount ? totalRowsToProcess - processedCount : errorCount;
+    return { success: false, error: `Erreur critique: ${e.message}`, insertedCount, updatedCount, errorCount: remainingErrorCount, errors: errorsDetailed };
   }
 });
 
@@ -919,8 +954,8 @@ ipcMain.handle('addOrUpdateIndividu', async (event, params) => {
   logIPC('addOrUpdateIndividu', {individuId: params.individu?.id, userId: params.userId, isImport: params.isImport, importFile: params.importFile});
   try {
     return addOrUpdateIndividuLogicSync(params);
-  } catch (error) {
-    logError('addOrUpdateIndividu IPC', error);
+  } catch (error) { // Should not happen if addOrUpdateIndividuLogicSync always returns object
+    logError('addOrUpdateIndividu IPC (unexpected throw)', error);
     return { success: false, error: error.message };
   }
 });
@@ -958,11 +993,12 @@ ipcMain.handle('getAuditIndividu', async (event, individu_id) => {
   }
 });
 
+// Handles mass assignment to a single user or unassignment
 ipcMain.handle('attributionMasse', async (event, { ids, newUserId, currentUserId }) => {
   logIPC('attributionMasse', { numIds: ids ? ids.length : 0, newUserId, currentUserId });
   if (!db) return { success: false, error: 'Base de données non initialisée', count: 0 };
   if (!ids || ids.length === 0) return { success: false, error: 'Aucun individu sélectionné', count: 0 };
-  if (newUserId === undefined) return { success: false, error: 'Aucun utilisateur sélectionné pour l\'attribution.', count: 0 };
+  if (newUserId === undefined) return { success: false, error: 'Aucun utilisateur cible sélectionné pour l\'attribution (même pour désassigner, newUserId doit être null).', count: 0 };
 
   const actualNewUserId = newUserId === null || newUserId === '' ? null : parseInt(newUserId, 10);
   if (newUserId !== null && newUserId !== '' && isNaN(actualNewUserId)) {
@@ -979,7 +1015,8 @@ ipcMain.handle('attributionMasse', async (event, { ids, newUserId, currentUserId
     for (const id of ids) {
         const oldIndividu = selectStmt.get(id);
         if (oldIndividu) {
-            if (String(oldIndividu.en_charge || null) !== String(actualNewUserId || null)) {
+            // Only update if the 'en_charge' is actually different
+            if (String(oldIndividu.en_charge || '') !== String(actualNewUserId || '')) { // Compare as strings to handle null/undefined consistently
                 const updateInfo = updateStmt.run(actualNewUserId, id);
                 if (updateInfo.changes > 0) {
                     changesCount += updateInfo.changes;
@@ -998,8 +1035,8 @@ ipcMain.handle('attributionMasse', async (event, { ids, newUserId, currentUserId
 
   try {
     const result = attributionTransaction();
-    if (result.count === 0 && result.audits === 0) {
-        return { success: true, count: 0, message: 'Aucune mise à jour (individus déjà attribués correctement ou non trouvés/supprimés).' };
+    if (result.count === 0 && result.audits === 0 && ids.length > 0) { // Check if any IDs were provided
+        return { success: true, count: 0, message: 'Aucune mise à jour nécessaire (individus déjà attribués correctement ou non trouvés/supprimés).' };
     }
     return result;
   } catch (err) {
@@ -1008,6 +1045,7 @@ ipcMain.handle('attributionMasse', async (event, { ids, newUserId, currentUserId
   }
 });
 
+// Handles mass assignment based on percentage distribution
 ipcMain.handle('attribuerIndividusEnMasse', async (event, { individuIds, managerUserId, distribution }) => {
   logIPC('attribuerIndividusEnMasse', { numIndividus: individuIds?.length, managerUserId, numDistributionUsers: distribution?.length });
   if (!db) return { success: false, error: 'Base de données non initialisée.', updatedCount: 0, errors: ['Base de données non initialisée.'] };
@@ -1029,45 +1067,65 @@ ipcMain.handle('attribuerIndividusEnMasse', async (event, { individuIds, manager
 
     const actualIndividuIdsToProcess = oldIndividus.map(ind => ind.id);
     oldIndividus.forEach(row => oldEnChargeValues[row.id] = row.en_charge);
+    
     const assignments = []; 
     let currentIndexInIndividuList = 0;
 
-    const activeDistribution = distribution ? distribution.filter(d => d.percentage > 0) : [];
-    const shouldUnassign = !distribution || distribution.length === 0 || (distribution && distribution.every(d => d.percentage === 0));
+    const activeDistribution = distribution ? distribution.filter(d => d.userId !== undefined && d.percentage > 0) : [];
+    const shouldUnassignAll = !distribution || distribution.length === 0 || (distribution && distribution.every(d => d.percentage === 0 && d.userId === null)); // More specific unassign condition
 
-    if (shouldUnassign) {
-        log('[IPC-MAIN] attribuerIndividusEnMasse (distribution): Désassignation.');
+    if (shouldUnassignAll) {
+        log('[IPC-MAIN] attribuerIndividusEnMasse (distribution): Désassignation de tous les individus sélectionnés.');
         for (const individuId of actualIndividuIdsToProcess) {
             assignments.push({ individuId, newUserId: null });
         }
     } else if (activeDistribution.length > 0) {
+        log('[IPC-MAIN] attribuerIndividusEnMasse (distribution): Application de la distribution par pourcentage.');
         let totalPercentageForActive = activeDistribution.reduce((sum, d) => sum + d.percentage, 0);
-        if (totalPercentageForActive > 0) {
+        
+        if (totalPercentageForActive > 0) { // Ensure we don't divide by zero
+            // Shuffle individuals to ensure random distribution for remainders
+            const shuffledIndividuIds = [...actualIndividuIdsToProcess].sort(() => 0.5 - Math.random());
+
             for (const rule of activeDistribution) {
-                const userIdToAssign = rule.userId;
-                const countForThisUser = Math.round((rule.percentage / totalPercentageForActive) * actualIndividuIdsToProcess.length);
-                for (let i = 0; i < countForThisUser && currentIndexInIndividuList < actualIndividuIdsToProcess.length; i++) {
-                    assignments.push({ individuId: actualIndividuIdsToProcess[currentIndexInIndividuList], newUserId: userIdToAssign });
+                const userIdToAssign = rule.userId === '' ? null : parseInt(rule.userId, 10); // Handle unassignment rule
+                if (rule.userId !== '' && isNaN(userIdToAssign)) {
+                    errorsDetailed.push(`ID utilisateur invalide dans la règle de distribution: ${rule.userId}`);
+                    continue;
+                }
+                const countForThisUser = Math.floor((rule.percentage / totalPercentageForActive) * shuffledIndividuIds.length); // Use floor to avoid over-assigning initially
+                
+                for (let i = 0; i < countForThisUser && currentIndexInIndividuList < shuffledIndividuIds.length; i++) {
+                    assignments.push({ individuId: shuffledIndividuIds[currentIndexInIndividuList], newUserId: userIdToAssign });
                     currentIndexInIndividuList++;
                 }
             }
-        }
-        let userIndexForRemainder = 0;
-        while(currentIndexInIndividuList < actualIndividuIdsToProcess.length && activeDistribution.length > 0) {
-            assignments.push({ individuId: actualIndividuIdsToProcess[currentIndexInIndividuList], newUserId: activeDistribution[userIndexForRemainder % activeDistribution.length].userId });
-            currentIndexInIndividuList++;
-            userIndexForRemainder++;
+            // Distribute any remaining individuals (due to Math.floor) round-robin among active users
+            let userIndexForRemainder = 0;
+            while(currentIndexInIndividuList < shuffledIndividuIds.length && activeDistribution.length > 0) {
+                const userIdToAssignRem = activeDistribution[userIndexForRemainder % activeDistribution.length].userId;
+                const actualUserIdRem = userIdToAssignRem === '' ? null : parseInt(userIdToAssignRem, 10);
+                 if (userIdToAssignRem !== '' && isNaN(actualUserIdRem)) { /* skip if invalid */ }
+                 else {
+                    assignments.push({ individuId: shuffledIndividuIds[currentIndexInIndividuList], newUserId: actualUserIdRem });
+                 }
+                currentIndexInIndividuList++;
+                userIndexForRemainder++;
+            }
+        } else {
+             log('[IPC-MAIN] attribuerIndividusEnMasse: Total percentage is 0, no assignment based on percentage.');
         }
     } else {
-         log('[IPC-MAIN] attribuerIndividusEnMasse (distribution): Distribution fournie mais tous les pourcentages sont à 0. Aucune action.');
+         log('[IPC-MAIN] attribuerIndividusEnMasse (distribution): Aucune règle de distribution active ou valide. Aucune action.');
     }
     
+    // Perform updates in a transaction for each assignment to ensure audit logging per change
     const singleAssignmentTransaction = db.transaction((individuId, newUserIdToAssign, oldEnChargeVal) => {
         const updateIndStmt = db.prepare('UPDATE individus SET en_charge = ? WHERE id = ? AND deleted = 0'); 
         const updateInfo = updateIndStmt.run(newUserIdToAssign, individuId);
         if (updateInfo.changes > 0) {
-            const auditAction = shouldUnassign ? 'desattribution_masse_pourcentage' : 'attribution_masse_pourcentage';
-            try { preparedStatements.insertAudit.run(individuId, 'en_charge', String(oldEnChargeVal || ''), String(newUserIdToAssign || ''), managerUserId, auditAction, null); }
+            const auditAction = shouldUnassignAll ? 'desattribution_masse_distrib' : 'attribution_masse_distrib';
+            try { preparedStatements.insertAudit.run(individuId, 'en_charge', String(oldEnChargeVal === undefined || oldEnChargeVal === null ? '' : oldEnChargeVal), String(newUserIdToAssign === null ? '' : newUserIdToAssign), managerUserId, auditAction, null); }
             catch (auditErr) { logError(`attribuerIndividusEnMasse (audit pour ID ${individuId}, action ${auditAction})`, auditErr); }
             return true; 
         }
@@ -1076,12 +1134,14 @@ ipcMain.handle('attribuerIndividusEnMasse', async (event, { individuIds, manager
 
     for (const assignment of assignments) {
       const { individuId, newUserId } = assignment;
-      const oldEnCharge = oldEnChargeValues[individuId];
-      if (String(oldEnCharge || null) !== String(newUserId || null)) {
+      const oldEnCharge = oldEnChargeValues[individuId]; // Get original value for this specific ID
+      
+      // Only perform update and audit if the value is actually changing
+      if (String(oldEnCharge === undefined || oldEnCharge === null ? '' : oldEnCharge) !== String(newUserId === null ? '' : newUserId)) {
         try {
           const success = singleAssignmentTransaction(individuId, newUserId, oldEnCharge);
           if (success) updatedCount++;
-          else errorsDetailed.push(`Échec MAJ ou pas de changement pour individu ${individuId}.`);
+          // else: No DB change, so no error to push here unless transaction itself failed, caught below
         } catch (transactionError) {
           errorsDetailed.push(`Erreur transaction pour individu ${individuId}: ${transactionError.message}`);
           logError(`attribuerIndividusEnMasse (transaction pour ID ${individuId})`, transactionError);
@@ -1092,13 +1152,14 @@ ipcMain.handle('attribuerIndividusEnMasse', async (event, { individuIds, manager
     if (errorsDetailed.length > 0) {
       return { success: updatedCount > 0, message: `Attribution terminée avec ${errorsDetailed.length} erreurs sur ${assignments.length} tentatives. ${updatedCount} succès.`, updatedCount, errors: errorsDetailed };
     }
-    return { success: true, message: `${updatedCount} individu(s) traité(s) avec succès.`, updatedCount, errors: [] };
+    return { success: true, message: `${updatedCount} individu(s) traité(s) avec succès. ${assignments.length - updatedCount} individu(s) n'ont pas nécessité de mise à jour.`, updatedCount, errors: [] };
 
   } catch (error) {
     logError('attribuerIndividusEnMasse (critique)', error);
     return { success: false, error: `Erreur serveur: ${error.message}`, updatedCount: 0, errors: [error.message] };
   }
 });
+
 
 ipcMain.handle('getDashboardStats', async (event, { userId, role }) => {
   logIPC('getDashboardStats', {userId, role});
@@ -1109,28 +1170,57 @@ ipcMain.handle('getDashboardStats', async (event, { userId, role }) => {
     stats.totalCategories = db.prepare("SELECT COUNT(*) as count FROM categories WHERE deleted = 0").get().count;
     stats.categoriesMasquees = db.prepare("SELECT COUNT(*) as count FROM categories WHERE deleted = 1").get().count;
     stats.totalUsers = db.prepare("SELECT COUNT(*) as count FROM users WHERE deleted = 0").get().count;
-    if (userId) {
+    
+    if (userId) { // Ensure userId is valid before querying
       stats.mesIndividus = db.prepare("SELECT COUNT(*) as count FROM individus WHERE en_charge = ? AND deleted = 0").get(userId).count;
-    } else stats.mesIndividus = 0;
+    } else {
+      stats.mesIndividus = 0; // Or handle as appropriate if userId is expected
+    }
+
     if (role === 'manager' || role === 'admin') {
       stats.individusNonAttribues = db.prepare("SELECT COUNT(*) as count FROM individus WHERE (en_charge IS NULL OR en_charge = '') AND deleted = 0").get().count;
-    } else stats.individusNonAttribues = 0;
+    } else {
+      stats.individusNonAttribues = 0; // Users don't see this stat
+    }
     return { success: true, data: stats };
   } catch (err) {
     logError('getDashboardStats', err);
-    return { success: false, error: 'Erreur stats: ' + err.message, data: {} };
+    return { success: false, error: 'Erreur lors de la récupération des statistiques: ' + err.message, data: {} };
   }
 });
 
+// IPC handlers for theme
+ipcMain.handle('getThemeColor', async () => {
+  logIPC('getThemeColor');
+  // Access the 'config' object that was loaded at startup
+  return { success: true, color: config.themeColor || 'blue' };
+});
+
+ipcMain.handle('setThemeColor', async (event, color) => {
+  logIPC('setThemeColor', color);
+  try {
+    config.themeColor = color; // Update in-memory config
+    saveConfig(config); // Persist to file
+    return { success: true };
+  } catch (err) {
+    logError('setThemeColor IPC', err);
+    return { success: false, error: err.message };
+  }
+});
+
+
 // --- Electron App Lifecycle ---
 app.whenReady().then(() => {
-  log('Application prête');
+  log('Application prête.');
+  // Custom protocol for serving built app files (useful for packaged apps)
   protocol.registerFileProtocol('app', (request, callback) => {
-    const url = request.url.substring(6); 
+    const url = request.url.substring(6); // Remove 'app://'
     callback({ path: path.join(__dirname, 'dist', url) }); 
   });
-  initDb(); 
+
+  initDb(); // Initialize database connection and schema
   createWindow();
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -1140,7 +1230,7 @@ app.on('window-all-closed', () => {
   try {
     if (db && db.open) {
       db.close();
-      log('[DB] Base de données fermée avec succès.');
+      log('Base de données fermée avec succès.');
     }
   } catch (err) {
     logError('window-all-closed (DB close)', err);
@@ -1149,44 +1239,55 @@ app.on('window-all-closed', () => {
 });
 
 function createWindow () {
-  log('Création de la fenêtre...');
+  log('Création de la fenêtre principale...');
   const win = new BrowserWindow({
     width: 1280,
     height: 900,
-	autoHideMenuBar: true,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: false,
-      webSecurity: process.env.NODE_ENV !== 'development'
+      nodeIntegration: false, // Important for security
+      contextIsolation: true, // Important for security
+      sandbox: false, // Consider true for more security if possible, might affect some node APIs in preload
+      webSecurity: process.env.NODE_ENV !== 'development' // Disable webSecurity only for HMR in dev
     },
-    title: config.appTitle || "Indi-Suivi"
+    title: config.appTitle || "Indi-Suivi" // Use loaded config for title
   });
 
+  // Open DevTools in development
   if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
-      // win.webContents.openDevTools();
+      // win.webContents.openDevTools(); // Uncomment to open DevTools on start
   }
-  win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => log('Erreur chargement page:', errorCode, errorDescription));
-  win.webContents.on('console-message', (event, level, message, line, sourceId) => log(`[Console Renderer] ${message}`));
+
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    logError('createWindow (did-fail-load)', new Error(`Code: ${errorCode}, Desc: ${errorDescription}, URL: ${validatedURL}`));
+  });
+  win.webContents.on('console-message', (event, level, message, line, sourceId) => {
+    // level: 0=verbose, 1=info, 2=warning, 3=error
+    const levelStr = ['VERBOSE', 'INFO', 'WARNING', 'ERROR'][level] || `LVL${level}`;
+    log(`[CONSOLE RENDERER - ${levelStr}] ${message} (source: ${path.basename(sourceId)}:${line})`);
+  });
 
   const indexPath = path.join(__dirname, 'dist', 'index.html'); 
-  log(`[APP] Chemin de l'index.html pour la fenêtre: ${indexPath}`);
+  log(`Chemin de l'index.html pour la fenêtre: ${indexPath}`);
 
   if (app.isPackaged) {
+    // In packaged app, load index.html directly
+    // Using custom protocol 'app://./index.html' or file path
     win.loadFile(indexPath).catch(err => {
         logError('createWindow (loadFile prod)', err);
-        dialog.showErrorBox('Erreur Chargement Application', `Impossible de charger l'application: ${err.message}. Vérifiez que le chemin ${indexPath} est correct.`);
+        dialog.showErrorBox('Erreur Chargement Application', `Impossible de charger l'application: ${err.message}. Vérifiez le chemin: ${indexPath}`);
     });
   } else {
+    // In development, load from Vite dev server
     const viteDevServerUrl = process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL || process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-    log(`[APP] Tentative de chargement de VITE_DEV_SERVER_URL: ${viteDevServerUrl}`);
+    log(`Tentative de chargement de VITE_DEV_SERVER_URL: ${viteDevServerUrl}`);
     win.loadURL(viteDevServerUrl).catch(err => {
         logError(`createWindow (loadURL dev ${viteDevServerUrl})`, err);
-        log(`[APP] Fallback: tentative de chargement de file://${indexPath}`);
-        win.loadFile(indexPath).catch(fileErr => {
+        log(`Fallback: tentative de chargement de file://${indexPath}`);
+        win.loadFile(indexPath).catch(fileErr => { // Fallback to file if Vite server fails
             logError('createWindow (loadFile dev fallback)', fileErr);
-            dialog.showErrorBox('Erreur Chargement Développement', `Impossible de charger l'application depuis ${viteDevServerUrl} ou ${indexPath}: ${fileErr.message}.`);
+            dialog.showErrorBox('Erreur Chargement Développement', `Impossible de charger l'application depuis ${viteDevServerUrl} ou ${indexPath}: ${fileErr.message}. Assurez-vous que le serveur de développement (Vite) est lancé.`);
         });
     });
   }

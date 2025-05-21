@@ -28,7 +28,6 @@ export default function Auth({ setUser }) {
                   userId: loginResult.userId,
                   username: loginResult.username,
                   role: loginResult.role,
-                  permissions: loginResult.permissions || [],
                   windows_login: windowsUsername
                 };
                 setUser(user);
@@ -109,7 +108,6 @@ export default function Auth({ setUser }) {
           userId: res.userId,
           username: res.username,
           role: res.role,
-          permissions: res.permissions || [],
           windows_login: res.windows_login
         };
         setUser(user);
