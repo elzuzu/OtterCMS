@@ -6,6 +6,25 @@ import MassAttribution from './MassAttribution';
 import AdminCategories from './AdminCategories';
 import AdminUsers from './AdminUsers';
 import UserSettings from './UserSettings';
+import {
+  Home,
+  List,
+  Upload,
+  Users as UsersIcon,
+  Settings as SettingsIcon,
+  Tag,
+  User2,
+} from 'lucide-react';
+
+const tabIcons = {
+  dashboard: <Home size={18} aria-hidden="true" />,
+  individus: <List size={18} aria-hidden="true" />,
+  import: <Upload size={18} aria-hidden="true" />,
+  attribution: <UsersIcon size={18} aria-hidden="true" />,
+  categories: <Tag size={18} aria-hidden="true" />,
+  users: <User2 size={18} aria-hidden="true" />,
+  settings: <SettingsIcon size={18} aria-hidden="true" />,
+};
 
 /**
  * Composant MainContent
@@ -158,43 +177,59 @@ export default function MainContent({ user, onLogout }) {
 
   return (
     <div className="app">
-      <header>
+      <header className="app-header">
         <div className="app-title">
-           <h1>indi-suivi-nodejs</h1>
+          <h1>indi-suivi-nodejs</h1>
         </div>
-        <div className="user-section" style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+        <div className="user-section" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span className="user-info">
             <strong>{user.windows_login || user.username}</strong> ({user.role})
           </span>
           <button onClick={onLogout} className="logout-button">Déconnexion</button>
         </div>
       </header>
-      <nav className="main-nav">
-        <ul>
-          {tabs.map(tab => (
-            <li key={tab.id}>
-              <button
-                className={activeTab === tab.id ? 'active' : ''}
-                onClick={() => {
-                  if (activeTab !== tab.id) { 
-                     console.log(`[MainContent] Clic sur onglet '${tab.label}'. Passage à activeTab='${tab.id}', requestedViewForIndividus=null.`);
-                    setRequestedViewForIndividus(null); // Très important pour la logique du useEffect
-                    setActiveTab(tab.id); 
-                  } else {
-                    console.log(`[MainContent] Clic sur onglet '${tab.label}', déjà actif. Pas de changement d'état.`);
-                  }
-                }}
-              >
-                {tab.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <main className="content">
-        {renderContent()}
-      </main>
-      <footer className="main-footer" style={{textAlign: 'center', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color-light)', fontSize: '0.875rem', color: 'var(--text-color-secondary)'}}>
+      <div className="app-body">
+        <nav className="main-nav" aria-label="Navigation principale">
+          <ul>
+            {tabs.map(tab => (
+              <li key={tab.id}>
+                <button
+                  className={activeTab === tab.id ? 'active' : ''}
+                  aria-current={activeTab === tab.id ? 'page' : undefined}
+                  onClick={() => {
+                    if (activeTab !== tab.id) {
+                      console.log(
+                        `[MainContent] Clic sur onglet '${tab.label}'. Passage à activeTab='${tab.id}', requestedViewForIndividus=null.`
+                      );
+                      setRequestedViewForIndividus(null);
+                      setActiveTab(tab.id);
+                    } else {
+                      console.log(
+                        `[MainContent] Clic sur onglet '${tab.label}', déjà actif. Pas de changement d'état.`
+                      );
+                    }
+                  }}
+                >
+                  <span className="tab-icon">{tabIcons[tab.id]}</span>
+                  <span className="tab-label">{tab.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <main className="content">{renderContent()}</main>
+      </div>
+      <footer
+        className="main-footer"
+        style={{
+          textAlign: 'center',
+          marginTop: '2rem',
+          paddingTop: '1rem',
+          borderTop: '1px solid var(--border-color-light)',
+          fontSize: '0.875rem',
+          color: 'var(--text-color-secondary)',
+        }}
+      >
         <div className="app-info">Version 1.1.0 &bull; &copy; 2025</div>
       </footer>
     </div>
