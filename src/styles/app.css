@@ -243,6 +243,9 @@ header {
   padding: var(--spacing-4) var(--spacing-2);
   border-right: 1px solid var(--border-color-medium);
   background-color: var(--surface-color);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
 }
 
 .main-nav ul {
