@@ -1584,11 +1584,11 @@ input[type="checkbox"]:focus {
 }
 
 .preview-table { /* Hérite de .data-table */
-  width: auto;
+  width: max-content; /* permet le scroll horizontal dans le conteneur */
   min-width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
   font-size: 0.9em; /* 0.9em */
-  table-layout: fixed;
 }
 .preview-table th,
 .preview-table td {
