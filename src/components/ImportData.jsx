@@ -26,9 +26,10 @@ export default function ImportData({ user }) {
   const [fileContent, setFileContent] = useState(null); // Contenu binaire du fichier
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   // État pour le champ numéro d'individu
   const [numeroIndividuHeader, setNumeroIndividuHeader] = useState('');
+  const [createIfMissing, setCreateIfMissing] = useState(false);
 
   // Chargement des catégories (pour la création de nouveaux champs)
   useEffect(() => {
@@ -287,6 +288,7 @@ export default function ImportData({ user }) {
       numeroIndividuHeader,
       columns: finalColumnsConfig,
       userId: user.id || user.userId,
+      createIfMissing,
     };
 
     try {
@@ -375,7 +377,7 @@ export default function ImportData({ user }) {
             </div>
             <div className="form-group">
               <label htmlFor="numero-individu-select">Colonne pour le numéro d'individu:</label>
-              <select 
+              <select
                 id="numero-individu-select" value={numeroIndividuHeader}
                 onChange={(e) => setNumeroIndividuHeader(e.target.value)}
                 className="stylish-input select-stylish" required
@@ -383,6 +385,13 @@ export default function ImportData({ user }) {
                 <option value="">-- Sélectionnez --</option>
                 {previewData.rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
               </select>
+            </div>
+            <div className="form-group">
+              <label>
+                <input type="checkbox" checked={createIfMissing} onChange={e => setCreateIfMissing(e.target.checked)} />
+                Créer un individu si le numéro est manquant
+              </label>
+              <p className="help-text">Les lignes sans numéro unique seront importées si cette option est cochée.</p>
             </div>
             <div className="form-actions">
               <button onClick={resetImport} className="btn-secondary">Retour</button>

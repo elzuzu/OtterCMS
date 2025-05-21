@@ -1402,6 +1402,7 @@ input[type="checkbox"]:focus {
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--spacing-8);
+  overflow-x: hidden;
 }
 
 .import-wizard .panel-title, /* Titre dans ImportData */
@@ -1418,6 +1419,7 @@ input[type="checkbox"]:focus {
 /* Étapes du wizard */
 .wizard-steps {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around; /* Mieux réparti */
   margin-bottom: var(--spacing-6);
   padding-bottom: var(--spacing-4);
@@ -1554,6 +1556,9 @@ input[type="checkbox"]:focus {
 }
 
 .mapping-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
   border: 1px solid var(--border-color-medium); /* #ddd */
   border-radius: var(--border-radius-md); /* 4px */
   padding: var(--spacing-4); /* 15px */
@@ -1565,6 +1570,12 @@ input[type="checkbox"]:focus {
     font-weight: 600;
     color: var(--text-color-primary);
     margin-bottom: var(--spacing-2); /* Ajouter un peu d'espace */
+}
+.mapping-field-row .mapping-source,
+.mapping-field-row .mapping-options,
+.mapping-field-row .special-mapping {
+  flex: 1 1 240px;
+  min-width: 200px;
 }
 
 .special-field-row {
@@ -1703,6 +1714,7 @@ input[type="checkbox"]:focus {
 /* Styles pour MassAttribution (hérités et spécifiques) */
 .mass-attribution-wizard {
   /* Utilise .admin-panel pour le style de base */
+  overflow-x: hidden;
 }
 
 /* Panneau des filtres pour MassAttribution */
