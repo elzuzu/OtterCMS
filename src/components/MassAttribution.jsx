@@ -11,23 +11,6 @@ export default function MassAttribution({ user }) {
   const [individus, setIndividus] = useState([]);
   const [filteredIndividus, setFilteredIndividus] = useState([]);
 
-  const [filterGroups, setFilterGroups] = useState([
-    {
-      id: 'assignment',
-      label: 'Statut d\'attribution',
-      expanded: true,
-      filters: [
-        { id: 'unassigned', label: 'Non assignés', active: true },
-        { id: 'assigned', label: 'Assignés', active: false }
-      ]
-    },
-    {
-      id: 'users',
-      label: 'Utilisateurs en charge',
-      expanded: false,
-      filters: []
-    }
-  ]);
 
   const [fieldFilters, setFieldFilters] = useState([]);
   const [filterMode, setFilterMode] = useState('all');
@@ -63,7 +46,6 @@ export default function MassAttribution({ user }) {
           a.username.localeCompare(b.username)
         );
         setAllUsers(sortedUsers);
-        updateUserFilters(sortedUsers);
       } else {
         throw new Error('Erreur lors du chargement des utilisateurs');
       }
@@ -88,14 +70,7 @@ export default function MassAttribution({ user }) {
           }
         });
         setChampsDisponibles(allFields);
-        const categoryFilterGroups = sortedCategories.map(cat => ({
-          id: `cat_${cat.id}`,
-          label: cat.nom,
-          expanded: false,
-          category: cat,
-          filters: []
-        }));
-        setFilterGroups(prev => [...prev.filter(g => g.id === 'assignment' || g.id === 'users'), ...categoryFilterGroups]);
+        // champsDisponibles already contains category information for field filters
       } else {
         throw new Error('Erreur lors du chargement des catégories');
       }
@@ -107,24 +82,6 @@ export default function MassAttribution({ user }) {
     }
   };
 
-  const updateUserFilters = (usersList) => {
-    setFilterGroups(prev => {
-      const updated = [...prev];
-      const userGroupIndex = updated.findIndex(g => g.id === 'users');
-      if (userGroupIndex !== -1) {
-        updated[userGroupIndex] = {
-          ...updated[userGroupIndex],
-          filters: usersList.map(u => ({
-            id: `user_${u.id}`,
-            label: u.username,
-            active: false,
-            userData: u
-          }))
-        };
-      }
-      return updated;
-    });
-  };
 
   const loadIndividus = async () => {
     setLoading(true);
@@ -169,41 +126,12 @@ export default function MassAttribution({ user }) {
       return;
     }
     let filtered = [...individusList];
-    const activeFilters = {
-      assignment: [],
-      users: [],
-      fields: [...fieldFilters]
-    };
-    filterGroups.forEach(group => {
-      if (group.id === 'assignment' || group.id === 'users') {
-        group.filters.forEach(filter => {
-          if (filter.active) {
-            activeFilters[group.id].push(filter);
-          }
-        });
-      }
-    });
-
-    if (activeFilters.assignment.length > 0) {
-      const hasUnassignedFilter = activeFilters.assignment.some(f => f.id === 'unassigned');
-      const hasAssignedFilter = activeFilters.assignment.some(f => f.id === 'assigned');
-      if (hasUnassignedFilter && !hasAssignedFilter) {
-        filtered = filtered.filter(ind => !ind.en_charge);
-      } else if (hasAssignedFilter && !hasUnassignedFilter) {
-        filtered = filtered.filter(ind => !!ind.en_charge);
-      }
-    }
-    if (activeFilters.users.length > 0) {
-      const userIds = activeFilters.users.map(f => f.userData.id);
-      filtered = filtered.filter(ind => userIds.includes(ind.en_charge));
-    }
-    if (activeFilters.fields.length > 0) {
+    if (fieldFilters.length > 0) {
       filtered = filtered.filter(ind => {
         if (filterMode === 'all') {
-          return activeFilters.fields.every(filter => evaluateFieldFilter(ind, filter));
-        } else {
-          return activeFilters.fields.some(filter => evaluateFieldFilter(ind, filter));
+          return fieldFilters.every(filter => evaluateFieldFilter(ind, filter));
         }
+        return fieldFilters.some(filter => evaluateFieldFilter(ind, filter));
       });
     }
     setFilteredIndividus(filtered);
@@ -228,33 +156,6 @@ export default function MassAttribution({ user }) {
     }
   };
 
-  const toggleFilter = (groupId, filterId) => {
-    setFilterGroups(prev => {
-      const updated = [...prev];
-      const groupIndex = updated.findIndex(g => g.id === groupId);
-      if (groupIndex !== -1) {
-        const filterIndex = updated[groupIndex].filters.findIndex(f => f.id === filterId);
-        if (filterIndex !== -1) {
-          const updatedFilters = [...updated[groupIndex].filters];
-          updatedFilters[filterIndex] = { ...updatedFilters[filterIndex], active: !updatedFilters[filterIndex].active };
-          updated[groupIndex] = { ...updated[groupIndex], filters: updatedFilters };
-        }
-      }
-      return updated;
-    });
-    applyAllFilters(individus);
-  };
-
-  const toggleGroupExpansion = (groupId) => {
-    setFilterGroups(prev => {
-      const updated = [...prev];
-      const groupIndex = updated.findIndex(g => g.id === groupId);
-      if (groupIndex !== -1) {
-        updated[groupIndex] = { ...updated[groupIndex], expanded: !updated[groupIndex].expanded };
-      }
-      return updated;
-    });
-  };
 
   const addFieldFilter = (filter) => {
     setFieldFilters(prev => [...prev, filter]);
@@ -489,7 +390,6 @@ export default function MassAttribution({ user }) {
     loadIndividus(); // Reloads individuals and re-applies filters
   };
   const resetAllFilters = () => {
-    setFilterGroups(prev => prev.map(group => ({ ...group, filters: group.filters.map(filter => ({ ...filter, active: false })) })));
     setFieldFilters([]);
     applyAllFilters(individus);
   };
@@ -512,22 +412,6 @@ export default function MassAttribution({ user }) {
                 <label><input type="radio" name="filterMode" value="all" checked={filterMode === 'all'} onChange={() => { setFilterMode('all'); applyAllFilters(individus); }} />ET</label>
                 <label><input type="radio" name="filterMode" value="any" checked={filterMode === 'any'} onChange={() => { setFilterMode('any'); applyAllFilters(individus); }} />OU</label>
               </div></div>
-              <div className="filter-groups">
-                {filterGroups.map(group => (
-                  <div key={group.id} className="filter-group">
-                    <div className="filter-group-header" onClick={() => toggleGroupExpansion(group.id)}>
-                      <h4>{group.label}</h4><span className={`expand-icon ${group.expanded ? 'expanded' : ''}`}>{group.expanded ? '▼' : '►'}</span>
-                    </div>
-                    {group.expanded && <div className="filter-group-content">{group.filters.length === 0 ? <div className="no-filters-message">Aucun filtre.</div> : <div className="filter-options">
-                      {group.filters.map(filter => <label key={filter.id} className="filter-checkbox">
-                        <input type="checkbox" checked={filter.active} onChange={() => toggleFilter(group.id, filter.id)} />
-                        <span className="filter-label">{filter.label}</span>
-                        {group.id === 'users' && filter.active && <span className="user-count">({stats.parUtilisateur[filter.userData.id] || 0})</span>}
-                      </label>)}
-                    </div>}</div>}
-                  </div>
-                ))}
-              </div>
               <FieldFilterCreator />
               {fieldFilters.length > 0 && <div className="active-field-filters"><h4>Filtres de champs actifs</h4><ul>
                 {fieldFilters.map((filter, index) => <li key={index} className="field-filter-item">
