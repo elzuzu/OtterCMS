@@ -1533,6 +1533,7 @@ input[type="checkbox"]:focus {
 
 .wizard-panel-content { /* Conteneur pour le contenu de chaque étape */
   animation: fadeInContent 0.3s ease-out;
+  overflow-x: hidden;
 }
 
 
@@ -1563,12 +1564,14 @@ input[type="checkbox"]:focus {
 
 .preview-table-container {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: auto !important;
+  overflow-y: auto;
   max-height: 250px;
   border: 1px solid var(--border-color-light); /* #ddd */
   border-radius: var(--border-radius-sm);
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) transparent;
+  display: block;
 }
 
 .preview-table-container::-webkit-scrollbar {
@@ -1592,6 +1595,8 @@ input[type="checkbox"]:focus {
   border: 1px solid var(--border-color-medium); /* #ddd */
   padding: var(--spacing-2); /* 6px */
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .preview-table th {
   background-color: var(--color-neutral-100); /* Un peu plus clair que #f2f2f2 */
