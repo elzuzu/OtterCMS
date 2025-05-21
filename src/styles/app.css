@@ -699,12 +699,31 @@ input[type="checkbox"]:focus {
 
 /* ===== TABLEAUX ===== */
 .table-container {
-  overflow-x: auto; 
+  overflow-x: auto;
   margin-bottom: var(--spacing-6);
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   background-color: var(--surface-color);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: var(--border-radius-full);
 }
 
 .individus-table, .users-table, .audit-table, .data-table /* Ajout de .data-table */ {
@@ -1548,10 +1567,23 @@ input[type="checkbox"]:focus {
   max-height: 250px;
   border: 1px solid var(--border-color-light); /* #ddd */
   border-radius: var(--border-radius-sm);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+.preview-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.preview-table-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: var(--border-radius-full);
 }
 
 .preview-table { /* Hérite de .data-table */
   width: max-content; /* permet le scroll horizontal dans le conteneur */
+  min-width: 100%;
+  table-layout: auto;
   border-collapse: collapse;
   font-size: 0.9em; /* 0.9em */
 }

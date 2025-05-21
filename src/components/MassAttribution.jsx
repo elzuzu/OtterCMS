@@ -463,6 +463,7 @@ export default function MassAttribution({ user }) {
                 {distributionList.length > 0 && (
                     <div className="distribution-list-section">
                         <h4>Utilisateurs pour cette attribution :</h4>
+                        <div className="table-responsive">
                         <table className="simple-table" style={{width: '100%', marginTop:'10px'}}>
                             <thead>
                                 <tr>
@@ -491,6 +492,7 @@ export default function MassAttribution({ user }) {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                         <p style={{marginTop: '10px', fontWeight:'bold'}}>Total pourcentage alloué : {getTotalPercentage()}%</p>
                          {getTotalPercentage() > 100 && <p className="error-message">Attention: Le total des pourcentages dépasse 100%!</p>}
                          {getTotalPercentage() < 100 && getTotalPercentage() > 0 && distributionList.length > 0 && <p className="warning-message">Note: Le total des pourcentages est inférieur à 100%. Certains cas pourraient ne pas être distribués si le nombre d'individus est supérieur à la capacité totale définie.</p>}
