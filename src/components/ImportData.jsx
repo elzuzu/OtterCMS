@@ -405,10 +405,27 @@ export default function ImportData({ user }) {
               Sélectionnez la colonne du fichier qui contient le numéro unique d'individu.
               Ce champ sera mappé à "numero_unique" dans la base de données.
             </p>
-            <div className="preview-container" style={{overflowY: 'hidden', maxHeight: 'none'}}>
+            <div className="preview-container">
               <h4>Aperçu des données</h4>
-              <div className="preview-table-container">
-                <table className="data-table preview-table">
+              <div
+                className="preview-table-container"
+                style={{
+                  overflowX: 'auto',      // Force le défilement horizontal
+                  overflowY: 'hidden',    // Empêche le défilement vertical
+                  width: '100%',          // Utilise toute la largeur disponible
+                  maxHeight: 'none',      // Annule la hauteur max qui créerait un défilement vertical
+                  display: 'block',       // S'assure que le défilement fonctionne
+                  border: '1px solid var(--border-color-light)'
+                }}
+              >
+                <table
+                  className="data-table preview-table"
+                  style={{
+                    width: 'max-content',  // Permet à la table de prendre sa largeur naturelle
+                    minWidth: '100%',      // Mais au moins aussi large que son conteneur
+                    whiteSpace: 'nowrap'   // Empêche le texte de s'enrouler
+                  }}
+                >
                   <thead><tr>{previewData.headers.map((h, i) => <th key={`h-${i}`}>{h}</th>)}</tr></thead>
                   <tbody>{previewData.rows.map((r, i) => <tr key={`r-${i}`}>{r.map((c, ci) => <td key={`c-${i}-${ci}`}>{String(c)}</td>)}</tr>)}</tbody>
                 </table>
@@ -444,10 +461,27 @@ export default function ImportData({ user }) {
         return (
           <div className="wizard-panel-content">
             <h3>Configuration du mapping des colonnes</h3>
-             <div className="preview-container" style={{overflowY: 'hidden', maxHeight: 'none', marginBottom: 'var(--spacing-5)'}}>
+            <div className="preview-container" style={{marginBottom: 'var(--spacing-5)'}}>
               <h4>Aperçu des données (rappel)</h4>
-              <div className="preview-table-container">
-                <table className="data-table preview-table">
+              <div
+                className="preview-table-container"
+                style={{
+                  overflowX: 'auto',      // Force le défilement horizontal
+                  overflowY: 'hidden',    // Empêche le défilement vertical
+                  width: '100%',          // Utilise toute la largeur disponible
+                  maxHeight: 'none',      // Annule la hauteur max qui créerait un défilement vertical
+                  display: 'block',       // S'assure que le défilement fonctionne
+                  border: '1px solid var(--border-color-light)'
+                }}
+              >
+                <table
+                  className="data-table preview-table"
+                  style={{
+                    width: 'max-content',  // Permet à la table de prendre sa largeur naturelle
+                    minWidth: '100%',      // Mais au moins aussi large que son conteneur
+                    whiteSpace: 'nowrap'   // Empêche le texte de s'enrouler
+                  }}
+                >
                   <thead><tr>{previewData.headers.map((h, i) => <th key={`prev-h-${i}`}>{h}</th>)}</tr></thead>
                   <tbody>{previewData.rows.map((r, i) => <tr key={`prev-r-${i}`}>{r.map((c,ci) => <td key={`prev-c-${i}-${ci}`}>{String(c)}</td>)}</tr>)}</tbody>
                 </table>
