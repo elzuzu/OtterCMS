@@ -1551,7 +1551,7 @@ input[type="checkbox"]:focus {
 }
 
 .preview-table { /* Hérite de .data-table */
-  width: 100%;
+  width: max-content; /* permet le scroll horizontal dans le conteneur */
   border-collapse: collapse;
   font-size: 0.9em; /* 0.9em */
 }
@@ -1563,6 +1563,12 @@ input[type="checkbox"]:focus {
 }
 .preview-table th {
   background-color: var(--color-neutral-100); /* Un peu plus clair que #f2f2f2 */
+}
+
+.template-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
 }
 
 

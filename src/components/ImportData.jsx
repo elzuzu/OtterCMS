@@ -14,6 +14,11 @@ export default function ImportData({ user }) {
   // Références et états
   const fileRef = useRef();
   const [categories, setCategories] = useState([]); // Pour la sélection de catégorie LORS DE LA CRÉATION d'un champ
+  const [existingFields, setExistingFields] = useState([]); // Champs existants pour le mapping
+
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [templateName, setTemplateName] = useState('');
   
   const [mapping, setMapping] = useState({}); // { csvHeader: 'targetDbField' } pour action 'map'
   const [columnActions, setColumnActions] = useState({}); // { csvHeader: 'map' | 'create' | 'ignore' }
@@ -36,40 +41,50 @@ export default function ImportData({ user }) {
     const loadCategories = async () => {
       setLoading(true);
       try {
-        // Remplacer par votre appel API réel: const result = await window.api.getCategories();
-        const result = await new Promise(resolve => setTimeout(() => resolve({
-          success: true,
-          data: [
-            { id: 1, nom: 'Informations de base', deleted: 0 },
-            { id: 2, nom: 'Coordonnées', deleted: 0 },
-            { id: 3, nom: 'Statut', deleted: 0 },
-            { id: 4, nom: 'Catégorie Archivée', deleted: 1 },
-          ]
-        }), 500));
+        const result = window.api && window.api.getCategories
+          ? await window.api.getCategories()
+          : await new Promise(resolve => setTimeout(() => resolve({
+              success: true,
+              data: [
+                { id: 1, nom: 'Informations de base', deleted: 0, champs: [] },
+                { id: 2, nom: 'Coordonnées', deleted: 0, champs: [] },
+                { id: 3, nom: 'Statut', deleted: 0, champs: [] },
+                { id: 4, nom: 'Catégorie Archivée', deleted: 1, champs: [] }
+              ]
+            }), 500));
 
         if (result && result.success && Array.isArray(result.data)) {
           const activeCategories = result.data.filter(cat => cat.deleted !== 1);
           setCategories(activeCategories);
+          const fields = [];
+          activeCategories.forEach(cat => {
+            (cat.champs || []).forEach(ch => {
+              fields.push({ ...ch, categorieNom: cat.nom, categorieId: cat.id });
+            });
+          });
+          setExistingFields(fields);
           if (activeCategories.length === 0) {
              setMessage({ text: 'Aucune catégorie active trouvée. La création de nouveaux champs nécessitera une catégorie.', type: 'warning' });
           }
         } else {
-          setMessage({ 
-            text: 'Impossible de charger les catégories. Veuillez réessayer.', 
-            type: 'error' 
+          setMessage({
+            text: 'Impossible de charger les catégories. Veuillez réessayer.',
+            type: 'error'
           });
         }
       } catch (error) {
         console.error("Erreur lors du chargement des catégories:", error);
-        setMessage({ 
-          text: `Erreur lors du chargement des catégories: ${error.message}`, 
-          type: 'error' 
+        setMessage({
+          text: `Erreur lors du chargement des catégories: ${error.message}`,
+          type: 'error'
         });
       } finally {
         setLoading(false);
       }
     };
     loadCategories();
+    const stored = JSON.parse(localStorage.getItem('importMappingTemplates') || '[]');
+    if (Array.isArray(stored)) setTemplates(stored);
   }, []);
 
   // Gestion de la sélection du fichier
@@ -133,6 +148,7 @@ export default function ImportData({ user }) {
           
           initialNouveauxChamps[header] = {
             categorie_id: categories.length > 0 ? categories[0].id.toString() : '', // Pré-sélectionner si possible
+            newCategorieNom: '',
             label: header,
             key: header.toLowerCase().replace(/[^a-z0-9_]/g, '_').substring(0, 50),
             type: 'text',
@@ -222,6 +238,26 @@ export default function ImportData({ user }) {
     handleNewFieldConfigChange(csvHeader, 'options', options);
   };
 
+  const loadTemplateByName = (name) => {
+    const t = templates.find(tmp => tmp.name === name);
+    if (!t) return;
+    setColumnActions(t.columnActions || {});
+    setMapping(t.mapping || {});
+    setNouveauxChamps(t.nouveauxChamps || {});
+  };
+
+  const saveCurrentTemplate = () => {
+    const trimmed = templateName.trim();
+    if (!trimmed) return;
+    const newTemplate = { name: trimmed, mapping, columnActions, nouveauxChamps };
+    const updated = templates.filter(t => t.name !== trimmed).concat(newTemplate);
+    setTemplates(updated);
+    localStorage.setItem('importMappingTemplates', JSON.stringify(updated));
+    setTemplateName('');
+    setSelectedTemplate(trimmed);
+    setMessage({ text: 'Template enregistré', type: 'success' });
+  };
+
   // Validation et envoi des données
   const handleImport = async () => {
     if (!fileContent) {
@@ -258,6 +294,9 @@ export default function ImportData({ user }) {
       } else if (action === 'create') {
         const fieldConfig = nouveauxChamps[csvHeader];
         if (!fieldConfig.categorie_id) validationErrors.push(`Colonne "${csvHeader}": Sélectionnez une catégorie pour le nouveau champ.`);
+        if (fieldConfig.categorie_id === '__new__' && !fieldConfig.newCategorieNom?.trim()) {
+          validationErrors.push(`Colonne "${csvHeader}": Nom de la nouvelle catégorie manquant.`);
+        }
         if (!fieldConfig.label?.trim()) validationErrors.push(`Colonne "${csvHeader}": Libellé manquant pour le nouveau champ.`);
         if (!fieldConfig.key?.trim() || !/^[a-zA-Z0-9_]+$/.test(fieldConfig.key.trim())) {
           validationErrors.push(`Colonne "${csvHeader}": Clé invalide pour le nouveau champ.`);
@@ -414,6 +453,25 @@ export default function ImportData({ user }) {
                 </table>
               </div>
             </div>
+            <div className="template-section" style={{marginBottom: 'var(--spacing-5)'}}>
+              <div className="form-group">
+                <label>Charger un template:</label>
+                <div style={{display:'flex',gap:'var(--spacing-3)'}}>
+                  <select className="stylish-input select-stylish" value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)}>
+                    <option value="">-- Sélectionner --</option>
+                    {templates.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+                  </select>
+                  <button type="button" onClick={() => loadTemplateByName(selectedTemplate)} disabled={!selectedTemplate}>Charger</button>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Enregistrer comme template:</label>
+                <div style={{display:'flex',gap:'var(--spacing-3)'}}>
+                  <input type="text" className="stylish-input" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Nom du template" />
+                  <button type="button" onClick={saveCurrentTemplate} disabled={!templateName.trim()}>Sauvegarder</button>
+                </div>
+              </div>
+            </div>
             <div className="mapping-form-container">
               {previewData.rawHeaders.map((csvHeader, idx) => (
                 <div key={csvHeader} className={`mapping-field-row ${csvHeader === numeroIndividuHeader ? 'special-field-row' : ''}`}>
@@ -450,10 +508,14 @@ export default function ImportData({ user }) {
                       {columnActions[csvHeader] === 'map' && (
                         <div className="form-group">
                           <label htmlFor={`target-${csvHeader}`}>Champ de destination DB:</label>
-                          <input id={`target-${csvHeader}`} type="text" className="stylish-input"
-                                 value={mapping[csvHeader] || ''}
-                                 onChange={e => handleMappingTargetChange(csvHeader, e.target.value)}
-                                 placeholder="ex: nom_utilisateur, email" />
+                          <select id={`target-${csvHeader}`} className="stylish-input select-stylish"
+                                  value={mapping[csvHeader] || ''}
+                                  onChange={e => handleMappingTargetChange(csvHeader, e.target.value)}>
+                            <option value="">-- Sélectionner --</option>
+                            {existingFields.map(f => (
+                              <option key={f.key} value={f.key}>{`${f.categorieNom} - ${f.label}`}</option>
+                            ))}
+                          </select>
                         </div>
                       )}
 
@@ -467,7 +529,13 @@ export default function ImportData({ user }) {
                                     onChange={e => handleNewFieldConfigChange(csvHeader, 'categorie_id', e.target.value)} required>
                               <option value="">-- Sélectionner catégorie --</option>
                               {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.nom}</option>)}
+                              <option value="__new__">-- Nouvelle catégorie --</option>
                             </select>
+                            {nouveauxChamps[csvHeader]?.categorie_id === '__new__' && (
+                              <input type="text" className="stylish-input" placeholder="Nom nouvelle catégorie"
+                                     value={nouveauxChamps[csvHeader]?.newCategorieNom || ''}
+                                     onChange={e => handleNewFieldConfigChange(csvHeader, 'newCategorieNom', e.target.value)} />
+                            )}
                           </div>
                           <div className="form-group">
                             <label htmlFor={`label-${csvHeader}`}>Libellé:</label>
