@@ -222,6 +222,8 @@ header {
   color: var(--color-primary-600);
   border-bottom-color: var(--color-primary-500);
   font-weight: 600;
+  background-color: var(--surface-color);
+  box-shadow: var(--shadow-sm);
 }
 .main-nav ul li button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .main-nav ul li button:disabled { opacity: 0.6; cursor: not-allowed; }
