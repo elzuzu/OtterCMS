@@ -768,8 +768,8 @@ function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, impo
   }
 }
 
-ipcMain.handle('importCSV', async (event, { fileContent, mapping, userId, importFileName }) => {
-  logIPC('importCSV', { mappingKeys: Object.keys(mapping), userId, importFileName, fileContentLength: fileContent?.length || 0 });
+ipcMain.handle('importCSV', async (event, { fileContent, mapping, userId, importFileName, createIfMissing }) => {
+  logIPC('importCSV', { mappingKeys: Object.keys(mapping), userId, importFileName, fileContentLength: fileContent?.length || 0, createIfMissing });
   if (!db) return { success: false, error: 'Base de données non initialisée.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Base de données non initialisée.'] };
   
   let insertedCount = 0;
@@ -843,12 +843,10 @@ ipcMain.handle('importCSV', async (event, { fileContent, mapping, userId, import
       }
 
       if (!hasNumeroUnique && Object.values(individuToProcess.champs_supplementaires).every(v => v === null || v === '')) {
-        // Skip entirely empty rows or rows without a numero_unique
-        // errorsDetailed.push(`Ligne ${i + 2}: Données vides ou "numero_unique" manquant.`);
-        // errorCount++; // Optionally count as error or just skip
+        // Skip entirely empty rows
         continue;
       }
-      if (!hasNumeroUnique) {
+      if (!hasNumeroUnique && !createIfMissing) {
          errorsDetailed.push(`Ligne ${i + 2}: "numero_unique" manquant ou vide. La ligne sera ignorée.`);
          errorCount++;
          continue;
