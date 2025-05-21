@@ -405,7 +405,7 @@ export default function ImportData({ user }) {
               Sélectionnez la colonne du fichier qui contient le numéro unique d'individu.
               Ce champ sera mappé à "numero_unique" dans la base de données.
             </p>
-            <div className="preview-container" style={{maxHeight: '250px', overflowY: 'auto'}}>
+            <div className="preview-container" style={{overflowY: 'hidden', maxHeight: 'none'}}>
               <h4>Aperçu des données</h4>
               <div className="preview-table-container">
                 <table className="data-table preview-table">
@@ -444,7 +444,7 @@ export default function ImportData({ user }) {
         return (
           <div className="wizard-panel-content">
             <h3>Configuration du mapping des colonnes</h3>
-             <div className="preview-container" style={{maxHeight: '200px', overflowY: 'auto', marginBottom: 'var(--spacing-5)'}}>
+             <div className="preview-container" style={{overflowY: 'hidden', maxHeight: 'none', marginBottom: 'var(--spacing-5)'}}>
               <h4>Aperçu des données (rappel)</h4>
               <div className="preview-table-container">
                 <table className="data-table preview-table">
