@@ -14,7 +14,5 @@
     "target": ["portable", "zip"],
     "icon": "src/assets/app-icon.ico"
   },
-  "forceCodeSigning": false,
-  "signingHashAlgorithms": null,
-  "signDlls": false
+  "forceCodeSigning": false
 }
