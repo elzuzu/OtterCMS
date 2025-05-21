@@ -69,9 +69,10 @@ export default function AdminRoles({ user }) {
         <button type="submit">{editingRole?'Mettre à jour':'Créer'}</button>
         {editingRole && <button type="button" onClick={resetForm}>Annuler</button>}
       </form>
-      <table className="users-table">
-        <thead><tr><th>Nom</th><th>Permissions</th><th>Actions</th></tr></thead>
-        <tbody>
+      <div className="table-responsive">
+        <table className="users-table">
+          <thead><tr><th>Nom</th><th>Permissions</th><th>Actions</th></tr></thead>
+          <tbody>
           {roles.map(r => (
             <tr key={r.name}>
               <td>{r.name}</td>
@@ -82,8 +83,9 @@ export default function AdminRoles({ user }) {
               </td>
             </tr>
           ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -261,6 +261,7 @@ export default function AdminUsers() {
       {!loading && filteredUsers.length === 0 ? (
         <div className="no-data-message">Aucun utilisateur trouvé.</div>
       ) : (
+        <div className="table-responsive">
         <table className="users-table">
           <thead>
             <tr>
@@ -298,6 +299,7 @@ export default function AdminUsers() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

@@ -699,12 +699,31 @@ input[type="checkbox"]:focus {
 
 /* ===== TABLEAUX ===== */
 .table-container {
-  overflow-x: auto; 
+  overflow-x: auto;
   margin-bottom: var(--spacing-6);
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   background-color: var(--surface-color);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-4);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: var(--border-radius-full);
 }
 
 .individus-table, .users-table, .audit-table, .data-table /* Ajout de .data-table */ {
@@ -1514,6 +1533,7 @@ input[type="checkbox"]:focus {
 
 .wizard-panel-content { /* Conteneur pour le contenu de chaque étape */
   animation: fadeInContent 0.3s ease-out;
+  overflow-x: hidden;
 }
 
 
@@ -1544,22 +1564,39 @@ input[type="checkbox"]:focus {
 
 .preview-table-container {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: auto !important;
+  overflow-y: auto;
   max-height: 250px;
   border: 1px solid var(--border-color-light); /* #ddd */
   border-radius: var(--border-radius-sm);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-300) transparent;
+  display: block;
+}
+
+.preview-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.preview-table-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+  border-radius: var(--border-radius-full);
 }
 
 .preview-table { /* Hérite de .data-table */
-  width: max-content; /* permet le scroll horizontal dans le conteneur */
+  width: auto;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 0.9em; /* 0.9em */
+  table-layout: fixed;
 }
 .preview-table th,
 .preview-table td {
   border: 1px solid var(--border-color-medium); /* #ddd */
   padding: var(--spacing-2); /* 6px */
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .preview-table th {
   background-color: var(--color-neutral-100); /* Un peu plus clair que #f2f2f2 */
