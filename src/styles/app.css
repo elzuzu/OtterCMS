@@ -1548,7 +1548,12 @@ input[type="checkbox"]:focus {
 
 .wizard-panel-content { /* Conteneur pour le contenu de chaque étape */
   animation: fadeInContent 0.3s ease-out;
-  overflow-x: hidden;
+  /*
+   * Overflow horizontal masquait la barre de défilement des tableaux
+   * présents dans le composant ImportData. On le retire pour permettre
+   * un défilement horizontal correct.
+   */
+  overflow-x: visible;
 }
 
 
