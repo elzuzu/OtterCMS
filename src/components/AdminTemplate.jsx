@@ -17,26 +17,10 @@ export default function AdminTemplate() {
     async function fetchCurrentTheme() {
       setIsLoading(true);
       setMessage('');
-      if (window.api && window.api.getThemeColor) {
-        try {
-          const res = await window.api.getThemeColor();
-          if (res && res.success && res.color) {
-            setSelectedColorId(res.color);
-            // The App.jsx already applies the class on load,
-            // but we ensure our local state is in sync.
-          } else {
-            setSelectedColorId('blue'); // Fallback
-            if(res && !res.success) setMessage(`Erreur chargement thème: ${res.error}`);
-          }
-        } catch (error) {
-          setSelectedColorId('blue'); // Fallback
-          setMessage(`Erreur API chargement thème: ${error.message}`);
-          console.error("AdminTemplate fetchCurrentTheme error:", error);
-        }
-      } else {
-        setMessage("API de thème non disponible.");
-        setSelectedColorId('blue'); // Fallback
-      }
+      const saved = localStorage.getItem('themeColor') || 'blue';
+      setSelectedColorId(saved);
+      THEME_COLORS.forEach(c => document.body.classList.remove('theme-' + c.id));
+      document.body.classList.add('theme-' + saved);
       setIsLoading(false);
     }
     fetchCurrentTheme();
@@ -50,26 +34,8 @@ export default function AdminTemplate() {
   const handleSelectColor = async (colorId) => {
     setSelectedColorId(colorId);
     applyThemeClassToBody(colorId);
-    setMessage('Application du thème...');
-
-    if (window.api && window.api.setThemeColor) {
-      try {
-        const res = await window.api.setThemeColor(colorId);
-        if (res.success) {
-          setMessage('Thème appliqué et sauvegardé avec succès !');
-        } else {
-          setMessage(`Erreur sauvegarde thème: ${res.error || 'Erreur inconnue.'}`);
-          // Optionally revert to previously saved theme if save fails
-          // const prevTheme = await window.api.getThemeColor(); // Simplified here
-          // if (prevTheme.success) applyThemeClassToBody(prevTheme.color);
-        }
-      } catch (error) {
-        setMessage(`Erreur API sauvegarde thème: ${error.message}`);
-        console.error("AdminTemplate handleSelectColor error:", error);
-      }
-    } else {
-      setMessage("API de thème non disponible pour la sauvegarde.");
-    }
+    localStorage.setItem('themeColor', colorId);
+    setMessage('Thème appliqué !');
   };
 
   if (isLoading) {
