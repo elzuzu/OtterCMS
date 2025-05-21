@@ -47,7 +47,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
 
   // Styles pour les cartes de statistiques
   const valueStyle = {
-    fontSize: '2.25rem',
+    fontSize: '1.8rem',
     fontWeight: '700',
     color: 'var(--color-primary-600)',
     lineHeight: '1.2',
@@ -56,27 +56,27 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   };
 
   const labelStyle = {
-    fontSize: '0.875rem',
+    fontSize: '0.8rem',
     color: 'var(--text-color-secondary)',
     textAlign: 'center',
-    minHeight: '2.2em', 
+    minHeight: '2em',
   };
   
   const descriptionStyle = {
-    fontSize: '0.75rem',
+    fontSize: '0.7rem',
     color: 'var(--text-color-placeholder)',
     textAlign: 'center',
-    marginTop: 'var(--spacing-2)',
-    minHeight: '2.5em', 
-    marginBottom: 'var(--spacing-3)',
+    marginTop: 'var(--spacing-1)',
+    minHeight: '2em',
+    marginBottom: 'var(--spacing-2)',
   };
 
   const cardButtonStyle = {
     display: 'block',
     width: 'calc(100% - var(--spacing-4))',
-    margin: 'var(--spacing-3) auto 0',
-    padding: 'var(--spacing-2) var(--spacing-3)',
-    fontSize: '0.875rem',
+    margin: 'var(--spacing-2) auto 0',
+    padding: 'var(--spacing-1) var(--spacing-2)',
+    fontSize: '0.8rem',
   };
 
   // Fonction pour charger les statistiques depuis l'API.
