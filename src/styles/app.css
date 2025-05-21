@@ -108,7 +108,48 @@
   --border-color-readonly-display: var(--color-neutral-200); 
   --border-color-error: var(--color-danger-500); 
   --border-color-success: var(--color-success-500); 
-  --border-color-info: var(--color-primary-500); 
+  --border-color-info: var(--color-primary-500);
+}
+
+/* === Thèmes de couleur === */
+body.theme-blue {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+}
+
+body.theme-green {
+  --color-primary-50: #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+}
+
+body.theme-purple {
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+}
+
+body.theme-orange {
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+}
+
+body.theme-red {
+  --color-primary-50: #fef2f2;
+  --color-primary-100: #fee2e2;
+  --color-primary-500: #ef4444;
+  --color-primary-600: #dc2626;
+  --color-primary-700: #b91c1c;
 }
 
 /* ===== RÉINITIALISATION ET STYLES DE BASE ===== */

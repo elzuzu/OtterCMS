@@ -9,28 +9,10 @@ export default function App() {
 
   useEffect(() => {
     async function loadThemeAndUser() {
-      // Load theme first
-      if (window.api && window.api.getThemeColor) {
-        try {
-          const res = await window.api.getThemeColor();
-          if (res && res.success && res.color) {
-            // Remove any existing theme classes
-            ['blue', 'green', 'purple', 'orange', 'red'].forEach(c => document.body.classList.remove('theme-' + c));
-            // Add the new theme class
-            document.body.classList.add('theme-' + res.color);
-          } else {
-            // Fallback to default blue if not successful or color not returned
-            document.body.classList.add('theme-blue');
-            if (res && !res.success) console.error("Failed to load theme:", res.error);
-          }
-        } catch (error) {
-          console.error("Error calling getThemeColor:", error);
-          document.body.classList.add('theme-blue'); // Fallback on API error
-        }
-      } else {
-        // API not available, default to blue
-        document.body.classList.add('theme-blue');
-      }
+      // Load theme from localStorage
+      const saved = localStorage.getItem('themeColor') || 'blue';
+      ['blue', 'green', 'purple', 'orange', 'red'].forEach(c => document.body.classList.remove('theme-' + c));
+      document.body.classList.add('theme-' + saved);
       setLoadingTheme(false);
 
       // Potentially load persisted user session here if you implement that

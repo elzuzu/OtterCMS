@@ -51,8 +51,7 @@ function loadConfig() {
 
   return {
     dbPath: defaultDbPath,
-    appTitle: "Indi-Suivi (Config par défaut)",
-    themeColor: "blue" // Default theme color
+    appTitle: "Indi-Suivi (Config par défaut)"
   };
 }
 
@@ -1188,26 +1187,6 @@ ipcMain.handle('getDashboardStats', async (event, { userId, role }) => {
     return { success: false, error: 'Erreur lors de la récupération des statistiques: ' + err.message, data: {} };
   }
 });
-
-// IPC handlers for theme
-ipcMain.handle('getThemeColor', async () => {
-  logIPC('getThemeColor');
-  // Access the 'config' object that was loaded at startup
-  return { success: true, color: config.themeColor || 'blue' };
-});
-
-ipcMain.handle('setThemeColor', async (event, color) => {
-  logIPC('setThemeColor', color);
-  try {
-    config.themeColor = color; // Update in-memory config
-    saveConfig(config); // Persist to file
-    return { success: true };
-  } catch (err) {
-    logError('setThemeColor IPC', err);
-    return { success: false, error: err.message };
-  }
-});
-
 
 // --- Electron App Lifecycle ---
 app.whenReady().then(() => {
