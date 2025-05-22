@@ -946,6 +946,8 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     }
 
     // --- Phase 2: Process Rows ---
+    const totalRows = dataRows.length;
+    try { event.sender.send('import-progress', { current: 0, total: totalRows, percent: 0 }); } catch (_) {}
     for (let i = 0; i < dataRows.length; i++) {
         const rowArray = dataRows[i];
         if (!Array.isArray(rowArray)) {
@@ -1058,8 +1060,10 @@ ipcMain.handle('importCSV', async (event, importParams) => {
             errorsDetailed.push(`Ligne ${i + 2} (NumUnique: ${individuData.numero_unique || 'N/A'}): Erreur interne - ${rowError.message}`);
             logError('importCSV (row processing)', rowError);
         }
-    } 
-
+        const percent = Math.round(((i + 1) / totalRows) * 100);
+        try { event.sender.send('import-progress', { current: i + 1, total: totalRows, percent }); } catch (_) {}
+    }
+    try { event.sender.send('import-progress', { current: totalRows, total: totalRows, percent: 100 }); } catch (_) {}
     return { success: true, insertedCount, updatedCount, errorCount, errors: errorsDetailed, newCategoriesCreatedCount, newFieldsAddedCount };
 
   } catch (e) {
@@ -1068,6 +1072,7 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     const totalRowsToProcess = jsonData && jsonData.length > 1 ? jsonData.length - 1 : 0;
     const processedCount = insertedCount + updatedCount;
     const remainingErrorCount = totalRowsToProcess > processedCount ? totalRowsToProcess - processedCount : errorCount;
+    try { event.sender.send('import-progress', { current: processedCount, total: totalRowsToProcess, percent: 100 }); } catch (_) {}
     return { success: false, error: `Erreur critique: ${e.message}`, insertedCount, updatedCount, errorCount: remainingErrorCount, errors: errorsDetailed, newCategoriesCreatedCount, newFieldsAddedCount };
   }
 });
