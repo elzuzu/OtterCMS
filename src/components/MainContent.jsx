@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import packageJson from '../../package.json';
 import Dashboard from './Dashboard';
 import IndividusList from './IndividusList';
 import ImportData from './ImportData';
@@ -240,7 +241,7 @@ export default function MainContent({ user, onLogout }) {
           color: 'var(--text-color-secondary)',
         }}
       >
-        <div className="app-info">Version 1.1.0 &bull; &copy; 2025</div>
+        <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
       </footer>
     </div>
   );
