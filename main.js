@@ -248,6 +248,14 @@ ipcMain.handle('test-ipc', async (event, arg) => {
   return { success: true, message: 'IPC connection works!' };
 });
 
+// Resize window on demand from renderer
+ipcMain.handle('resize-window', async (event, { width, height }) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && width && height) {
+    win.setSize(parseInt(width, 10), parseInt(height, 10));
+  }
+});
+
 ipcMain.handle('init-database', async (event) => {
   logIPC('init-database');
   try {
