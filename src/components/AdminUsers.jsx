@@ -262,14 +262,14 @@ export default function AdminUsers() {
         <div className="no-data-message">Aucun utilisateur trouvé.</div>
       ) : (
         <div className="table-responsive">
-        <table className="users-table">
+        <table className="users-table data-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Nom d'utilisateur</th>
               <th>Rôle</th>
               <th>Login Windows</th>
-              <th>Actions</th>
+              <th style={{ textAlign: 'center' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -279,7 +279,7 @@ export default function AdminUsers() {
                 <td>{user.username}</td>
                 <td>{user.role}</td>
                 <td>{user.windows_login || '-'}</td>
-                <td>
+                <td style={{ textAlign: 'center' }}>
                   <button
                     onClick={() => startEditing(user)}
                     className="btn-secondary btn-small btn-icon"
