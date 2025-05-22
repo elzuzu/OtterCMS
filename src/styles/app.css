@@ -126,6 +126,7 @@
   --border-color-error: var(--color-danger-500);
   --border-color-success: var(--color-success-500);
   --border-color-info: var(--color-primary-500);
+  --header-height: 3rem;
 }
 
 /* === Thèmes de couleur === */
@@ -236,28 +237,33 @@ a:hover {
   min-height: 100vh;
 }
 
-header {
+header.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   flex-wrap: wrap; /* Pour une meilleure responsivité */
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--spacing-6); /* Réduit pour rapprocher la nav */
-  padding-bottom: var(--spacing-4); /* Réduit */
-  border-bottom: 1px solid var(--border-color-light);
+  background-color: var(--color-primary-600);
+  color: var(--text-color-on-primary);
+  padding: var(--spacing-2) var(--spacing-8);
+  margin-bottom: var(--spacing-4);
+  min-height: var(--header-height);
 }
 
 .app-title h1 {
   margin-bottom: 0;
   font-size: 1.75rem; /* 28px */
-  color: var(--color-primary-600);
+  color: var(--text-color-on-primary);
 }
 
 .user-info {
   font-size: 0.875rem; /* 14px */
-  color: var(--text-color-secondary);
+  color: var(--text-color-on-primary);
 }
 .user-info strong {
-    color: var(--text-color-primary);
+    color: var(--text-color-on-primary);
 }
 
 
@@ -273,7 +279,7 @@ header {
   border-right: 1px solid var(--border-color-medium);
   background-color: var(--surface-color);
   position: sticky;
-  top: 0;
+  top: var(--header-height);
   align-self: flex-start;
   height: calc(100vh - (var(--spacing-6) * 2) - 50px); /* Hauteur approx. pour sticky nav, à ajuster */
   overflow-y: auto; /* Si la nav devient trop longue */
@@ -3033,6 +3039,7 @@ textarea[readOnly] {
     display: flex;
     overflow-x: auto; /* Permet à la nav de défiler horizontalement si elle est trop large */
     height: auto; /* Reset height for horizontal layout */
+    top: var(--header-height);
   }
   .main-nav ul {
     flex-direction: row;
