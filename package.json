@@ -16,7 +16,8 @@
     "dist:portable": "electron-builder --win portable",
     "dist:zip": "electron-builder --win zip",
     "dist:all": "electron-builder --win portable zip",
-    "dist:clean": "rimraf dist release-builds"
+    "dist:clean": "rimraf dist release-builds",
+    "postinstall": "electron-rebuild"
   },
   "keywords": [
     "electron",
@@ -53,6 +54,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "electron": "^29.1.5",
     "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.7.2",
     "rimraf": "^5.0.5",
     "vite": "^6.3.5"
   }
