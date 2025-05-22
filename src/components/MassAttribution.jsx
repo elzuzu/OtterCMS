@@ -430,7 +430,7 @@ export default function MassAttribution({ user }) {
               </div>
               <div className="individus-selection">
                 <div className="table-header"><label className="select-all"><input type="checkbox" checked={selectAll} onChange={toggleSelectAll} disabled={filteredIndividus.length === 0} />Tout sélectionner ({filteredIndividus.length})</label></div>
-                {loading ? <div className="loading">Chargement des individus...</div> : filteredIndividus.length === 0 ? <div className="no-results"><p>Aucun individu ne correspond.</p><button onClick={resetAllFilters} className="btn-reset-filters">Réinitialiser les filtres</button></div> : <div className="individus-table-container"><table className="individus-table">
+                {loading ? <div className="loading">Chargement des individus...</div> : filteredIndividus.length === 0 ? <div className="no-results"><p>Aucun individu ne correspond.</p><button onClick={resetAllFilters} className="btn-reset-filters">Réinitialiser les filtres</button></div> : <div className="individus-table-container table-responsive"><table className="individus-table data-table">
                   <thead><tr><th style={{ width: '40px' }}></th><th>N° Individu</th><th>En charge</th>{fieldFilters.map((filter, idx) => <th key={idx}>{filter.field.label}</th>)}</tr></thead>
                   <tbody>{filteredIndividus.map(individu => <tr key={individu.id} className={selectedIndividus.includes(individu.id) ? 'selected-row' : ''}>
                     <td><input type="checkbox" checked={selectedIndividus.includes(individu.id)} onChange={() => toggleIndividuSelection(individu.id)} /></td>
