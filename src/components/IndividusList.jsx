@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
+import { formatDateToDDMMYYYY } from '../utils/date';
 
 // Icône d'édition simple
 const EditIcon = () => (
@@ -427,15 +428,8 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
 
                     if (champConfig.type === 'boolean') {
                       displayValue = value ? 'Oui' : 'Non';
-                    } else if (value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)) && (value.match(/^\d{4}-\d{2}-\d{2}/) || value.match(/^\d{2}\.\d{2}\.\d{4}/)) )) {
-                       try { 
-                        let dateToParse = value;
-                        if (typeof value === 'string' && value.includes('.')) { 
-                            const parts = value.split('.');
-                            if (parts.length === 3) dateToParse = `${parts[2]}-${parts[1]}-${parts[0]}`; 
-                        }
-                        displayValue = new Date(dateToParse).toLocaleDateString(); 
-                       } catch (e) { displayValue = String(value); }
+                    } else if (champConfig.type === 'date' || value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)))) {
+                      displayValue = formatDateToDDMMYYYY(value);
                     } else {
                       displayValue = value === null || value === undefined ? '' : String(value);
                     }

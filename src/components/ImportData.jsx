@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
+import { formatDateToDDMMYYYY } from '../utils/date';
 
 // Constantes pour les types de champs disponibles
 const FIELD_TYPES = [
@@ -27,88 +28,6 @@ function cleanSwissNumberString(value) {
     return value; // Déjà un nombre
   }
   return value; // Retourner l'original si ce n'est pas une chaîne convertible ou déjà un nombre
-}
-
-// Fonction pour normaliser les valeurs de date (chaînes ou numéros de série Excel) en DD.MM.YYYY
-function normalizeDateValue(value) {
-  if (value === null || typeof value === 'undefined' || value === "") {
-    return value; // Retourner les valeurs vides ou nulles telles quelles
-  }
-
-  let dateObj;
-
-  if (value instanceof Date) { // Au cas où, bien que raw:false devrait stringifier
-    dateObj = value;
-  } else if (typeof value === 'number') {
-    // Gérer les numéros de série de date Excel.
-    // XLSX.SSF.parse_date_code convertit la date série en un objet {y,m,d,...}
-    // Les dates Excel sont le nombre de jours depuis le 30/12/1899 (pour Excel Windows)
-    if (value > 0 && value < 2958466) { // Plage heuristique pour les dates Excel (01/01/1900 au 31/12/9999)
-        try {
-            // Tenter de parser le numéro de série avec la fonction de XLSX
-            const dateParts = XLSX.SSF.parse_date_code(value);
-            if (dateParts) {
-                // Le mois dans parse_date_code est indexé à 1
-                dateObj = new Date(Date.UTC(dateParts.y, dateParts.m - 1, dateParts.d, dateParts.H || 0, dateParts.M || 0, dateParts.S || 0));
-            }
-        } catch (e) { /* ignorer si ce n'est pas une date Excel valide, dateObj restera undefined */ }
-    }
-  } else if (typeof value === 'string') {
-    // Tenter de parser les formats de chaîne courants
-    // Format 1: DD.MM.YYYY (cible et entrée possible)
-    let parts = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-    if (parts) {
-      const d = parseInt(parts[1], 10), m = parseInt(parts[2], 10) - 1, y = parseInt(parts[3], 10);
-      const tempDate = new Date(Date.UTC(y, m, d));
-      // Valider que les parties de la date forment une date valide (ex: pas 31.02.2023)
-      if (tempDate.getUTCFullYear() === y && tempDate.getUTCMonth() === m && tempDate.getUTCDate() === d) {
-        dateObj = tempDate;
-      }
-    }
-
-    // Format 2: YYYY-MM-DD (ISO)
-    if (!dateObj) {
-      parts = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-      if (parts) {
-        const y = parseInt(parts[1], 10), m = parseInt(parts[2], 10) - 1, d = parseInt(parts[3], 10);
-        const tempDate = new Date(Date.UTC(y, m, d));
-        if (tempDate.getUTCFullYear() === y && tempDate.getUTCMonth() === m && tempDate.getUTCDate() === d) {
-          dateObj = tempDate;
-        }
-      }
-    }
-    
-    // Format 3: MM/DD/YYYY (US)
-    if (!dateObj) {
-      parts = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-      if (parts) {
-        const m = parseInt(parts[1], 10) - 1, d = parseInt(parts[2], 10), y = parseInt(parts[3], 10);
-        const tempDate = new Date(Date.UTC(y, m, d));
-        if (tempDate.getUTCFullYear() === y && tempDate.getUTCMonth() === m && tempDate.getUTCDate() === d) {
-          dateObj = tempDate;
-        }
-      }
-    }
-    
-    // Fallback: essayer l'analyse directe par le constructeur Date (moins fiable pour les formats ambigus)
-    if (!dateObj && value.length > 5) { 
-        const parsed = new Date(value);
-        if (parsed && !isNaN(parsed.getTime()) && value.match(/[a-zA-Z0-9]/)) {
-            if (parsed.getFullYear() > 1900 && (value.includes(String(parsed.getFullYear())) || value.includes(String(parsed.getFullYear()).slice(-2)))) {
-                 dateObj = parsed;
-            }
-        }
-    }
-  }
-
-  // Si un objet Date valide a été obtenu, le formater en DD.MM.YYYY
-  if (dateObj && !isNaN(dateObj.getTime())) {
-    const day = String(dateObj.getUTCDate()).padStart(2, '0');
-    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0'); // Le mois est indexé à 0
-    const year = dateObj.getUTCFullYear();
-    return `${day}.${month}.${year}`;
-  }
-  return value; // Retourner l'original si toutes les tentatives d'analyse et de formatage échouent
 }
 
 
@@ -155,7 +74,7 @@ function cleanRowData(rawRow, rawHeaders, finalColumnsConfig, existingFields) {
     if (fieldType === 'number') {
       cleanedValue = cleanSwissNumberString(rawValue);
     } else if (fieldType === 'date') {
-      cleanedValue = normalizeDateValue(rawValue);
+      cleanedValue = formatDateToDDMMYYYY(rawValue);
     }
     // Ajouter d'autres types si nécessaire, par exemple, booléen pour 'checkbox'
     // Pour 'text', 'list', 'checkbox' (si la valeur est une chaîne comme 'true'/'false'),
@@ -602,7 +521,7 @@ export default function ImportData({ user }) {
         header: 1, // Récupère les données sous forme de tableau de tableaux
         defval: "", // Valeur par défaut pour les cellules vides
         raw: false // IMPORTANT : Convertit les valeurs en chaînes formatées ou nombres (pas d'objets Date bruts)
-                     // C'est pourquoi normalizeDateValue doit gérer les chaînes et les nombres.
+                     // C'est pourquoi formatDateToDDMMYYYY doit gérer les chaînes et les nombres.
       });
       
       // Exclure la ligne d'en-tête des données à traiter si elle est présente

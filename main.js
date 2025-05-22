@@ -290,33 +290,34 @@ function inferType(value) {
     // Date check (YYYY-MM-DD)
     const dateRegexYYYYMMDD = /^\d{4}-\d{2}-\d{2}$/;
     if (dateRegexYYYYMMDD.test(trimmedValue)) {
-      const date = new Date(trimmedValue + "T00:00:00Z"); // Assume UTC if no timezone
+      const date = new Date(trimmedValue + "T00:00:00Z");
       if (!isNaN(date.getTime())) {
         return date.toISOString().split('T')[0];
       }
     }
-  
-    // Date check (DD/MM/YYYY or MM/DD/YYYY - attempt to parse common formats)
-    const dateRegexDMY = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
-    if (dateRegexDMY.test(trimmedValue)) {
-      const parts = trimmedValue.split(/[\/\-]/);
-      const d = parseInt(parts[0], 10);
-      const m = parseInt(parts[1], 10);
-      const y = parseInt(parts[2], 10);
-  
-      // Try DD/MM/YYYY first (common in France)
-      if (d > 0 && d <= 31 && m > 0 && m <= 12 && y > 1000 && y < 3000) {
-        const date = new Date(Date.UTC(y, m - 1, d));
-        if (date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d) {
+
+    // Date check (DD.MM.YYYY or DD/MM/YYYY or MM/DD/YYYY)
+    const dotted = trimmedValue.match(/^(\d{1,2})[\.\/\-](\d{1,2})[\.\/\-](\d{2,4})$/);
+    if (dotted) {
+      let p1 = parseInt(dotted[1], 10);
+      let p2 = parseInt(dotted[2], 10);
+      let year = parseInt(dotted[3], 10);
+      if (year < 100) year += year < 50 ? 2000 : 1900;
+
+      let day, month;
+      if (p1 > 12) {
+        day = p1; month = p2;
+      } else if (p2 > 12) {
+        day = p2; month = p1;
+      } else {
+        day = p1; month = p2;
+      }
+
+      if (day > 0 && day <= 31 && month > 0 && month <= 12) {
+        const date = new Date(Date.UTC(year, month - 1, day));
+        if (!isNaN(date.getTime())) {
           return date.toISOString().split('T')[0];
         }
-      }
-      // Try MM/DD/YYYY as a fallback
-      if (m > 0 && m <= 31 && d > 0 && d <= 12 && y > 1000 && y < 3000) {
-           const date = new Date(Date.UTC(y, d - 1, m));
-           if (date.getUTCFullYear() === y && date.getUTCMonth() === d - 1 && date.getUTCDate() === m) {
-              return date.toISOString().split('T')[0];
-          }
       }
     }
     return value; // Return original string if no other type matches
