@@ -7,8 +7,13 @@
   "files": [
     "dist/**/*",
     "main.js",
-    "preload.js",
-    "config/**/*"
+    "preload.js"
+  ],
+  "extraFiles": [
+    {
+      "from": "config/app-config.json",
+      "to": "config/app-config.json"
+    }
   ],
   "win": {
     "target": ["portable", "zip"],
