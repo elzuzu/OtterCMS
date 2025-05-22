@@ -7,6 +7,33 @@ const xlsx = require('xlsx');
 const { log, logError, logIPC } = require('./utils/logger');
 const { inferType } = require('./utils/inferType');
 
+const DEFAULT_ROLE_PERMISSIONS = {
+  admin: [
+    'view_dashboard',
+    'view_individus',
+    'import_data',
+    'mass_attribution',
+    'manage_categories',
+    'manage_users',
+    'manage_roles',
+    'manage_columns',
+    'edit_all',
+    'edit_readonly_fields'
+  ],
+  manager: [
+    'view_dashboard',
+    'view_individus',
+    'import_data',
+    'mass_attribution',
+    'edit_all'
+  ],
+  user: [
+    'view_dashboard',
+    'view_individus',
+    'edit_assigned'
+  ]
+};
+
 // Global variable for the database
 let db;
 
@@ -97,6 +124,13 @@ function initPreparedStatements() {
     preparedStatements.hideCategory = db.prepare('UPDATE categories SET deleted = 1 WHERE id = ?'); // Soft delete for categories
     preparedStatements.getMaxCategoryOrder = db.prepare('SELECT MAX(ordre) as max_ordre FROM categories');
 
+    // Roles
+    preparedStatements.getAllRoles = db.prepare('SELECT name, permissions FROM roles ORDER BY name ASC');
+    preparedStatements.getRoleByName = db.prepare('SELECT permissions FROM roles WHERE name = ?');
+    preparedStatements.insertRole = db.prepare('INSERT INTO roles (name, permissions) VALUES (?, ?)');
+    preparedStatements.updateRole = db.prepare('UPDATE roles SET permissions = ? WHERE name = ?');
+    preparedStatements.deleteRole = db.prepare('DELETE FROM roles WHERE name = ?');
+
 
     // Individus
     preparedStatements.getIndividuById = db.prepare(`
@@ -159,6 +193,10 @@ function initializeDatabaseSync() {
       ordre INTEGER DEFAULT 0,
       deleted INTEGER DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS roles (
+      name TEXT PRIMARY KEY,
+      permissions TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS individus (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       numero_unique TEXT, -- Should ideally be UNIQUE if not nullable
@@ -193,6 +231,12 @@ function initializeDatabaseSync() {
     log('Admin user created successfully (password: admin). ID:', info.lastInsertRowid);
   } else {
     log('Admin user already exists.');
+  }
+
+  // Ensure default roles exist with permissions
+  const insertRoleStmt = newDb.prepare('INSERT OR IGNORE INTO roles (name, permissions) VALUES (?, ?)');
+  for (const [name, perms] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
+    insertRoleStmt.run(name, JSON.stringify(perms));
   }
   return newDb;
 }
@@ -280,12 +324,14 @@ ipcMain.handle('auth-login', async (event, { username, password }) => {
     if (!match) {
       return { success: false, error: 'Incorrect password.' };
     }
+    const perms = getRolePermissionsSync(user.role) || [];
     return {
       success: true,
       role: user.role,
       userId: user.id, // Ensure consistent ID field
       username: user.username,
-      windows_login: user.windows_login
+      windows_login: user.windows_login,
+      permissions: perms
     };
   } catch (err) {
     logError('auth-login', err);
@@ -310,6 +356,18 @@ function findUserByUsernameSync(username) {
   return preparedStatements.getUserByUsername.get(username);
 }
 
+function getRolePermissionsSync(name) {
+  if (!db || !preparedStatements.getRoleByName) return null;
+  const row = preparedStatements.getRoleByName.get(name);
+  if (!row) return null;
+  try {
+    return JSON.parse(row.permissions || '[]');
+  } catch (e) {
+    logError('getRolePermissionsSync JSON parse', e);
+    return [];
+  }
+}
+
 ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
   logIPC('auto-login-windows', windowsUsername);
   try {
@@ -320,12 +378,14 @@ ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
     if (!user) {
       return { success: false, error: 'No user associated with this Windows account' };
     }
+    const perms = getRolePermissionsSync(user.role) || [];
     return {
       success: true,
       userId: user.id,
       username: user.username,
       role: user.role,
-      windows_login: user.windows_login // Send back the stored login for consistency
+      windows_login: user.windows_login, // Send back the stored login for consistency
+      permissions: perms
     };
   } catch (error) {
     logError('auto-login-windows', error);
@@ -437,6 +497,55 @@ ipcMain.handle('getUsers', async () => {
   } catch (err) {
     logError('getUsers', err);
     return { success: false, error: err.message, data: [] };
+  }
+});
+
+ipcMain.handle('getRoles', async () => {
+  logIPC('getRoles');
+  if (!db || !preparedStatements.getAllRoles) return { success: false, error: 'Database not initialized or statements not prepared.', data: [] };
+  try {
+    const rows = preparedStatements.getAllRoles.all();
+    const roles = rows.map(r => ({ name: r.name, permissions: JSON.parse(r.permissions || '[]') }));
+    return { success: true, data: roles };
+  } catch (err) {
+    logError('getRoles', err);
+    return { success: false, error: err.message, data: [] };
+  }
+});
+
+ipcMain.handle('createRole', async (event, { name, permissions }) => {
+  logIPC('createRole', name);
+  if (!db || !preparedStatements.insertRole) return { success: false, error: 'Database not initialized or statements not prepared.' };
+  try {
+    preparedStatements.insertRole.run(name, JSON.stringify(permissions || []));
+    return { success: true };
+  } catch (err) {
+    logError('createRole', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('updateRole', async (event, { name, permissions }) => {
+  logIPC('updateRole', name);
+  if (!db || !preparedStatements.updateRole) return { success: false, error: 'Database not initialized or statements not prepared.' };
+  try {
+    const info = preparedStatements.updateRole.run(JSON.stringify(permissions || []), name);
+    return { success: true, changes: info.changes };
+  } catch (err) {
+    logError('updateRole', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('deleteRole', async (event, name) => {
+  logIPC('deleteRole', name);
+  if (!db || !preparedStatements.deleteRole) return { success: false, error: 'Database not initialized or statements not prepared.' };
+  try {
+    const info = preparedStatements.deleteRole.run(name);
+    return { success: true, changes: info.changes };
+  } catch (err) {
+    logError('deleteRole', err);
+    return { success: false, error: err.message };
   }
 });
 
