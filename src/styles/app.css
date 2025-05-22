@@ -310,8 +310,10 @@ header {
 }
 
 .main-nav ul li button.active {
-  background-color: var(--color-neutral-100);
+  background-color: var(--color-primary-50);
   color: var(--color-primary-700);
+  font-weight: 600;
+  border-left: 4px solid var(--color-primary-600);
 }
 
 .main-nav ul li button:focus-visible {
@@ -1152,9 +1154,10 @@ input[type="checkbox"]:focus {
   background-color: var(--color-primary-50);
 }
 .fiche-tabs button.active {
-  color: var(--color-primary-600);
-  border-bottom-color: var(--color-primary-500);
-  background-color: var(--surface-color);
+  color: var(--color-primary-700);
+  border-bottom-color: var(--color-primary-600);
+  background-color: var(--color-primary-50);
+  font-weight: 600;
 }
 .fiche-tabs button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .fiche-tabs button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -2533,6 +2536,7 @@ input[type="checkbox"]:focus {
   background: var(--color-primary-600);
   color: #fff;
   border-color: var(--color-primary-600);
+  font-weight: 600;
 }
 .btn-icon {
   padding: var(--spacing-1);
@@ -2637,10 +2641,10 @@ input[type="checkbox"]:focus {
 }
 
 .tab-button.active {
-  color: var(--color-primary-500);
-  font-weight: bold;
-  border-bottom-color: var(--color-primary-500);
-  background-color: var(--surface-color);
+  color: var(--color-primary-700);
+  font-weight: 600;
+  border-bottom-color: var(--color-primary-600);
+  background-color: var(--color-primary-50);
 }
 
 /* Style différencié pour l'onglet Historique actif */
@@ -3006,6 +3010,10 @@ textarea[readOnly] {
     width: 100%;
     justify-content: flex-start;
     padding-bottom: var(--spacing-2);
+  }
+  .main-nav ul li button.active {
+    border-left: none;
+    border-bottom: 4px solid var(--color-primary-600);
   }
   .content {
     width: 100%; /* Prend toute la largeur en mode mobile */
