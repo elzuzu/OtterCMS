@@ -296,7 +296,7 @@ export default function AdminCategories() {
         <h3>{editTemplate ? `Modifier la catégorie "${editTemplate.nom}"` : 'Ajouter une nouvelle catégorie'}</h3>
         {message.text && (
           <div className={`message-banner ${message.type === 'success' ? 'success-message' : message.type === 'info' ? 'info-message' : 'error-message'}`}>
-            {message.type === 'success' ? '✓ ' : message.type === 'info' ? 'ℹ️ ' : '⚠ '} {message.text}
+            {message.text}
           </div>
         )}
         <form onSubmit={handleSaveCategory}>
