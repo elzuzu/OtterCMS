@@ -18,17 +18,6 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [champsPromus, setChampsPromus] = useState([]);
   const [allRawCategories, setAllRawCategories] = useState([]); // Pour stocker toutes les catégories pour la recherche de libellés
 
-  useEffect(() => {
-    if (window.electronAPI?.resizeWindow) {
-      window.electronAPI.resizeWindow(1600, 900);
-    }
-    return () => {
-      if (window.electronAPI?.resizeWindow) {
-        window.electronAPI.resizeWindow(1366, 768);
-      }
-    };
-  }, []);
-
   // Fonction utilitaire pour obtenir le libellé du champ à partir de sa clé
   const getChampLabel = useCallback((champKey) => {
     // Cas spécifiques pour les champs non dynamiques connus

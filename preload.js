@@ -175,7 +175,3 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.removeListener('import-progress', callback);
   }
 });
-
-contextBridge.exposeInMainWorld('electronAPI', {
-  resizeWindow: (width, height) => ipcRenderer.invoke('resize-window', { width, height })
-});
