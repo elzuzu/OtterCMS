@@ -74,7 +74,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   const cardButtonStyle = {
     display: 'block',
     width: 'calc(100% - var(--spacing-4))',
-    margin: 'var(--spacing-2) auto 0',
+    margin: 'auto auto 0',
     padding: 'var(--spacing-1) var(--spacing-2)',
     fontSize: '0.8rem',
   };
