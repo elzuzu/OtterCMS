@@ -40,6 +40,19 @@ const tabIcons = {
 export default function MainContent({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [requestedViewForIndividus, setRequestedViewForIndividus] = useState(null);
+  const [appTitle, setAppTitle] = useState('indi-suivi-nodejs');
+
+  useEffect(() => {
+    async function fetchTitle() {
+      if (window.api && window.api.getConfig) {
+        const result = await window.api.getConfig();
+        if (result.success && result.data && result.data.appTitle) {
+          setAppTitle(result.data.appTitle);
+        }
+      }
+    }
+    fetchTitle();
+  }, []);
 
   useEffect(() => {
     // Case 1: A specific view for 'individus' was requested (e.g., from Dashboard buttons)
@@ -190,7 +203,7 @@ export default function MainContent({ user, onLogout }) {
     <div className="app">
       <header className="app-header">
         <div className="app-title">
-          <h1>indi-suivi-nodejs</h1>
+          <h1>{appTitle}</h1>
         </div>
         <div className="user-section" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span className="user-info">

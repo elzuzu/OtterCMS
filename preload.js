@@ -16,6 +16,13 @@ contextBridge.exposeInMainWorld('api', {
       return { success: false, error: error.message };
     }
   },
+  getConfig: async () => {
+    try {
+      return await ipcRenderer.invoke('getConfig');
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
   login: async (username, password) => {
     try {
       return await ipcRenderer.invoke('auth-login', { username, password });
