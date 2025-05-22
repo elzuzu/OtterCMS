@@ -1275,6 +1275,9 @@ input[type="checkbox"]:focus {
 }
 
 .stats-card, .user-info-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background-color: var(--surface-color);
   border-radius: var(--border-radius-lg);
   padding: var(--spacing-4);
