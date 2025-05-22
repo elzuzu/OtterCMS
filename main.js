@@ -755,7 +755,20 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     return { success: false, error: 'Paramètres d\'import manquants.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Paramètres manquants.'] };
   }
 
-  const { fileContent, fileName, numeroIndividuHeader, columns, newCategories, userId, createIfMissing } = importParams;
+  // Sécuriser l'extraction des paramètres
+  const {
+    fileContent,
+    fileName,
+    numeroIndividuHeader,
+    columns: rawColumns,
+    newCategories: rawNewCategories,
+    userId,
+    createIfMissing
+  } = importParams;
+
+  // Utiliser des valeurs sûres pour éviter les erreurs lors de l'accès aux propriétés
+  const columns = (rawColumns && typeof rawColumns === 'object') ? rawColumns : {};
+  const newCategories = Array.isArray(rawNewCategories) ? rawNewCategories : [];
   
   // CORRECTION CRITIQUE : Protéger l'appel logIPC
   let numCols = 0;
