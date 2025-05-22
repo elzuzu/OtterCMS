@@ -174,7 +174,7 @@ html {
 }
 
 body, html, #root, .app {
-  overflow-x: hidden;
+  /* overflow-x: hidden; */ /* Commenté pour permettre le défilement si nécessaire au niveau de l'app, mais attention aux effets de bord */
   width: 100%;
   height: 100%;
 }
@@ -247,7 +247,8 @@ header {
 
 .app-body {
   display: flex;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 120px); /* Ajuster si la hauteur du header/footer change */
+  flex-grow: 1; /* Permet au corps de grandir */
 }
 
 .main-nav {
@@ -258,6 +259,8 @@ header {
   position: sticky;
   top: 0;
   align-self: flex-start;
+  height: calc(100vh - (var(--spacing-6) * 2) - 50px); /* Hauteur approx. pour sticky nav, à ajuster */
+  overflow-y: auto; /* Si la nav devient trop longue */
 }
 
 .main-nav ul {
@@ -312,6 +315,8 @@ header {
 .content {
   flex-grow: 1;
   padding: var(--spacing-4);
+  overflow-y: auto; /* Permet au contenu principal de défiler si besoin */
+  width: calc(100% - 220px); /* Si la nav est visible */
 }
 
 
@@ -710,8 +715,8 @@ input[type="checkbox"]:focus {
 }
 
 /* ===== TABLEAUX ===== */
-.table-container {
-  overflow-x: auto;
+.table-container { /* Conteneur général pour les tableaux, peut être utilisé pour ajouter des ombres, etc. */
+  overflow-x: auto; /* Fallback si .table-responsive n'est pas utilisé ou si la structure est différente */
   margin-bottom: var(--spacing-6);
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-lg);
@@ -719,10 +724,10 @@ input[type="checkbox"]:focus {
   background-color: var(--surface-color);
 }
 
-.table-responsive {
+.table-responsive { /* Classe spécifique pour rendre un tableau responsive avec défilement horizontal */
   width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--border-color-light);
+  border: 1px solid var(--border-color-light); /* Peut être redondant si .table-container est utilisé */
   border-radius: var(--border-radius-md);
   margin-bottom: var(--spacing-4);
   scrollbar-width: thin;
@@ -739,7 +744,8 @@ input[type="checkbox"]:focus {
 }
 
 .individus-table, .users-table, .audit-table, .data-table /* Ajout de .data-table */ {
-  width: 100%;
+  width: 100%; /* Par défaut, prend 100% de son conteneur. Si le conteneur est .table-responsive, c'est ok. */
+                 /* Si la table elle-même doit être plus large, elle doit être dans un conteneur avec overflow-x: auto */
   border-collapse: collapse; 
   font-size: 0.875rem; /* 14px */
 }
@@ -751,16 +757,20 @@ input[type="checkbox"]:focus {
   padding: var(--spacing-3) var(--spacing-4); 
   text-align: left;
   border-bottom: 1px solid var(--border-color-light);
+  white-space: nowrap; /* Empêche le retour à la ligne par défaut, important pour le défilement horizontal */
 }
 
 .individus-table th, .users-table th, .audit-table th, .data-table th /* Ajout de .data-table */ {
   background-color: var(--color-neutral-50); 
   font-weight: 500; /* Medium */
   color: var(--text-color-secondary);
-  white-space: nowrap; 
+  /* white-space: nowrap; */ /* Déjà défini ci-dessus */
   text-transform: uppercase; 
   font-size: 0.75rem; /* 12px */
   letter-spacing: 0.05em;
+  position: sticky; /* Pour les en-têtes flottants lors du défilement vertical */
+  top: 0;
+  z-index: 1;
 }
 
 .individus-table tr:last-child td,
@@ -1259,13 +1269,17 @@ input[type="checkbox"]:focus {
     border-right: none;
     border-bottom: 1px solid var(--border-color-medium);
     display: flex;
-    overflow-x: auto;
+    overflow-x: auto; /* Permet à la nav de défiler horizontalement si elle est trop large */
+    height: auto; /* Reset height for horizontal layout */
   }
   .main-nav ul {
     flex-direction: row;
     width: 100%;
     justify-content: flex-start;
     padding-bottom: var(--spacing-2);
+  }
+  .content {
+    width: 100%; /* Prend toute la largeur en mode mobile */
   }
 
   .actions-bar {
@@ -1333,36 +1347,39 @@ input[type="checkbox"]:focus {
     margin-bottom: var(--spacing-3); 
   }
 
-  .table-container {
-    border-radius: var(--border-radius-md); 
-  }
-  .individus-table, .users-table, .audit-table {
+  /* Styles pour les tableaux responsives (mode "carte") */
+  .table-responsive .individus-table, 
+  .table-responsive .users-table, 
+  .table-responsive .audit-table,
+  .table-responsive .data-table {
     display: block; 
     width: 100%;
   }
-  .individus-table thead, .users-table thead, .audit-table thead {
+  .table-responsive thead { /* Cacher les en-têtes en mode carte */
     display: none; 
   }
-  .individus-table tr, .users-table tr, .audit-table tr {
+  .table-responsive tr {
     display: block;
     margin-bottom: var(--spacing-4);
     border: 1px solid var(--border-color-light);
     border-radius: var(--border-radius-md);
     box-shadow: var(--shadow-sm);
     padding: var(--spacing-3);
+    background-color: var(--surface-color);
   }
-  .individus-table td, .users-table td, .audit-table td {
+  .table-responsive td {
     display: flex; 
     justify-content: space-between; 
     align-items: center;
     padding: var(--spacing-2) 0; 
     border-bottom: 1px dashed var(--border-color-light); 
     text-align: right; 
+    white-space: normal; /* Permettre le retour à la ligne dans les cellules en mode carte */
   }
-  .individus-table td:last-child, .users-table td:last-child, .audit-table td:last-child {
+  .table-responsive td:last-child {
     border-bottom: none;
   }
-  .individus-table td::before, .users-table td::before, .audit-table td::before {
+  .table-responsive td::before { /* Utiliser data-label pour afficher les en-têtes */
     content: attr(data-label); 
     font-weight: 500;
     color: var(--text-color-secondary);
@@ -1436,7 +1453,7 @@ input[type="checkbox"]:focus {
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--spacing-8);
-  overflow-x: hidden;
+  /* overflow-x: hidden; */ /* MODIFICATION: Commenté pour permettre le défilement des enfants */
 }
 .import-wizard {
   width: 100%;
@@ -1548,12 +1565,7 @@ input[type="checkbox"]:focus {
 
 .wizard-panel-content { /* Conteneur pour le contenu de chaque étape */
   animation: fadeInContent 0.3s ease-out;
-  /*
-   * Overflow horizontal masquait la barre de défilement des tableaux
-   * présents dans le composant ImportData. On le retire pour permettre
-   * un défilement horizontal correct.
-   */
-  overflow-x: visible;
+  /* overflow-x: hidden; */ /* MODIFICATION: Commenté pour permettre le défilement des enfants */
 }
 
 
@@ -1583,20 +1595,20 @@ input[type="checkbox"]:focus {
   color: var(--text-color-primary);
 }
 
-.import-wizard .preview-table-container {
+.import-wizard .preview-table-container { /* Ce conteneur doit permettre le défilement */
   width: 100%;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow-x: auto !important; /* Important pour s'assurer qu'il défile */
+  overflow-y: hidden !important; /* Empêche le défilement vertical ici */
   border: 1px solid var(--border-color-light);
   border-radius: var(--border-radius-sm);
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) transparent;
-  display: block;
+  display: block; /* S'assurer que le conteneur se comporte comme un bloc */
 }
 
 .import-wizard .preview-table-container::-webkit-scrollbar {
   height: 8px;
-  width: 0;
+  width: 8px; /* Ajouté pour une meilleure visibilité si nécessaire */
 }
 
 .import-wizard .preview-table-container::-webkit-scrollbar-thumb {
@@ -1609,26 +1621,30 @@ input[type="checkbox"]:focus {
   border-radius: var(--border-radius-full);
 }
 
-.import-wizard .preview-table {
-  width: max-content !important;
-  min-width: 100%;
-  white-space: nowrap;
-  table-layout: auto;
+.import-wizard .preview-table { /* La table elle-même doit pouvoir dépasser */
+  width: max-content !important; /* Permet à la table de s'étendre autant que son contenu */
+  min-width: 100%; /* Au moins la largeur de son conteneur */
+  white-space: nowrap; /* Empêche le retour à la ligne dans les cellules */
+  table-layout: auto; /* Laisser le navigateur déterminer la largeur des colonnes */
   border-collapse: collapse;
   font-size: 0.9em;
-  margin-bottom: 0;
+  margin-bottom: 0; /* Important si le conteneur a un padding pour la scrollbar */
 }
 .import-wizard .preview-table th,
 .import-wizard .preview-table td {
   border: 1px solid var(--border-color-medium);
   padding: var(--spacing-2);
-  white-space: nowrap;
-  overflow: hidden;
+  white-space: nowrap; /* Redondant mais ne nuit pas */
+  overflow: hidden; /* Pour le text-overflow ellipsis dans la cellule */
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 250px; /* Augmenté légèrement, ajuster si besoin */
+  /* min-width: 100px; */ /* Ajouter un min-width si certaines colonnes doivent être plus larges */
 }
 .import-wizard .preview-table th {
   background-color: var(--color-neutral-100);
+  position: sticky; /* En-têtes flottants */
+  top: 0;
+  z-index: 2; /* Au-dessus du contenu de la table mais en dessous d'autres éléments sticky potentiels */
 }
 
 .template-section {
@@ -1638,14 +1654,14 @@ input[type="checkbox"]:focus {
 }
 
 
-.import-wizard .data-table {
-  width: max-content !important;
-  min-width: 100%;
+.import-wizard .data-table { /* S'applique aussi à .preview-table via la cascade */
+  /* width: max-content !important; */ /* Déjà défini pour .preview-table */
+  /* min-width: 100%; */  /* Déjà défini pour .preview-table */
 }
 .mapping-form-container {
   margin-top: var(--spacing-5);
   width: 100%;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */ /* Potentiellement problématique si le contenu interne est large */
 }
 .mapping-form-container h4 {
     margin-bottom: var(--spacing-4);
@@ -1811,7 +1827,7 @@ input[type="checkbox"]:focus {
 /* Styles pour MassAttribution (hérités et spécifiques) */
 .mass-attribution-wizard {
   /* Utilise .admin-panel pour le style de base */
-  overflow-x: hidden;
+  /* overflow-x: hidden; */ /* MODIFICATION: Commenté */
 }
 
 /* Panneau des filtres pour MassAttribution */
@@ -2052,7 +2068,7 @@ input[type="checkbox"]:focus {
 .mass-attribution-wizard .individus-selection { 
   border: 1px solid var(--border-color-medium); 
   border-radius: var(--border-radius-lg);
-  overflow: hidden; 
+  overflow: hidden; /* Important pour que le border-radius s'applique au contenu qui défile */
   background-color: var(--surface-color);
   box-shadow: var(--shadow-md); 
 }
@@ -2083,25 +2099,28 @@ input[type="checkbox"]:focus {
 }
 
 
-.mass-attribution-wizard .individus-table-container { 
+.mass-attribution-wizard .individus-table-container { /* Conteneur pour le tableau avec défilement */
   max-height: 450px; 
-  overflow-y: auto;
+  overflow-y: auto; /* Défilement vertical pour la liste */
+  overflow-x: auto; /* Défilement horizontal pour le tableau lui-même si plus large */
 }
 
 .mass-attribution-wizard .individus-table { 
-  /* Hérite de .data-table */
+  width: 100%; /* La table prend la largeur de son conteneur .individus-table-container */
+  /* Si la table a beaucoup de colonnes, elle dépassera et .individus-table-container la fera défiler horizontalement */
 }
 
 .mass-attribution-wizard .individus-table th,
 .mass-attribution-wizard .individus-table td { 
   /* Hérite de .data-table th, td */
+  white-space: nowrap; /* Assure que les cellules ne se cassent pas, forçant le défilement horizontal si nécessaire */
 }
 
 .mass-attribution-wizard .individus-table th { 
-  /* Hérite de .data-table th */
   position: sticky; 
   top: 0;
   z-index: 1; 
+  background-color: var(--color-neutral-50); /* Assurer un fond pour les en-têtes sticky */
 }
 
 .mass-attribution-wizard .individus-table tr.selected-row { 
