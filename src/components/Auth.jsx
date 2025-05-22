@@ -126,8 +126,8 @@ export default function Auth({ setUser }) {
 
   if (loading && !isAutoLoginAttempted) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
-        <div style={{ padding: '40px', borderRadius: '8px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+      <div className="auth-container">
+        <div className="auth-form">
           <h2>Connexion automatique...</h2>
           <p>Tentative de connexion avec votre compte Windows en cours...</p>
         </div>
@@ -136,15 +136,10 @@ export default function Auth({ setUser }) {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
-      <form
-        className="auth-form"
-        onSubmit={handleLogin}
-        style={{ padding: '40px', borderRadius: '8px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px', textAlign: 'center' }}
-      >
-        <h2 style={{ marginBottom: '24px', color: '#333' }}>Connexion</h2>
+    <div className="auth-container">
+      <form className="auth-form" onSubmit={handleLogin}>
+        <h2>Connexion</h2>
         <input
-          style={{ width: '100%', padding: '12px', marginBottom: '16px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }}
           placeholder="Nom d'utilisateur"
           value={username}
           onChange={e => setUsername(e.target.value)}
@@ -152,47 +147,29 @@ export default function Auth({ setUser }) {
           autoFocus
         />
         <input
-          style={{ width: '100%', padding: '12px', marginBottom: '24px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }}
           type="password"
           placeholder="Mot de passe"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <button
-          type="submit"
-          disabled={loading || isInitializing}
-          style={{ width: '100%', padding: '12px', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', opacity: (loading || isInitializing) ? 0.7 : 1 }}
-        >
+        <button type="submit" className="btn-primary" disabled={loading || isInitializing}>
           {loading ? 'Connexion...' : 'Se connecter'}
         </button>
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-          <button
-            type="button"
-            onClick={testIPC}
-            disabled={isInitializing}
-            style={{ flex: '1', padding: '10px', background: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', opacity: isInitializing ? 0.7 : 1 }}
-          >
+        <div className="form-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+          <button type="button" className="btn-secondary" onClick={testIPC} disabled={isInitializing}>
             Test IPC
           </button>
-          <button
-            type="button"
-            onClick={initDatabase}
-            disabled={isInitializing || loading}
-            style={{ flex: '1', padding: '10px', background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', opacity: (isInitializing || loading) ? 0.7 : 1 }}
-          >
+          <button type="button" className="btn-success" onClick={initDatabase} disabled={isInitializing || loading}>
             {isInitializing ? 'Initialisation...' : 'Initialiser la DB'}
           </button>
         </div>
-        {error && <div className="error" style={{ color: 'red', marginTop: '15px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{error}</div>}
-        {initStatus &&
-          <div
-            className={initStatus.includes('succès') ? "success" : "warning"}
-            style={{ color: initStatus.includes('succès') ? 'green' : 'orange', marginTop: '15px', whiteSpace: 'pre-line', padding: '10px', border: `1px solid ${initStatus.includes('succès') ? 'green' : 'orange'}`, borderRadius: '4px', background: initStatus.includes('succès') ? '#e6ffed' : '#fff8e1' }}
-          >
+        {error && <div className="error" style={{ marginTop: '15px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{error}</div>}
+        {initStatus && (
+          <div className={initStatus.includes('succès') ? 'success' : 'warning'} style={{ marginTop: '15px', whiteSpace: 'pre-line' }}>
             {initStatus}
           </div>
-        }
+        )}
         <div style={{marginTop: '30px', fontSize: '12px', color: '#666'}}>
           <p>Identifiants par défaut après initialisation :</p>
           <p>Utilisateur: <strong>admin</strong> | Mot de passe: <strong>admin</strong></p>
