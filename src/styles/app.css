@@ -1357,7 +1357,7 @@ input[type="checkbox"]:focus {
 
 .auth-form input[type="text"],
 .auth-form input[type="password"] {
-  margin-bottom: var(--spacing-4);
+  margin-bottom: 0; /* spacing handled by .form-group */
   text-align: left;
 }
 
@@ -1390,6 +1390,13 @@ input[type="checkbox"]:focus {
 }
 .auth-form .error p, .auth-form .success p, .auth-form .warning p {
   margin-bottom: 0;
+}
+
+.auth-form .login-info {
+  margin-top: var(--spacing-6);
+  font-size: 0.75rem; /* 12px */
+  color: var(--text-color-secondary);
+  text-align: left;
 }
 
 
