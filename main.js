@@ -1232,6 +1232,22 @@ ipcMain.handle('getDashboardStats', async (event, { userId, role }) => {
   }
 });
 
+// Handle window resizing requests from renderer
+ipcMain.handle('resize-window', async (event, width, height) => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    try {
+      win.setSize(Math.floor(width), Math.floor(height));
+      win.center();
+      return { success: true };
+    } catch (err) {
+      logError('resize-window', err);
+      return { success: false, error: err.message };
+    }
+  }
+  return { success: false, error: 'No focused window' };
+});
+
 // --- Electron App Lifecycle ---
 app.whenReady().then(() => {
   log('Application ready.');
@@ -1252,10 +1268,13 @@ app.on('window-all-closed', () => {
 
 function createWindow () {
   log('Creating main window...');
-  const win = new BrowserWindow({ 
-    width: 1366, 
-    height: 768, 
-    autoHideMenuBar: true, 
+  const win = new BrowserWindow({
+    width: 1366,
+    height: 768,
+    minWidth: 1200,
+    minHeight: 700,
+    resizable: true,
+    autoHideMenuBar: true,
     title: config.appTitle || "Indi-Suivi",
     webPreferences: { 
         preload: path.join(__dirname, 'preload.js'), 
