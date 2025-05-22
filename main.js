@@ -16,9 +16,10 @@ const preparedStatements = {};
 // Function to load configuration
 function loadConfig() {
   const configPaths = [
-    path.join(process.cwd(), 'config', 'app-config.json'), 
-    path.join(app.getAppPath(), 'config', 'app-config.json'), 
-    path.join(__dirname, 'config', 'app-config.json') 
+    path.join(process.cwd(), 'config', 'app-config.json'),
+    path.join(process.resourcesPath, 'config', 'app-config.json'),
+    path.join(app.getAppPath(), 'config', 'app-config.json'),
+    path.join(__dirname, 'config', 'app-config.json')
   ];
   
   for (const configPath of configPaths) {

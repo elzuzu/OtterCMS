@@ -1,7 +1,14 @@
 module.exports = {
   packagerConfig: {
     icon: "src/assets/app-icon.ico",
-    asar: true
+    asar: true,
+    ignore: [/config\/app-config\.json$/],
+    extraResource: [
+      {
+        from: "config/app-config.json",
+        to: "config/app-config.json"
+      }
+    ]
   },
   rebuildConfig: {},
   makers: [
