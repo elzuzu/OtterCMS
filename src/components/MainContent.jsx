@@ -4,9 +4,11 @@ import IndividusList from './IndividusList';
 import ImportData from './ImportData';
 import MassAttribution from './MassAttribution';
 import AdminCategories from './AdminCategories';
-import AdminUsers from './AdminUsers';
+import AdminUsersSection from './AdminUsersSection';
 import AdminTemplate from './AdminTemplate';
 import UserSettings from './UserSettings';
+import { PERMISSIONS } from '../constants/permissions';
+import { hasPermission } from '../utils/permissions';
 import {
   Home,
   List,
@@ -144,7 +146,7 @@ export default function MainContent({ user, onLogout }) {
       case 'categories':
         return <AdminCategories />;
       case 'users':
-        return <AdminUsers />;
+        return <AdminUsersSection user={user} />;
       case 'template':
         return <AdminTemplate />;
       case 'settings':
@@ -161,24 +163,26 @@ export default function MainContent({ user, onLogout }) {
   };
 
   const tabs = [];
-  tabs.push(
-    { id: 'dashboard', label: 'Tableau de bord' },
-    { id: 'individus', label: 'Individus' }
-  );
-
-  if (user.role === 'admin' || user.role === 'manager') {
-    tabs.push(
-      { id: 'import', label: 'Import de données' },
-      { id: 'attribution', label: 'Attribution de masse' }
-    );
+  if (hasPermission(user, PERMISSIONS.VIEW_DASHBOARD)) {
+    tabs.push({ id: 'dashboard', label: 'Tableau de bord' });
   }
-
-  if (user.role === 'admin') {
-    tabs.push(
-      { id: 'categories', label: 'Gérer les catégories' },
-      { id: 'users', label: 'Gérer les utilisateurs' },
-      { id: 'template', label: 'Templates' }
-    );
+  if (hasPermission(user, PERMISSIONS.VIEW_INDIVIDUS)) {
+    tabs.push({ id: 'individus', label: 'Individus' });
+  }
+  if (hasPermission(user, PERMISSIONS.IMPORT_DATA)) {
+    tabs.push({ id: 'import', label: 'Import de données' });
+  }
+  if (hasPermission(user, PERMISSIONS.MASS_ATTRIBUTION)) {
+    tabs.push({ id: 'attribution', label: 'Attribution de masse' });
+  }
+  if (hasPermission(user, PERMISSIONS.MANAGE_CATEGORIES)) {
+    tabs.push({ id: 'categories', label: 'Gérer les catégories' });
+  }
+  if (hasPermission(user, PERMISSIONS.MANAGE_USERS) || hasPermission(user, PERMISSIONS.MANAGE_ROLES)) {
+    tabs.push({ id: 'users', label: 'Gérer les utilisateurs' });
+  }
+  if (hasPermission(user, PERMISSIONS.MANAGE_COLUMNS)) {
+    tabs.push({ id: 'template', label: 'Templates' });
   }
 
   return (

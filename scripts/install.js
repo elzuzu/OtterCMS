@@ -90,6 +90,11 @@ if (!fs.existsSync(dbPath)) {
         deleted INTEGER DEFAULT 0 -- 0 for active, 1 for hidden/deleted
       );
 
+      CREATE TABLE roles (
+        name TEXT PRIMARY KEY,
+        permissions TEXT NOT NULL
+      );
+
       CREATE TABLE individus (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         numero_unique TEXT, -- Texte pour plus de flexibilité
@@ -120,6 +125,22 @@ if (!fs.existsSync(dbPath)) {
     const admin_hash = bcrypt.hashSync('admin', 10);
     const insertAdminStmt = db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)');
     const adminInfo = insertAdminStmt.run('admin', admin_hash, 'admin');
+
+    const insertRoleStmt = db.prepare('INSERT OR IGNORE INTO roles (name, permissions) VALUES (?, ?)');
+    const defaultRoles = {
+      admin: [
+        'view_dashboard','view_individus','import_data','mass_attribution','manage_categories','manage_users','manage_roles','manage_columns','edit_all','edit_readonly_fields'
+      ],
+      manager: [
+        'view_dashboard','view_individus','import_data','mass_attribution','edit_all'
+      ],
+      user: [
+        'view_dashboard','view_individus','edit_assigned'
+      ]
+    };
+    for (const [name, perms] of Object.entries(defaultRoles)) {
+      insertRoleStmt.run(name, JSON.stringify(perms));
+    }
     
     console.log('Base de données initialisée avec succès!');
     console.log(`Utilisateur admin créé (mot de passe: admin). ID: ${adminInfo.lastInsertRowid}`);

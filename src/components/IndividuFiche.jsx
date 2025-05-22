@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck, Users, CalendarDays, Tag, Info, PlusCircle, Clock } from 'lucide-react';
 import { formatDateToDDMMYYYY } from '../utils/date';
+import { PERMISSIONS } from '../constants/permissions';
+import { hasPermission } from '../utils/permissions';
 
 export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [individu, setIndividu] = useState(null);
@@ -188,7 +190,8 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
   const renderChampEdition = (champ) => {
     const isReadOnlyByConfig = champ.readonly === true;
-    const isReadOnly = !userCanEdit() || isReadOnlyByConfig;
+    const canEditReadonly = hasPermission(user, PERMISSIONS.EDIT_READONLY_FIELDS);
+    const isReadOnly = !userCanEdit() || (isReadOnlyByConfig && !canEditReadonly);
 
     const commonProps = {
       id: `champ-${champ.key}`,
@@ -234,9 +237,14 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
   const userCanEdit = () => {
     if (!user || !individu) return false;
-    const userId = user.id || user.userId;
-    if (user.role === 'admin' || user.role === 'manager') return true;
-    return individu.en_charge === userId;
+    const canEditAll = hasPermission(user, PERMISSIONS.EDIT_ALL);
+    const canEditAssigned = hasPermission(user, PERMISSIONS.EDIT_ASSIGNED);
+    if (canEditAll) return true;
+    if (canEditAssigned) {
+      const userId = user.id || user.userId;
+      return individu.en_charge === userId;
+    }
+    return false;
   };
 
   if (loadingData) {

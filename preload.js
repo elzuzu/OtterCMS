@@ -75,6 +75,34 @@ contextBridge.exposeInMainWorld('api', {
       return { success: false, error: error.message };
     }
   },
+  getRoles: async () => {
+    try {
+      return await ipcRenderer.invoke('getRoles');
+    } catch (error) {
+      return { success: false, error: error.message, data: [] };
+    }
+  },
+  createRole: async (roleData) => {
+    try {
+      return await ipcRenderer.invoke('createRole', roleData);
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+  updateRole: async (roleData) => {
+    try {
+      return await ipcRenderer.invoke('updateRole', roleData);
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+  deleteRole: async (name) => {
+    try {
+      return await ipcRenderer.invoke('deleteRole', name);
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
   associerLoginWindows: async (userId, loginWindows) => {
     try {
       return await ipcRenderer.invoke('associer-login-windows', userId, loginWindows);
