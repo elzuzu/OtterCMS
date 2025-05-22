@@ -1,23 +1,58 @@
 {
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "com.indi-suivi",
   "productName": "Indi-Suivi",
+  "copyright": "Copyright © 2024 VotreNomOuEntreprise",
   "directories": {
-    "output": "release-builds"
+    "output": "release-builds",
+    "buildResources": "build"
   },
   "files": [
     "dist/**/*",
     "main.js",
-    "preload.js"
-  ],
-  "extraFiles": [
-    {
-      "from": "config/app-config.json",
-      "to": "config/app-config.json"
-    }
+    "preload.js",
+    "utils/**/*",
+    "!node_modules/.bin",
+    "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+    "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+    "!node_modules/*.d.ts",
+    "!node_modules/.bin",
+    "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+    "!.editorconfig",
+    "!**/._*",
+    "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+    "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+    "!**/{appveyor.yml,.travis.yml,circle.yml}",
+    "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}",
+    "package.json",
+    "!config/**/*"
   ],
   "win": {
-    "target": ["portable", "zip"],
+    "target": [
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64"]
+      }
+    ],
     "icon": "src/assets/app-icon.ico"
   },
-  "forceCodeSigning": false
+  "portable": {
+    "artifactName": "${productName}-v${version}-portable.${ext}",
+    "requestExecutionLevel": "user"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "perMachine": false,
+    "artifactName": "${productName}-v${version}-setup.${ext}"
+  },
+  "asar": true,
+  "asarUnpack": [
+    "**/node_modules/better-sqlite3/**/*"
+  ],
+  "compression": "maximum"
 }
