@@ -16,27 +16,23 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [loadingData, setLoadingData] = useState(true);
   const [saving, setSaving] = useState(false);
   const [champsPromus, setChampsPromus] = useState([]);
-  const [allRawCategories, setAllRawCategories] = useState([]); // Pour stocker toutes les catégories pour la recherche de libellés
+  const [allRawCategories, setAllRawCategories] = useState([]);
 
   // Fonction utilitaire pour obtenir le libellé du champ à partir de sa clé
   const getChampLabel = useCallback((champKey) => {
-    // Cas spécifiques pour les champs non dynamiques connus
     if (champKey === 'en_charge') return 'Personne en charge';
     if (champKey === 'numero_unique') return 'Numéro Unique';
-    // Ajoutez d'autres champs statiques connus si nécessaire
 
-    // Recherche dans toutes les catégories brutes (qui contiennent les définitions complètes des champs)
     for (const cat of allRawCategories) {
         if (cat.champs) {
             const field = cat.champs.find(champ => champ.key === champKey);
             if (field) {
-                return field.label; // Retourne le libellé configuré du champ
+                return field.label;
             }
         }
     }
-    return champKey; // Fallback: retourne la clé si aucun libellé n'est trouvé
+    return champKey;
   }, [allRawCategories]);
-
 
   const loadInitialData = useCallback(async () => {
     setLoadingData(true);
@@ -59,7 +55,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       }
 
       const allCategoriesFromApi = catResult.success ? (catResult.data || []) : [];
-      setAllRawCategories(allCategoriesFromApi); // Stocke toutes les catégories pour la recherche de libellés
+      setAllRawCategories(allCategoriesFromApi);
 
       const activeCategoriesForTabs = allCategoriesFromApi
         .filter(cat => cat.deleted !== 1)
@@ -112,7 +108,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     } finally {
       setLoadingData(false);
     }
-  }, [individuId]); // Ne dépend plus de `onglet` pour éviter un rechargement lors du changement d'onglet
+  }, [individuId]);
 
   useEffect(() => {
     loadInitialData();
@@ -272,7 +268,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
   return (
     <div className="fiche-individu-modal">
-      <div className="modal-content">
+      <div className="modal-content modal-content-large">
         <div className="modal-header">
           <h2>
             <FileText size={28} style={{ marginRight: '10px', verticalAlign: 'bottom' }} />
@@ -290,7 +286,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         )}
 
         <div className="fiche-main-info">
-          <div className="info-grid">
+          <div className="info-grid info-grid-compact">
             <div>
               <div className="info-cell-label">Numéro Unique</div>
               <div className="info-cell-value highlight">{individu.numero_unique || individu.id}</div>
@@ -341,7 +337,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body modal-body-compact">
           {categories.map(cat => {
             if (onglet !== `cat-${cat.id}`) return null;
             
@@ -351,16 +347,16 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             return (
               <div className="form-section" key={cat.id}>
                 {champsDeCategorie.length > 0 ? (
-                  <div className="dynamic-fields-grid">
+                  <div className="dynamic-fields-grid dynamic-fields-grid-compact">
                     {champsDeCategorie
                       .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
                       .map(champ => (
-                        <div key={champ.key} className="form-group">
-                          <label htmlFor={`champ-${champ.key}`}>
+                        <div key={champ.key} className="form-group form-group-compact">
+                          <label htmlFor={`champ-${champ.key}`} className="form-label-compact">
                             {champ.label} {enEdition && champ.obligatoire && !champ.readonly && <span className="obligatoire">*</span>}
                           </label>
                           {enEdition ? renderChampEdition(champ) : (
-                            <p className="form-value-display form-value-readonly">
+                            <p className="form-value-display form-value-readonly form-value-compact">
                               {renderChampLecture(champ, valeurs)}
                             </p>
                           )}
@@ -376,11 +372,13 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
           {onglet === 'historique' && (
             <div className="historique-content">
-              <h3>Historique des modifications</h3>
+              <h3 style={{ marginBottom: '15px', fontSize: '1.2em' }}>Historique des modifications</h3>
               {audit.length === 0 ? (
-                <p>Aucun historique de modification pour cet individu.</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-color-placeholder)', fontStyle: 'italic' }}>
+                  Aucun historique de modification pour cet individu.
+                </p>
               ) : (
-                <div className="audit-timeline">
+                <div className="audit-timeline audit-timeline-compact">
                   {audit.map(a => {
                     let ancienneValeurDisplay = a.ancienne_valeur;
                     let nouvelleValeurDisplay = a.nouvelle_valeur;
@@ -407,24 +405,24 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                     if (a.action === 'import_update') actionText = "modifié via import";
 
                     return (
-                      <div key={a.id} className="audit-entry">
+                      <div key={a.id} className="audit-entry audit-entry-compact">
                         <div className="audit-icon-type">
-                          {a.action === 'create' ? <PlusCircle size={18} /> : <Edit3 size={18} />}
+                          {a.action === 'create' ? <PlusCircle size={16} /> : <Edit3 size={16} />}
                         </div>
                         <div className="audit-details">
-                          <div className="audit-header">
+                          <div className="audit-header audit-header-compact">
                             <span className="audit-field-action">
                               <span className="audit-field-name">{champDisplayName}</span> {actionText}
                             </span>
-                            <span className="audit-user-time">
+                            <span className="audit-user-time audit-user-time-compact">
                               Par <span className="audit-user">{utilisateurAuteur}</span>
                               <span className="audit-date">
-                                <Clock size={12} style={{marginRight: '4px', marginLeft: '8px'}} />
+                                <Clock size={11} style={{marginRight: '3px', marginLeft: '6px'}} />
                                 {dateModif}
                               </span>
                             </span>
                           </div>
-                          <div className="audit-body">
+                          <div className="audit-body audit-body-compact">
                             {a.action === 'create' && (
                               <div className="audit-value-change">
                                 <span className="audit-value-label">Valeur :</span>
@@ -447,8 +445,8 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                               </div>
                             )}
                             {a.fichier_import && (
-                              <div className="audit-import-info">
-                                <FileText size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                              <div className="audit-import-info audit-import-info-compact">
+                                <FileText size={12} style={{ marginRight: '3px', verticalAlign: 'middle' }} />
                                 Via import : {a.fichier_import}
                               </div>
                             )}
@@ -487,6 +485,283 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        .fiche-individu-modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          padding: 10px;
+        }
+
+        .modal-content-large {
+          width: 95% !important;
+          max-width: 1400px !important;
+          height: 90vh !important;
+          max-height: 90vh !important;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .info-grid-compact {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+          gap: 10px !important;
+          margin-bottom: 15px !important;
+        }
+
+        .info-cell-label {
+          font-size: 0.85em !important;
+          margin-bottom: 3px !important;
+        }
+
+        .info-cell-value {
+          padding: 6px 8px !important;
+          min-height: 32px !important;
+        }
+
+        .modal-body-compact {
+          flex: 1;
+          overflow-y: auto;
+          padding: 15px 20px !important;
+        }
+
+        .dynamic-fields-grid-compact {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+          gap: 12px !important;
+        }
+
+        .form-group-compact {
+          margin-bottom: 0 !important;
+        }
+
+        .form-label-compact {
+          font-size: 0.9em !important;
+          margin-bottom: 4px !important;
+          display: block;
+          font-weight: 600;
+        }
+
+        .form-value-compact {
+          min-height: 32px !important;
+          padding: 6px 8px !important;
+          font-size: 0.9em !important;
+        }
+
+        .tabs {
+          border-bottom: 2px solid #e0e0e0;
+          margin: 15px 0 0 0 !important;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 2px;
+        }
+
+        .tab-button {
+          padding: 8px 16px !important;
+          font-size: 0.9em !important;
+          border: none;
+          background: #f5f5f5;
+          cursor: pointer;
+          border-radius: 4px 4px 0 0;
+          transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+          background: #e8e8e8;
+        }
+
+        .tab-button.active {
+          background: #007bff;
+          color: white;
+        }
+
+        .audit-timeline-compact {
+          max-height: 500px;
+          overflow-y: auto;
+        }
+
+        .audit-entry-compact {
+          margin-bottom: 12px !important;
+          padding: 10px !important;
+          border: 1px solid #e0e0e0;
+          border-radius: 6px;
+          background: #fafafa;
+        }
+
+        .audit-header-compact {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 6px !important;
+        }
+
+        .audit-user-time-compact {
+          font-size: 0.8em !important;
+          color: #666;
+        }
+
+        .audit-body-compact {
+          margin-top: 6px !important;
+          font-size: 0.9em !important;
+        }
+
+        .audit-import-info-compact {
+          margin-top: 4px !important;
+          font-size: 0.8em !important;
+          color: #888;
+        }
+
+        .audit-field-name {
+          font-weight: 600;
+          color: #007bff;
+        }
+
+        .audit-new-value {
+          color: #28a745;
+          font-weight: 500;
+        }
+
+        .audit-old-value {
+          color: #dc3545;
+          font-weight: 500;
+        }
+
+        .audit-arrow {
+          margin: 0 8px;
+          color: #6c757d;
+        }
+
+        .highlight {
+          font-weight: 600;
+          color: #007bff;
+        }
+
+        .obligatoire {
+          color: #dc3545;
+          font-weight: bold;
+        }
+
+        input, select, textarea {
+          font-size: 0.9em !important;
+          padding: 6px 8px !important;
+        }
+
+        .form-input-readonly {
+          background-color: #f8f9fa !important;
+          cursor: not-allowed;
+        }
+
+        .select-stylish {
+          width: 100%;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+        }
+
+        .button-primary, .button-secondary {
+          padding: 8px 16px !important;
+          font-size: 0.9em !important;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .button-primary {
+          background: #007bff;
+          color: white;
+          border: 1px solid #007bff;
+        }
+
+        .button-primary:hover:not(:disabled) {
+          background: #0056b3;
+        }
+
+        .button-secondary {
+          background: #6c757d;
+          color: white;
+          border: 1px solid #6c757d;
+        }
+
+        .button-secondary:hover:not(:disabled) {
+          background: #545b62;
+        }
+
+        .close-button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: #6c757d;
+          transition: color 0.2s ease;
+        }
+
+        .close-button:hover {
+          color: #dc3545;
+        }
+
+        .form-message {
+          padding: 8px 12px;
+          border-radius: 4px;
+          margin: 10px 0;
+          display: flex;
+          align-items: center;
+        }
+
+        .message-success {
+          background: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+          background: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+        }
+
+        .loader {
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #007bff;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+          .modal-content-large {
+            width: 98% !important;
+            height: 95vh !important;
+          }
+          
+          .info-grid-compact {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .dynamic-fields-grid-compact {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .tabs {
+            flex-direction: column;
+          }
+          
+          .tab-button {
+            width: 100%;
+          }
+        }
+      `}</style>
     </div>
   );
 }
