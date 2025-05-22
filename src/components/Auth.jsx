@@ -139,24 +139,31 @@ export default function Auth({ setUser }) {
     <div className="auth-container">
       <form className="auth-form" onSubmit={handleLogin}>
         <h2>Connexion</h2>
-        <input
-          placeholder="Nom d'utilisateur"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          required
-          autoFocus
-        />
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" className="btn-primary" disabled={loading || isInitializing}>
-          {loading ? 'Connexion...' : 'Se connecter'}
-        </button>
-        <div className="form-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+        <div className="form-group">
+          <label htmlFor="username">Nom d&apos;utilisateur</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+            autoFocus
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Mot de passe</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-actions">
+          <button type="submit" className="btn-primary" disabled={loading || isInitializing}>
+            {loading ? 'Connexion...' : 'Se connecter'}
+          </button>
           <button type="button" className="btn-secondary" onClick={testIPC} disabled={isInitializing}>
             Test IPC
           </button>
@@ -164,16 +171,14 @@ export default function Auth({ setUser }) {
             {isInitializing ? 'Initialisation...' : 'Initialiser la DB'}
           </button>
         </div>
-        {error && <div className="error" style={{ marginTop: '15px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{error}</div>}
+        {error && <div className="error">{error}</div>}
         {initStatus && (
-          <div className={initStatus.includes('succès') ? 'success' : 'warning'} style={{ marginTop: '15px', whiteSpace: 'pre-line' }}>
-            {initStatus}
-          </div>
+          <div className={initStatus.includes('succès') ? 'success' : 'warning'}>{initStatus}</div>
         )}
-        <div style={{marginTop: '30px', fontSize: '12px', color: '#666'}}>
+        <div className="login-info help-text">
           <p>Identifiants par défaut après initialisation :</p>
-          <p>Utilisateur: <strong>admin</strong> | Mot de passe: <strong>admin</strong></p>
-          <p style={{marginTop: '10px'}}>Si vous rencontrez une erreur de base de données ou "User not found", essayez d'abord "Initialiser la DB".</p>
+          <p>Utilisateur : <strong>admin</strong> | Mot de passe : <strong>admin</strong></p>
+          <p>Si vous rencontrez une erreur de base de données ou "User not found", essayez d&apos;abord "Initialiser la DB".</p>
         </div>
       </form>
     </div>
