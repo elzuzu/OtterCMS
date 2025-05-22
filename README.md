@@ -57,9 +57,10 @@ Exemple de fichier `config/app-config.json` :
 
 ```json
 {
-  "appTitle": "indi-suivi-nodejs",
-  "dbPath": "./db/indi-suivi.sqlite",
-  "defaultLanguage": "fr"
+  "appTitle": "Indi-Suivi Portable",
+  "dbPath": "./data/indi-suivi-portable.sqlite",
+  "defaultLanguage": "fr",
+  "logLevel": "info"
 }
 ```
 
@@ -88,13 +89,19 @@ npm start
 
 ## Construction et distribution
 
-Générez les binaires avec **electron-maker** :
+Pour générer l'exécutable Windows 64 bits :
 
 ```bash
-npx electron-maker
+npm run dist:portable
 ```
 
-Les fichiers sont créés dans `out/make`.
+Ou pour créer aussi l'archive zip :
+
+```bash
+npm run dist:all
+```
+
+Les fichiers sont disponibles dans `release-builds/`.
 
 ### Build du renderer seul
 
