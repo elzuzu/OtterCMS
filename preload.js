@@ -167,5 +167,11 @@ contextBridge.exposeInMainWorld('api', {
       console.error('Erreur dans attribuerIndividusEnMasse:', error);
       return { success: false, error: error.message };
     }
+  },
+  onImportProgress: (callback) => {
+    ipcRenderer.on('import-progress', callback);
+  },
+  removeImportProgressListener: (callback) => {
+    ipcRenderer.removeListener('import-progress', callback);
   }
 });

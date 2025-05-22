@@ -3206,3 +3206,28 @@ textarea[readOnly] {
     display: none; /* No label for the actions cell */
   }
 }
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.loading-overlay .progress-bar {
+  width: 80%;
+  height: 16px;
+  background: var(--color-neutral-200);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  margin-top: var(--spacing-4);
+}
+.loading-overlay .progress {
+  background: var(--color-primary-500);
+  height: 100%;
+  width: 0;
+  transition: width 0.2s ease;
+}

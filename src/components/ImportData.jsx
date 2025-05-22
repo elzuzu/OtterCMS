@@ -189,6 +189,7 @@ export default function ImportData({ user }) {
   const [fileContent, setFileContent] = useState(null);
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
 
   const [numeroIndividuHeader, setNumeroIndividuHeader] = useState('');
   const [createIfMissing, setCreateIfMissing] = useState(false);
@@ -263,6 +264,22 @@ export default function ImportData({ user }) {
         }
     };
   }, [setAndClearMessage]);
+
+  useEffect(() => {
+    const listener = (_event, data) => {
+      if (data && typeof data.percent === 'number') {
+        setImportProgress(data.percent);
+      }
+    };
+    if (window.api && window.api.onImportProgress) {
+      window.api.onImportProgress(listener);
+    }
+    return () => {
+      if (window.api && window.api.removeImportProgressListener) {
+        window.api.removeImportProgressListener(listener);
+      }
+    };
+  }, []);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -563,8 +580,9 @@ export default function ImportData({ user }) {
       console.log("Résumé de l'importation (avant envoi au backend):\n", summaryMsg);
       setAndClearMessage({ text: "Préparation de l'import...\n" + summaryMsg.substring(0, 300) + (summaryMsg.length > 300 ? "..." : ""), type: 'info' }, 10000);
     }
-      
+
     setLoading(true);
+    setImportProgress(0);
     setAndClearMessage({ text: 'Importation en cours...', type: 'info' });
 
     // NOUVEAU : Envelopper le nettoyage et l'appel API dans un try-catch global
@@ -696,8 +714,8 @@ export default function ImportData({ user }) {
     setNumeroIndividuHeader('');
     setCreateIfMissing(false);
     if (fileRef.current) fileRef.current.value = '';
-    setAndClearMessage({ text: '', type: 'info' }); setLoading(false);
-    setSelectedTemplate(''); 
+    setAndClearMessage({ text: '', type: 'info' }); setLoading(false); setImportProgress(0);
+    setSelectedTemplate('');
   };
 
   const renderContent = () => {
@@ -998,7 +1016,15 @@ export default function ImportData({ user }) {
         </div>
       </div>
       <div className="wizard-content">
-        {loading && importStep > 1 && importStep < 4 && <div className="loading-overlay"><div className="spinner"></div>Traitement...</div>}
+        {loading && importStep > 1 && importStep < 4 && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <div className="progress-bar">
+              <div className="progress" style={{ width: `${importProgress}%` }}></div>
+            </div>
+            <div>{`Traitement... ${importProgress}%`}</div>
+          </div>
+        )}
         {(!loading || importStep === 1 || importStep === 4) && renderContent()}
       </div>
     </div>
