@@ -111,7 +111,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     } finally {
       setLoadingData(false);
     }
-  }, [individuId, onglet]); // `getChampLabel` n'est pas une dépendance ici car elle est définie à l'extérieur ou stable via useCallback
+  }, [individuId]); // Ne dépend plus de `onglet` pour éviter un rechargement lors du changement d'onglet
 
   useEffect(() => {
     loadInitialData();
