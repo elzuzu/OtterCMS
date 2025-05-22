@@ -2518,6 +2518,22 @@ input[type="checkbox"]:focus {
   padding: var(--spacing-1) var(--spacing-2);
   font-size: 0.75rem; /* 12px */
 }
+.sub-tabs {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+.sub-tabs button {
+  background: var(--color-neutral-100);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-2) var(--spacing-3);
+  cursor: pointer;
+}
+.sub-tabs button.active {
+  background: var(--color-primary-600);
+  color: #fff;
+  border-color: var(--color-primary-600);
+}
 .btn-icon {
   padding: var(--spacing-1);
   line-height: 1;
