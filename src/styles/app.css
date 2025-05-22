@@ -127,7 +127,7 @@
    --border-color-success: var(--color-success-500);
    --border-color-info: var(--color-primary-500);
    --header-height: 3rem;
-   --header-background: rgba(37, 99, 235, 0.9); /* Default header background */
+   --header-background: rgba(37, 99, 235, 0.85); /* Default header background */
 }
 
 /* === Thèmes de couleur === */
@@ -138,7 +138,7 @@ body.theme-blue {
    --color-primary-500: #3b82f6;
    --color-primary-600: #2563eb;
    --color-primary-700: #1d4ed8;
-   --header-background: rgba(37, 99, 235, 0.9);
+   --header-background: rgba(37, 99, 235, 0.85);
 }
 
 body.theme-green {
@@ -148,7 +148,7 @@ body.theme-green {
    --color-primary-500: #10b981;
    --color-primary-600: #059669;
    --color-primary-700: #047857;
-   --header-background: rgba(5, 150, 105, 0.9);
+   --header-background: rgba(5, 150, 105, 0.85);
 }
 
 body.theme-purple {
@@ -158,7 +158,7 @@ body.theme-purple {
    --color-primary-500: #8b5cf6;
    --color-primary-600: #7c3aed;
    --color-primary-700: #6d28d9;
-   --header-background: rgba(124, 58, 237, 0.9);
+   --header-background: rgba(124, 58, 237, 0.85);
 }
 
 body.theme-orange {
@@ -168,7 +168,7 @@ body.theme-orange {
    --color-primary-500: #f97316;
    --color-primary-600: #ea580c;
    --color-primary-700: #c2410c;
-   --header-background: rgba(234, 88, 12, 0.9);
+   --header-background: rgba(234, 88, 12, 0.85);
 }
 
 body.theme-red {
@@ -178,7 +178,7 @@ body.theme-red {
    --color-primary-500: #ef4444;
    --color-primary-600: #dc2626;
    --color-primary-700: #b91c1c;
-   --header-background: rgba(220, 38, 38, 0.9);
+   --header-background: rgba(220, 38, 38, 0.85);
 }
 
 /* ===== RÉINITIALISATION ET STYLES DE BASE ===== */
@@ -258,6 +258,7 @@ header.app-header {
    padding: var(--spacing-2) var(--spacing-8);
    margin-bottom: var(--spacing-4);
    min-height: var(--header-height);
+   border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
 }
 
 .app-title h1 {
