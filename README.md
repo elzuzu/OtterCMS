@@ -86,10 +86,10 @@ npm start
 
 ## Construction et distribution
 
-Générez une version prête à être distribuée (installateur ou portable) :
+Générez les binaires avec **electron-maker** :
 
 ```bash
-npm run make
+npx electron-maker
 ```
 
 Les fichiers sont créés dans `out/make`.
