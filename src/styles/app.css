@@ -2584,20 +2584,20 @@ input[type="checkbox"]:focus {
 }
 
 .tab-button {
-  padding: 10px 18px;
+  padding: var(--spacing-2) var(--spacing-3);
   cursor: pointer;
   border: none;
   background-color: transparent;
-  font-size: 1em;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-color-secondary);
-  border-bottom: 3px solid transparent;
+  border-bottom: 2px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-  margin-right: 8px;
+  margin-right: 6px;
   display: inline-flex;
   align-items: center;
-  border-radius: 6px 6px 0 0;
-  white-space: nowrap; /* Évite que le texte ne se wrap */
+  border-radius: 4px 4px 0 0;
+  white-space: nowrap;
 }
 
 .tab-button:hover {
@@ -2631,7 +2631,7 @@ input[type="checkbox"]:focus {
   background: var(--surface-color);
   border-radius: var(--border-radius-xl);
   width: 90%;
-  max-width: 1000px; /* Augmenté pour plus d'espace */
+  max-width: 850px;
   height: 90vh; /* Hauteur fixe pour éviter les problèmes de redimensionnement */
   overflow: hidden; /* Masque le débordement */
   box-shadow: var(--shadow-xl);
@@ -2651,7 +2651,7 @@ input[type="checkbox"]:focus {
 
 .modal-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   display: flex;
   align-items: center;
 }

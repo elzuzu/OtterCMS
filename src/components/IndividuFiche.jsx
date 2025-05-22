@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck, Users, CalendarDays, Tag, Info, PlusCircle, Clock } from 'lucide-react';
+import { formatDateToDDMMYYYY } from '../utils/date';
 
 export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [individu, setIndividu] = useState(null);
@@ -175,6 +176,13 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     const valeur = valeurSource[champ.key];
     if (champ.type === 'checkbox') {
       return valeur ? 'Oui' : 'Non';
+    }
+    if (champ.type === 'date') {
+      const formatted = formatDateToDDMMYYYY(valeur);
+      if (!formatted) {
+        return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+      }
+      return formatted;
     }
     if (valeur === null || valeur === undefined || valeur === '') {
       return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
@@ -383,10 +391,12 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                       nouvelleValeurDisplay = (a.nouvelle_valeur === null || a.nouvelle_valeur === '' || a.nouvelle_valeur === 0) ? "Aucun" : getUserName(a.nouvelle_valeur);
                     }
                     
-                    const dateModif = new Date(a.date_modif).toLocaleString('fr-FR', {
-                      day: '2-digit', month: '2-digit', year: 'numeric',
+                    const dateObj = new Date(a.date_modif);
+                    const datePart = formatDateToDDMMYYYY(dateObj);
+                    const timePart = dateObj.toLocaleTimeString('fr-FR', {
                       hour: '2-digit', minute: '2-digit', second: '2-digit'
                     });
+                    const dateModif = `${datePart} ${timePart}`;
                     
                     const utilisateurAuteur = a.utilisateur_username || getUserName(a.utilisateur_id) || 'Système';
 
