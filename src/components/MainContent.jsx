@@ -5,6 +5,7 @@ import ImportData from './ImportData';
 import MassAttribution from './MassAttribution';
 import AdminCategories from './AdminCategories';
 import AdminUsers from './AdminUsers';
+import AdminTemplate from './AdminTemplate';
 import UserSettings from './UserSettings';
 import {
   Home,
@@ -14,6 +15,7 @@ import {
   Settings as SettingsIcon,
   Tag,
   User2,
+  Palette,
 } from 'lucide-react';
 
 const tabIcons = {
@@ -23,6 +25,7 @@ const tabIcons = {
   attribution: <UsersIcon size={18} aria-hidden="true" />,
   categories: <Tag size={18} aria-hidden="true" />,
   users: <User2 size={18} aria-hidden="true" />,
+  template: <Palette size={18} aria-hidden="true" />,
   settings: <SettingsIcon size={18} aria-hidden="true" />,
 };
 
@@ -65,7 +68,7 @@ export default function MainContent({ user, onLogout }) {
     // We need to decide if we should apply a role-based default tab,
     // but ONLY if the current activeTab is not an explicitly chosen non-default tab.
 
-    const nonDefaultTabs = ['import', 'attribution', 'categories', 'users', 'settings'];
+    const nonDefaultTabs = ['import', 'attribution', 'categories', 'users', 'template', 'settings'];
     // If the user explicitly clicked on a non-default tab (like 'Import de données'),
     // `activeTab` would be, for example, 'import'. We must respect that choice.
     if (nonDefaultTabs.includes(activeTab)) {
@@ -142,6 +145,8 @@ export default function MainContent({ user, onLogout }) {
         return <AdminCategories />;
       case 'users':
         return <AdminUsers />;
+      case 'template':
+        return <AdminTemplate />;
       case 'settings':
         return <UserSettings user={user} />;
       default:
@@ -171,7 +176,8 @@ export default function MainContent({ user, onLogout }) {
   if (user.role === 'admin') {
     tabs.push(
       { id: 'categories', label: 'Gérer les catégories' },
-      { id: 'users', label: 'Gérer les utilisateurs' }
+      { id: 'users', label: 'Gérer les utilisateurs' },
+      { id: 'template', label: 'Templates' }
     );
   }
 

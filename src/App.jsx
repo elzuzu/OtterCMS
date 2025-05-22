@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Auth from './components/Auth';
 import MainContent from './components/MainContent';
-import './styles/App.css'; // Ensure this is imported for global styles
+import './styles/app.css'; // Ensure this is imported for global styles
 
 export default function App() {
   const [user, setUser] = useState(null);

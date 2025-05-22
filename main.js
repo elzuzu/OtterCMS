@@ -4,6 +4,8 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
+const { log, logError, logIPC } = require('./utils/logger');
+const { inferType } = require('./utils/inferType');
 
 // Global variable for the database
 let db;
@@ -48,21 +50,6 @@ function loadConfig() {
 }
 
 const config = loadConfig();
-
-function log(...args) { console.log('[MAIN]', ...args); }
-function logError(operation, error) { log(`[ERROR] Operation: ${operation}, Code: ${error.code || 'N/A'}, Message: ${error.message}`, error.stack); }
-function logIPC(name, ...args) {
-  const loggedArgs = args.map(arg => {
-    if (arg && typeof arg === 'object') {
-      if (arg.fileContent) return { ...arg, fileContent: `[File content of ${arg.fileContent?.length || 0} bytes]` }; // Safe access
-      if (arg.password) return { ...arg, password: '***' };
-      if (name === 'attribuerIndividusEnMasse' && arg.individuIds) return { ...arg, individuIds: `[${arg.individuIds.length} IDs]`};
-    }
-    return arg;
-  });
-  console.log(`[IPC-MAIN] ${name} called with:`, ...loggedArgs);
-  return args;
-}
 
 function applyPragmas(databaseInstance) {
   log('Applying PRAGMAs...');
@@ -253,75 +240,6 @@ function initDb() {
     }
   }
 }
-
-// Helper to infer data types from strings (e.g., from CSV)
-function inferType(value) {
-    if (value === null || value === undefined) return null;
-    if (typeof value === 'number' || typeof value === 'boolean') return value; // Already correct type
-    
-    if (value instanceof Date) { // Handle Excel date objects
-      if (!isNaN(value.getTime())) {
-          // Format as YYYY-MM-DD
-          const year = value.getFullYear(); // Use getFullYear for local timezone from Excel
-          const month = String(value.getMonth() + 1).padStart(2, '0');
-          const day = String(value.getDate()).padStart(2, '0');
-          return `${year}-${month}-${day}`;
-      } else {
-          return String(value); // Invalid date object
-      }
-    }
-  
-    if (typeof value !== 'string') return value; // If not a string after date check, return as is
-  
-    const trimmedValue = value.trim();
-    if (trimmedValue === "") return null; // Treat empty strings as null
-  
-    const lowerValue = trimmedValue.toLowerCase();
-    if (lowerValue === 'true') return true;
-    if (lowerValue === 'false') return false;
-    if (['null', 'undefined', 'vide', 'na', 'n/a'].includes(lowerValue)) return null;
-    
-    // Number check (integer or float)
-    if (/^-?\d+(\.\d+)?$/.test(trimmedValue)) {
-      const num = Number(trimmedValue);
-      if (!isNaN(num)) return num;
-    }
-  
-    // Date check (YYYY-MM-DD)
-    const dateRegexYYYYMMDD = /^\d{4}-\d{2}-\d{2}$/;
-    if (dateRegexYYYYMMDD.test(trimmedValue)) {
-      const date = new Date(trimmedValue + "T00:00:00Z");
-      if (!isNaN(date.getTime())) {
-        return date.toISOString().split('T')[0];
-      }
-    }
-
-    // Date check (DD.MM.YYYY or DD/MM/YYYY or MM/DD/YYYY)
-    const dotted = trimmedValue.match(/^(\d{1,2})[\.\/\-](\d{1,2})[\.\/\-](\d{2,4})$/);
-    if (dotted) {
-      let p1 = parseInt(dotted[1], 10);
-      let p2 = parseInt(dotted[2], 10);
-      let year = parseInt(dotted[3], 10);
-      if (year < 100) year += year < 50 ? 2000 : 1900;
-
-      let day, month;
-      if (p1 > 12) {
-        day = p1; month = p2;
-      } else if (p2 > 12) {
-        day = p2; month = p1;
-      } else {
-        day = p1; month = p2;
-      }
-
-      if (day > 0 && day <= 31 && month > 0 && month <= 12) {
-        const date = new Date(Date.UTC(year, month - 1, day));
-        if (!isNaN(date.getTime())) {
-          return date.toISOString().split('T')[0];
-        }
-      }
-    }
-    return value; // Return original string if no other type matches
-  }
 
 // --- IPC Handlers ---
 
