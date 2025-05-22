@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import IndividuFicheModernExtended from './IndividuFicheModernExtended';
+// Utilisation de la fiche d'individu standard
+import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
 
@@ -454,7 +455,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       {showAddForm && (<div className="modal-overlay"><NouvelIndividu user={user} onClose={() => setShowAddForm(false)} onSuccess={handleAddSuccess} /></div>)}
       {selectedIndividuId && (
         <div className="modal-overlay">
-          <IndividuFicheModernExtended
+          <IndividuFiche
             individuId={selectedIndividuId}
             onClose={() => setSelectedIndividuId(null)}
             onUpdate={handleEditSuccess}
