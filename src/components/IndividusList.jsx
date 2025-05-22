@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import IndividuFiche from './IndividuFiche';
+import IndividuFicheModernExtended from './IndividuFicheModernExtended';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
 
@@ -452,7 +452,16 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         </div>
       )}
       {showAddForm && (<div className="modal-overlay"><NouvelIndividu user={user} onClose={() => setShowAddForm(false)} onSuccess={handleAddSuccess} /></div>)}
-      {selectedIndividuId && (<div className="modal-overlay"><IndividuFiche individuId={selectedIndividuId} onClose={() => setSelectedIndividuId(null)} onUpdate={handleEditSuccess} user={user} /></div>)}
+      {selectedIndividuId && (
+        <div className="modal-overlay">
+          <IndividuFicheModernExtended
+            individuId={selectedIndividuId}
+            onClose={() => setSelectedIndividuId(null)}
+            onUpdate={handleEditSuccess}
+            user={user}
+          />
+        </div>
+      )}
     </div>
   );
 }
