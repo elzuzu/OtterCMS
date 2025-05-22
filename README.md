@@ -20,7 +20,7 @@ Application Electron et React permettant le suivi d'individus avec champs dynami
 ### Modèle de données (SQLite)
 
 La base est définie dans `config/app-config.json` (par défaut `db/indi-suivi.sqlite`).
-Lors du packaging, ce fichier est copié à côté de l'exécutable dans `resources/config/app-config.json`.
+Lors du packaging, l'application cherche toujours ce fichier dans `./config/app-config.json` à côté de l'exécutable.
 
 - **users**
   - `id` INTEGER primaire
@@ -65,7 +65,7 @@ Exemple de fichier `config/app-config.json` :
 ```
 
 Modifiez `dbPath` pour stocker la base ailleurs (partage réseau, etc.).
-Après installation, le fichier se trouve dans `resources/config/app-config.json` et peut être édité par un administrateur.
+Après installation, placez `config/app-config.json` à côté de l'exécutable pour personnaliser la configuration.
 
 ## Installation
 
