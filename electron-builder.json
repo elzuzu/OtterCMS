@@ -50,6 +50,12 @@
     "perMachine": false,
     "artifactName": "${productName}-v${version}-setup.${ext}"
   },
+  "extraFiles": [
+    {
+      "from": "config",
+      "to": "config"
+    }
+  ],
   "asar": true,
   "asarUnpack": [
     "**/node_modules/better-sqlite3/**/*"
