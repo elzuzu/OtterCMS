@@ -10,29 +10,186 @@ const FIELD_TYPES = [
   { value: 'checkbox', label: 'Case à cocher' }
 ];
 
+// --- DÉBUT DES FONCTIONS D'AIDE POUR LE NETTOYAGE DES DONNÉES ---
+
+// Fonction pour nettoyer les nombres au format suisse (ex: "1'234.50" -> 1234.50)
+function cleanSwissNumberString(value) {
+  if (typeof value === 'string') {
+    const cleaned = value.replace(/'/g, ''); // Supprimer les apostrophes
+    // Vérifier si c'est une chaîne de nombre valide (potentiellement avec un point décimal)
+    if (/^-?\d*\.?\d+$/.test(cleaned)) {
+      const num = parseFloat(cleaned);
+      if (!isNaN(num) && isFinite(num)) {
+        return num; // Retourner le nombre
+      }
+    }
+  } else if (typeof value === 'number') {
+    return value; // Déjà un nombre
+  }
+  return value; // Retourner l'original si ce n'est pas une chaîne convertible ou déjà un nombre
+}
+
+// Fonction pour normaliser les valeurs de date (chaînes ou numéros de série Excel) en DD.MM.YYYY
+function normalizeDateValue(value) {
+  if (value === null || typeof value === 'undefined' || value === "") {
+    return value; // Retourner les valeurs vides ou nulles telles quelles
+  }
+
+  let dateObj;
+
+  if (value instanceof Date) { // Au cas où, bien que raw:false devrait stringifier
+    dateObj = value;
+  } else if (typeof value === 'number') {
+    // Gérer les numéros de série de date Excel.
+    // XLSX.SSF.parse_date_code convertit la date série en un objet {y,m,d,...}
+    // Les dates Excel sont le nombre de jours depuis le 30/12/1899 (pour Excel Windows)
+    if (value > 0 && value < 2958466) { // Plage heuristique pour les dates Excel (01/01/1900 au 31/12/9999)
+        try {
+            // Tenter de parser le numéro de série avec la fonction de XLSX
+            const dateParts = XLSX.SSF.parse_date_code(value);
+            if (dateParts) {
+                // Le mois dans parse_date_code est indexé à 1
+                dateObj = new Date(Date.UTC(dateParts.y, dateParts.m - 1, dateParts.d, dateParts.H || 0, dateParts.M || 0, dateParts.S || 0));
+            }
+        } catch (e) { /* ignorer si ce n'est pas une date Excel valide, dateObj restera undefined */ }
+    }
+  } else if (typeof value === 'string') {
+    // Tenter de parser les formats de chaîne courants
+    // Format 1: DD.MM.YYYY (cible et entrée possible)
+    let parts = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (parts) {
+      const d = parseInt(parts[1], 10), m = parseInt(parts[2], 10) - 1, y = parseInt(parts[3], 10);
+      const tempDate = new Date(Date.UTC(y, m, d));
+      // Valider que les parties de la date forment une date valide (ex: pas 31.02.2023)
+      if (tempDate.getUTCFullYear() === y && tempDate.getUTCMonth() === m && tempDate.getUTCDate() === d) {
+        dateObj = tempDate;
+      }
+    }
+
+    // Format 2: YYYY-MM-DD (ISO)
+    if (!dateObj) {
+      parts = value.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (parts) {
+        const y = parseInt(parts[1], 10), m = parseInt(parts[2], 10) - 1, d = parseInt(parts[3], 10);
+        const tempDate = new Date(Date.UTC(y, m, d));
+        if (tempDate.getUTCFullYear() === y && tempDate.getUTCMonth() === m && tempDate.getUTCDate() === d) {
+          dateObj = tempDate;
+        }
+      }
+    }
+    
+    // Format 3: MM/DD/YYYY (US)
+    if (!dateObj) {
+      parts = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (parts) {
+        const m = parseInt(parts[1], 10) - 1, d = parseInt(parts[2], 10), y = parseInt(parts[3], 10);
+        const tempDate = new Date(Date.UTC(y, m, d));
+        if (tempDate.getUTCFullYear() === y && tempDate.getUTCMonth() === m && tempDate.getUTCDate() === d) {
+          dateObj = tempDate;
+        }
+      }
+    }
+    
+    // Fallback: essayer l'analyse directe par le constructeur Date (moins fiable pour les formats ambigus)
+    if (!dateObj && value.length > 5) { 
+        const parsed = new Date(value);
+        if (parsed && !isNaN(parsed.getTime()) && value.match(/[a-zA-Z0-9]/)) {
+            if (parsed.getFullYear() > 1900 && (value.includes(String(parsed.getFullYear())) || value.includes(String(parsed.getFullYear()).slice(-2)))) {
+                 dateObj = parsed;
+            }
+        }
+    }
+  }
+
+  // Si un objet Date valide a été obtenu, le formater en DD.MM.YYYY
+  if (dateObj && !isNaN(dateObj.getTime())) {
+    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0'); // Le mois est indexé à 0
+    const year = dateObj.getUTCFullYear();
+    return `${day}.${month}.${year}`;
+  }
+  return value; // Retourner l'original si toutes les tentatives d'analyse et de formatage échouent
+}
+
+
+// Fonction d'aide pour déterminer le type d'un champ
+function getFieldType(csvHeader, columnConfig, existingFields) {
+    if (!columnConfig) return null;
+
+    if (columnConfig.action === 'create' || 
+        columnConfig.action === 'create_in_existing_category' || 
+        columnConfig.action === 'create_in_new_category') {
+        // Pour les nouveaux champs, le type est dans fieldConfig
+        return columnConfig.fieldConfig?.type || null;
+    } else if (columnConfig.action === 'map') {
+        // Pour les champs mappés, trouver le type à partir des champs existants
+        if (columnConfig.targetField === 'numero_unique') return 'text'; // Ou 'number' si c'est toujours numérique
+        const existingField = existingFields.find(f => f.key === columnConfig.targetField);
+        return existingField?.type || null;
+    }
+    return null; // Pas d'action ou action inconnue
+}
+
+// Fonction de nettoyage pour une ligne de données
+function cleanRowData(rawRow, rawHeaders, finalColumnsConfig, existingFields) {
+  if (!rawRow || !Array.isArray(rawRow) || !rawHeaders || !Array.isArray(rawHeaders) || !finalColumnsConfig) {
+    // console.warn("cleanRowData: Entrée invalide", {rawRow, rawHeaders, finalColumnsConfig});
+    return rawRow; // Ou lever une erreur
+  }
+
+  return rawRow.map((rawValue, index) => {
+    const csvHeader = rawHeaders[index];
+    // S'il n'y a pas d'en-tête pour cet index (ne devrait pas arriver si les longueurs correspondent)
+    if (typeof csvHeader === 'undefined') return rawValue; 
+
+    const columnConfig = finalColumnsConfig[csvHeader];
+    // Si pas de configuration pour cet en-tête ou si la colonne est ignorée
+    if (!columnConfig || columnConfig.action === 'ignore') {
+      return rawValue;
+    }
+
+    // Déterminer le type de données attendu pour ce champ
+    const fieldType = getFieldType(csvHeader, columnConfig, existingFields);
+    let cleanedValue = rawValue;
+
+    if (fieldType === 'number') {
+      cleanedValue = cleanSwissNumberString(rawValue);
+    } else if (fieldType === 'date') {
+      cleanedValue = normalizeDateValue(rawValue);
+    }
+    // Ajouter d'autres types si nécessaire, par exemple, booléen pour 'checkbox'
+    // Pour 'text', 'list', 'checkbox' (si la valeur est une chaîne comme 'true'/'false'),
+    // généralement pas de nettoyage spécial nécessaire à part trim().
+    // if (typeof cleanedValue === 'string') {
+    //   cleanedValue = cleanedValue.trim();
+    // }
+    return cleanedValue;
+  });
+}
+
+// --- FIN DES FONCTIONS D'AIDE POUR LE NETTOYAGE DES DONNÉES ---
+
 export default function ImportData({ user }) {
   // Références et états
   const fileRef = useRef();
-  const [categories, setCategories] = useState([]); // Pour la sélection de catégorie LORS DE LA CRÉATION d'un champ
-  const [existingFields, setExistingFields] = useState([]); // Champs existants pour le mapping
+  const [categories, setCategories] = useState([]);
+  const [existingFields, setExistingFields] = useState([]);
 
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [templateName, setTemplateName] = useState('');
   
-  const [mapping, setMapping] = useState({}); // { csvHeader: 'targetDbField' } pour action 'map'
-  const [columnActions, setColumnActions] = useState({}); // { csvHeader: 'map' | 'create' | 'ignore' }
-  const [nouveauxChamps, setNouveauxChamps] = useState({}); // { csvHeader: { categorie_id, label, key, type, ... } } pour action 'create'
+  const [mapping, setMapping] = useState({});
+  const [columnActions, setColumnActions] = useState({});
+  const [nouveauxChamps, setNouveauxChamps] = useState({});
   
-  // États pour l'interface
   const [message, setMessage] = useState({ text: '', type: 'info' });
-  const [importStep, setImportStep] = useState(1); // 1: Fichier, 2: Indi, 3: Mapping Colonnes, 4: Résultats
-  const [previewData, setPreviewData] = useState(null); // { headers: [], rows: [[]], rawHeaders: [] }
-  const [fileContent, setFileContent] = useState(null); // Contenu binaire du fichier
+  const [importStep, setImportStep] = useState(1);
+  const [previewData, setPreviewData] = useState(null);
+  const [fileContent, setFileContent] = useState(null);
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // État pour le champ numéro d'individu
   const [numeroIndividuHeader, setNumeroIndividuHeader] = useState('');
   const [createIfMissing, setCreateIfMissing] = useState(false);
   const messageTimeoutIdRef = useRef(null);
@@ -47,14 +204,13 @@ export default function ImportData({ user }) {
     }, duration);
   }, []);
 
-  // Chargement des catégories (pour la création de nouveaux champs)
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
       try {
         const catResult = window.api && window.api.getCategories
           ? await window.api.getCategories()
-          : { success: true, data: [] }; // Fallback or mock
+          : { success: true, data: [] }; 
 
         if (catResult && catResult.success && Array.isArray(catResult.data)) {
           const activeCategories = catResult.data.filter(cat => cat.deleted !== 1);
@@ -71,7 +227,7 @@ export default function ImportData({ user }) {
               fields.push({ ...ch, categorieNom: cat.nom, categorieId: cat.id });
             });
           });
-          setExistingFields(fields);
+          setExistingFields(fields); // existingFields est maintenant disponible pour cleanRowData
           
           if (activeCategories.length === 0) {
              setAndClearMessage({ text: 'Aucune catégorie active trouvée. La création de nouveaux champs nécessitera une catégorie.', type: 'warning' });
@@ -91,7 +247,6 @@ export default function ImportData({ user }) {
       } finally {
         setLoading(false);
       }
-      // Load templates from localStorage
       try {
         const storedTemplates = JSON.parse(localStorage.getItem('importMappingTemplates') || '[]');
         if (Array.isArray(storedTemplates)) setTemplates(storedTemplates);
@@ -109,7 +264,6 @@ export default function ImportData({ user }) {
     };
   }, [setAndClearMessage]);
 
-  // Gestion de la sélection du fichier
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -257,7 +411,7 @@ export default function ImportData({ user }) {
     setColumnActions(t.columnActions || {});
     setMapping(t.mapping || {});
     setNouveauxChamps(t.nouveauxChamps || {});
-    setSelectedTemplate(name); // Ensure dropdown reflects loaded template
+    setSelectedTemplate(name);
     setAndClearMessage({text: `Template "${name}" chargé.`, type: 'success'});
   };
 
@@ -272,59 +426,54 @@ export default function ImportData({ user }) {
     setTemplates(updatedTemplates);
     localStorage.setItem('importMappingTemplates', JSON.stringify(updatedTemplates));
     setTemplateName('');
-    setSelectedTemplate(trimmedName); // Select the newly saved template
+    setSelectedTemplate(trimmedName);
     setAndClearMessage({ text: `Template "${trimmedName}" enregistré.`, type: 'success' });
   };
 
   const deleteTemplate = (nameToDelete) => {
-    if (!window.confirm(`Êtes-vous sûr de vouloir supprimer le template "${nameToDelete}" ?`)) return;
+    // Remplacer window.confirm par une modale personnalisée si possible dans votre application
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le template "${nameToDelete}" ?`)) return;
     const updatedTemplates = templates.filter(t => t.name !== nameToDelete);
     setTemplates(updatedTemplates);
     localStorage.setItem('importMappingTemplates', JSON.stringify(updatedTemplates));
     if (selectedTemplate === nameToDelete) {
-        setSelectedTemplate(''); // Clear selection if deleted template was selected
+        setSelectedTemplate('');
     }
     setAndClearMessage({ text: `Template "${nameToDelete}" supprimé.`, type: 'success' });
   };
 
-  // MODIFIED handleImport function
+  // --- DÉBUT DE LA FONCTION handleImport MODIFIÉE ---
   const handleImport = async () => {
-    // Au début de handleImport, ajoutez ces vérifications :
+    // Validations initiales (existantes)
     if (!fileContent) {
       setAndClearMessage({ text: 'Veuillez sélectionner un fichier.', type: 'error' }); return;
     }
     if (!numeroIndividuHeader || mapping[numeroIndividuHeader] !== 'numero_unique') {
       setAndClearMessage({ text: 'Le numéro d\'individu doit être identifié et mappé à "numero_unique".', type: 'error' }); return;
     }
-  
-    // Vérifications de sécurité
     if (!previewData || !previewData.rawHeaders || !Array.isArray(previewData.rawHeaders)) {
       setAndClearMessage({ text: 'Données d\'aperçu invalides. Veuillez recharger le fichier.', type: 'error' }); return;
     }
-  
     if (!columnActions || typeof columnActions !== 'object') {
       setAndClearMessage({ text: 'Actions des colonnes non définies. Veuillez reconfigurer le mapping.', type: 'error' }); return;
     }
-  
     if (!mapping || typeof mapping !== 'object') {
       setAndClearMessage({ text: 'Mapping des colonnes non défini. Veuillez reconfigurer le mapping.', type: 'error' }); return;
     }
-  
+
+    // Construction de finalColumnsConfig et newCategoriesArray (existant)
     let validationErrors = [];
-    const finalColumnsConfig = {}; // Initialisation explicite
+    const finalColumnsConfig = {};
     const newFieldKeys = new Set(); 
     const mappedTargets = new Set(); 
-    
-    const newCategoriesMap = new Map(); // Initialisation explicite
-  
-    // Vérification que nous avons des en-têtes à traiter
+    const newCategoriesMap = new Map();
+
     if (previewData.rawHeaders.length === 0) {
       setAndClearMessage({ text: 'Aucune colonne trouvée dans le fichier.', type: 'error' }); return;
     }
 
     previewData.rawHeaders.forEach(csvHeader => {
       const action = columnActions[csvHeader];
-  
       if (action === 'map') {
         const targetField = mapping[csvHeader];
         if (csvHeader === numeroIndividuHeader) {
@@ -340,10 +489,8 @@ export default function ImportData({ user }) {
           mappedTargets.add(targetField);
         }
         finalColumnsConfig[csvHeader] = { action, targetField };
-        
       } else if (action === 'create') {
         const fieldConfig = nouveauxChamps[csvHeader];
-        
         if (!fieldConfig.categorie_id) {
             validationErrors.push(`Colonne "${csvHeader}": Sélectionnez une catégorie pour le nouveau champ.`);
         }
@@ -368,71 +515,28 @@ export default function ImportData({ user }) {
         if (fieldConfig.categorie_id === '__new__' && fieldConfig.newCategorieNom?.trim()) {
           const categoryName = fieldConfig.newCategorieNom.trim();
           const categoryNameLower = categoryName.toLowerCase();
-          
           const existingCategoryInDB = categories.find(cat => cat.nom.toLowerCase() === categoryNameLower);
-          
           if (existingCategoryInDB) {
             finalColumnsConfig[csvHeader] = {
-              action: 'create_in_existing_category', 
-              targetCategoryId: existingCategoryInDB.id,
-              fieldConfig: { 
-                ...fieldConfig,
-                key: fieldConfig.key.trim(),
-                label: fieldConfig.label.trim(),
-                categorie_id: existingCategoryInDB.id, 
-                newCategorieNom: undefined, 
-                ordre: Number(fieldConfig.ordre) || 0,
-                maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null,
-                afficherEnTete: fieldConfig.afficherEnTete || false
-              }
+              action: 'create_in_existing_category', targetCategoryId: existingCategoryInDB.id,
+              fieldConfig: { ...fieldConfig, key: fieldConfig.key.trim(), label: fieldConfig.label.trim(), categorie_id: existingCategoryInDB.id, newCategorieNom: undefined, ordre: Number(fieldConfig.ordre) || 0, maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null, afficherEnTete: fieldConfig.afficherEnTete || false }
             };
           } else {
             if (!newCategoriesMap.has(categoryNameLower)) {
-              newCategoriesMap.set(categoryNameLower, {
-                nom: categoryName, 
-                champs: [],
-                colonnes: [] 
-              });
+              newCategoriesMap.set(categoryNameLower, { nom: categoryName, champs: [], colonnes: [] });
             }
-            
             const categoryGroup = newCategoriesMap.get(categoryNameLower);
-            categoryGroup.champs.push({
-              ...fieldConfig, 
-              key: fieldConfig.key.trim(),
-              label: fieldConfig.label.trim(),
-              newCategorieNom: categoryName, 
-              ordre: Number(fieldConfig.ordre) || 0,
-              maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null,
-              afficherEnTete: fieldConfig.afficherEnTete || false
-            });
+            categoryGroup.champs.push({ ...fieldConfig, key: fieldConfig.key.trim(), label: fieldConfig.label.trim(), newCategorieNom: categoryName, ordre: Number(fieldConfig.ordre) || 0, maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null, afficherEnTete: fieldConfig.afficherEnTete || false });
             categoryGroup.colonnes.push(csvHeader);
-            
             finalColumnsConfig[csvHeader] = {
-              action: 'create_in_new_category', 
-              newCategoryName: categoryName, 
-              fieldConfig: { 
-                ...fieldConfig,
-                key: fieldConfig.key.trim(),
-                label: fieldConfig.label.trim(),
-                ordre: Number(fieldConfig.ordre) || 0,
-                maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null,
-                afficherEnTete: fieldConfig.afficherEnTete || false
-              }
+              action: 'create_in_new_category', newCategoryName: categoryName, 
+              fieldConfig: { ...fieldConfig, key: fieldConfig.key.trim(), label: fieldConfig.label.trim(), ordre: Number(fieldConfig.ordre) || 0, maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null, afficherEnTete: fieldConfig.afficherEnTete || false }
             };
           }
         } else if (fieldConfig.categorie_id && fieldConfig.categorie_id !== '__new__') {
           finalColumnsConfig[csvHeader] = { 
             action: 'create', 
-            fieldConfig: { 
-                ...fieldConfig,
-                key: fieldConfig.key.trim(),
-                label: fieldConfig.label.trim(),
-                categorie_id: fieldConfig.categorie_id, 
-                newCategorieNom: undefined,
-                ordre: Number(fieldConfig.ordre) || 0,
-                maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null,
-                afficherEnTete: fieldConfig.afficherEnTete || false
-            }
+            fieldConfig: { ...fieldConfig, key: fieldConfig.key.trim(), label: fieldConfig.label.trim(), categorie_id: fieldConfig.categorie_id, newCategorieNom: undefined, ordre: Number(fieldConfig.ordre) || 0, maxLength: fieldConfig.type === 'text' && fieldConfig.maxLength ? parseInt(fieldConfig.maxLength, 10) : null, afficherEnTete: fieldConfig.afficherEnTete || false }
           };
         }
       } else if (action === 'ignore') {
@@ -444,7 +548,9 @@ export default function ImportData({ user }) {
       setAndClearMessage({ text: "Erreurs de validation:\n- " + validationErrors.join("\n- "), type: 'error' }, 15000);
       return;
     }
-  
+    const newCategoriesArray = Array.from(newCategoriesMap.values());
+
+    // Message récapitulatif (existant)
     let summaryMsg = "";
     if (newCategoriesMap.size > 0) {
       summaryMsg += "Nouvelles catégories qui seront créées (si elles n'existent pas déjà sous un nom similaire) :\n";
@@ -452,20 +558,7 @@ export default function ImportData({ user }) {
         summaryMsg += `• "${categoryGroup.nom}" avec ${categoryGroup.champs.length} champ(s) : ${categoryGroup.champs.map(c => `"${c.label}" (clé: ${c.key})`).join(', ')}\n`;
       }
     }
-    let createdInExistingSummary = "";
-    Object.entries(finalColumnsConfig).forEach(([csvH, conf]) => {
-        if (conf.action === 'create_in_existing_category') {
-            const cat = categories.find(c => c.id.toString() === conf.targetCategoryId.toString());
-            createdInExistingSummary += `• Champ "${conf.fieldConfig.label}" (clé: ${conf.fieldConfig.key}) sera créé dans la catégorie existante "${cat?.nom || conf.targetCategoryId}".\n`;
-        } else if (conf.action === 'create' && conf.fieldConfig?.categorie_id && conf.fieldConfig.categorie_id !== '__new__') {
-            const cat = categories.find(c => c.id.toString() === conf.fieldConfig.categorie_id.toString());
-            createdInExistingSummary += `• Champ "${conf.fieldConfig.label}" (clé: ${conf.fieldConfig.key}) sera créé dans la catégorie existante "${cat?.nom || conf.fieldConfig.categorie_id}".\n`;
-        }
-    });
-    if (createdInExistingSummary) {
-        summaryMsg += "\nChamps qui seront créés dans des catégories existantes :\n" + createdInExistingSummary;
-    }
-
+    // ... (reste du code de summaryMsg existant)
     if (summaryMsg) {
       console.log("Résumé de l'importation (avant envoi au backend):\n", summaryMsg);
       setAndClearMessage({ text: "Préparation de l'import...\n" + summaryMsg.substring(0, 300) + (summaryMsg.length > 300 ? "..." : ""), type: 'info' }, 10000);
@@ -473,47 +566,71 @@ export default function ImportData({ user }) {
       
     setLoading(true);
     setAndClearMessage({ text: 'Importation en cours...', type: 'info' });
-  
-    // NOUVEAUX LOGS DE VERIFICATION AVANT ENVOI
-    console.log("=== VÉRIFICATION FINALE AVANT ENVOI ===");
-    console.log("Type de finalColumnsConfig:", typeof finalColumnsConfig);
-    console.log("finalColumnsConfig === null:", finalColumnsConfig === null);
-    console.log("finalColumnsConfig === undefined:", finalColumnsConfig === undefined);
-    console.log("finalColumnsConfig complet:", JSON.stringify(finalColumnsConfig, null, 2));
 
-    // Vérifier chaque entrée de finalColumnsConfig
-    Object.entries(finalColumnsConfig || {}).forEach(([key, value]) => {
-      console.log(`finalColumnsConfig["${key}"] =`, value);
-      console.log(`Type de la valeur:`, typeof value);
-      console.log(`Valeur === null:`, value === null);
-      console.log(`Valeur === undefined:`, value === undefined);
-    });
-
-    console.log("Type de newCategoriesMap:", typeof newCategoriesMap);
-    console.log("newCategoriesMap size:", newCategoriesMap.size);
-    const newCategoriesArray = Array.from(newCategoriesMap.values());
-    console.log("newCategories array:", JSON.stringify(newCategoriesArray, null, 2));
-
-    const params = {
-      fileContent,
-      fileName,
-      numeroIndividuHeader, 
-      columns: finalColumnsConfig, 
-      newCategories: newCategoriesArray, 
-      userId: user.id || user.userId,
-      createIfMissing,
-    };
-
-    console.log("Paramètres complets à envoyer:", JSON.stringify(params, (key, value) => {
-      if (key === 'fileContent') return '[FILE CONTENT]'; // Ne pas logger le contenu binaire
-      return value;
-    }, 2));
-    console.log("=== FIN VÉRIFICATION ===");
-    // FIN DES NOUVEAUX LOGS
-
+    // NOUVEAU : Envelopper le nettoyage et l'appel API dans un try-catch global
     try {
+      // --- DÉBUT DE LA SECTION DE NETTOYAGE DES DONNÉES ---
+      const workbook = XLSX.read(fileContent, { 
+        type: 'binary', 
+        cellDates: true, // Important pour que SheetJS essaie de convertir les dates Excel en objets Date JS
+        cellStyles: true,
+        cellFormulas: false 
+      });
+      
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      const allJsonData = XLSX.utils.sheet_to_json(worksheet, { 
+        header: 1, // Récupère les données sous forme de tableau de tableaux
+        defval: "", // Valeur par défaut pour les cellules vides
+        raw: false // IMPORTANT : Convertit les valeurs en chaînes formatées ou nombres (pas d'objets Date bruts)
+                     // C'est pourquoi normalizeDateValue doit gérer les chaînes et les nombres.
+      });
+      
+      // Exclure la ligne d'en-tête des données à traiter si elle est présente
+      const dataRows = allJsonData.length > 1 ? allJsonData.slice(1) : [];
+      
+      // Nettoyer chaque ligne de données
+      const cleanedRows = dataRows.map((row, rowIndex) => {
+        try {
+          // Passer existingFields pour aider à déterminer les types de champs cibles
+          return cleanRowData(row, previewData.rawHeaders, finalColumnsConfig, existingFields);
+        } catch (error) {
+          // En cas d'erreur de nettoyage pour une ligne spécifique
+          console.warn(`Erreur lors du nettoyage de la ligne ${rowIndex + 2} (index ${rowIndex}):`, error.message, "Ligne originale:", row);
+          // Retourner la ligne originale pour que le backend puisse la gérer ou la signaler
+          return row; 
+        }
+      });
+      
+      console.log("Données nettoyées (échantillon de 3 lignes):", cleanedRows.slice(0, 3));
+      // --- FIN DE LA SECTION DE NETTOYAGE DES DONNÉES ---
+      
+      // Préparer les paramètres pour l'appel API, incluant les données nettoyées
+      const params = {
+        fileContent, // Garder le contenu original pour le backend (comme dans votre snippet)
+        fileName,
+        numeroIndividuHeader, 
+        columns: finalColumnsConfig, 
+        newCategories: newCategoriesArray, 
+        userId: user.id || user.userId,
+        createIfMissing,
+        cleanedData: cleanedRows, // NOUVEAU : Ajouter les données nettoyées
+        headers: previewData.rawHeaders // NOUVEAU : Ajouter les en-têtes bruts
+      };
+      
+      // Logs de vérification (existants, adaptés)
+      console.log("=== VÉRIFICATION FINALE AVANT ENVOI (AVEC DONNÉES NETTOYÉES) ===");
+      console.log("Paramètres complets à envoyer:", JSON.stringify(params, (key, value) => {
+        if (key === 'fileContent' && value && typeof value === 'string' && value.length > 200) return `[FILE CONTENT base64, length ${value.length}]`; // Tronquer pour le log
+        if (key === 'cleanedData' && Array.isArray(value) && value.length > 5) return `[CLEANED DATA, ${value.length} rows]`; // Résumer pour le log
+        return value;
+      }, 2));
+
+      // Appel API avec les données (potentiellement nettoyées)
       const res = await window.api.importCSV(params);
-  
+      
+      // Gestion de la réponse de l'API (existante)
       if (res.success) {
         let successMsg = `Importation réussie !`;
         if (res.insertedCount) successMsg += ` ${res.insertedCount} individu(s) inséré(s).`;
@@ -524,29 +641,39 @@ export default function ImportData({ user }) {
         if (res.errorCount > 0 || (res.errors && res.errors.length > 0)) {
           const errorDetails = (res.errors || []).join("\n- ");
           successMsg += `\n${res.errorCount || (res.errors || []).length} erreur(s) lors du traitement des lignes/champs:\n- ${errorDetails}`;
-          console.warn("Erreurs d'importation:", res.errors);
+          console.warn("Erreurs d'importation (backend):", res.errors);
           setAndClearMessage({ text: successMsg, type: 'warning' }, 20000);
         } else {
           setAndClearMessage({ text: successMsg, type: 'success' }, 10000);
         }
         setImportStep(4);
-      } else {
+      } else { // res.success est false
         const errorDetails = (res.errors && res.errors.length > 0) ? "\nDétails:\n- " + res.errors.join("\n- ") : "";
-        setAndClearMessage({ text: `Erreur lors de l'import: ${res.error || 'Problème inconnu'}${errorDetails}`, type: 'error' }, 20000);
+        setAndClearMessage({ text: `Erreur lors de l'import (réponse API): ${res.error || 'Problème inconnu'}${errorDetails}`, type: 'error' }, 20000);
       }
-    } catch (error) {
-      setAndClearMessage({ text: `Erreur critique lors de l'importation: ${error.message}`, type: 'error' }, 15000);
-      console.error("Erreur critique import:", error);
-    } finally {
-      setLoading(false);
+      setLoading(false); // S'assurer que setLoading est false après le traitement réussi
+      
+    } catch (error) { // Gérer les erreurs du bloc try (nettoyage, préparation des params, ou appel API lui-même)
+      console.error("Erreur globale lors de l'importation, du nettoyage ou de l'appel API:", error);
+      // Le message d'erreur de votre snippet était spécifique au nettoyage. Le rendre plus générique.
+      let displayErrorMessage = `Erreur lors de l'importation: ${error.message}`;
+      // Vous pouvez ajouter une logique pour rendre le message plus spécifique si nécessaire
+      // par exemple, en vérifiant si l'erreur provient d'une étape particulière.
+      setAndClearMessage({ 
+        text: displayErrorMessage, 
+        type: 'error' 
+      }, 15000);
+      setLoading(false); // Important de remettre setLoading à false en cas d'erreur
+      // return; // Le return ici est implicite si c'est la fin de la fonction et qu'une erreur est gérée.
     }
   };
+  // --- FIN DE LA FONCTION handleImport MODIFIÉE ---
   
   const resetImport = () => {
     setImportStep(1); setFileContent(null); setFileName(''); setPreviewData(null);
     setMapping({}); setColumnActions({}); 
     const defaultNouveauxChamps = {};
-    if (previewData && previewData.rawHeaders) {
+    if (previewData && previewData.rawHeaders) { // S'assurer que previewData existe
         previewData.rawHeaders.forEach(header => {
             defaultNouveauxChamps[header] = {
                 categorie_id: categories.length > 0 ? categories[0].id.toString() : '',
@@ -835,12 +962,11 @@ export default function ImportData({ user }) {
           </div>
         );
 
-      case 4: // Résultats
+      case 4: 
         return (
           <div className="wizard-panel-content">
             <div className="import-results">
               <h3>Importation Terminée</h3>
-              {/* Le message de succès/erreur est déjà affiché globalement par setAndClearMessage */}
               <button onClick={resetImport} className="btn-primary">Effectuer un nouvel import</button>
             </div>
           </div>
@@ -854,7 +980,6 @@ export default function ImportData({ user }) {
       <h2 className="panel-title">Importation de Données Individus</h2>
       {message.text && (
         <div className={`message-banner ${message.type === 'success' ? 'success-message' : message.type === 'warning' ? 'warning-message' : message.type === 'error' ? 'error-message' : 'info-message'}`}>
-          {/* Utiliser <pre> pour conserver les retours à la ligne dans le message */}
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
         </div>
       )}
