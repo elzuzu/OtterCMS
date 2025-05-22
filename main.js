@@ -298,14 +298,24 @@ ipcMain.handle('init-database', async (event) => {
   logIPC('init-database');
   try {
     if (db && db.open) {
-      db.close(); 
+      db.close();
       log('Existing database closed before reinitialization.');
     }
-    db = initializeDatabaseSync(); 
+    db = initializeDatabaseSync();
     initPreparedStatements();
     return { success: true, message: 'Database initialized successfully' };
   } catch (error) {
     logError('init-database IPC', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('getConfig', async () => {
+  logIPC('getConfig');
+  try {
+    return { success: true, data: config };
+  } catch (error) {
+    logError('getConfig', error);
     return { success: false, error: error.message };
   }
 });
