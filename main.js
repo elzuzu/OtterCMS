@@ -581,6 +581,7 @@ ipcMain.handle('deleteCategorie', async (event, id) => { // This is actually hid
 });
 
 // --- Individu and Audit Logic ---
+
 function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, importFile = null }) {
   if (!db) throw new Error('DB not ready for addOrUpdateIndividuLogicSync');
 
@@ -626,10 +627,13 @@ function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, impo
       if (String(oldIndividu.categorie_id || '') !== String(updatedCategorieId || '')) auditEntries.push({ champ: 'categorie_id', ancienne_valeur: String(oldIndividu.categorie_id || ''), nouvelle_valeur: String(updatedCategorieId || '') });
       
       // CORRECTION : Traitement sécurisé des champs supplémentaires
-      const allSuppKeys = new Set([
-        ...Object.keys(newChampsSuppToUse || {}), 
-        ...Object.keys(oldChampsSupp || {})
-      ]);
+      const allSuppKeys = new Set();
+      try {
+        Object.keys(newChampsSuppToUse || {}).forEach(key => allSuppKeys.add(key));
+        Object.keys(oldChampsSupp || {}).forEach(key => allSuppKeys.add(key));
+      } catch (keysError) {
+        logError('addOrUpdateIndividuLogicSync (building allSuppKeys)', keysError);
+      }
       
       allSuppKeys.forEach(key => {
         const oldValue = String((oldChampsSupp || {})[key] === undefined ? '' : (oldChampsSupp || {})[key]);
@@ -670,11 +674,15 @@ function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, impo
       if (insertCategorieId !== null) creationAuditEntries.push({ champ: 'categorie_id', ancienne_valeur: null, nouvelle_valeur: String(insertCategorieId) });
       
       // CORRECTION : Traitement sécurisé des champs supplémentaires
-      Object.entries(insertChampsSuppToUse || {}).forEach(([key, value]) => {
-        if (value !== null && value !== undefined && String(value) !== '') { 
-            creationAuditEntries.push({ champ: key, ancienne_valeur: null, nouvelle_valeur: String(value) });
-        }
-      });
+      try {
+        Object.entries(insertChampsSuppToUse || {}).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && String(value) !== '') { 
+              creationAuditEntries.push({ champ: key, ancienne_valeur: null, nouvelle_valeur: String(value) });
+          }
+        });
+      } catch (entriesError) {
+        logError('addOrUpdateIndividuLogicSync (processing creation audit entries)', entriesError);
+      }
       
       for (const entry of creationAuditEntries) {
           try { preparedStatements.insertAudit.run(currentId, entry.champ, entry.ancienne_valeur, entry.nouvelle_valeur, userId, auditAction, importFile); }
@@ -691,7 +699,6 @@ function addOrUpdateIndividuLogicSync({ individu, userId, isImport = false, impo
     return { success: false, error: err.message }; 
   }
 }
-
 /**
  * Ensures a field definition exists in a category's `champs` JSON.
  */
@@ -742,10 +749,8 @@ function ensureFieldInCategorySync(categoryId, fieldConfig) {
     }
     return fieldActuallyAddedOrChanged;
 }
-
-
 ipcMain.handle('importCSV', async (event, importParams) => {
-  // Ajout de vérifications de sécurité
+  // Vérifications de sécurité initiales
   if (!importParams) {
     return { success: false, error: 'Paramètres d\'import manquants.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Paramètres manquants.'] };
   }
@@ -761,7 +766,7 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     createIfMissing 
   });
 
-  // Vérification des paramètres obligatoires
+  // Vérifications des paramètres obligatoires
   if (!columns || typeof columns !== 'object') {
     return { success: false, error: 'Configuration des colonnes manquante ou invalide.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Configuration des colonnes invalide.'] };
   }
@@ -778,53 +783,6 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     return { success: false, error: 'ID utilisateur manquant.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['ID utilisateur manquant.'] };
   }
 
-  // AJOUT : Logs de débogage pour voir exactement ce qui est reçu (après le logIPC corrigé)
-  console.log("[MAIN] === DÉBUT DÉBOGAGE IMPORT CSV (après logIPC) ===");
-  console.log("[MAIN] Type de columns:", typeof columns);
-  console.log("[MAIN] columns === null:", columns === null);
-  console.log("[MAIN] columns === undefined:", columns === undefined);
-  // console.log("[MAIN] columns:", JSON.stringify(columns, null, 2)); // Peut être trop verbeux, à décommenter si besoin
-
-  // Vérification et nettoyage des paramètres
-  if (columns && typeof columns === 'object') {
-    for (const [header, config] of Object.entries(columns)) {
-      if (!config || typeof config !== 'object') {
-        return { success: false, error: `Configuration invalide pour la colonne "${header}".`, insertedCount: 0, updatedCount: 0, errorCount: 0, errors: [`Configuration invalide pour colonne "${header}".`] };
-      }
-      if (['create', 'create_in_existing_category', 'create_in_new_category'].includes(config.action)) {
-        if (!config.fieldConfig || typeof config.fieldConfig !== 'object') {
-          return { success: false, error: `Configuration de champ manquante pour la colonne "${header}".`, insertedCount: 0, updatedCount: 0, errorCount: 0, errors: [`fieldConfig manquant pour "${header}".`] };
-        }
-      }
-    }
-  }
-  if (newCategories && Array.isArray(newCategories)) {
-    for (let i = 0; i < newCategories.length; i++) {
-      const category = newCategories[i];
-      if (!category || typeof category !== 'object') {
-        return { success: false, error: `Catégorie invalide à l'index ${i}.`, insertedCount: 0, updatedCount: 0, errorCount: 0, errors: [`Catégorie ${i} invalide.`] };
-      }
-      if (!category.nom || typeof category.nom !== 'string') {
-        return { success: false, error: `Nom de catégorie manquant à l'index ${i}.`, insertedCount: 0, updatedCount: 0, errorCount: 0, errors: [`Nom catégorie ${i} manquant.`] };
-      }
-      if (!Array.isArray(category.champs)) {
-        return { success: false, error: `Champs de catégorie invalides à l'index ${i}.`, insertedCount: 0, updatedCount: 0, errorCount: 0, errors: [`Champs catégorie ${i} invalides.`] };
-      }
-    }
-  }
-  
-  console.log("[MAIN] Paramètres reçus (après vérifications initiales):");
-  console.log("[MAIN] - fileContent présent:", !!fileContent);
-  console.log("[MAIN] - fileName:", fileName);
-  console.log("[MAIN] - numeroIndividuHeader:", numeroIndividuHeader);
-  console.log("[MAIN] - userId:", userId);
-  console.log("[MAIN] - createIfMissing:", createIfMissing);
-  console.log("[MAIN] - columns type (après vérif):", typeof columns);
-  console.log("[MAIN] - columns keys (après vérif):", columns ? Object.keys(columns) : 'null/undefined');
-  console.log("[MAIN] - newCategories type (après vérif):", typeof newCategories);
-  console.log("[MAIN] - newCategories length (après vérif):", Array.isArray(newCategories) ? newCategories.length : 'not array');
-
-
   if (!db) return { success: false, error: 'Base de données non initialisée.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Base de données non initialisée.'] };
   
   let insertedCount = 0;
@@ -837,49 +795,38 @@ ipcMain.handle('importCSV', async (event, importParams) => {
   let jsonData = [];
 
   try {
-    console.log("[MAIN] Lecture du fichier XLSX...");
     const workbook = xlsx.read(fileContent, { type: 'binary', cellDates: true, codepage: 65001 });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     jsonData = xlsx.utils.sheet_to_json(worksheet, { header: 1, defval: null, raw: false });
-    console.log("[MAIN] Fichier lu, lignes trouvées:", jsonData.length);
 
     if (jsonData.length < 2) { 
         return { success: false, error: 'Le fichier ne contient pas de données ou seulement des en-têtes.', insertedCount:0, updatedCount:0, errorCount:1, errors:['Données insuffisantes.'] };
     }
+    
     const csvHeadersFromFile = jsonData[0].map(h => String(h || '').trim());
     const dataRows = jsonData.slice(1);
-    console.log("[MAIN] En-têtes CSV:", csvHeadersFromFile);
-    console.log("[MAIN] Nombre de lignes de données:", dataRows.length);
-
 
     // Vérification que l'en-tête du numéro d'individu existe
     if (!csvHeadersFromFile.includes(numeroIndividuHeader)) {
       return { success: false, error: `L'en-tête du numéro d'individu "${numeroIndividuHeader}" n'existe pas dans le fichier.`, insertedCount: 0, updatedCount: 0, errorCount: 1, errors: [`En-tête "${numeroIndividuHeader}" introuvable.`] };
     }
 
-    console.log("[MAIN] === PHASE 1: Configuration des catégories ===");
     // --- Phase 1: Ensure Categories and Field Definitions ---
     const categorySetupTransaction = db.transaction(() => {
-        const createdCategoryCache = {}; // Lowercase name -> ID
-        const ensuredFieldDefinitionsCache = {}; // categoryId_fieldKey -> true
+        const createdCategoryCache = {};
+        const ensuredFieldDefinitionsCache = {};
 
         if (newCategories && Array.isArray(newCategories)) {
-            console.log("[MAIN] Traitement de", newCategories.length, "nouvelles catégories");
-            for (let catIndex = 0; catIndex < newCategories.length; catIndex++) {
-                const categoryGroup = newCategories[catIndex];
-                console.log("[MAIN] Catégorie", catIndex + 1, ":", categoryGroup);
-                
+            for (const categoryGroup of newCategories) {
                 if (!categoryGroup || typeof categoryGroup !== 'object') {
                   errorsDetailed.push('Groupe de catégorie invalide détecté, ignoré.');
-                  console.error("[MAIN] Groupe de catégorie invalide à l'index", catIndex);
                   continue;
                 }
                 
                 const categoryName = String(categoryGroup.nom || '').trim();
                 if (!categoryName) {
                   errorsDetailed.push('Nom de catégorie vide détecté, ignoré.');
-                  console.error("[MAIN] Nom de catégorie vide à l'index", catIndex);
                   continue;
                 }
                 
@@ -888,234 +835,167 @@ ipcMain.handle('importCSV', async (event, importParams) => {
 
                 if (createdCategoryCache[categoryNameLower]) {
                     categoryId = createdCategoryCache[categoryNameLower];
-                    console.log("[MAIN] Catégorie", categoryName, "déjà en cache, ID:", categoryId);
                 } else {
                     const existingCat = preparedStatements.getCategoryByNameLower.get(categoryNameLower);
                     if (existingCat) {
                         categoryId = existingCat.id;
-                        console.log("[MAIN] Catégorie", categoryName, "existe déjà en DB, ID:", categoryId);
+                        log(`New category group '${categoryName}' matches existing category ID ${categoryId}.`);
                     } else {
                         const maxOrderResult = preparedStatements.getMaxCategoryOrder.get();
                         const newOrder = (maxOrderResult && typeof maxOrderResult.max_ordre === 'number' ? maxOrderResult.max_ordre : -10) + 10;
                         const info = preparedStatements.insertCategory.run(categoryName, '[]', newOrder);
                         categoryId = info.lastInsertRowid;
                         newCategoriesCreatedCount++;
-                        console.log("[MAIN] Nouvelle catégorie", categoryName, "créée avec ID:", categoryId, "ordre:", newOrder);
+                        log(`New category '${categoryName}' created with ID ${categoryId}, order ${newOrder}.`);
                     }
                     createdCategoryCache[categoryNameLower] = categoryId;
                 }
 
                 if (categoryGroup.champs && Array.isArray(categoryGroup.champs)) {
-                  console.log("[MAIN] Traitement de", categoryGroup.champs.length, "champs pour la catégorie", categoryName);
-                  for (let fieldIndex = 0; fieldIndex < categoryGroup.champs.length; fieldIndex++) {
-                      const fieldConfig = categoryGroup.champs[fieldIndex];
-                      console.log("[MAIN] Champ", fieldIndex + 1, ":", fieldConfig);
-                      
+                  for (const fieldConfig of categoryGroup.champs) {
                       if (!fieldConfig || typeof fieldConfig !== 'object') {
                         errorsDetailed.push(`Configuration de champ invalide dans la catégorie "${categoryName}", ignorée.`);
-                        console.error("[MAIN] Configuration de champ invalide dans catégorie", categoryName, "à l'index", fieldIndex);
                         continue;
                       }
                       
                       const fieldKey = String(fieldConfig.key || '').trim();
                       if (!fieldKey) {
                         errorsDetailed.push(`Clé de champ vide dans la catégorie "${categoryName}", ignorée.`);
-                        console.error("[MAIN] Clé de champ vide dans catégorie", categoryName, "à l'index", fieldIndex);
                         continue;
                       }
                       
                       const cacheKey = `${categoryId}_${fieldKey}`;
                       if (!ensuredFieldDefinitionsCache[cacheKey]) {
-                          console.log("[MAIN] Ajout du champ", fieldKey, "dans la catégorie ID", categoryId);
                           if (ensureFieldInCategorySync(categoryId, fieldConfig)) {
                               newFieldsAddedCount++;
                           }
                           ensuredFieldDefinitionsCache[cacheKey] = true;
-                      } else {
-                          console.log("[MAIN] Champ", fieldKey, "déjà défini dans la catégorie ID", categoryId);
                       }
                   }
                 }
             }
         }
 
-        console.log("[MAIN] Traitement des champs des colonnes existantes...");
-        for (let headerIndex = 0; headerIndex < csvHeadersFromFile.length; headerIndex++) {
-            const csvHeader = csvHeadersFromFile[headerIndex];
+        // Traitement des champs des colonnes existantes
+        for (const csvHeader of csvHeadersFromFile) {
             const colConfig = columns[csvHeader];
-            console.log("[MAIN] En-tête", headerIndex + 1, ":", csvHeader, "Config:", colConfig);
-            
-            if (!colConfig || !colConfig.fieldConfig) {
-                console.log("[MAIN] Pas de config ou fieldConfig pour", csvHeader);
-                continue;
-            }
+            if (!colConfig || !colConfig.fieldConfig) continue;
 
             let categoryIdForField;
             const fieldConfig = colConfig.fieldConfig;
-            if (!fieldConfig || typeof fieldConfig !== 'object') {
-                console.error("[MAIN] fieldConfig invalide pour", csvHeader);
-                continue;
-            }
+            if (!fieldConfig || typeof fieldConfig !== 'object') continue;
             
             const fieldKey = String(fieldConfig.key || '').trim();
-            if (!fieldKey) {
-                console.error("[MAIN] fieldKey vide pour", csvHeader);
-                continue;
-            }
+            if (!fieldKey) continue;
 
             if (colConfig.action === 'create') { 
                 categoryIdForField = fieldConfig.categorie_id;
-                console.log("[MAIN] Action 'create' pour", csvHeader, "catégorie ID:", categoryIdForField);
             } else if (colConfig.action === 'create_in_existing_category') { 
                 categoryIdForField = colConfig.targetCategoryId;
-                console.log("[MAIN] Action 'create_in_existing_category' pour", csvHeader, "catégorie ID:", categoryIdForField);
             }
 
             if (categoryIdForField && fieldKey) {
                  const cacheKey = `${categoryIdForField}_${fieldKey}`;
                  if (!ensuredFieldDefinitionsCache[cacheKey]) {
-                    console.log("[MAIN] Ajout du champ", fieldKey, "dans la catégorie ID", categoryIdForField, "pour la colonne", csvHeader);
                     if (ensureFieldInCategorySync(categoryIdForField, fieldConfig)) {
                         newFieldsAddedCount++;
                     }
                     ensuredFieldDefinitionsCache[cacheKey] = true;
-                 } else {
-                    console.log("[MAIN] Champ", fieldKey, "déjà défini dans la catégorie ID", categoryIdForField, "pour la colonne", csvHeader);
                  }
             }
         }
     });
     
     try {
-        console.log("[MAIN] Exécution de la transaction de configuration des catégories...");
         categorySetupTransaction();
-        console.log("[MAIN] Transaction de configuration terminée avec succès");
     } catch (catError) {
         logError('importCSV (categorySetupTransaction)', catError);
         errorsDetailed.push(`Erreur critique lors de la configuration des catégories/champs: ${catError.message}`);
         return { success: false, error: `Erreur configuration: ${catError.message}`, insertedCount, updatedCount, errorCount: dataRows.length, errors: errorsDetailed, newCategoriesCreatedCount, newFieldsAddedCount };
     }
 
-    console.log("[MAIN] === PHASE 2: Traitement des lignes ===");
-    console.log("[MAIN] Nombre de lignes à traiter:", dataRows.length);
-    
     // --- Phase 2: Process Rows ---
     for (let i = 0; i < dataRows.length; i++) {
-        console.log("[MAIN] === TRAITEMENT LIGNE", i + 2, "===");
         const rowArray = dataRows[i];
         if (!Array.isArray(rowArray)) {
           errorsDetailed.push(`Ligne ${i + 2}: Format de ligne invalide, ignorée.`);
           errorCount++;
-          console.error("[MAIN] Ligne", i + 2, "format invalide:", rowArray);
           continue;
         }
-        
-        console.log("[MAIN] Ligne", i + 2, "données:", rowArray);
         
         // CORRECTION : Initialiser explicitement champs_supplementaires comme objet vide
         const individuData = { 
             champs_supplementaires: {} // Assurer que c'est toujours un objet
         };
         let currentNumeroUnique = null;
-        
-        console.log("[MAIN] individuData initialisé:", individuData);
 
-        console.log("[MAIN] Traitement des colonnes pour la ligne", i + 2);
         for (let colIdx = 0; colIdx < csvHeadersFromFile.length; colIdx++) {
             const csvHeader = csvHeadersFromFile[colIdx];
             const colConfig = columns[csvHeader];
-            
-            console.log("[MAIN] Colonne", colIdx + 1, "en-tête:", csvHeader, "config:", colConfig);
-            
-            if (!colConfig) {
-                console.log("[MAIN] Pas de config pour la colonne", csvHeader);
-                continue;
-            }
+            if (!colConfig) continue;
 
             const rawValue = rowArray[colIdx];
             const typedValue = inferType(rawValue);
-            
-            console.log("[MAIN] Valeur brute:", rawValue, "Valeur typée:", typedValue);
 
             if (colConfig.action === 'map') {
                 const targetField = colConfig.targetField;
-                console.log("[MAIN] Action 'map' vers", targetField);
-                
                 if (targetField === 'numero_unique') {
                     currentNumeroUnique = typedValue !== null ? String(typedValue).trim() : null;
-                    console.log("[MAIN] numero_unique défini:", currentNumeroUnique);
                 } else if (targetField === 'en_charge') {
                     individuData.en_charge = typedValue !== null && !isNaN(parseInt(typedValue, 10)) ? parseInt(typedValue, 10) : (typeof typedValue === 'string' && typedValue.trim() !== '' ? typedValue.trim() : null);
-                    console.log("[MAIN] en_charge défini:", individuData.en_charge);
                 } else if (targetField === 'categorie_id') {
                     individuData.categorie_id = typedValue !== null && !isNaN(parseInt(typedValue, 10)) ? parseInt(typedValue, 10) : null;
-                    console.log("[MAIN] categorie_id défini:", individuData.categorie_id);
                 } else if (targetField && targetField.startsWith('champs_supplementaires.')) {
                     const actualChampKey = targetField.substring('champs_supplementaires.'.length);
-                    // individuData.champs_supplementaires est déjà initialisé
+                    // CORRECTION : Vérifier que champs_supplementaires existe
+                    if (!individuData.champs_supplementaires) {
+                        individuData.champs_supplementaires = {};
+                    }
                     individuData.champs_supplementaires[actualChampKey] = typedValue;
-                    console.log("[MAIN] champs_supplementaires[" + actualChampKey + "] =", typedValue);
                 } else if (targetField) { 
                     individuData[targetField] = typedValue;
-                    console.log("[MAIN] individuData[" + targetField + "] =", typedValue);
                 }
             } else if (['create', 'create_in_existing_category', 'create_in_new_category'].includes(colConfig.action)) {
-                console.log("[MAIN] Action 'create' ou similaire");
                 if (colConfig.fieldConfig && colConfig.fieldConfig.key) {
                     const fieldKey = String(colConfig.fieldConfig.key).trim();
-                    console.log("[MAIN] Clé de champ:", fieldKey);
-                    // individuData.champs_supplementaires est déjà initialisé
+                    // CORRECTION : Vérifier que champs_supplementaires existe
+                    if (!individuData.champs_supplementaires) {
+                        individuData.champs_supplementaires = {};
+                    }
                     individuData.champs_supplementaires[fieldKey] = typedValue;
-                    console.log("[MAIN] champs_supplementaires[" + fieldKey + "] =", typedValue);
                     if (csvHeader === numeroIndividuHeader) {
                          currentNumeroUnique = typedValue !== null ? String(typedValue).trim() : null;
-                         console.log("[MAIN] numero_unique défini via create:", currentNumeroUnique);
                     }
                 }
             }
         }
-        
         individuData.numero_unique = currentNumeroUnique;
-        console.log("[MAIN] individuData final pour la ligne", i + 2, ":", JSON.stringify(individuData, null, 2));
 
         // CORRECTION : Vérifications sécurisées avec des vérifications null/undefined
-        console.log("[MAIN] Vérification des champs supplémentaires...");
         const champsSupp = individuData.champs_supplementaires || {};
-        console.log("[MAIN] champsSupp:", champsSupp);
-        console.log("[MAIN] Type de champsSupp:", typeof champsSupp);
-        
+        let champsSuppValues = [];
         try {
-            const champsSuppValues = Object.values(champsSupp);
-            console.log("[MAIN] champsSuppValues:", champsSuppValues);
-            
-            if (!individuData.numero_unique && champsSuppValues.every(v => v === null || String(v || '').trim() === '')) {
-                console.log("[MAIN] Ligne vide détectée, ignorée");
-                log(`Skipping empty row ${i + 2}`);
-                continue;
-            }
+            champsSuppValues = Object.values(champsSupp);
         } catch (objectValuesError) {
-            console.error("[MAIN] ERREUR lors de Object.values(champsSupp):", objectValuesError);
-            console.error("[MAIN] champsSupp au moment de l'erreur:", champsSupp);
-            console.error("[MAIN] Type de champsSupp:", typeof champsSupp);
-            console.error("[MAIN] champsSupp === null:", champsSupp === null);
-            console.error("[MAIN] champsSupp === undefined:", champsSupp === undefined);
-            // Ne pas re-throw ici pour permettre au reste du fichier de continuer si possible,
-            // mais l'erreur sera loggée et potentiellement incluse dans errorsDetailed.
-            errorsDetailed.push(`Ligne ${i + 2}: Erreur interne lors de la vérification des champs vides (Object.values).`);
-            errorCount++;
-            continue; 
+            log(`Erreur Object.values sur champs_supplementaires ligne ${i + 2}:`, objectValuesError);
+            champsSuppValues = [];
+        }
+        
+        if (!individuData.numero_unique && champsSuppValues.every(v => v === null || String(v || '').trim() === '')) {
+            log(`Skipping empty row ${i + 2}`);
+            continue;
         }
         
         if (!individuData.numero_unique && !createIfMissing) {
-            errorsDetailed.push(`Ligne ${i + 2}: "numero_unique" manquant et création non autorisée. Ligne ignorée.`);
+            errorsDetailed.push(`Ligne ${i + 2}: \"numero_unique\" manquant et création non autorisée. Ligne ignorée.`);
             errorCount++;
-            console.log("[MAIN] numero_unique manquant et création non autorisée");
             continue;
         }
         
         if (typeof individuData.en_charge === 'string') {
             const userFound = preparedStatements.getUserByUsername.get(individuData.en_charge);
             individuData.en_charge = userFound ? userFound.id : null;
+            // Retrieve original CSV value for 'en_charge' for accurate error reporting
             let originalEnChargeCsvValue = '';
             const enChargeCsvHeader = csvHeadersFromFile.find(h => {
                 const config = columns[h];
@@ -1126,7 +1006,7 @@ ipcMain.handle('importCSV', async (event, importParams) => {
                 if (enChargeColIdx !== -1) originalEnChargeCsvValue = String(rowArray[enChargeColIdx] || '').trim();
             }
             if (!userFound && originalEnChargeCsvValue !== '') {
-                 errorsDetailed.push(`Ligne ${i + 2}: Utilisateur en charge "${originalEnChargeCsvValue}" non trouvé.`);
+                 errorsDetailed.push(`Ligne ${i + 2}: Utilisateur en charge \"${originalEnChargeCsvValue}\" non trouvé.`);
             }
         }
 
@@ -1147,20 +1027,11 @@ ipcMain.handle('importCSV', async (event, importParams) => {
             errorsDetailed.push(`Ligne ${i + 2} (NumUnique: ${individuData.numero_unique || 'N/A'}): Erreur interne - ${rowError.message}`);
             logError('importCSV (row processing)', rowError);
         }
-        console.log("[MAIN] === FIN TRAITEMENT LIGNE", i + 2, "===");
-        
-        // Pour éviter un log trop long, on s'arrête après quelques lignes pour le debug
-        // if (i >= 2) { // Décommentez pour limiter le nombre de lignes traitées pendant le débogage
-        //     console.log("[MAIN] ARRÊT DU DEBUG APRÈS 3 LIGNES");
-        //     break;
-        // }
-    } // End of Phase 2 loop
+    } 
 
-    console.log("[MAIN] === FIN DÉBOGAGE IMPORT CSV ===");
     return { success: true, insertedCount, updatedCount, errorCount, errors: errorsDetailed, newCategoriesCreatedCount, newFieldsAddedCount };
 
   } catch (e) {
-    console.error("[MAIN] ERREUR CRITIQUE dans importCSV:", e);
     logError('importCSV (critique, hors boucle principale)', e);
     errorsDetailed.push(`Erreur générale du processus d'import: ${e.message}`);
     const totalRowsToProcess = jsonData && jsonData.length > 1 ? jsonData.length - 1 : 0;
@@ -1169,8 +1040,6 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     return { success: false, error: `Erreur critique: ${e.message}`, insertedCount, updatedCount, errorCount: remainingErrorCount, errors: errorsDetailed, newCategoriesCreatedCount, newFieldsAddedCount };
   }
 });
-
-
 ipcMain.handle('addOrUpdateIndividu', async (event, params) => {
   logIPC('addOrUpdateIndividu', {individuId: params.individu?.id, userId: params.userId, isImport: params.isImport, importFile: params.importFile});
   try {
