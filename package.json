@@ -52,7 +52,7 @@
     "@electron-forge/plugin-vite": "^7.8.1",
     "@vitejs/plugin-react": "^4.2.1",
     "electron": "^29.1.5",
-    "electron-builder": "^25.2.0",
+    "electron-builder": "^26.0.12",
     "rimraf": "^5.0.5",
     "vite": "^6.3.5"
   }
