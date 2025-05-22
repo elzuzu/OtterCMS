@@ -1514,6 +1514,35 @@ input[type="checkbox"]:focus {
   color: var(--color-primary-600);
 }
 
+/* Spécifique à la gestion des rôles */
+.role-management-panel .role-form {
+  background-color: var(--color-neutral-50);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-5);
+  margin-bottom: var(--spacing-8);
+  box-shadow: var(--shadow-sm);
+}
+
+.role-management-panel .role-form h3 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-4);
+  color: var(--color-primary-600);
+}
+
+.role-management-panel .permissions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-3);
+}
+
+.role-management-panel .permissions-grid label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
 
 /* Étapes du wizard */
 .wizard-steps {
