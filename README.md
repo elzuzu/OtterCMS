@@ -12,7 +12,7 @@ Application Electron et React permettant le suivi d'individus avec champs dynami
 
 ## Architecture
 
-- **src/main.ts** : processus principal Electron. Il expose des API IPC et accède à SQLite via `better-sqlite3`.
+ - **src/main.js** : processus principal Electron. Il expose des API IPC et accède à SQLite via `better-sqlite3`.
 - **src/preload.ts** : passerelle sécurisée entre le renderer et le processus principal.
 - **src/renderer/** : application React (renderer) compilée par Vite.
 - **scripts/install.js** : initialise la configuration et la base de données.
