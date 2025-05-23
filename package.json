@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "electron-forge dev",
     "make": "electron-forge make",
-    "install-app": "node scripts/install.js"
+    "install-app": "node scripts/install.js",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [
     "electron",
