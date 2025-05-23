@@ -1,11 +1,12 @@
 const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron');
+const { autoUpdater } = require("electron-updater");
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
-const { log, logError, logIPC } = require('./utils/logger');
-const { inferType } = require('./utils/inferType');
+const { log, logError, logIPC } = require('../utils/logger');
+const { inferType } = require('../utils/inferType');
 
 const DEFAULT_ROLE_PERMISSIONS = {
   admin: [
@@ -1362,6 +1363,7 @@ app.whenReady().then(() => {
   });
   initDb(); 
   createWindow();
+  autoUpdater.checkForUpdatesAndNotify();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 

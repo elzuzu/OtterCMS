@@ -2,22 +2,10 @@
   "name": "indi-suivi-nodejs",
   "version": "2.0.0",
   "description": "Application Electron Node.js full modulaire, champs dynamiques, audit trail complet.",
-  "main": "main.js",
+  "main": "src/main.ts",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "install-app": "node ./scripts/install.js",
-    "dev-app": "npm run build && npm start",
-    "build-win": "vite build",
-    "dist:portable": "electron-builder --win portable",
-    "dist:zip": "electron-builder --win zip",
-    "dist:all": "electron-builder --win portable zip",
-    "dist:clean": "rimraf dist release-builds",
-    "postinstall": "electron-rebuild"
+    "dev": "electron-forge dev",
+    "make": "electron-forge make"
   },
   "keywords": [
     "electron",
