@@ -1,4 +1,4 @@
-import { vitePlugin } from '@electron-forge/plugin-vite';
+import { VitePlugin } from '@electron-forge/plugin-vite';
 
 export default {
   packagerConfig: { asar: true, icon: 'build/icon.ico' },
@@ -8,5 +8,5 @@ export default {
       config: { name: 'MonApp', setupIcon: 'build/icon.ico' }
     }
   ],
-  plugins: [vitePlugin({})]
+  plugins: [new VitePlugin({})]
 };
