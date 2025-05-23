@@ -69,7 +69,7 @@ Après installation, placez `config/app-config.json` à côté de l'exécutable 
 
 ## Installation
 
-1. Installez Node.js (18 ou supérieur).
+1. Installez Node.js 21.7.3 (Windows x64) ou une version ultérieure.
 2. Installez les dépendances :
    ```bash
    npm install
