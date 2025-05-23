@@ -70,7 +70,8 @@ Après installation, placez `config/app-config.json` à côté de l'exécutable 
 ## Installation
 
 1. Installez Node.js 21.7.3 (Windows x64) ou une version ultérieure.
-2. Installez les dépendances :
+2. Installez les dépendances (les modules natifs comme **better-sqlite3** seront
+   récupérés en version précompilée grâce au script `postinstall`) :
    ```bash
    npm install
    ```
