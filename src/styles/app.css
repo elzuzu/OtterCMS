@@ -237,7 +237,7 @@ a:hover {
 .app {
    max-width: 1400px; /* Augmentation pour les écrans larges */
    margin: 0 auto;
-   padding: var(--spacing-6) var(--spacing-8); /* Plus d'aération */
+   padding: 0 var(--spacing-8) var(--spacing-6); /* Remove top padding to stick header */
    display: flex;
    flex-direction: column;
    min-height: 100vh;
@@ -3030,7 +3030,7 @@ textarea[readOnly] {
 /* ===== AJUSTEMENTS RESPONSIVES ===== */
 @media (max-width: 768px) {
    .app {
-      padding: var(--spacing-4);
+      padding: 0 var(--spacing-4) var(--spacing-4);
    }
 
    header.app-header { /* Plus spécifique */
