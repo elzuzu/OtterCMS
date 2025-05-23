@@ -3682,14 +3682,14 @@ body { margin:0; font-family:system-ui; }
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  background: var(--bg-tertiary);
+  background: transparent;
   border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-fast);
-  color: var(--text-secondary);
+  color: #000;
 }
 
 .theme-toggle:hover {
@@ -3774,7 +3774,7 @@ body { margin:0; font-family:system-ui; }
   height: 24px;
   border: none;
   background: transparent;
-  color: var(--text-secondary);
+  color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
