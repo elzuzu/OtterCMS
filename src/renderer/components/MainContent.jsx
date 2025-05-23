@@ -217,13 +217,13 @@ export default function MainContent({ user, onLogout }) {
 
   return (
     <div className="app-container" data-theme={theme}>
-      <aside className="sidebar glass-effect">
+      <aside className="app-sidebar">
         <div className="sidebar-header">
           <img src="/logo.svg" className="app-logo" />
           <h1 className="app-title">{appTitle}</h1>
         </div>
         <nav className="sidebar-nav" aria-label="Navigation principale">
-          {tabs.map(tab => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
@@ -240,17 +240,20 @@ export default function MainContent({ user, onLogout }) {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="user-name">{user.windows_login || user.username}</div>
-          <button onClick={onLogout} className="btn btn-ghost" style={{ marginTop: '12px' }}>Déconnexion</button>
-          <ThemeToggle onThemeChange={setTheme} />
+          <div className="user-info">
+            <div className="user-name">{user.windows_login || user.username}</div>
+            <button onClick={onLogout} className="btn btn-ghost">Déconnexion</button>
+            <ThemeToggle onThemeChange={setTheme} />
+          </div>
         </div>
       </aside>
-      <main className="main-content">
-        <header className="main-header glass-effect">
+
+      <main className="app-main">
+        <header className="app-header">
           <WindowControls />
         </header>
-        <div className="content-area">{renderContent()}</div>
-        <footer className="main-footer">
+        <div className="app-content">{renderContent()}</div>
+        <footer className="app-footer">
           <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
         </footer>
       </main>
