@@ -4007,3 +4007,237 @@ body { margin:0; font-family:system-ui; }
 }
 
 
+/* === CONTRÔLES DE FENÊTRE AMÉLIORÉS === */
+.window-controls {
+  display: flex;
+  gap: 1px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  -webkit-app-region: no-drag;
+  z-index: 1001;
+}
+
+.window-control {
+  width: 46px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+  font-family: inherit;
+  -webkit-app-region: no-drag;
+  user-select: none;
+}
+
+.window-control:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 1);
+}
+
+.window-control.minimize:hover {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.window-control.maximize:hover {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.window-control.close:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.window-control-icon {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+/* Icônes spécifiques pour chaque contrôle */
+.window-control.minimize .window-control-icon {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.window-control.maximize .window-control-icon {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.window-control.close .window-control-icon {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+/* === BOUTON DE THÈME AMÉLIORÉ === */
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms ease;
+  color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle:hover::before {
+  opacity: 1;
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.theme-icon {
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 300ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover .theme-icon {
+  transform: rotate(15deg);
+}
+
+/* === ADAPTATION POUR MODE SOMBRE === */
+[data-theme="dark"] .window-control {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .window-control:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 1);
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Adaptations pour mode clair */
+[data-theme="light"] .window-control {
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .window-control:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme="light"] .theme-toggle {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.2);
+  color: rgba(0, 0, 0, 0.9);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .window-controls {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+  
+  .window-control {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .theme-toggle {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* === ALTERNATIVE AVEC FONT AWESOME (optionnel) === */
+/* 
+Si vous voulez utiliser Font Awesome au lieu des symboles Unicode,
+ajoutez cette ligne dans votre index.html :
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+Puis remplacez les symboles par :
+- Minimize: <i className="fas fa-window-minimize"></i>
+- Maximize: <i className="fas fa-window-maximize"></i>
+- Close: <i className="fas fa-times"></i>
+- Sun: <i className="fas fa-sun"></i>
+- Moon: <i className="fas fa-moon"></i>
+*/
+
+/* === EFFETS VISUELS ADDITIONNELS === */
+.window-control,
+.theme-toggle {
+  position: relative;
+}
+
+.window-control::after,
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.window-control:active::after,
+.theme-toggle:active::after {
+  opacity: 1;
+  transform: scale(1);
+}
