@@ -216,7 +216,7 @@ export default function MainContent({ user, onLogout }) {
   }
 
   return (
-    <div className="app" data-theme={theme}>
+    <div className="app-container" data-theme={theme}>
       <aside className="sidebar glass-effect">
         <div className="sidebar-header">
           <img src="/logo.svg" className="app-logo" />

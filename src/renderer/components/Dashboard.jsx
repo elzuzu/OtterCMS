@@ -123,7 +123,9 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   if (loading) {
     return (
       <div>
-        <h2 style={{ color: 'var(--color-neutral-900)', marginBottom: 'var(--spacing-6)' }}>Tableau de bord</h2>
+        <div className="page-header">
+          <h2 className="page-title">Tableau de bord</h2>
+        </div>
         <div className="loading">Chargement des statistiques...</div>
       </div>
     );
@@ -133,10 +135,12 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   if (error) {
     return (
       <div>
-        <h2 style={{ color: 'var(--color-neutral-900)', marginBottom: 'var(--spacing-6)' }}>Tableau de bord</h2>
-        <div className="error-message" style={{ margin: 'var(--spacing-4) 0'}}>
+        <div className="page-header">
+          <h2 className="page-title">Tableau de bord</h2>
+        </div>
+        <div className="error-message" style={{ margin: 'var(--spacing-4) 0' }}>
           {error}
-          <button onClick={loadStats} className="btn-secondary" style={{ marginLeft: 'var(--spacing-3)'}}>Réessayer</button>
+          <button onClick={loadStats} className="btn-secondary" style={{ marginLeft: 'var(--spacing-3)' }}>Réessayer</button>
         </div>
       </div>
     );
@@ -144,58 +148,107 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
 
   // Rendu principal du Dashboard.
   return (
-    <div className="dashboard-grid">
+    <div>
+      <div className="page-header">
+        <h2 className="page-title">Tableau de bord</h2>
+      </div>
       {!stats ? (
         <div className="no-data-message" style={{ margin: 'var(--spacing-4) 0' }}>
           Aucune statistique disponible pour le moment.
-          <button onClick={loadStats} className="btn btn-primary" style={{ marginTop: 'var(--spacing-3)' }}>Recharger</button>
+          <button onClick={loadStats} className="btn-primary" style={{ marginTop: 'var(--spacing-3)' }}>Recharger</button>
         </div>
       ) : (
-        <>
-          <div className="stats-row">
-            {stats.totalIndividus !== undefined && (
-              <StatCard
-                icon={<UsersIcon />}
-                title="Total Individus"
-                value={stats.totalIndividus}
-                gradient="blue"
-              />
-            )}
-            {stats.mesIndividus !== undefined && (
-              <StatCard
-                icon={<UserCheckIcon />}
-                title="Mes individus"
-                value={stats.mesIndividus}
-                gradient="green"
-                change=""
-              />
-            )}
-            {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
-              <StatCard
-                icon={<UserXIcon />}
-                title="Non attribués"
-                value={stats.individusNonAttribues}
-                gradient="orange"
-              />
-            )}
-            {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
-              <StatCard
-                icon={<FolderIcon />}
-                title="Utilisateurs"
-                value={stats.totalUsers}
-                gradient="purple"
-              />
-            )}
-          </div>
-          <div className="charts-row">
-            <div className="card chart-card">
-              <canvas id="mainChart"></canvas>
+        <div className="stats-container">
+          {stats.mesIndividus !== undefined && (
+            <div className="stats-card">
+              <UserCheckIcon />
+              <div className="stat-value" style={valueStyle}>{stats.mesIndividus}</div>
+              <div className="stat-label" style={labelStyle}>Dossiers en charge</div>
+              <p style={descriptionStyle}>Nombre de dossiers relevant de votre responsabilité directe.</p>
+              <button
+                className="btn-primary"
+                style={cardButtonStyle}
+                onClick={() => {
+                  if (typeof onNavigateToMyIndividus === 'function') {
+                    onNavigateToMyIndividus();
+                  }
+                }}
+              >
+                Voir mes individus suivis
+              </button>
             </div>
-            <div className="card progress-card">
-              <CircularProgress value={78} label="Taux de completion" />
+          )}
+
+          {stats.totalIndividus !== undefined && (
+            <div className="stats-card">
+              <UsersIcon />
+              <div className="stat-value" style={valueStyle}>{stats.totalIndividus}</div>
+              <div className="stat-label" style={labelStyle}>Total des individus</div>
+              <p style={descriptionStyle}>Nombre total d'individus enregistrés dans le système.</p>
+              <button
+                className="btn-primary"
+                style={cardButtonStyle}
+                onClick={() => {
+                  if (typeof onNavigateToAllIndividus === 'function') {
+                    onNavigateToAllIndividus();
+                  }
+                }}
+              >
+                Voir tous les individus
+              </button>
+            </div>
+          )}
+
+          {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
+            <div className="stats-card">
+              <UserXIcon />
+              <div
+                className="stat-value"
+                style={{ ...valueStyle, color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}
+              >
+                {stats.individusNonAttribues}
+              </div>
+              <div className="stat-label" style={labelStyle}>Individus non attribués</div>
+              <p style={descriptionStyle}>Individus en attente d'assignation à un responsable.</p>
+            </div>
+          )}
+
+          <div className="user-info-card">
+            <h3 style={{ color: 'var(--color-neutral-700)', fontSize: '1.125rem', borderBottom: '1px solid var(--border-color-light)', paddingBottom: 'var(--spacing-3)', marginBottom: 'var(--spacing-4)' }}>
+              Vos Informations
+            </h3>
+            <div className="user-info-item">
+              <span className="user-info-label">Nom d'utilisateur:</span>
+              <span className="user-info-value">{user.username}</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">Rôle:</span>
+              <span className="user-info-value" style={{ textTransform: 'capitalize' }}>{user.role}</span>
+            </div>
+            <div className="user-info-item">
+              <span className="user-info-label">ID Utilisateur:</span>
+              <span className="user-info-value">{user.id || user.userId}</span>
             </div>
           </div>
-        </>
+
+          {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
+            <div className="stats-card">
+              <FolderIcon />
+              <div className="stat-value" style={valueStyle}>{stats.totalUsers}</div>
+              <div className="stat-label" style={labelStyle}>Total des utilisateurs</div>
+              <p style={descriptionStyle}>Nombre total de comptes utilisateurs actifs.</p>
+            </div>
+          )}
+
+          {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
+            <div className="stats-card">
+              <FolderIcon />
+              <div className="stat-value" style={{ ...valueStyle, color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</div>
+              <div className="stat-label" style={labelStyle}>Catégories masquées</div>
+              <p style={descriptionStyle}>Catégories archivées non disponibles pour de nouvelles saisies.</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
