@@ -12,16 +12,26 @@ import { PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
 import ThemeToggle from './common/ThemeToggle';
 import WindowControls from './common/WindowControls';
-// Icônes Unicode modernes pour la navigation
+import {
+  Home,
+  List,
+  Upload,
+  Users as UsersIcon,
+  Settings as SettingsIcon,
+  Tag,
+  User2,
+  Palette,
+} from 'lucide-react';
+
 const tabIcons = {
-  dashboard: <span className="unicode-icon">🏠</span>,
-  individus: <span className="unicode-icon">👥</span>,
-  import: <span className="unicode-icon">📁</span>,
-  attribution: <span className="unicode-icon">⚖️</span>,
-  categories: <span className="unicode-icon">🏷️</span>,
-  users: <span className="unicode-icon">👤</span>,
-  template: <span className="unicode-icon">🎨</span>,
-  settings: <span className="unicode-icon">⚙️</span>,
+  dashboard: <Home size={18} aria-hidden="true" />,
+  individus: <List size={18} aria-hidden="true" />,
+  import: <Upload size={18} aria-hidden="true" />,
+  attribution: <UsersIcon size={18} aria-hidden="true" />,
+  categories: <Tag size={18} aria-hidden="true" />,
+  users: <User2 size={18} aria-hidden="true" />,
+  template: <Palette size={18} aria-hidden="true" />,
+  settings: <SettingsIcon size={18} aria-hidden="true" />,
 };
 
 /**
@@ -34,7 +44,6 @@ export default function MainContent({ user, onLogout }) {
   const [requestedViewForIndividus, setRequestedViewForIndividus] = useState(null);
   const [appTitle, setAppTitle] = useState('indi-suivi-nodejs');
   const [theme, setTheme] = useState('light');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -208,72 +217,46 @@ export default function MainContent({ user, onLogout }) {
 
   return (
     <div className="app-container" data-theme={theme}>
-      <header className="app-header">
-        <div className="header-left">
-          <button
-            className="mobile-menu-button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Ouvrir le menu"
-          >
-            <span className="unicode-icon">☰</span>
-          </button>
-          <img src="/logo.svg" className="header-logo" alt="Logo" />
-          <span className="header-title">{appTitle}</span>
+      <aside className="app-sidebar">
+        <div className="sidebar-header">
+          <img src="/logo.svg" className="app-logo" />
+          <h1 className="app-title">{appTitle}</h1>
         </div>
-        <div className="header-right">
-          <ThemeToggle onThemeChange={setTheme} />
+        <nav className="sidebar-nav" aria-label="Navigation principale">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => {
+                if (activeTab !== tab.id) {
+                  setRequestedViewForIndividus(null);
+                  setActiveTab(tab.id);
+                }
+              }}
+            >
+              <span className="nav-icon">{tabIcons[tab.id]}</span>
+              <span className="nav-label">{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <div className="user-info">
+            <div className="user-name">{user.windows_login || user.username}</div>
+            <button onClick={onLogout} className="btn btn-ghost">Déconnexion</button>
+            <ThemeToggle onThemeChange={setTheme} />
+          </div>
+        </div>
+      </aside>
+
+      <main className="app-main">
+        <header className="app-header">
           <WindowControls />
-        </div>
-      </header>
-
-      <div className="app-body">
-        <aside className={`app-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-          <div className="sidebar-header">
-            <img src="/logo.svg" className="app-logo" alt="Logo" />
-            <h1 className="app-title">{appTitle}</h1>
-          </div>
-
-          <nav className="sidebar-nav" aria-label="Navigation principale">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`nav-item ${activeTab === tab.id ? 'nav-item-active' : ''}`}
-                onClick={() => {
-                  if (activeTab !== tab.id) {
-                    setRequestedViewForIndividus(null);
-                    setActiveTab(tab.id);
-                  }
-                  if (mobileMenuOpen) setMobileMenuOpen(false);
-                }}
-              >
-                <span className="nav-icon">{tabIcons[tab.id]}</span>
-                <span className="nav-label">{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          <div className="sidebar-footer">
-            <div className="user-info">
-              <div className="user-name">{user.windows_login || user.username}</div>
-              <div className="user-controls">
-                <button onClick={onLogout} className="btn-logout">Déconnexion</button>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <div
-          className={`sidebar-overlay ${mobileMenuOpen ? 'active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        ></div>
-
-        <main className="app-main">
-          <div className="app-content">{renderContent()}</div>
-          <footer className="app-footer">
-            <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
-          </footer>
-        </main>
-      </div>
+        </header>
+        <div className="app-content">{renderContent()}</div>
+        <footer className="app-footer">
+          <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
+        </footer>
+      </main>
     </div>
   );
 }
