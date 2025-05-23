@@ -2,7 +2,7 @@
   "name": "indi-suivi-nodejs",
   "version": "2.0.0",
   "description": "Application Electron Node.js full modulaire, champs dynamiques, audit trail complet.",
-  "main": "src/main.ts",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron-forge start",
     "dev": "electron-forge start",

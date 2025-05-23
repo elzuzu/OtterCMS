@@ -16,7 +16,7 @@ export default {
     new VitePlugin({
       // Fichiers à builder pour le processus principal et le script de préchargement
       build: [
-        { entry: 'src/main.ts', config: 'vite.main.config.ts' },
+        { entry: 'src/main.js', config: 'vite.main.config.ts' },
         { entry: 'src/preload.ts', config: 'vite.preload.config.ts' }
       ],
       // Processus de rendu

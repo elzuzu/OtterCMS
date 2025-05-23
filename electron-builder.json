@@ -9,8 +9,8 @@
   },
   "files": [
     "dist/**/*",
-    "main.js",
-    "preload.js",
+    "src/main.js",
+    "src/preload.ts",
     "utils/**/*",
     "!node_modules/.bin",
     "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
