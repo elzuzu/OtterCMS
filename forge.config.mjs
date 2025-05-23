@@ -8,5 +8,11 @@ export default {
       config: { name: 'MonApp', setupIcon: 'build/icon.ico' }
     }
   ],
-  plugins: [new VitePlugin({})]
+  plugins: [
+    new VitePlugin({
+      main: { config: 'vite.main.config.ts' },
+      preload: { config: 'vite.preload.config.ts' },
+      renderer: [{ name: 'main_window', config: 'vite.config.js' }]
+    })
+  ]
 };
