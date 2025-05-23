@@ -314,7 +314,7 @@ header.app-header {
    display: flex;
    flex-wrap: wrap; /* Pour une meilleure responsivité */
    align-items: center;
-   justify-content: space-between;
+   justify-content: flex-end;
    background-color: var(--header-background);
    backdrop-filter: blur(6px) saturate(150%);
    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -323,6 +323,7 @@ header.app-header {
    margin-bottom: var(--spacing-4);
    min-height: var(--header-height);
    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+   position: relative;
 }
 
 .app-title h1 {
@@ -3760,13 +3761,16 @@ body { margin:0; font-family:system-ui; }
 /* Window Controls */
 .window-controls {
   display: flex;
-  gap: 12px;
+  gap: 6px;
+  position: absolute;
+  top: 4px;
+  right: 4px;
   -webkit-app-region: no-drag;
 }
 
 .window-control {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: transparent;
   color: var(--text-secondary);
@@ -3956,6 +3960,7 @@ body { margin:0; font-family:system-ui; }
 }
 
 .app-header {
+  position: relative;
   height: 60px;
   background: var(--header-background);
   display: flex;
