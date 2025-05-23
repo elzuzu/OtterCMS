@@ -3,23 +3,23 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
 export default defineConfig({
-  root: 'src',
+  root: 'src/renderer',
   plugins: [react()],
   base: './',
   build: {
-    outDir: '../dist',
+    outDir: '../../dist',
     emptyOutDir: true,
     sourcemap: true,
     assetsDir: 'assets',
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/index.html'),
+        main: resolve(__dirname, 'src/renderer/index.html'),
       },
     },
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@': resolve(__dirname, 'src/renderer'),
     },
     extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json'],
   },

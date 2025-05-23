@@ -3442,3 +3442,21 @@ textarea[readOnly] {
       display: none;
    }
 }
+:root {
+  --clr-primary: #2563eb;
+  --clr-primary-dark: #1e40af;
+}
+
+body { margin:0; font-family:system-ui; }
+
+.sidebar { width:240px; background:var(--clr-primary-dark); }
+.content { padding:1rem; }
+
+@media (max-width: 768px) {
+  .sidebar { display:none; }
+}
+@media (max-width: 480px) {
+  thead { display:none; }
+  tr    { display:block; margin-bottom:1rem; }
+  td    { display:flex; justify-content:space-between; }
+}
