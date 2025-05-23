@@ -324,6 +324,7 @@ header.app-header {
    min-height: var(--header-height);
    border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
    position: relative;
+   -webkit-app-region: drag;
 }
 
 .app-title h1 {
@@ -3968,6 +3969,7 @@ body { margin:0; font-family:system-ui; }
   justify-content: flex-end;
   padding: 0 var(--spacing-4);
   border-bottom: 1px solid var(--border-color-light);
+  -webkit-app-region: drag;
 }
 
 .app-content {
