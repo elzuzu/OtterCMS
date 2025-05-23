@@ -5,7 +5,8 @@
   "main": "src/main.ts",
   "scripts": {
     "dev": "electron-forge dev",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "install-app": "node scripts/install.js"
   },
   "keywords": [
     "electron",
