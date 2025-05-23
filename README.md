@@ -57,8 +57,8 @@ Exemple de fichier `config/app-config.json` :
 
 ```json
 {
-  "appTitle": "Indi-Suivi Portable",
-  "dbPath": "./data/indi-suivi-portable.sqlite",
+  "appTitle": "Indi-Suivi",
+  "dbPath": "./db/indi-suivi.sqlite",
   "defaultLanguage": "fr",
   "logLevel": "info"
 }
