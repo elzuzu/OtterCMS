@@ -14,12 +14,13 @@ export default {
   // Configuration des plugins, ici le plugin Vite pour Electron Forge.
   plugins: [
     new VitePlugin({
-      // Configuration du processus principal (main process) avec son fichier de configuration Vite.
-      main: { config: 'vite.main.config.ts' },
-      // Configuration du script de préchargement (preload script) avec son fichier de configuration Vite.
-      preload: { config: 'vite.preload.config.ts' },
-      // Configuration des processus de rendu (renderer processes).
-      // 'main_window' est le nom du processus de rendu, et 'vite.config.js' est son fichier de configuration Vite.
+      // Fichiers à builder pour le processus principal et le script de préchargement
+      build: [
+        { entry: 'src/main.ts', config: 'vite.main.config.ts' },
+        { entry: 'src/preload.ts', config: 'vite.preload.config.ts' }
+      ],
+      // Processus de rendu
+      // 'main_window' est le nom du renderer et 'vite.config.js' son fichier de configuration Vite
       renderer: [{ name: 'main_window', config: 'vite.config.js' }]
     })
   ]
