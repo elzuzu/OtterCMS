@@ -10,6 +10,8 @@ import AdminTemplate from './AdminTemplate';
 import UserSettings from './UserSettings';
 import { PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
+import ThemeToggle from './common/ThemeToggle';
+import WindowControls from './common/WindowControls';
 import {
   Home,
   List,
@@ -41,6 +43,20 @@ export default function MainContent({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [requestedViewForIndividus, setRequestedViewForIndividus] = useState(null);
   const [appTitle, setAppTitle] = useState('indi-suivi-nodejs');
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
+  const handleToggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
 
   useEffect(() => {
     async function fetchTitle() {
@@ -200,62 +216,44 @@ export default function MainContent({ user, onLogout }) {
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <div className="app-title">
-          <h1>{appTitle}</h1>
+    <div className="app" data-theme={theme}>
+      <aside className="sidebar glass-effect">
+        <div className="sidebar-header">
+          <img src="/logo.svg" className="app-logo" />
+          <h1 className="app-title">{appTitle}</h1>
         </div>
-        <div className="user-section" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span className="user-info">
-            <strong>{user.windows_login || user.username}</strong> ({user.role})
-          </span>
-          <button onClick={onLogout} className="logout-button">Déconnexion</button>
-        </div>
-      </header>
-      <div className="app-body">
-        <nav className="main-nav" aria-label="Navigation principale">
-          <ul>
-            {tabs.map(tab => (
-              <li key={tab.id}>
-                <button
-                  className={activeTab === tab.id ? 'active' : ''}
-                  aria-current={activeTab === tab.id ? 'page' : undefined}
-                  onClick={() => {
-                    if (activeTab !== tab.id) {
-                      console.log(
-                        `[MainContent] Clic sur onglet '${tab.label}'. Passage à activeTab='${tab.id}', requestedViewForIndividus=null.`
-                      );
-                      setRequestedViewForIndividus(null);
-                      setActiveTab(tab.id);
-                    } else {
-                      console.log(
-                        `[MainContent] Clic sur onglet '${tab.label}', déjà actif. Pas de changement d'état.`
-                      );
-                    }
-                  }}
-                >
-                  <span className="tab-icon">{tabIcons[tab.id]}</span>
-                  <span className="tab-label">{tab.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+        <nav className="sidebar-nav" aria-label="Navigation principale">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => {
+                if (activeTab !== tab.id) {
+                  setRequestedViewForIndividus(null);
+                  setActiveTab(tab.id);
+                }
+              }}
+            >
+              <span className="nav-icon">{tabIcons[tab.id]}</span>
+              <span className="nav-label">{tab.label}</span>
+            </button>
+          ))}
         </nav>
-        <main className="content">{renderContent()}</main>
-      </div>
-      <footer
-        className="main-footer"
-        style={{
-          textAlign: 'center',
-          marginTop: '2rem',
-          paddingTop: '1rem',
-          borderTop: '1px solid var(--border-color-light)',
-          fontSize: '0.875rem',
-          color: 'var(--text-color-secondary)',
-        }}
-      >
-        <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
-      </footer>
+        <div className="sidebar-footer">
+          <div className="user-name">{user.windows_login || user.username}</div>
+          <button onClick={onLogout} className="btn btn-ghost" style={{ marginTop: '12px' }}>Déconnexion</button>
+          <ThemeToggle onThemeChange={setTheme} />
+        </div>
+      </aside>
+      <main className="main-content">
+        <header className="main-header glass-effect">
+          <WindowControls />
+        </header>
+        <div className="content-area">{renderContent()}</div>
+        <footer className="main-footer">
+          <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
+        </footer>
+      </main>
     </div>
   );
 }
