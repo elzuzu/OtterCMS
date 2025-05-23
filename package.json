@@ -4,7 +4,7 @@
   "description": "Application Electron Node.js full modulaire, champs dynamiques, audit trail complet.",
   "main": "src/main.ts",
   "scripts": {
-    "dev": "electron-forge dev",
+    "start": "electron-forge start",
     "make": "electron-forge make",
     "install-app": "node ./scripts/install.js",
     "postinstall": "electron-builder install-app-deps"
