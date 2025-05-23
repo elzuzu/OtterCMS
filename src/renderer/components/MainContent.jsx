@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import packageJson from '../../package.json';
+import packageJson from '../../../package.json';
 import Dashboard from './Dashboard';
 import IndividusList from './IndividusList';
 import ImportData from './ImportData';
