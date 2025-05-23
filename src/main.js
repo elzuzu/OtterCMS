@@ -1375,6 +1375,11 @@ app.on('window-all-closed', () => {
 
 function createWindow () {
   log('Creating main window...');
+  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+  const preloadPath = isDev
+    ? path.join(__dirname, '../.vite/build/preload.js')
+    : path.join(__dirname, 'preload.js');
+
   const win = new BrowserWindow({
     width: 1366,
     height: 768,
@@ -1384,7 +1389,7 @@ function createWindow () {
     autoHideMenuBar: true,
     title: config.appTitle || 'Indi-Suivi',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: false,
