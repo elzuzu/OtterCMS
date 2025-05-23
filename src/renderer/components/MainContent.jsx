@@ -209,14 +209,21 @@ export default function MainContent({ user, onLogout }) {
   return (
     <div className="app-container" data-theme={theme}>
       <header className="app-header">
-        <button
-          className="mobile-menu-button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          <span className="unicode-icon">☰</span>
-        </button>
-        <div className="header-spacer"></div>
-        <WindowControls />
+        <div className="header-left">
+          <button
+            className="mobile-menu-button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Ouvrir le menu"
+          >
+            <span className="unicode-icon">☰</span>
+          </button>
+          <img src="/logo.svg" className="header-logo" alt="Logo" />
+          <span className="header-title">{appTitle}</span>
+        </div>
+        <div className="header-right">
+          <ThemeToggle onThemeChange={setTheme} />
+          <WindowControls />
+        </div>
       </header>
 
       <div className="app-body">
@@ -249,7 +256,6 @@ export default function MainContent({ user, onLogout }) {
             <div className="user-info">
               <div className="user-name">{user.windows_login || user.username}</div>
               <div className="user-controls">
-                <ThemeToggle onThemeChange={setTheme} />
                 <button onClick={onLogout} className="btn-logout">Déconnexion</button>
               </div>
             </div>

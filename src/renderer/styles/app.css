@@ -129,6 +129,10 @@
    --border-color-info: var(--color-primary-500);
    --header-height: 3rem;
    --header-background: rgba(37, 99, 235, 0.85); /* Default header background */
+   --titlebar-bg: var(--bg-secondary);
+   --titlebar-icon-color: var(--color-neutral-500);
+   --titlebar-icon-hover-color: var(--color-neutral-900);
+   --titlebar-button-hover-bg: var(--color-neutral-200);
 
    /* Couleurs de fond principales */
    --bg-primary: #f0f2f5;
@@ -4010,7 +4014,7 @@ body { margin:0; font-family:system-ui; }
 /* === CONTRÔLES DE FENÊTRE AMÉLIORÉS === */
 .window-controls {
   display: flex;
-  gap: 1px;
+  gap: 4px;
   position: absolute;
   top: 0;
   right: 0;
@@ -4019,11 +4023,11 @@ body { margin:0; font-family:system-ui; }
 }
 
 .window-control {
-  width: 46px;
-  height: 32px;
+  width: 36px;
+  height: 28px;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--titlebar-icon-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4035,152 +4039,79 @@ body { margin:0; font-family:system-ui; }
 }
 
 .window-control:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 1);
+  background: var(--titlebar-button-hover-bg);
+  color: var(--titlebar-icon-hover-color);
 }
 
-.window-control.minimize:hover {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-}
-
-.window-control.maximize:hover {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
-}
-
-.window-control.close:hover {
-  background: #e74c3c;
-  color: white;
+.window-control:active {
+  transform: scale(0.9);
 }
 
 .window-control-icon {
-  font-size: 16px;
-  font-weight: 300;
+  font-size: 1.2rem;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-}
-
-/* Icônes spécifiques pour chaque contrôle */
-.window-control.minimize .window-control-icon {
-  font-size: 18px;
-  font-weight: 400;
-}
-
-.window-control.maximize .window-control-icon {
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.window-control.close .window-control-icon {
-  font-size: 20px;
-  font-weight: 300;
+  width: 18px;
+  height: 18px;
 }
 
 /* === BOUTON DE THÈME AMÉLIORÉ === */
 .theme-toggle {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 200ms ease;
-  color: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
-  opacity: 0;
-  transition: opacity 300ms ease;
+  color: var(--titlebar-icon-color);
+  -webkit-app-region: no-drag;
 }
 
 .theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.theme-toggle:hover::before {
-  opacity: 1;
+  background: var(--titlebar-button-hover-bg);
+  color: var(--titlebar-icon-hover-color);
 }
 
 .theme-toggle:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
 }
 
 .theme-icon {
   font-size: 18px;
   line-height: 1;
-  transition: transform 300ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.theme-toggle:hover .theme-icon {
-  transform: rotate(15deg);
-}
-
 /* === ADAPTATION POUR MODE SOMBRE === */
-[data-theme="dark"] .window-control {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-[data-theme="dark"] .window-control:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 1);
-}
-
+[data-theme="dark"] .window-control,
 [data-theme="dark"] .theme-toggle {
-  background: rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--titlebar-icon-color);
 }
 
+[data-theme="dark"] .window-control:hover,
 [data-theme="dark"] .theme-toggle:hover {
-  background: rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--titlebar-button-hover-bg);
+  color: var(--titlebar-icon-hover-color);
 }
 
 /* Adaptations pour mode clair */
-[data-theme="light"] .window-control {
-  color: rgba(0, 0, 0, 0.6);
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-}
-
-[data-theme="light"] .window-control:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: rgba(0, 0, 0, 0.8);
-}
-
+[data-theme="light"] .window-control,
 [data-theme="light"] .theme-toggle {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.7);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--titlebar-icon-color);
 }
 
+[data-theme="light"] .window-control:hover,
 [data-theme="light"] .theme-toggle:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(0, 0, 0, 0.2);
-  color: rgba(0, 0, 0, 0.9);
+  background: var(--titlebar-button-hover-bg);
+  color: var(--titlebar-icon-hover-color);
 }
 
 /* === RESPONSIVE === */
@@ -4257,18 +4188,16 @@ Puis remplacez les symboles par :
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  background: var(--header-background);
+  justify-content: space-between;
+  background: var(--titlebar-bg);
   padding: 0 var(--spacing-2);
   height: 40px;
   border-bottom: 1px solid var(--border-color-light);
   z-index: 1000;
   -webkit-app-region: drag;
+  color: var(--text-primary);
 }
 
-.header-spacer {
-  flex: 1;
-}
 
 .mobile-menu-button {
   display: none;
@@ -4278,9 +4207,36 @@ Puis remplacez les symboles par :
   height: 32px;
   background: transparent;
   border: none;
-  color: var(--text-color-on-primary);
+  color: var(--titlebar-icon-color);
   cursor: pointer;
   -webkit-app-region: no-drag;
+}
+.mobile-menu-button:hover {
+  background: var(--titlebar-button-hover-bg);
+  color: var(--titlebar-icon-hover-color);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.header-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.header-title {
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 /* === CORPS AVEC SIDEBAR ÉLARGIE === */
