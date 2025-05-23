@@ -331,15 +331,34 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   }, [sortConfig]);
 
   if (loading && individus.length === 0) {
-    return <div className="content-container"><h2>Gestion des individus</h2><div className="loading-message">Chargement des données initiales...</div></div>;
+    return (
+      <div className="content-container">
+        <div className="page-header">
+          <h2 className="page-title">Gestion des individus</h2>
+        </div>
+        <div className="loading-message">Chargement des données initiales...</div>
+      </div>
+    );
   }
   if (error) {
-    return <div className="content-container"><h2>Gestion des individus</h2><div className="error-message">{error}<button onClick={loadData} className="btn-secondary" style={{marginTop: '10px'}}>Réessayer de charger</button></div></div>;
+    return (
+      <div className="content-container">
+        <div className="page-header">
+          <h2 className="page-title">Gestion des individus</h2>
+        </div>
+        <div className="error-message">
+          {error}
+          <button onClick={loadData} className="btn-secondary" style={{ marginTop: '10px' }}>Réessayer de charger</button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="content-container" key={`list-container-${renderKey}`}>
-      <h2>Gestion des individus</h2>
+      <div className="page-header">
+        <h2 className="page-title">Gestion des individus</h2>
+      </div>
       <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--color-neutral-50)", borderRadius: "4px", fontSize: "0.9em", color: "var(--text-color-secondary)" }}>
         <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} | 
         <strong> Individus affichés:</strong> {filteredIndividus.length}
