@@ -1375,17 +1375,20 @@ app.on('window-all-closed', () => {
 
 function createWindow () {
   log('Creating main window...');
-  const win = new BrowserWindow({ 
-    width: 1366, 
-    height: 768, 
-    autoHideMenuBar: true, 
-    title: config.appTitle || "Indi-Suivi",
-    webPreferences: { 
-        preload: path.join(__dirname, 'preload.js'), 
-        nodeIntegration: false, 
-        contextIsolation: true, 
-        sandbox: false, 
-        webSecurity: process.env.NODE_ENV !== 'development' 
+  const win = new BrowserWindow({
+    width: 1366,
+    height: 768,
+    frame: false,
+    titleBarStyle: 'hidden',
+    backgroundColor: '#0a0b0d',
+    autoHideMenuBar: true,
+    title: config.appTitle || 'Indi-Suivi',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      webSecurity: process.env.NODE_ENV !== 'development'
     }
   });
 
@@ -1422,3 +1425,24 @@ function createWindow () {
     });
   }
 }
+
+ipcMain.handle('minimize-window', () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) win.minimize();
+});
+
+ipcMain.handle('maximize-window', () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  }
+});
+
+ipcMain.handle('close-window', () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) win.close();
+});

@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import Auth from './components/Auth';
-import MainContent from './components/MainContent';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+const Auth = lazy(() => import('./components/Auth'));
+const MainContent = lazy(() => import('./components/MainContent'));
+
+function LoadingFallback() {
+  return (
+    <div className="loading-container">
+      <div className="loading-spinner"></div>
+      <p>Chargement...</p>
+    </div>
+  );
+}
 import './styles/app.css'; // Ensure this is imported for global styles
 
 export default function App() {
@@ -28,11 +37,15 @@ export default function App() {
 
   if (loadingTheme) {
     // Optional: a very simple loading state to prevent FOUC for theme
-    return <div>Chargement...</div>; 
+    return <div>Chargement...</div>;
   }
 
   if (!user) {
-    return <Auth setUser={setUser} />;
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <Auth setUser={setUser} />
+      </Suspense>
+    );
   }
 
   // Basic validation for user object after login
@@ -57,6 +70,8 @@ export default function App() {
   };
 
   return (
-    <MainContent user={normalizedUser} onLogout={handleLogout} />
+    <Suspense fallback={<LoadingFallback />}>
+      <MainContent user={normalizedUser} onLogout={handleLogout} />
+    </Suspense>
   );
 }
