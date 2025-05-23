@@ -12,9 +12,9 @@ Application Electron et React permettant le suivi d'individus avec champs dynami
 
 ## Architecture
 
-- **main.js** : processus principal Electron. Il expose des API IPC et accède à SQLite via `better-sqlite3`.
-- **preload.js** : passerelle sécurisée entre le renderer et le processus principal.
-- **src/** : application React (renderer) compilée par Vite.
+- **src/main.ts** : processus principal Electron. Il expose des API IPC et accède à SQLite via `better-sqlite3`.
+- **src/preload.ts** : passerelle sécurisée entre le renderer et le processus principal.
+- **src/renderer/** : application React (renderer) compilée par Vite.
 - **scripts/install.js** : initialise la configuration et la base de données.
 
 ### Modèle de données (SQLite)
@@ -84,31 +84,25 @@ Après installation, placez `config/app-config.json` à côté de l'exécutable 
 Lancez l'application avec rechargement automatique :
 
 ```bash
-npm start
+npm run dev
 ```
 
 ## Construction et distribution
 
-Pour générer l'exécutable Windows 64 bits :
+Générez les binaires avec Electron Forge :
 
 ```bash
-npm run dist:portable
+npm run make
 ```
 
-Ou pour créer aussi l'archive zip :
-
-```bash
-npm run dist:all
-```
-
-Les fichiers sont disponibles dans `release-builds/`.
+Les fichiers sont disponibles dans `out/make/`.
 
 ### Build du renderer seul
 
 Pour compiler uniquement la partie React :
 
 ```bash
-npm run build
+npx vite build
 ```
 
 Le résultat se trouve dans `dist/`.
