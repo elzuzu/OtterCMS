@@ -243,14 +243,20 @@ export default function MainContent({ user, onLogout }) {
           <div className="user-info">
             <div className="user-name">{user.windows_login || user.username}</div>
             <button onClick={onLogout} className="btn btn-ghost">Déconnexion</button>
-            <ThemeToggle onThemeChange={setTheme} />
           </div>
         </div>
       </aside>
 
       <main className="app-main">
         <header className="app-header">
-          <WindowControls />
+          <div className="header-left">
+            <img src="/logo.svg" className="app-logo" alt="logo" />
+            <span className="app-title">{appTitle}</span>
+          </div>
+          <div className="header-right">
+            <ThemeToggle onThemeChange={setTheme} />
+            <WindowControls />
+          </div>
         </header>
         <div className="app-content">{renderContent()}</div>
         <footer className="app-footer">
