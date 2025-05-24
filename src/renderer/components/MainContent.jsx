@@ -240,20 +240,22 @@ export default function MainContent({ user, onLogout }) {
           ))}
         </nav>
         <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-name">{user.windows_login || user.username}</div>
-            <button onClick={onLogout} className="btn btn-ghost">Déconnexion</button>
+          <div className="user-details">
+            <div className="user-name">{user.username}</div>
+            <div className="user-role">{user.role}</div>
+            {user.windows_login && (
+              <div className="user-login">{user.windows_login}</div>
+            )}
           </div>
-          <ThemeToggle onThemeChange={setTheme} />
+          <div className="footer-actions">
+            <ThemeToggle onThemeChange={setTheme} />
+            <button onClick={onLogout} className="btn btn-ghost logout-button">Déconnexion</button>
+          </div>
         </div>
       </aside>
 
       <main className="app-main">
         <header className="app-header">
-          <div className="header-left">
-            <img src="/logo.svg" className="app-logo" alt="logo" />
-            <span className="app-title">{appTitle}</span>
-          </div>
           <div className="header-right">
             <WindowControls />
           </div>
