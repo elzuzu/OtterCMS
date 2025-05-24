@@ -721,9 +721,9 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         .message-success {
-          background: #d4edda;
-          color: #155724;
-          border: 1px solid #c3e6cb;
+          background: var(--color-primary-50);
+          color: var(--color-primary-700);
+          border: 1px solid var(--color-primary-500);
         }
 
         .message-error {
