@@ -1,26 +1,38 @@
 import { VitePlugin } from '@electron-forge/plugin-vite';
 
 export default {
-  // Configuration du packager, incluant l'archivage ASAR et l'icône de l'application.
-  packagerConfig: { asar: true, icon: 'build/icon.ico' },
-  // Définition des "makers" pour créer des paquets d'installation.
-  // Ici, un maker pour Squirrel.Windows est configuré.
+  packagerConfig: {
+    asar: true,
+    icon: 'src/assets/app-icon',
+    executableName: 'Indi-Suivi',
+    asarUnpack: [
+      '**/node_modules/better-sqlite3/**/*',
+      '**/node_modules/electron-updater/**/*'
+    ],
+    extraResource: [
+      './config'
+    ]
+  },
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: { name: 'MonApp', setupIcon: 'build/icon.ico' }
+      config: {
+        name: 'IndiSuivi',
+        setupIcon: 'src/assets/app-icon.ico',
+        noMsi: true
+      }
+    },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['win32']
     }
   ],
-  // Configuration des plugins, ici le plugin Vite pour Electron Forge.
   plugins: [
     new VitePlugin({
-      // Fichiers à builder pour le processus principal et le script de préchargement
       build: [
         { entry: 'src/main.js', config: 'vite.main.config.ts' },
         { entry: 'src/preload.ts', config: 'vite.preload.config.ts' }
       ],
-      // Processus de rendu
-      // 'main_window' est le nom du renderer et 'vite.config.js' son fichier de configuration Vite
       renderer: [{ name: 'main_window', config: 'vite.config.js' }]
     })
   ]

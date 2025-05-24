@@ -37,7 +37,6 @@ Version **2.0 Neo UI** avec thèmes personnalisables et navigation revue.
 ```bash
 npm install        # dépendances
 npm run install-app
-npx vite build     # génération du renderer
 ```
 
 ## Configuration
@@ -84,7 +83,9 @@ Générez les binaires :
 npm run make
 ```
 
-Les artefacts sont placés dans `out/make/`. Consultez `forge.config.mjs` et `electron-builder.json` pour modifier les options de packaging.
+Les artefacts sont placés dans `out/make/`. Consultez `forge.config.mjs` pour modifier les options de packaging.
+Sous Windows, vous pouvez exécuter `scripts/build-app.ps1` pour nettoyer et lancer la construction en une seule commande.
+
 
 ## Documentation
 
