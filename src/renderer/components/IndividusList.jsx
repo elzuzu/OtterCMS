@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
-import { EditIcon, SortIcon, SearchIcon } from './common/Icons';
+import { EditIcon, SortIcon } from './common/Icons';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -331,7 +331,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           <button onClick={() => handleViewChange('mine')} className={viewMode === 'mine' ? 'active-view-button' : ''}>Mes individus</button>
         </div>
         <div className="search-container" style={{ position: 'relative' }}>
-          <SearchIcon />
           <input type="text" placeholder="Rechercher (N°, En charge, Champs...)" value={filtre} onChange={e => setFiltre(e.target.value)} className="search-input" style={{ paddingLeft: 'calc(var(--spacing-3) + 16px + var(--spacing-2))'}}/>
         </div>
         <div className="buttons-container">
