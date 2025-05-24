@@ -86,6 +86,10 @@ Après installation, placez `config/app-config.json` à côté de l'exécutable 
    ```bash
    npm run install-app
    ```
+4. Générez les fichiers du renderer (le dossier `dist/` n'est plus suivi dans le dépôt) :
+   ```bash
+   npx vite build
+   ```
 
 ## Développement
 
@@ -113,7 +117,7 @@ Pour compiler uniquement la partie React :
 npx vite build
 ```
 
-Le résultat se trouve dans `dist/`.
+Le résultat se trouve dans `dist/` et doit être regénéré après chaque modification ou après avoir cloné le dépôt.
 
 ## Licence
 
