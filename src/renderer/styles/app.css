@@ -223,19 +223,6 @@
   color: var(--color-primary-700) !important;
 }
 
-/* ===== SUPPRESSION DES CONFLITS ===== */
-
-/* Supprimer toutes les anciennes règles qui pourraient entrer en conflit */
-[data-theme="light"] body.theme-blue .banner-success,
-[data-theme="light"] body.theme-green .banner-success,
-[data-theme="light"] body.theme-purple .banner-success,
-[data-theme="light"] body.theme-orange .banner-success,
-[data-theme="light"] body.theme-red .banner-success {
-  background-color: unset !important;
-  border-color: unset !important;
-  color: unset !important;
-}
-
 /* ===== BOUTONS ET AUTRES ÉLÉMENTS UTILISANT LES COULEURS PRIMAIRES ===== */
 
 .btn-primary {
