@@ -665,21 +665,21 @@ label {
 }
 
 .success-message {
-  background: rgba(16, 124, 16, 0.15);
-  border: 1px solid rgba(16, 124, 16, 0.3);
-  color: #4ADE80;
+  background-color: var(--color-primary-50);
+  border: 1px solid var(--color-primary-500);
+  color: var(--color-primary-700);
 }
 
 .error-message {
-  background: rgba(232, 17, 35, 0.15);
-  border: 1px solid rgba(232, 17, 35, 0.3);
-  color: #F87171;
+  background-color: var(--color-danger-50);
+  border: 1px solid var(--color-danger-500);
+  color: var(--color-danger-700);
 }
 
 .info-message {
-  background: rgba(0, 120, 212, 0.15);
-  border: 1px solid rgba(0, 120, 212, 0.3);
-  color: #60A5FA;
+  background-color: var(--color-primary-50);
+  border: 1px solid var(--color-primary-500);
+  color: var(--color-primary-700);
 }
 
 /* Loading */
