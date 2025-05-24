@@ -2562,7 +2562,8 @@ input[type="checkbox"]:focus {
    color: var(--color-primary-700);
 }
 
-/* Ensure banner colors adapt correctly in light theme */
+/* Ensure banner colors adapt correctly in light theme
+   (resolved color synchronization issue) */
 [data-theme="light"] .banner-success {
   background-color: var(--color-primary-100);
   border-color: var(--color-primary-600);
