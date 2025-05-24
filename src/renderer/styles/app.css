@@ -636,10 +636,28 @@ header .logout-button:focus-visible { outline: 2px solid transparent; outline-of
 header .logout-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .add-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-success-500); color: var(--text-color-on-primary); border-color: var(--color-success-500);
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   padding: var(--spacing-2) var(--spacing-4);
+   font-size: 0.875rem;
+   font-weight: 500;
+   border-radius: var(--border-radius-md);
+   border: 1px solid transparent;
+   cursor: pointer;
+   transition-property: background-color, border-color, color, box-shadow;
+   transition-duration: var(--transition-duration);
+   transition-timing-function: var(--transition-timing-function);
+   text-decoration: none;
+   white-space: nowrap;
+   background-color: var(--surface-color);
+   color: var(--color-primary-600);
+   border-color: var(--color-primary-500);
 }
-.add-button:hover:not(:disabled) { background-color: var(--color-success-700); border-color: var(--color-success-700); }
+.add-button:hover:not(:disabled) {
+   background-color: var(--color-primary-50);
+   border-color: var(--color-primary-600);
+}
 .add-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .add-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
