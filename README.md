@@ -80,10 +80,10 @@ La structure détaillée et des conseils supplémentaires se trouvent dans [docs
 Générez les binaires :
 
 ```bash
-npm run make
+npm run dist
 ```
 
-Les artefacts sont placés dans `out/make/`. Consultez `forge.config.mjs` pour modifier les options de packaging.
+Les artefacts sont placés dans `release-builds/`. La configuration d'Electron Builder se trouve dans la section `build` du `package.json`.
 Sous Windows, vous pouvez exécuter `scripts/build-app.ps1` pour nettoyer et lancer la construction en une seule commande.
 
 

@@ -48,10 +48,9 @@ config/          Fichiers de configuration
 La commande suivante crée un exécutable pour votre plateforme :
 
 ```bash
-npm run make
+npm run dist
 ```
-
-Les fichiers générés se trouvent dans le dossier `out/make/`. Les options de packaging sont définies dans `forge.config.mjs`.
+Les fichiers générés se trouvent dans le dossier `release-builds/`. La configuration d'Electron Builder se situe dans la section `build` du `package.json`.
 Sous Windows, le script `scripts/build-app.ps1` permet de nettoyer et de lancer la construction en une seule commande.
 
 ### Conseils 2025
