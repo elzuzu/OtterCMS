@@ -46,17 +46,25 @@ export default function MainContent({ user, onLogout }) {
   const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    const loadTheme = async () => {
+      try {
+        if (window.api && window.api.getTheme) {
+          const res = await window.api.getTheme();
+          const savedTheme = res?.theme || 'dark';
+          setTheme(savedTheme);
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+          const savedTheme = localStorage.getItem('theme') || 'dark';
+          setTheme(savedTheme);
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+      } catch (err) {
+        console.error('MainContent: load theme failed', err);
+      }
+    };
+    loadTheme();
   }, []);
 
-  const handleToggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
 
   useEffect(() => {
     async function fetchTitle() {

@@ -41,6 +41,31 @@ let db;
 // Object to store prepared statements
 const preparedStatements = {};
 
+// Path and helpers for per-user settings
+const userSettingsPath = path.join(app.getPath('userData'), 'user-settings.json');
+
+function loadUserSettings() {
+  try {
+    if (fs.existsSync(userSettingsPath)) {
+      return JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+    }
+  } catch (err) {
+    logError('loadUserSettings', err);
+  }
+  return {};
+}
+
+function saveUserSettings(settings) {
+  try {
+    fs.mkdirSync(path.dirname(userSettingsPath), { recursive: true });
+    fs.writeFileSync(userSettingsPath, JSON.stringify(settings));
+    return true;
+  } catch (err) {
+    logError('saveUserSettings', err);
+    return false;
+  }
+}
+
 // Function to load configuration
 function loadConfig() {
   const configPaths = [
@@ -319,6 +344,20 @@ ipcMain.handle('getConfig', async () => {
     logError('getConfig', error);
     return { success: false, error: error.message };
   }
+});
+
+ipcMain.handle('get-theme', async () => {
+  logIPC('get-theme');
+  const settings = loadUserSettings();
+  return { success: true, theme: settings.theme || 'dark' };
+});
+
+ipcMain.handle('set-theme', async (event, theme) => {
+  logIPC('set-theme', theme);
+  const settings = loadUserSettings();
+  settings.theme = theme;
+  const ok = saveUserSettings(settings);
+  return { success: ok };
 });
 
 ipcMain.handle('auth-login', async (event, { username, password }) => {
