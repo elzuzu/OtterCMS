@@ -3950,7 +3950,7 @@ body { margin:0; font-family:system-ui; }
   padding: 10px 20px;
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 1rem;
   border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -4040,7 +4040,7 @@ body { margin:0; font-family:system-ui; }
 }
 
 .stat-label {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--text-secondary);
   margin-top: 4px;
 }
@@ -4129,7 +4129,7 @@ body { margin:0; font-family:system-ui; }
   border: none;
   color: var(--sidebar-text-color);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   transition: all var(--transition-fast);
   margin-bottom: 4px;
@@ -4168,8 +4168,8 @@ body { margin:0; font-family:system-ui; }
 
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
