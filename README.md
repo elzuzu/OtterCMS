@@ -119,6 +119,10 @@ npx vite build
 
 Le résultat se trouve dans `dist/` et doit être regénéré après chaque modification ou après avoir cloné le dépôt.
 
+## Documentation
+
+Consultez le [guide d'administration](docs/guide-administration.md) pour la gestion des catégories et des champs dynamiques.
+
 ## Licence
 
 MIT
