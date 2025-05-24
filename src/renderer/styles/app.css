@@ -2743,70 +2743,122 @@ input[type="checkbox"]:focus {
    color: var(--color-primary-700);
 }
 
-/* Ensure banner colors adapt correctly in light theme */
-[data-theme="light"] .banner-success {
-  background-color: var(--color-primary-50);
-  border-color: var(--color-primary-500);
-  color: var(--color-primary-700);
-}
+/* ===== CORRECTION RADICALE DES BANNIÈRES POUR TOUS LES THÈMES ===== */
 
-/* Color specific adjustments for each theme */
-[data-theme="light"] body.theme-blue .banner-success {
-  background-color: #eff6ff;
-  border-color: #3b82f6;
-  color: #1d4ed8;
-}
-
-[data-theme="light"] body.theme-green .banner-success {
-  background-color: #ecfdf5;
-  border-color: #10b981;
-  color: #047857;
-}
-
-[data-theme="light"] body.theme-purple .banner-success {
-  background-color: #f5f3ff;
-  border-color: #8b5cf6;
-  color: #6d28d9;
-}
-
-[data-theme="light"] body.theme-orange .banner-success {
-  background-color: #fff7ed;
-  border-color: #f97316;
-  color: #c2410c;
-}
-
+/* Supprimer les anciens styles spécifiques hardcodés */
+[data-theme="light"] body.theme-blue .banner-success,
+[data-theme="light"] body.theme-green .banner-success,
+[data-theme="light"] body.theme-purple .banner-success,
+[data-theme="light"] body.theme-orange .banner-success,
 [data-theme="light"] body.theme-red .banner-success {
-  background-color: #fef2f2;
-  border-color: #ef4444;
-  color: #b91c1c;
-}
-[data-theme="light"] .banner-error {
-  background: rgba(244, 67, 54, 0.08);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-  color: #c62828;
-}
-[data-theme="light"] .banner-warning {
-  background: rgba(255, 152, 0, 0.08);
-  border: 1px solid rgba(255, 152, 0, 0.3);
-  color: #e65100;
-}
-[data-theme="light"] .banner-info {
-  background-color: var(--color-primary-50);
-  border-color: var(--color-primary-500);
-  color: var(--color-primary-700);
+  background-color: unset !important;
+  border-color: unset !important;
+  color: unset !important;
 }
 
-[data-theme="dark"] .banner-success {
-  background: rgba(var(--theme-color-rgb), 0.1);
-  border: 1px solid rgba(var(--theme-color-rgb), 0.3);
-  color: var(--theme-color-light);
+/* Nouvelles définitions utilisant les variables CSS dynamiques */
+/* Mode sombre et light - utilise les variables du thème actif */
+.banner-success,
+.success-message,
+.message-success {
+  background-color: var(--color-primary-50) !important;
+  border: 1px solid var(--color-primary-500) !important;
+  color: var(--color-primary-700) !important;
 }
 
-[data-theme="dark"] .banner-error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #FCA5A5;
+.banner-error,
+.error-message,
+.message-error {
+  background-color: var(--color-danger-50) !important;
+  border: 1px solid var(--color-danger-500) !important;
+  color: var(--color-danger-700) !important;
 }
+
+.banner-warning,
+.warning-message {
+  background-color: var(--color-warning-50) !important;
+  border: 1px solid var(--color-warning-500) !important;
+  color: var(--color-warning-700) !important;
+}
+
+.banner-info,
+.info-message {
+  background-color: var(--color-primary-50) !important;
+  border: 1px solid var(--color-primary-500) !important;
+  color: var(--color-primary-700) !important;
+}
+
+/* S'assurer que les variables de couleur sont bien définies pour le mode light */
+[data-theme="light"] {
+  /* Variables de danger */
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #ef4444;
+  --color-danger-700: #b91c1c;
+
+  /* Variables d'avertissement */
+  --color-warning-50: #fffbeb;
+  --color-warning-500: #f59e0b;
+  --color-warning-700: #b45309;
+}
+
+/* Redéfinir complètement les variables primaires pour chaque thème en mode light */
+[data-theme="light"] body.theme-blue {
+  --color-primary-50: #eff6ff !important;
+  --color-primary-500: #3b82f6 !important;
+  --color-primary-700: #1d4ed8 !important;
+}
+
+[data-theme="light"] body.theme-green {
+  --color-primary-50: #ecfdf5 !important;
+  --color-primary-500: #10b981 !important;
+  --color-primary-700: #047857 !important;
+}
+
+[data-theme="light"] body.theme-purple {
+  --color-primary-50: #f5f3ff !important;
+  --color-primary-500: #8b5cf6 !important;
+  --color-primary-700: #6d28d9 !important;
+}
+
+[data-theme="light"] body.theme-orange {
+  --color-primary-50: #fff7ed !important;
+  --color-primary-500: #f97316 !important;
+  --color-primary-700: #c2410c !important;
+}
+
+[data-theme="light"] body.theme-red {
+  --color-primary-50: #fef2f2 !important;
+  --color-primary-500: #ef4444 !important;
+  --color-primary-700: #b91c1c !important;
+}
+
+/* Forcer la mise à jour des autres éléments qui utilisent les couleurs primaires */
+[data-theme="light"] .btn-primary {
+  background-color: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background-color: var(--color-primary-600, var(--color-primary-700)) !important;
+  border-color: var(--color-primary-600, var(--color-primary-700)) !important;
+}
+
+/* Correction spécifique pour les composants Banner React */
+[data-theme="light"] .banner {
+  transition: all 0.2s ease !important;
+}
+
+/* Forcer la réapplication des styles après changement de thème */
+body.theme-blue [data-theme="light"] .banner-success,
+body.theme-green [data-theme="light"] .banner-success,
+body.theme-purple [data-theme="light"] .banner-success,
+body.theme-orange [data-theme="light"] .banner-success,
+body.theme-red [data-theme="light"] .banner-success {
+  background-color: var(--color-primary-50) !important;
+  border-color: var(--color-primary-500) !important;
+  color: var(--color-primary-700) !important;
+}
+
 
 
 .no-fields-form-message {
