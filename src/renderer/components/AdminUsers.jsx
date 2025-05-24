@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from './common/DataTable';
-import { EditIcon, TrashIcon, SearchIcon } from './common/Icons';
+import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -213,14 +213,13 @@ export default function AdminUsers() {
         <div className="ui-card-body">
       <div className="actions-bar">
         <div className="search-container" style={{ position: 'relative' }}>
-          <SearchIcon />
           <input
             type="text"
-            placeholder="Rechercher un utilisateur..."
+            placeholder="🔍 Rechercher un utilisateur..."
             value={filter}
             onChange={e => setFilter(e.target.value)}
             className="search-input"
-            style={{ paddingLeft: 'calc(var(--spacing-3) + 16px + var(--spacing-2))' }}
+            style={{ paddingLeft: 'var(--spacing-3)' }}
           />
         </div>
       </div>
