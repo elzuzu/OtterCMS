@@ -21,11 +21,8 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('auth-login', { username, password }),
   autoLoginWithWindows: (windowsUsername: string) => 
     ipcRenderer.invoke('auto-login-windows', windowsUsername),
-  getWindowsUsername: async () => {
-    // Simuler la récupération du nom d'utilisateur Windows
-    // En production, vous pourriez utiliser os.userInfo() côté main
-    return { success: false, username: null };
-  },
+  getWindowsUsername: async () =>
+    ipcRenderer.invoke('get-windows-username'),
 
   // Gestion des utilisateurs
   getUsers: () => ipcRenderer.invoke('getUsers'),

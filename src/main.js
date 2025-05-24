@@ -7,6 +7,7 @@ const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
 const { log, logError, logIPC } = require('../utils/logger');
 const { inferType } = require('../utils/inferType');
+const os = require('os');
 
 const DEFAULT_ROLE_PERMISSIONS = {
   admin: [
@@ -343,6 +344,17 @@ ipcMain.handle('getConfig', async () => {
   } catch (error) {
     logError('getConfig', error);
     return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('get-windows-username', async () => {
+  try {
+    const username = os.userInfo().username;
+    log(`Windows user detected: ${username}`);
+    return { success: true, username };
+  } catch (error) {
+    logError('get-windows-username', error);
+    return { success: false, username: null, error: error.message };
   }
 });
 
@@ -1396,9 +1408,15 @@ ipcMain.handle('getDashboardStats', async (event, { userId, role }) => {
 // --- Electron App Lifecycle ---
 app.whenReady().then(() => {
   log('Application ready.');
+  try {
+    const startupUser = os.userInfo().username;
+    log(`Windows username detected on startup: ${startupUser}`);
+  } catch (err) {
+    logError('detect windows username on startup', err);
+  }
   protocol.registerFileProtocol('app', (request, callback) => {
-    const url = request.url.substring(6); 
-    callback({ path: path.join(__dirname, 'dist', url) }); 
+    const url = request.url.substring(6);
+    callback({ path: path.join(__dirname, 'dist', url) });
   });
   initDb(); 
   createWindow();
