@@ -43,10 +43,10 @@ export default function MainContent({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [requestedViewForIndividus, setRequestedViewForIndividus] = useState(null);
   const [appTitle, setAppTitle] = useState('indi-suivi-nodejs');
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
@@ -244,6 +244,7 @@ export default function MainContent({ user, onLogout }) {
             <div className="user-name">{user.windows_login || user.username}</div>
             <button onClick={onLogout} className="btn btn-ghost">Déconnexion</button>
           </div>
+          <ThemeToggle onThemeChange={setTheme} />
         </div>
       </aside>
 
@@ -254,7 +255,6 @@ export default function MainContent({ user, onLogout }) {
             <span className="app-title">{appTitle}</span>
           </div>
           <div className="header-right">
-            <ThemeToggle onThemeChange={setTheme} />
             <WindowControls />
           </div>
         </header>
