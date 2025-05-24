@@ -331,7 +331,15 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           <button onClick={() => handleViewChange('mine')} className={viewMode === 'mine' ? 'active-view-button' : ''}>Mes individus</button>
         </div>
         <div className="search-container" style={{ position: 'relative' }}>
-          <input type="text" placeholder="Rechercher (N°, En charge, Champs...)" value={filtre} onChange={e => setFiltre(e.target.value)} className="search-input" style={{ paddingLeft: 'calc(var(--spacing-3) + 16px + var(--spacing-2))'}}/>
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Rechercher (N°, En charge, Champs...)"
+            value={filtre}
+            onChange={e => setFiltre(e.target.value)}
+            className="search-input"
+            style={{ paddingLeft: 'calc(var(--spacing-3) + 16px + var(--spacing-2))' }}
+          />
         </div>
         <div className="buttons-container">
           <button onClick={handleAddIndividu} className="btn-success add-button">Ajouter un individu</button>
