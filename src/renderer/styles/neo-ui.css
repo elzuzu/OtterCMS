@@ -230,7 +230,7 @@ body::before {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 500;
   text-align: left;
   width: 100%;
@@ -253,8 +253,8 @@ body::before {
 
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
