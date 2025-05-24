@@ -915,7 +915,9 @@ export default function ImportData({ user }) {
 
   return (
     <div className="import-wizard admin-panel">
-      <h2 className="panel-title">Importation de Données Individus</h2>
+      <div className="page-header">
+        <h2 className="page-title">Importation de données individus</h2>
+      </div>
       {message.text && (
         <Banner type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
