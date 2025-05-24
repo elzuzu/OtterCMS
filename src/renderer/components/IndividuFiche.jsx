@@ -564,7 +564,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         .tabs {
-          border-bottom: 2px solid #e0e0e0;
+          border-bottom: 2px solid var(--border-color-medium);
           margin: 15px 0 0 0 !important;
           display: flex;
           flex-wrap: wrap;
@@ -575,19 +575,19 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           padding: 8px 16px !important;
           font-size: 0.9em !important;
           border: none;
-          background: #f5f5f5;
+          background: var(--color-neutral-100);
           cursor: pointer;
           border-radius: 4px 4px 0 0;
           transition: all 0.2s ease;
         }
 
         .tab-button:hover {
-          background: #e8e8e8;
+          background: var(--color-neutral-200);
         }
 
         .tab-button.active {
-          background: #007bff;
-          color: white;
+          background: var(--color-primary-500);
+          color: var(--text-color-on-primary);
         }
 
         .audit-timeline-compact {
@@ -598,9 +598,9 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         .audit-entry-compact {
           margin-bottom: 12px !important;
           padding: 10px !important;
-          border: 1px solid #e0e0e0;
+          border: 1px solid var(--border-color-medium);
           border-radius: 6px;
-          background: #fafafa;
+          background: var(--color-neutral-50);
         }
 
         .audit-header-compact {
@@ -612,7 +612,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
         .audit-user-time-compact {
           font-size: 0.8em !important;
-          color: #666;
+          color: var(--text-color-secondary);
         }
 
         .audit-body-compact {
@@ -623,36 +623,36 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         .audit-import-info-compact {
           margin-top: 4px !important;
           font-size: 0.8em !important;
-          color: #888;
+          color: var(--text-color-tertiary);
         }
 
         .audit-field-name {
           font-weight: 600;
-          color: #007bff;
+          color: var(--color-primary-500);
         }
 
         .audit-new-value {
-          color: #28a745;
+          color: var(--color-success-600);
           font-weight: 500;
         }
 
         .audit-old-value {
-          color: #dc3545;
+          color: var(--color-danger-600);
           font-weight: 500;
         }
 
         .audit-arrow {
           margin: 0 8px;
-          color: #6c757d;
+          color: var(--color-neutral-500);
         }
 
         .highlight {
           font-weight: 600;
-          color: #007bff;
+          color: var(--color-primary-500);
         }
 
         .obligatoire {
-          color: #dc3545;
+          color: var(--color-danger-600);
           font-weight: bold;
         }
 
@@ -662,13 +662,13 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         .form-input-readonly {
-          background-color: #f8f9fa !important;
+          background-color: var(--color-neutral-50) !important;
           cursor: not-allowed;
         }
 
         .select-stylish {
           width: 100%;
-          border: 1px solid #ced4da;
+          border: 1px solid var(--color-neutral-300);
           border-radius: 4px;
         }
 
@@ -681,35 +681,35 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         .button-primary {
-          background: #007bff;
-          color: white;
-          border: 1px solid #007bff;
+          background: var(--color-primary-500);
+          color: var(--text-color-on-primary);
+          border: 1px solid var(--color-primary-500);
         }
 
         .button-primary:hover:not(:disabled) {
-          background: #0056b3;
+          background: var(--color-primary-700);
         }
 
         .button-secondary {
-          background: #6c757d;
-          color: white;
-          border: 1px solid #6c757d;
+          background: var(--color-neutral-500);
+          color: var(--text-color-on-primary);
+          border: 1px solid var(--color-neutral-500);
         }
 
         .button-secondary:hover:not(:disabled) {
-          background: #545b62;
+          background: var(--color-neutral-700);
         }
 
         .close-button {
           background: none;
           border: none;
           cursor: pointer;
-          color: #6c757d;
+          color: var(--color-neutral-500);
           transition: color 0.2s ease;
         }
 
         .close-button:hover {
-          color: #dc3545;
+          color: var(--color-danger-600);
         }
 
         .form-message {
@@ -727,14 +727,14 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         .message-error {
-          background: #f8d7da;
-          color: #721c24;
-          border: 1px solid #f5c6cb;
+          background: var(--color-danger-50);
+          color: var(--color-danger-700);
+          border: 1px solid var(--color-danger-500);
         }
 
         .loader {
-          border: 3px solid #f3f3f3;
-          border-top: 3px solid #007bff;
+          border: 3px solid var(--color-neutral-100);
+          border-top: 3px solid var(--color-primary-500);
           border-radius: 50%;
           width: 30px;
           height: 30px;

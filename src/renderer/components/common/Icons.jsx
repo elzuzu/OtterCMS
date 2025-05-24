@@ -34,5 +34,5 @@ export const SearchIcon = props => (
 export const SortIcon = ({ direction, ...props }) => {
   if (direction === 'ascending') return <span {...props} style={{ marginLeft: '5px', fontSize: '0.8em' }}>▲</span>;
   if (direction === 'descending') return <span {...props} style={{ marginLeft: '5px', fontSize: '0.8em' }}>▼</span>;
-  return <span {...props} style={{ marginLeft: '5px', color: '#aaa', fontSize: '0.8em' }}>↕</span>;
+  return <span {...props} style={{ marginLeft: '5px', color: 'var(--text-color-tertiary)', fontSize: '0.8em' }}>↕</span>;
 };
