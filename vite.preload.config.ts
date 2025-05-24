@@ -1,2 +1,13 @@
 import { defineConfig } from 'vite';
-export default defineConfig({ build: { sourcemap: true, target: 'es2022' }});
+import { resolve } from 'path';
+
+export default defineConfig({
+  build: {
+    sourcemap: true,
+    target: 'es2022',
+    lib: {
+      entry: resolve(__dirname, 'src/preload.ts'),
+      formats: ['cjs'],
+    },
+  },
+});
