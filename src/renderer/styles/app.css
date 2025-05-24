@@ -2743,42 +2743,42 @@ input[type="checkbox"]:focus {
    color: var(--color-primary-700);
 }
 
-/* Ensure banner colors adapt correctly in light theme
-   (resolved color synchronization issue) */
+/* Ensure banner colors adapt correctly in light theme */
 [data-theme="light"] .banner-success {
-  background: rgba(var(--theme-color-rgb), 0.08);
-  border: 1px solid rgba(var(--theme-color-rgb), 0.3);
-  color: var(--theme-color-dark);
+  background-color: var(--color-primary-50);
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-700);
 }
 
+/* Color specific adjustments for each theme */
 [data-theme="light"] body.theme-blue .banner-success {
-  background-color: #e3f2fd;
-  border-color: #2196f3;
-  color: #0d47a1;
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
 }
 
 [data-theme="light"] body.theme-green .banner-success {
-  background-color: #e8f5e8;
-  border-color: #4caf50;
-  color: #1b5e20;
+  background-color: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
 }
 
 [data-theme="light"] body.theme-purple .banner-success {
-  background-color: #f3e5f5;
-  border-color: #9c27b0;
-  color: #4a148c;
+  background-color: #f5f3ff;
+  border-color: #8b5cf6;
+  color: #6d28d9;
 }
 
 [data-theme="light"] body.theme-orange .banner-success {
-  background-color: #fff3e0;
-  border-color: #ff9800;
-  color: #e65100;
+  background-color: #fff7ed;
+  border-color: #f97316;
+  color: #c2410c;
 }
 
 [data-theme="light"] body.theme-red .banner-success {
-  background-color: #ffebee;
-  border-color: #f44336;
-  color: #b71c1c;
+  background-color: #fef2f2;
+  border-color: #ef4444;
+  color: #b91c1c;
 }
 [data-theme="light"] .banner-error {
   background: rgba(244, 67, 54, 0.08);
