@@ -42,7 +42,8 @@ const champTypes = [
   { value: 'number', label: 'Nombre' },
   { value: 'date', label: 'Date' },
   { value: 'list', label: 'Liste déroulante' }, // Libellé plus clair
-  { value: 'checkbox', label: 'Case à cocher' }
+  { value: 'checkbox', label: 'Case à cocher' },
+  { value: 'dynamic', label: 'Dynamique' }
 ];
 
 export default function AdminCategories() {
@@ -140,18 +141,24 @@ export default function AdminCategories() {
       obligatoire: false,
       visible: true,
       readonly: false,
-      afficherEnTete: false, 
+      afficherEnTete: false,
       options: [],
-      maxLength: null, 
+      maxLength: null,
+      formule: '',
       ordre: prevChamps.length > 0 ? Math.max(0, ...prevChamps.map(c => c.ordre || 0)) + 10 : 0
     }]);
   };
 
   const updateChamp = (index, field, value) => {
-    setChamps(prevChamps => 
-      prevChamps.map((champ, i) => 
-        i === index ? { ...champ, [field]: value } : champ
-      )
+    setChamps(prevChamps =>
+      prevChamps.map((champ, i) => {
+        if (i !== index) return champ;
+        const updated = { ...champ, [field]: value };
+        if (field === 'type' && value === 'dynamic') {
+          updated.readonly = true;
+        }
+        return updated;
+      })
     );
   };
   
@@ -193,6 +200,10 @@ export default function AdminCategories() {
         setAndClearMessage({ text: `La longueur maximale pour le champ texte "${champ.label}" doit être un nombre entier positif.`, type: 'error' });
         return;
       }
+      if (champ.type === 'dynamic' && (!champ.formule || champ.formule.trim() === '')) {
+        setAndClearMessage({ text: `La formule du champ dynamique "${champ.label}" ne peut pas être vide.`, type: 'error' });
+        return;
+      }
     }
 
     setLoading(true);
@@ -201,12 +212,13 @@ export default function AdminCategories() {
       nom: nom.trim(),
       ordre: Number(ordreCategorie) || 0,
       champs: champs.map(c => ({
-          ...c, 
+          ...c,
           key: c.key.trim(), // S'assurer que la clé est trimée
           label: c.label.trim(), // S'assurer que le label est trimé
           ordre: Number(c.ordre) || 0,
           maxLength: c.type === 'text' && c.maxLength ? parseInt(c.maxLength, 10) : null,
-          afficherEnTete: c.afficherEnTete || false 
+          afficherEnTete: c.afficherEnTete || false,
+          formule: c.formule || ''
         })).sort((a, b) => a.ordre - b.ordre),
       deleted: editTemplate ? editTemplate.deleted : 0, 
     };
@@ -235,10 +247,11 @@ export default function AdminCategories() {
     setOrdreCategorie(category.ordre || 0);
     // Assurer la propreté des données lors du chargement pour édition
     setChamps([...(category.champs || [])].map(c => ({
-        ...c, 
+        ...c,
         maxLength: (c.type === 'text' && c.maxLength !== undefined) ? c.maxLength : null, // Assurer null si non applicable ou non défini
         afficherEnTete: c.afficherEnTete || false,
-        options: Array.isArray(c.options) ? c.options : [] // Assurer que options est un tableau
+        options: Array.isArray(c.options) ? c.options : [], // Assurer que options est un tableau
+        formule: c.formule || ''
     })).sort((a, b) => (a.ordre || 0) - (b.ordre || 0)));
     setMessage({ text: '', type: '' }); // Effacer les messages précédents
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -370,6 +383,18 @@ export default function AdminCategories() {
                     />
                   </div>
                 )}
+                {champ.type === 'dynamic' && (
+                  <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                    <label htmlFor={`champ-formule-${i}`}>Formule du champ dynamique</label>
+                    <input
+                      id={`champ-formule-${i}`}
+                      type="text"
+                      placeholder='Ex: if {champ1} > 0 then "Actif" else "Inactif"'
+                      value={champ.formule || ''}
+                      onChange={e => updateChamp(i, 'formule', e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
               {champ.type === 'list' && (
                 <div className="form-group">
@@ -380,7 +405,7 @@ export default function AdminCategories() {
               <div className="champ-options-checkboxes">
                 <label><input type="checkbox" checked={champ.obligatoire || false} onChange={e => updateChamp(i, 'obligatoire', e.target.checked)} /> Obligatoire</label>
                 <label><input type="checkbox" checked={champ.visible === undefined ? true : champ.visible} onChange={e => updateChamp(i, 'visible', e.target.checked)} /> Visible dans les formulaires</label>
-                <label><input type="checkbox" checked={champ.readonly || false} onChange={e => updateChamp(i, 'readonly', e.target.checked)} /> Lecture seule (non modifiable)</label>
+                <label><input type="checkbox" checked={champ.readonly || false} onChange={e => updateChamp(i, 'readonly', e.target.checked)} disabled={champ.type === 'dynamic'} /> Lecture seule (non modifiable)</label>
                 <label><input type="checkbox" checked={champ.afficherEnTete || false} onChange={e => updateChamp(i, 'afficherEnTete', e.target.checked)} /> Afficher dans l'en-tête de la fiche</label>
               </div>
             </div>

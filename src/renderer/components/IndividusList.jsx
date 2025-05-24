@@ -4,6 +4,7 @@ import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { EditIcon, SortIcon } from './common/Icons';
+import { evaluateDynamicField } from '../utils/dynamic';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -236,7 +237,20 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       }
       const indResponse = await window.api.getIndividus(currentUserId, user.role);
       if (indResponse && indResponse.success) {
-        setIndividus(Array.isArray(indResponse.data) ? indResponse.data : []);
+        const liste = Array.isArray(indResponse.data) ? indResponse.data : [];
+        const allCats = catResponse && catResponse.success ? catResponse.data : [];
+        liste.forEach(ind => {
+          const valeurs = { ...ind.champs_supplementaires, numero_unique: ind.numero_unique, en_charge: ind.en_charge };
+          allCats.forEach(cat => {
+            (cat.champs || []).forEach(ch => {
+              if (ch.type === 'dynamic' && ch.formule) {
+                valeurs[ch.key] = evaluateDynamicField(ch.formule, valeurs);
+              }
+            });
+          });
+          ind.champs_supplementaires = valeurs;
+        });
+        setIndividus(liste);
       } else {
         setError(indResponse?.message || "Erreur lors du chargement des données des individus.");
         setIndividus([]);

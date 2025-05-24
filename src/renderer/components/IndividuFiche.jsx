@@ -3,6 +3,7 @@ import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
+import { evaluateDynamicField } from '../utils/dynamic';
 
 export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [individu, setIndividu] = useState(null);
@@ -172,6 +173,14 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
   const renderChampLecture = (champ, valeurSource = individu.champs_supplementaires) => {
     const valeur = valeurSource[champ.key];
+    if (champ.type === 'dynamic') {
+      const baseValues = { ...valeurSource, numero_unique: individu.numero_unique, en_charge: individu.en_charge };
+      const resultat = evaluateDynamicField(champ.formule, baseValues);
+      if (resultat === null || resultat === undefined || resultat === '') {
+        return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+      }
+      return String(resultat);
+    }
     if (champ.type === 'checkbox') {
       return valeur ? 'Oui' : 'Non';
     }
@@ -223,6 +232,12 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           <div className="checkbox-container" style={{justifyContent: 'flex-start'}}>
             <input type="checkbox" {...commonProps} checked={!!valeurs[champ.key]} className="form-checkbox" />
           </div>
+        );
+      case 'dynamic':
+        return (
+          <p className="form-value-display form-value-readonly form-value-compact">
+            {renderChampLecture(champ, valeurs)}
+          </p>
         );
       default:
         return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
