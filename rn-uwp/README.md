@@ -1,34 +1,24 @@
-# React Native UWP (Preview)
+# Indi-Suivi UWP - Application de Gestion d'Individus
 
-This folder contains an evolving setup for migrating **Indi-Suivi** to React Native Windows (UWP).
+Application React Native Windows (UWP) moderne pour la gestion et le suivi d'individus avec interface inspirée de Xbox/Fluent Design.
 
-## Prerequisites
+## 🌟 Vue d'ensemble
 
-- Node.js >= 20
-- Windows 10 SDK
-- Visual Studio 2022 with UWP components
-- `react-native` and `react-native-windows`
+Cette application est la version UWP native de *Indi-Suivi*. Elle utilise React Native 0.73 avec React Native Windows pour fournir une expérience fluide sur Windows 10/11.
 
-## Getting Started
+## 🔧 Installation rapide
 
-1. Install packages:
-   ```bash
-   npm install react-native react-native-windows --save
-   ```
-2. Generate the Windows solution:
-   ```bash
-   npx react-native-windows-init --version latest --overwrite
-   ```
-3. Run the app:
-   ```bash
-   npx react-native run-windows
-   ```
+1. `npm install`
+2. `npx react-native-windows-init --overwrite`
+3. `npm run windows`
 
-## Project Structure
+## Structure
 
-- `App.tsx` – loads the authentication component and shows a basic home screen.
-- `index.js` – entry point registering the React Native app.
-- `src/components/Auth.tsx` – React Native version of the login form.
-- `src/api.ts` – mocked API used by the demo components.
+Les fichiers principaux se trouvent dans `src/` :
+- `components/` – composants réutilisables (Cartes, panneaux, table de données…)
+- `screens/` – pages de l’application
+- `services/` – accès à la base SQLite
+- `store/` – gestion d’état avec Zustand
+- `styles/` – thèmes et espacements
 
-These files are starting points. Replace the mock API with real logic and progressively port the Electron renderer features.
+Le dossier `windows/` sera généré par `react-native-windows-init`.
