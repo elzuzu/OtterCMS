@@ -2566,18 +2566,22 @@ input[type="checkbox"]:focus {
 [data-theme="light"] .banner-success {
   background-color: var(--color-primary-100);
   border-color: var(--color-primary-600);
+  color: var(--color-primary-700);
 }
 [data-theme="light"] .banner-error {
   background-color: var(--color-danger-50);
   border-color: var(--color-danger-600);
+  color: var(--color-danger-700);
 }
 [data-theme="light"] .banner-warning {
   background-color: var(--color-warning-50);
   border-color: var(--color-warning-500);
+  color: var(--color-warning-700);
 }
 [data-theme="light"] .banner-info {
   background-color: var(--color-primary-50);
   border-color: var(--color-primary-500);
+  color: var(--color-primary-700);
 }
 
 
@@ -4242,6 +4246,24 @@ body { margin:0; font-family:system-ui; }
 
 [data-theme="dark"] .window-control.close:hover {
   background: #ef4444 !important;
+  color: #000000 !important;
+}
+
+/* === ADAPTATION POUR MODE CLAIR === */
+[data-theme="light"] .window-control {
+  color: #000000 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="light"] .window-control:hover {
+  background: var(--color-neutral-100) !important;
+  color: #000000 !important;
+}
+
+[data-theme="light"] .window-control.close:hover {
+  background: #E81123 !important;
   color: #000000 !important;
 }
 
