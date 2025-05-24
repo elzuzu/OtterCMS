@@ -371,7 +371,7 @@ body::before {
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--text-secondary);
+  color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -381,13 +381,13 @@ body::before {
 }
 
 .window-control:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  background: var(--sidebar-hover-bg);
+  color: #000;
 }
 
 .window-control.close:hover {
-  background: #E81123;
-  color: white;
+  background: var(--sidebar-hover-bg);
+  color: #000;
 }
 
 .window-control-icon {
