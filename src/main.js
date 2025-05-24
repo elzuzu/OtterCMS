@@ -1424,7 +1424,8 @@ function createWindow () {
     height: 768,
     frame: false,
     titleBarStyle: 'hidden',
-    backgroundColor: '#0a0b0d',
+    // Utilise un gris sombre pour le fond afin d'eviter le noir pur
+    backgroundColor: '#1e1e1e',
     autoHideMenuBar: true,
     title: config.appTitle || 'Indi-Suivi',
     webPreferences: {
