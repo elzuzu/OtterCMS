@@ -3835,12 +3835,12 @@ body { margin:0; font-family:system-ui; }
 
 .window-control:hover {
   background: var(--color-neutral-100) !important;
-  color: var(--color-primary-700) !important;
+  color: #000000 !important;
 }
 
 .window-control.close:hover {
   background: #E81123 !important;
-  color: #FFFFFF !important;
+  color: #000000 !important;
 }
 
 
@@ -4091,12 +4091,12 @@ body { margin:0; font-family:system-ui; }
 
 .window-control:hover {
   background: var(--color-neutral-100) !important;
-  color: var(--color-primary-700) !important;
+  color: #000000 !important;
 }
 
 .window-control.close:hover {
   background: #E81123 !important;
-  color: #FFFFFF !important;
+  color: #000000 !important;
 }
 
 .window-control-icon {
@@ -4188,12 +4188,12 @@ body { margin:0; font-family:system-ui; }
 
 [data-theme="dark"] .window-control:hover {
   background: var(--sidebar-hover-bg) !important;
-  color: #FFFFFF !important;
+  color: #000000 !important;
 }
 
 [data-theme="dark"] .window-control.close:hover {
   background: #ef4444 !important;
-  color: #FFFFFF !important;
+  color: #000000 !important;
 }
 
 [data-theme="dark"] .theme-toggle {
