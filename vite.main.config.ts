@@ -1,28 +1,33 @@
 import { defineConfig } from 'vite';
-import { builtinModules } from 'node:module'; // For Node.js built-in modules
-import pkg from './package.json'; // Import package.json to access dependencies
+import { builtinModules } from 'node:module'; // Pour les modules intégrés de Node.js
+import pkg from './package.json'; // Importe package.json pour accéder aux dépendances
 
 export default defineConfig({
   build: {
-    sourcemap: true, // Preserved from original config
-    target: 'es2022',
+    sourcemap: true,
+    target: 'es2022', // Cible de build conservée
     rollupOptions: {
       external: [
-        'electron', // Essential Electron modules
-        'electron-squirrel-startup', // Handles Squirrel events
+        'electron', // Modules Electron essentiels
+        'electron-squirrel-startup', // Le module qui cause l'erreur
         'electron-updater',
         'better-sqlite3',
         'bcryptjs',
         'xlsx',
-        // Externalize all runtime dependencies from package.json
+        // Externalisation dynamique de TOUTES les dépendances de production listées dans package.json
+        // C'est la partie "dynamique" que vous recherchiez :
         ...Object.keys(pkg.dependencies || {}),
-        // Node.js built-in modules
+        // Modules intégrés de Node.js (ex: 'fs', 'path', 'os')
         ...builtinModules,
-        ...builtinModules.map(m => `node:${m}`),
+        ...builtinModules.map(m => `node:${m}`), // Inclut aussi les versions préfixées par 'node:'
       ],
-      // The @electron-forge/plugin-vite sets output format to CJS automatically
-      // output: { format: 'cjs' },
+      // Le plugin @electron-forge/plugin-vite devrait gérer automatiquement le format de sortie (CJS pour le main process).
+      // Si vous rencontrez d'autres problèmes, vous pouvez le forcer :
+      // output: {
+      //   format: 'cjs',
+      // },
     },
-    // Do not set outDir or lib here; the plugin manages them
+    // Conformément à la documentation de @electron-forge/plugin-vite,
+    // ne définissez pas outDir ou les options lib ici, car le plugin les gère.
   },
 });
