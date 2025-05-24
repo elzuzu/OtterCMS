@@ -249,11 +249,11 @@ export default function MainContent({ user, onLogout }) {
         </nav>
         <div className="sidebar-footer">
           <div className="user-details">
-            <div className="user-name">{user.username}</div>
-            <div className="user-role">{user.role}</div>
-            {user.windows_login && (
-              <div className="user-login">{user.windows_login}</div>
-            )}
+            <div className="user-name">
+              {user.windows_login
+                ? `${user.windows_login} (${user.role})`
+                : `${user.username} (${user.role})`}
+            </div>
           </div>
           <div className="footer-actions">
             <ThemeToggle onThemeChange={setTheme} />
