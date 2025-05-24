@@ -12,6 +12,10 @@ contextBridge.exposeInMainWorld('api', {
   initDatabase: () => ipcRenderer.invoke('init-database'),
   getConfig: () => ipcRenderer.invoke('getConfig'),
 
+  // Préférences utilisateur
+  getTheme: () => ipcRenderer.invoke('get-theme'),
+  setTheme: (theme: string) => ipcRenderer.invoke('set-theme', theme),
+
   // Authentification
   login: (username: string, password: string) => 
     ipcRenderer.invoke('auth-login', { username, password }),
