@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ALL_PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
-
-// Simple SVG icons for actions
-const EditIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm-4.208 6.086-7.071 7.072.707.707 7.072-7.071-3.182-3.182z"/>
-    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-  </svg>
-);
-
-const TrashIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-    <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-  </svg>
-);
+import DataTable from './common/DataTable';
+import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminRoles({ user }) {
   const [roles, setRoles] = useState([]);
@@ -113,41 +100,37 @@ export default function AdminRoles({ user }) {
         </form>
       </div>
       <h3>Rôles existants</h3>
-      <div className="table-responsive">
-        <table className="users-table data-table">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Permissions</th>
-              <th style={{ textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {roles.map(r => (
-              <tr key={r.name}>
-                <td>{r.name}</td>
-                <td>{r.permissions.join(', ')}</td>
-                <td style={{ textAlign: 'center' }}>
-                  <button
-                    onClick={() => startEdit(r)}
-                    className="btn-secondary btn-small btn-icon"
-                    aria-label="Éditer le rôle"
-                  >
-                    <EditIcon />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(r.name)}
-                    className="btn-danger btn-small btn-icon"
-                    aria-label="Supprimer le rôle"
-                  >
-                    <TrashIcon />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        data={roles}
+        getRowKey={r => r.name}
+        tableClassName="users-table data-table"
+        columns={[
+          { header: 'Nom', accessor: 'name' },
+          { header: 'Permissions', render: r => r.permissions.join(', ') },
+          {
+            header: 'Actions',
+            thStyle: { textAlign: 'center' },
+            render: r => (
+              <>
+                <button
+                  onClick={() => startEdit(r)}
+                  className="btn-secondary btn-small btn-icon"
+                  aria-label="Éditer le rôle"
+                >
+                  <EditIcon />
+                </button>
+                <button
+                  onClick={() => handleDelete(r.name)}
+                  className="btn-danger btn-small btn-icon"
+                  aria-label="Supprimer le rôle"
+                >
+                  <TrashIcon />
+                </button>
+              </>
+            )
+          }
+        ]}
+      />
     </div>
   );
 }

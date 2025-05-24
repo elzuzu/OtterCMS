@@ -3,45 +3,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
-
-// Icône d'édition simple
-const EditIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ verticalAlign: 'middle' }}>
-    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207l-1.586 1.586zM10.5 3.207 4 9.707V12h2.293l6.5-6.5-2.293-2.293z"/>
-  </svg>
-);
-
-// Icône de tri
-const SortIcon = ({ direction }) => {
-  if (direction === 'ascending') return <span style={{ marginLeft: '5px', fontSize: '0.8em' }}>▲</span>;
-  if (direction === 'descending') return <span style={{ marginLeft: '5px', fontSize: '0.8em' }}>▼</span>;
-  return <span style={{ marginLeft: '5px', color: '#aaa', fontSize: '0.8em' }}>↕</span>;
-};
-
-// Icône de recherche (Loupe)
-const SearchIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="16" 
-    height="16" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor"
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-    style={{
-      position: 'absolute',
-      left: 'var(--spacing-3)',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      color: 'var(--text-color-placeholder)'
-    }}
-  >
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-);
+import { EditIcon, SortIcon, SearchIcon } from './common/Icons';
 
 const ITEMS_PER_PAGE = 20;
 
