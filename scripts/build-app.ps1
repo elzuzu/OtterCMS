@@ -22,6 +22,9 @@ Write-Host "✅ Nettoyage terminé" -ForegroundColor Green
 # Build Electron avec verbose
 Write-Host "`n🚀 Build Electron..." -ForegroundColor Yellow
 $env:DEBUG = "electron-forge:*,electron-packager"
+$repoRoot = Resolve-Path "$PSScriptRoot\.."
+Push-Location $repoRoot
 npm run make -- --verbose
+Pop-Location
 
 Write-Host "`n✨ Build terminé!" -ForegroundColor Green
