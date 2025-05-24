@@ -33,6 +33,10 @@ export default defineConfig({
   build: {
     sourcemap: true,
     target: 'es2022', // Conservé depuis votre configuration
+    lib: {
+      entry: resolve(__dirname, 'src/main.js'),
+      formats: ['cjs'],
+    },
     rollupOptions: {
       external: [
         'electron', // Toujours externaliser Electron lui-même
