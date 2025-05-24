@@ -107,3 +107,38 @@ body.theme-red {
   --theme-color-light: var(--color-primary-300);
   --theme-color-dark: var(--color-primary-700);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                Dark Theme                                 */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  /* Base dark background */
+  --background-color-dark: #121212;
+
+  /* Elevation surfaces following Material design tokens */
+  --surface-color-dark-dp01: #1E1E1E;
+  --surface-color-dark-dp02: #222222;
+  --surface-color-dark-dp03: #242424;
+  --surface-color-dark-dp04: #272727;
+  --surface-color-dark-dp06: #2C2C2C;
+  --surface-color-dark-dp08: #2E2E2E;
+  --surface-color-dark-dp12: #333333;
+  --surface-color-dark-dp16: #353535;
+  --surface-color-dark-dp24: #383838;
+
+  /* Text colors */
+  --text-color-dark: rgba(255, 255, 255, 0.87);
+  --text-color-secondary-dark: rgba(255, 255, 255, 0.6);
+  --text-color-disabled-dark: rgba(255, 255, 255, 0.38);
+
+  /* Border */
+  --border-color-dark: rgba(255, 255, 255, 0.12);
+
+  /* Primary and semantic colors adapted for dark mode */
+  --primary-color-dark-theme: var(--color-primary-300);
+  --color-success-dark-theme: var(--color-success-200);
+  --color-danger-dark-theme: var(--color-danger-500);
+  --color-warning-dark-theme: var(--color-warning-200);
+  --color-info-dark-theme: var(--color-primary-300);
+}
