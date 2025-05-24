@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import Banner from './common/Banner';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
   const [allCategories, setAllCategories] = useState([]);
@@ -208,9 +209,9 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
         </div>
         
         {message && (
-          <div className={`message-banner ${message.includes('succès') ? 'success-message' : 'error-message'}`}>
+          <Banner type={message.includes('succès') ? 'success' : 'error'}>
             {message.includes('succès') ? '✓ ' : '⚠ '}{message}
-          </div>
+          </Banner>
         )}
         
         <div className="fiche-main-info">

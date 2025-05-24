@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import Banner from './common/Banner';
 
 // Icon components (simple SVGs for +/-)
 const PlusIcon = () => (
@@ -295,9 +296,7 @@ export default function AdminCategories() {
       <div className="category-form-panel">
         <h3>{editTemplate ? `Modifier la catégorie "${editTemplate.nom}"` : 'Ajouter une nouvelle catégorie'}</h3>
         {message.text && (
-          <div className={`message-banner ${message.type === 'success' ? 'success-message' : message.type === 'info' ? 'info-message' : 'error-message'}`}>
-            {message.text}
-          </div>
+          <Banner type={message.type || 'info'}>{message.text}</Banner>
         )}
         <form onSubmit={handleSaveCategory}>
           <div className="form-group">
