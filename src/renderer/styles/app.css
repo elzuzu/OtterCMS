@@ -223,6 +223,7 @@ body.theme-blue {
    --accent-secondary: #60a5fa;
    --accent-tertiary: #dbeafe;
    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+   --header-background: var(--color-primary-600);
 }
 
 body.theme-green {
@@ -232,6 +233,7 @@ body.theme-green {
    --color-primary-500: #10b981;
    --color-primary-600: #059669;
    --color-primary-700: #047857;
+   --header-background: var(--color-primary-600);
 }
 
 body.theme-purple {
@@ -241,6 +243,7 @@ body.theme-purple {
    --color-primary-500: #8b5cf6;
    --color-primary-600: #7c3aed;
    --color-primary-700: #6d28d9;
+   --header-background: var(--color-primary-600);
 }
 
 body.theme-orange {
@@ -250,6 +253,7 @@ body.theme-orange {
    --color-primary-500: #f97316;
    --color-primary-600: #ea580c;
    --color-primary-700: #c2410c;
+   --header-background: var(--color-primary-600);
 }
 
 body.theme-red {
@@ -259,6 +263,7 @@ body.theme-red {
    --color-primary-500: #ef4444;
    --color-primary-600: #dc2626;
    --color-primary-700: #b91c1c;
+   --header-background: var(--color-primary-600);
 }
 
 /* ===== RÉINITIALISATION ET STYLES DE BASE ===== */
