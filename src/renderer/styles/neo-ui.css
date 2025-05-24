@@ -127,6 +127,18 @@
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.3);
 }
 
+/* Dark mode overrides for neutral palette */
+[data-theme="dark"] {
+  --color-neutral-50: var(--dm-surface-dp12);
+  --color-neutral-100: var(--dm-surface-dp08);
+  --color-neutral-200: var(--dm-surface-dp06);
+  --color-neutral-300: var(--dm-surface-dp04);
+  --color-neutral-400: var(--dm-surface-dp03);
+  --color-neutral-500: var(--dm-surface-dp02);
+  --color-neutral-700: var(--dm-surface-dp01);
+  --color-neutral-900: var(--dm-background);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
