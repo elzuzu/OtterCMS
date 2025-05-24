@@ -2904,6 +2904,7 @@ input[type="checkbox"]:focus {
    color: var(--color-primary-700);
 }
 
+.no-fields-form-message {
    font-style: italic;
    color: var(--text-color-secondary);
    background-color: var(--color-neutral-50);
