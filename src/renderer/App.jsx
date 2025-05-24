@@ -22,6 +22,19 @@ export default function App() {
       const saved = localStorage.getItem('themeColor') || 'blue';
       ['blue', 'green', 'purple', 'orange', 'red'].forEach(c => document.body.classList.remove('theme-' + c));
       document.body.classList.add('theme-' + saved);
+
+      try {
+        if (window.api && window.api.getTheme) {
+          const result = await window.api.getTheme();
+          const savedTheme = result?.theme || 'dark';
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+          const savedTheme = localStorage.getItem('theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+      } catch (err) {
+        console.error('App: load theme failed', err);
+      }
       setLoadingTheme(false);
 
       // Potentially load persisted user session here if you implement that
