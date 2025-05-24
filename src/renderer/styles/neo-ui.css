@@ -4,17 +4,17 @@
 :root {
   /* Core Colors */
   --neo-green: #107C10;
-  --neo-dark: #0E0E0E;
-  --neo-darker: #000000;
-  --neo-gray-100: #1A1A1A;
-  --neo-gray-200: #2B2B2B;
-  --neo-gray-300: #3A3A3A;
-  --neo-gray-400: #4A4A4A;
-  --neo-gray-500: #6B6B6B;
-  --neo-gray-600: #8B8B8B;
-  --neo-gray-700: #ABABAB;
-  --neo-gray-800: #CBCBCB;
-  --neo-gray-900: #EBEBEB;
+  --neo-dark: #121212;
+  --neo-darker: #0a0a0a;
+  --neo-gray-100: #1b1e24;
+  --neo-gray-200: #2a2e38;
+  --neo-gray-300: #3a3f4b;
+  --neo-gray-400: #5b6270;
+  --neo-gray-500: #78808d;
+  --neo-gray-600: #9ca3af;
+  --neo-gray-700: #d1d5db;
+  --neo-gray-800: #e5e7eb;
+  --neo-gray-900: #f3f4f6;
   --neo-white: #FFFFFF;
 
   /* Theme Colors */
@@ -31,15 +31,15 @@
   --surface-overlay: rgba(0, 0, 0, 0.8);
   
   /* Text Colors */
-  --text-primary: var(--neo-white);
-  --text-secondary: var(--neo-gray-700);
-  --text-tertiary: var(--neo-gray-600);
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
   --text-on-theme: var(--neo-white);
   
   /* Border Colors */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-default: rgba(255, 255, 255, 0.12);
-  --border-strong: rgba(255, 255, 255, 0.20);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-default: rgba(255, 255, 255, 0.15);
+  --border-strong: rgba(255, 255, 255, 0.25);
   
   /* Effects */
   --acrylic-tint: rgba(0, 0, 0, 0.6);
@@ -110,18 +110,18 @@
 /* Light mode tokens */
 [data-theme="light"] {
   --surface-primary: var(--neo-white);
-  --surface-secondary: var(--neo-gray-900);
-  --surface-tertiary: var(--neo-gray-800);
+  --surface-secondary: #f9fafb;
+  --surface-tertiary: #f3f4f6;
   --surface-card: rgba(0, 0, 0, 0.05);
   --surface-overlay: rgba(255, 255, 255, 0.8);
 
-  --text-primary: var(--neo-dark);
-  --text-secondary: var(--neo-gray-400);
-  --text-tertiary: var(--neo-gray-500);
+  --text-primary: #1a1d29;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
   --text-on-theme: var(--neo-white);
 
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-default: rgba(0, 0, 0, 0.12);
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --border-default: rgba(0, 0, 0, 0.15);
   --border-strong: rgba(0, 0, 0, 0.2);
 
   --acrylic-tint: rgba(255, 255, 255, 0.6);
@@ -589,7 +589,7 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   border-color: var(--theme-color);
   box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.25);
 }
