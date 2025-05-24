@@ -51,7 +51,8 @@ La commande suivante crée un exécutable pour votre plateforme :
 npm run make
 ```
 
-Les fichiers générés se trouvent dans le dossier `out/make/`. Les options de packaging sont définies dans `forge.config.mjs` et `electron-builder.json`.
+Les fichiers générés se trouvent dans le dossier `out/make/`. Les options de packaging sont définies dans `forge.config.mjs`.
+Sous Windows, le script `scripts/build-app.ps1` permet de nettoyer et de lancer la construction en une seule commande.
 
 ### Conseils 2025
 

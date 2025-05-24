@@ -1,7 +1,21 @@
 const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron');
-const { autoUpdater } = require("electron-updater");
 const path = require('path');
 const fs = require('fs');
+
+// Gestion de Squirrel pour Windows
+if (require('electron-squirrel-startup')) app.quit();
+
+// Chargement conditionnel de electron-updater
+let autoUpdater = null;
+const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+if (!isDev) {
+  try {
+    const updaterModule = require('electron-updater');
+    autoUpdater = updaterModule.autoUpdater;
+  } catch (error) {
+    console.error('electron-updater non disponible:', error.message);
+  }
+}
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
@@ -1420,7 +1434,9 @@ app.whenReady().then(() => {
   });
   initDb(); 
   createWindow();
-  autoUpdater.checkForUpdatesAndNotify();
+  if (autoUpdater) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 

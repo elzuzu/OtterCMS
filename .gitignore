@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+out/
+.vite/
+release-builds/
+*.exe
+*.zip
+*.deb
+*.rpm
+*.AppImage
+*.dmg
+
+# Database
+db/*.sqlite
+db/*.db
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary
+*.tmp
+*.temp
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# electron-builder (si jamais réutilisé)
+build/
+release/

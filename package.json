@@ -2,13 +2,15 @@
   "name": "indi-suivi-nodejs",
   "version": "2.0.0",
   "description": "Application Electron Node.js full modulaire, champs dynamiques, audit trail complet.",
-  "main": "src/main.js",
+  "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
     "dev": "electron-forge start",
     "make": "electron-forge make",
+    "make:verbose": "electron-forge make --verbose",
     "install-app": "node ./scripts/install.js",
-    "postinstall": "electron-builder install-app-deps"
+    "clean": "rimraf out dist .vite",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
   },
   "keywords": [
     "electron",
@@ -20,7 +22,7 @@
     "react",
     "better-sqlite3"
   ],
-  "author": "",
+  "author": "Votre Nom ou Entreprise",
   "license": "MIT",
   "engines": {
     "node": ">=20.19.2"
@@ -51,7 +53,6 @@
     "@electron/rebuild": "^3.7.2",
     "@vitejs/plugin-react": "^4.2.1",
     "electron": "^29.1.5",
-    "electron-builder": "^26.0.12",
     "rimraf": "^5.0.5",
     "vite": "^6.3.5"
   }
