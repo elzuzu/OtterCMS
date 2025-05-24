@@ -843,6 +843,53 @@ label {
 .border-strong { border-color: var(--border-strong); }
 
 /* Responsive */
+/* Styles pour les cartes */
+.ui-card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-card-header {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--border-color-light);
+  background-color: var(--color-neutral-50);
+}
+
+.ui-card-header > h2,
+.ui-card-header > h3,
+.ui-card-header > h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-color-primary);
+}
+
+.ui-card-body {
+  padding: var(--spacing-4);
+  flex-grow: 1;
+}
+
+.ui-card-footer {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-top: 1px solid var(--border-color-light);
+  background-color: var(--color-neutral-50);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+.ui-card-nested {
+  padding: var(--spacing-3);
+  margin-top: var(--spacing-3);
+  background-color: var(--color-neutral-50);
+  box-shadow: none;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color-light);
+}
 @media (max-width: 1024px) {
   :root {
     --sidebar-width: 80px;

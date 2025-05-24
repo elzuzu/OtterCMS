@@ -143,9 +143,12 @@ export default function AdminUsers() {
           {message}
         </div>
       )}
-      <div className="user-form">
-        <h3>{editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}</h3>
-        <form onSubmit={handleSubmit}>
+      <div className="user-form ui-card">
+        <div className="ui-card-header">
+          <h3>{editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}</h3>
+        </div>
+        <div className="ui-card-body">
+          <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nom d'utilisateur:</label>
             <input
@@ -203,8 +206,11 @@ export default function AdminUsers() {
             )}
           </div>
         </form>
+        </div>
       </div>
 
+      <div className="ui-card">
+        <div className="ui-card-body">
       <div className="actions-bar">
         <div className="search-container" style={{ position: 'relative' }}>
           <SearchIcon />
@@ -258,6 +264,8 @@ export default function AdminUsers() {
           ]}
         />
       )}
+        </div>
+      </div>
     </div>
   );
 }

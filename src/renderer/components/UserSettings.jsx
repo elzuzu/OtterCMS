@@ -35,31 +35,39 @@ export default function UserSettings({ user }) {
   };
 
   return (
-    <div>
+    <div className="user-settings">
       <h2>Paramètres utilisateur</h2>
-      <div className="form-group">
-        <label>Login Windows (nom d'utilisateur uniquement):</label>
-        <div className="input-action">
-          <input
-            placeholder="Ex: jean (sans domaine)"
-            value={loginWin}
-            onChange={e => setLoginWin(e.target.value)}
-          />
-          <button onClick={associerLogin} disabled={loading}>
-            {loading ? 'Association...' : 'Associer'}
-          </button>
-        </div>
-        {message && (
-          <div className={message.includes('succès') ? 'success' : 'error'}>
-            {message}
+      <div className="ui-card">
+        <div className="ui-card-body">
+          <div className="form-group">
+            <label>Login Windows (nom d'utilisateur uniquement):</label>
+            <div className="input-action">
+              <input
+                placeholder="Ex: jean (sans domaine)"
+                value={loginWin}
+                onChange={e => setLoginWin(e.target.value)}
+              />
+              <button onClick={associerLogin} disabled={loading}>
+                {loading ? 'Association...' : 'Associer'}
+              </button>
+            </div>
+            {message && (
+              <div className={message.includes('succès') ? 'success' : 'error'}>
+                {message}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
-      <div className="user-info">
-        <h3>Informations utilisateur</h3>
-        <div>Nom d'utilisateur: <strong>{user.username}</strong></div>
-        <div>Rôle actuel: <strong>{user.role}</strong></div>
-        <div>ID utilisateur: <strong>{user.id || user.userId}</strong></div>
+      <div className="ui-card">
+        <div className="ui-card-header">
+          <h3>Informations utilisateur</h3>
+        </div>
+        <div className="ui-card-body user-info">
+          <div>Nom d'utilisateur: <strong>{user.username}</strong></div>
+          <div>Rôle actuel: <strong>{user.role}</strong></div>
+          <div>ID utilisateur: <strong>{user.id || user.userId}</strong></div>
+        </div>
       </div>
     </div>
   );
