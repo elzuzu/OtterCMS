@@ -2531,6 +2531,37 @@ input[type="checkbox"]:focus {
    color: var(--color-primary-700);
 }
 
+/* ===== BANNERS NOUVELLES ===== */
+.banner {
+   padding: var(--spacing-3) var(--spacing-4);
+   margin-bottom: var(--spacing-4);
+   border-radius: var(--border-radius-md);
+   font-size: 0.875rem;
+   display: flex;
+   align-items: center;
+   gap: var(--spacing-2);
+}
+.banner-success {
+   background-color: var(--color-primary-50);
+   border: 1px solid var(--color-primary-500);
+   color: var(--color-primary-700);
+}
+.banner-error {
+   background-color: var(--color-danger-50);
+   border: 1px solid var(--color-danger-500);
+   color: var(--color-danger-700);
+}
+.banner-warning {
+   background-color: var(--color-warning-50);
+   border: 1px solid var(--color-warning-500);
+   color: var(--color-warning-700);
+}
+.banner-info {
+   background-color: var(--color-primary-50);
+   border: 1px solid var(--color-primary-500);
+   color: var(--color-primary-700);
+}
+
 
 .no-fields-form-message {
    font-style: italic;

@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { formatDateToDDMMYYYY } from '../utils/date';
+import Banner from './common/Banner';
 
 // Constantes pour les types de champs disponibles
 const FIELD_TYPES = [
@@ -916,9 +917,9 @@ export default function ImportData({ user }) {
     <div className="import-wizard admin-panel">
       <h2 className="panel-title">Importation de Données Individus</h2>
       {message.text && (
-        <div className={`message-banner ${message.type === 'success' ? 'success-message' : message.type === 'warning' ? 'warning-message' : message.type === 'error' ? 'error-message' : 'info-message'}`}>
+        <Banner type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
-        </div>
+        </Banner>
       )}
       <div className="wizard-steps">
         <div className={`wizard-step ${importStep === 1 ? 'active' : importStep > 1 ? 'completed' : ''}`}>
