@@ -26,10 +26,10 @@ try {
         }
     }
     
-    # Supprimer electron-builder.json s'il existe
-    if (Test-Path "electron-builder.json") {
-        Write-Host "   Suppression de electron-builder.json (conflit avec forge)" -ForegroundColor Yellow
-        Remove-Item -Path "electron-builder.json" -Force
+    # Supprimer forge.config.mjs s'il existe
+    if (Test-Path "forge.config.mjs") {
+        Write-Host "   Suppression de forge.config.mjs (obsolète)" -ForegroundColor Yellow
+        Remove-Item -Path "forge.config.mjs" -Force
     }
     
     Write-Host " Nettoyage termin" -ForegroundColor Green
@@ -43,33 +43,33 @@ try {
         }
     }
     
-    # Vrifier que electron-forge est install
-    $forgePath = "node_modules\.bin\electron-forge.cmd"
-    if (-not (Test-Path $forgePath)) {
-        Write-Host "`n electron-forge non trouv, rinstallation..." -ForegroundColor Yellow
-        npm install --save-dev @electron-forge/cli
+    # Vrifier que electron-builder est install
+    $builderPath = "node_modules\.bin\electron-builder.cmd"
+    if (-not (Test-Path $builderPath)) {
+        Write-Host "`n electron-builder non trouv, installation..." -ForegroundColor Yellow
+        npm install --save-dev electron-builder
         if ($LASTEXITCODE -ne 0) {
-            throw "chec de l'installation d'electron-forge"
+            throw "chec de l'installation d'electron-builder"
         }
     }
     
     # Build Electron
     Write-Host "`n Build Electron..." -ForegroundColor Yellow
-    
+
     if ($Verbose) {
-        $env:DEBUG = "electron-forge:*,electron-packager"
-        & npm run make -- --verbose
+        $env:DEBUG = "electron-builder"
+        & npm run dist -- --publish never
     } else {
-        & npm run make
+        & npm run dist
     }
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n Build termin avec succs!" -ForegroundColor Green
         
         # Afficher les fichiers gnrs
-        if (Test-Path "out\make") {
+        if (Test-Path "release-builds") {
             Write-Host "`n Fichiers gnrs:" -ForegroundColor Yellow
-            Get-ChildItem -Path "out\make" -Recurse -File | ForEach-Object {
+            Get-ChildItem -Path "release-builds" -Recurse -File | ForEach-Object {
                 $size = [math]::Round($_.Length / 1MB, 2)
                 Write-Host "   $($_.Name) ($size MB)" -ForegroundColor Green
                 Write-Host "     $($_.FullName)" -ForegroundColor Gray
