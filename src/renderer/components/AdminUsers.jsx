@@ -1,43 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
-// Icônes simples pour les actions
-const EditIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm-4.208 6.086-7.071 7.072.707.707 7.072-7.071-3.182-3.182z"/>
-    <path fillRule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
-  </svg>
-);
-
-const TrashIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-    <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{
-      position: 'absolute',
-      left: 'var(--spacing-3)',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      color: 'var(--text-color-placeholder)'
-    }}
-  >
-    <circle cx="11" cy="11" r="8"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-  </svg>
-);
+import DataTable from './common/DataTable';
+import { EditIcon, TrashIcon, SearchIcon } from './common/Icons';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -261,45 +224,39 @@ export default function AdminUsers() {
       {!loading && filteredUsers.length === 0 ? (
         <div className="no-data-message">Aucun utilisateur trouvé.</div>
       ) : (
-        <div className="table-responsive">
-        <table className="users-table data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nom d'utilisateur</th>
-              <th>Rôle</th>
-              <th>Login Windows</th>
-              <th style={{ textAlign: 'center' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map(user => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.username}</td>
-                <td>{user.role}</td>
-                <td>{user.windows_login || '-'}</td>
-                <td style={{ textAlign: 'center' }}>
+        <DataTable
+          data={filteredUsers}
+          getRowKey={u => u.id}
+          tableClassName="users-table data-table"
+          columns={[
+            { header: 'ID', accessor: 'id' },
+            { header: "Nom d'utilisateur", accessor: 'username' },
+            { header: 'Rôle', accessor: 'role' },
+            { header: 'Login Windows', accessor: 'windows_login', render: u => u.windows_login || '-' },
+            {
+              header: 'Actions',
+              thStyle: { textAlign: 'center' },
+              render: u => (
+                <>
                   <button
-                    onClick={() => startEditing(user)}
+                    onClick={() => startEditing(u)}
                     className="btn-secondary btn-small btn-icon"
                     aria-label="Éditer l'utilisateur"
                   >
                     <EditIcon />
                   </button>
                   <button
-                    onClick={() => deleteUser(user.id)}
+                    onClick={() => deleteUser(u.id)}
                     className="btn-danger btn-small btn-icon"
                     aria-label="Supprimer l'utilisateur"
                   >
                     <TrashIcon />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
+                </>
+              )
+            }
+          ]}
+        />
       )}
     </div>
   );
