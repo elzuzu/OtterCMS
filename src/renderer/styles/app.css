@@ -16,14 +16,14 @@
    --color-primary-700: #1d4ed8;
 
    /* Couleurs neutres */
-   --color-neutral-50: #f8fafc;      /* Fond général de l'application */
-   --color-neutral-100: #f1f5f9; /* Fond légèrement grisé pour cartes, sections */
-   --color-neutral-200: #e2e8f0; /* Bordures subtiles */
-   --color-neutral-300: #cbd5e1; /* Bordures plus prononcées, séparateurs */
-   --color-neutral-400: #94a3b8; /* Texte secondaire, icônes */
-   --color-neutral-500: #64748b; /* Texte moins important */
-   --color-neutral-700: #334155; /* Texte principal */
-   --color-neutral-900: #0f172a; /* Titres importants */
+   --color-neutral-50: #f9fafb;      /* Fond général de l'application */
+   --color-neutral-100: #f3f4f6; /* Fond légèrement grisé pour cartes, sections */
+   --color-neutral-200: #e5e7eb; /* Bordures subtiles */
+   --color-neutral-300: #d1d5db; /* Bordures plus prononcées, séparateurs */
+   --color-neutral-400: #9ca3af; /* Texte secondaire, icônes */
+   --color-neutral-500: #6b7280; /* Texte moins important */
+   --color-neutral-700: #1f2937; /* Texte principal */
+   --color-neutral-900: #111827; /* Titres importants */
 
    /* Couleurs sémantiques */
    --color-success-50: #f0fdf4;
@@ -48,9 +48,9 @@
    --background-color: var(--color-neutral-50);
 
    /* Texte */
-   --text-color-primary: var(--color-neutral-700);
-   --text-color-secondary: var(--color-neutral-500);
-   --text-color-placeholder: var(--color-neutral-400);
+   --text-color-primary: #1a1d29;
+   --text-color-secondary: #4b5563;
+   --text-color-placeholder: #6b7280;
    --text-color-on-primary: #ffffff; /* Texte sur fond --color-primary-500 */
 
    /* Bordures */
@@ -181,16 +181,16 @@
 [data-theme="dark"] {
   --color-scheme: dark;
 
-  --bg-primary: #0a0b0d;
-  --bg-secondary: #1a1d29;
-  --bg-tertiary: #2a2d3a;
-  --bg-overlay: rgba(26, 29, 41, 0.9);
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #27303f;
+  --bg-overlay: rgba(17, 24, 39, 0.9);
 
-  --text-primary: #ffffff;
-  --text-secondary: #a0a9b8;
-  --text-tertiary: #6c7293;
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
 
-  --glass-bg: rgba(26, 29, 41, 0.7);
+  --glass-bg: rgba(17, 24, 39, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
