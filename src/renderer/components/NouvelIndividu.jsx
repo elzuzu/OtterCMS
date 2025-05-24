@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Banner from './common/Banner';
+import { evaluateDynamicField } from '../utils/dynamic';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
   const [allCategories, setAllCategories] = useState([]);
@@ -176,6 +177,10 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
             {/* <label htmlFor={`champ-new-${champ.key}`}>{champ.label}</label> */}
           </div>
         );
+      case 'dynamic':
+        const baseVals = { ...valeursChamps, numero_unique: numeroUnique, en_charge: enChargeId };
+        const res = evaluateDynamicField(champ.formule, baseVals);
+        return <span className="form-value-display form-value-readonly">{res === undefined || res === null ? '' : String(res)}</span>;
       default:
         return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} />;
     }
