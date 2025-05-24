@@ -410,11 +410,10 @@ export default function AdminCategories() {
               </div>
             </div>
           ))}
-          <button type="button" onClick={ajouterChamp} className="btn-secondary btn-icon-text" style={{marginTop: 'var(--spacing-3)'}}>
-            <PlusIcon /> Ajouter un champ
-          </button>
-
           <div className="form-actions">
+            <button type="button" onClick={ajouterChamp} className="btn-secondary btn-icon-text">
+              <PlusIcon /> Ajouter un champ
+            </button>
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? (editTemplate ? 'Mise à jour en cours...' : 'Ajout en cours...') : (editTemplate ? 'Mettre à jour la catégorie' : 'Ajouter la catégorie')}
             </button>
