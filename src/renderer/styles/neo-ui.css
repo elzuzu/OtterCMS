@@ -76,6 +76,58 @@
   --sidebar-width: 280px;
   --header-height: 48px;
   --window-border-width: 3px;
+
+  /* Legacy variable aliases for compatibility */
+  --color-primary-500: var(--theme-color);
+  --color-primary-600: var(--theme-color-dark);
+  --color-primary-700: var(--theme-color-dark);
+  --color-primary-100: var(--theme-color-light);
+  --color-primary-50: var(--theme-color-light);
+  --color-primary-300: var(--theme-color-light);
+
+  --color-neutral-50: var(--neo-gray-900);
+  --color-neutral-100: var(--neo-gray-800);
+  --color-neutral-200: var(--neo-gray-700);
+  --color-neutral-300: var(--neo-gray-600);
+  --color-neutral-400: var(--neo-gray-500);
+  --color-neutral-500: var(--neo-gray-400);
+  --color-neutral-700: var(--neo-gray-200);
+  --color-neutral-900: var(--neo-gray-100);
+
+  --text-color-primary: var(--text-primary);
+  --text-color-secondary: var(--text-secondary);
+  --text-color-tertiary: var(--text-tertiary);
+  --text-color-on-primary: var(--text-on-theme);
+
+  --background-color: var(--surface-primary);
+  --surface-color: var(--surface-secondary);
+  --border-color-light: var(--border-subtle);
+  --border-color-medium: var(--border-default);
+  --border-color-info: var(--theme-color);
+}
+
+/* Light mode tokens */
+[data-theme="light"] {
+  --surface-primary: var(--neo-white);
+  --surface-secondary: var(--neo-gray-900);
+  --surface-tertiary: var(--neo-gray-800);
+  --surface-card: rgba(0, 0, 0, 0.05);
+  --surface-overlay: rgba(255, 255, 255, 0.8);
+
+  --text-primary: var(--neo-dark);
+  --text-secondary: var(--neo-gray-400);
+  --text-tertiary: var(--neo-gray-500);
+  --text-on-theme: var(--neo-white);
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-default: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+
+  --acrylic-tint: rgba(255, 255, 255, 0.6);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.3);
 }
 
 /* Theme Variations */

@@ -5,7 +5,7 @@ Application Electron et React permettant le suivi d'individus avec champs dynami
 ## 🎮 Nouveautés v2.0 - Neo UI
 
 - **Design Fluent Modern** avec effets d'acrylique et animations fluides
-- **Mode sombre natif** et bordure de fenêtre dynamique
+- **Modes clair et sombre** avec bordure de fenêtre dynamique
 - **Navigation latérale retravaillée** pour un accès rapide aux modules
 - **Thèmes personnalisables** (bleu, vert, violet, orange, rouge)
 

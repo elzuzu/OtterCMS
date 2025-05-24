@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 const THEME_COLORS = [
-  { id: 'blue', label: 'Bleu (Défaut)', value: '#3b82f6' },
-  { id: 'green', label: 'Vert', value: '#10b981' },
-  { id: 'purple', label: 'Violet', value: '#8b5cf6' },
-  { id: 'orange', label: 'Orange', value: '#f97316' },
-  { id: 'red', label: 'Rouge', value: '#ef4444' }
+  { id: 'blue', label: 'Bleu (Défaut)', value: '#0078D4' },
+  { id: 'green', label: 'Vert', value: '#107C10' },
+  { id: 'purple', label: 'Violet', value: '#8B38FF' },
+  { id: 'orange', label: 'Orange', value: '#FF8C00' },
+  { id: 'red', label: 'Rouge', value: '#E81123' }
 ];
 
 export default function AdminTemplate() {
