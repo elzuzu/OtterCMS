@@ -111,3 +111,12 @@ Le résultat se trouve dans `dist/`.
 ## Licence
 
 MIT
+
+## Migration vers React Native UWP
+
+Le dossier `rn-uwp/` contient une ebauche de portage sous React Native Windows. On y trouve notamment :
+- `App.tsx` qui charge un composant d'authentification.
+- `src/components/Auth.tsx` reprenant le formulaire de connexion.
+- `src/api.ts` simulant les appels aux services Electron.
+
+Installez `react-native` et `react-native-windows` puis executez `npx react-native-windows-init --overwrite` pour generer la solution UWP. Demarrez ensuite avec `npx react-native run-windows`.
