@@ -5,7 +5,8 @@
   /* Core Colors */
   --neo-green: #107C10;
   --neo-dark: #121212;
-  --neo-darker: #0a0a0a;
+  /* Slightly lighter tone to avoid pure black backgrounds */
+  --neo-darker: #1e1e1e;
   --neo-gray-100: #1b1e24;
   --neo-gray-200: #2a2e38;
   --neo-gray-300: #3a3f4b;
