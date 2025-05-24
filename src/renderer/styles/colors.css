@@ -59,7 +59,8 @@
   /* Basé sur les recommandations Material Design pour le mode sombre */
   /* https://material.io/design/color/dark-theme.html */
 
-  --dm-background: #121212; /* Fond principal du mode sombre */
+  /* Fond principal du mode sombre - légèrement éclairci pour éviter le noir pur */
+  --dm-background: #1e1e1e;
 
   /* Couleurs de surface avec élévation (plus l'élévation est haute, plus la surface est claire) */
   --dm-surface-dp01: #1D1D1D; /* ex: cartes légèrement surélevées */
