@@ -4065,7 +4065,7 @@ body { margin:0; font-family:system-ui; }
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--titlebar-icon-color);
+  color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4077,23 +4077,15 @@ body { margin:0; font-family:system-ui; }
 }
 
 .window-control:hover {
-  background: var(--titlebar-button-hover-bg);
-  color: var(--titlebar-icon-color);
+  background: var(--sidebar-hover-bg);
+  color: #000;
 }
 
-.window-control.minimize:hover {
-  background: rgba(255, 193, 7, 0.2);
-  color: #ffc107;
-}
-
-.window-control.maximize:hover {
-  background: rgba(40, 167, 69, 0.2);
-  color: #28a745;
-}
-
+.window-control.minimize:hover,
+.window-control.maximize:hover,
 .window-control.close:hover {
-  background: #e74c3c;
-  color: white;
+  background: var(--sidebar-hover-bg);
+  color: #000;
 }
 
 .window-control-icon {
