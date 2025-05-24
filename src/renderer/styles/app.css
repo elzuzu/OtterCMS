@@ -245,26 +245,33 @@
 [data-theme="dark"] {
   --color-scheme: dark;
 
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #27303f;
-  --bg-overlay: rgba(17, 24, 39, 0.9);
+  --bg-primary: var(--background-color-dark);
+  --bg-secondary: var(--surface-color-dark-dp01);
+  --bg-tertiary: var(--surface-color-dark-dp02);
+  --bg-overlay: rgba(18, 18, 18, 0.9);
 
   /* Surfaces avec élévation progressive */
-  --surface-level-0: #0A0A0A;
-  --surface-level-1: #1A1A1A;
-  --surface-level-2: #242424;
-  --surface-level-3: #2E2E2E;
+  --surface-level-0: var(--background-color-dark);
+  --surface-level-1: var(--surface-color-dark-dp01);
+  --surface-level-2: var(--surface-color-dark-dp02);
+  --surface-level-3: var(--surface-color-dark-dp03);
   --surface-overlay: rgba(255, 255, 255, 0.07);
 
-  --text-primary: #f3f4f6;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
+  --text-primary: var(--text-color-dark);
+  --text-secondary: var(--text-color-secondary-dark);
+  --text-tertiary: var(--text-color-disabled-dark);
 
-  --text-primary-dark: #F5F5F5;
-  --text-secondary-dark: #B8B8B8;
-  --text-tertiary-dark: #888888;
-  --text-disabled-dark: #555555;
+  --text-primary-dark: var(--text-color-dark);
+  --text-secondary-dark: var(--text-color-secondary-dark);
+  --text-tertiary-dark: var(--text-color-disabled-dark);
+  --text-disabled-dark: var(--text-color-disabled-dark);
+
+  /* Adaptation des couleurs de base */
+  --background-color: var(--surface-level-0);
+  --surface-color: var(--surface-level-1);
+  --text-color-primary: var(--text-primary);
+  --text-color-secondary: var(--text-secondary);
+  --text-color-tertiary: var(--text-tertiary);
 
   /* Couleurs d'accentuation adaptées */
   --accent-primary-dark: var(--theme-color-light);
