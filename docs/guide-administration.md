@@ -44,3 +44,5 @@ Pour créer un champ dynamique :
 4. Définissez les options habituelles (ordre, visibilité, etc.), puis enregistrez.
 
 Ainsi, les champs dynamiques enrichissent la description des individus sans saisie supplémentaire de la part des utilisateurs.
+
+Pour la prise en main de l'interface, consultez également le [guide d'utilisation](guide-utilisation.md).

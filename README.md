@@ -1,66 +1,48 @@
 # Indi-Suivi - Neo UI Edition
 
-Application Electron et React permettant le suivi d'individus avec champs dynamiques et une interface modernisée.
+Application Electron et React permettant le suivi d'individus avec champs dynamiques et interface moderne.
 
-## 🎮 Nouveautés v2.0 - Neo UI
+## Sommaire
 
-- **Design Fluent Modern** avec effets d'acrylique et animations fluides
-- **Modes clair et sombre** avec bordure de fenêtre dynamique
-- **Navigation latérale retravaillée** pour un accès rapide aux modules
-- **Thèmes personnalisables** (bleu, vert, violet, orange, rouge)
+- [Nouveautés](#nouveautés)
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
+- [Installation rapide](#installation-rapide)
+- [Configuration](#configuration)
+- [Architecture](#architecture)
+- [Développement](#développement)
+- [Construction et distribution](#construction-et-distribution)
+- [Documentation](#documentation)
+- [Licence](#licence)
 
-## Fonctionnalités principales
+## Nouveautés
 
-- Gestion des utilisateurs (admin, manager, utilisateur) avec possibilité d'associer un compte au login Windows local.
-- Catégories et champs personnalisables pour décrire chaque individu.
-- Import CSV/Excel avec templates et attribution de masse.
-- Tableau de bord et audit détaillé des modifications.
-- Interface moderne construite avec React et Vite.
+Version **2.0 Neo UI** avec thèmes personnalisables et navigation revue.
 
-## Architecture
+## Fonctionnalités
 
- - **src/main.js** : processus principal Electron. Il expose des API IPC et accède à SQLite via `better-sqlite3`.
-- **src/preload.ts** : passerelle sécurisée entre le renderer et le processus principal.
-- **src/renderer/** : application React (renderer) compilée par Vite.
-- **scripts/install.js** : initialise la configuration et la base de données.
+- Gestion des utilisateurs et des rôles (login Windows optionnel)
+- Catégories et champs dynamiques entièrement configurables
+- Import CSV/Excel avec attribution en masse
+- Tableau de bord synthétique et audit complet des modifications
+- Interface React moderne avec mode clair/sombre
 
-### Modèle de données (SQLite)
+## Prérequis
 
-La base est définie dans `config/app-config.json` (par défaut `db/indi-suivi.sqlite`).
-Lors du packaging, l'application cherche toujours ce fichier dans `./config/app-config.json` à côté de l'exécutable.
+- Node.js 20.19.2 ou plus récent
+- npm (ou un gestionnaire compatible)
 
-- **users**
-  - `id` INTEGER primaire
-  - `username` UNIQUE
-  - `password_hash`
-  - `role` (`admin`, `manager`, `user`)
-  - `windows_login` optionnel
-  - `deleted` (suppression logique)
-- **categories**
-  - `id` INTEGER primaire
-  - `nom`
-  - `champs` JSON décrivant les champs dynamiques
-  - `ordre`
-  - `deleted`
-- **individus**
-  - `id` INTEGER primaire
-  - `numero_unique`
-  - `en_charge` référence vers `users`
-  - `categorie_id` référence vers `categories`
-  - `champs_supplementaires` JSON
-  - `deleted`
-- **individu_audit**
-  - `id` INTEGER primaire
-  - `individu_id` référence vers `individus`
-  - `champ`, `ancienne_valeur`, `nouvelle_valeur`
-  - `utilisateur_id` référence vers `users`
-  - `date_modif` DATETIME
-  - `action` (`create`, `update`, `delete`, `import_create`, `import_update`, `attribution_masse`)
-  - `fichier_import` nom du fichier d'import
+## Installation rapide
 
-### Configuration
+```bash
+npm install        # dépendances
+npm run install-app
+npx vite build     # génération du renderer
+```
 
-Exemple de fichier `config/app-config.json` :
+## Configuration
+
+Le fichier `config/app-config.json` définit le chemin de la base SQLite et d'autres options :
 
 ```json
 {
@@ -71,57 +53,44 @@ Exemple de fichier `config/app-config.json` :
 }
 ```
 
-Modifiez `dbPath` pour stocker la base ailleurs (partage réseau, etc.).
-Après installation, placez `config/app-config.json` à côté de l'exécutable pour personnaliser la configuration.
+Placez ce fichier à côté de l'exécutable après packaging pour personnaliser l'installation.
 
-## Installation
+## Architecture
 
-1. Installez Node.js 20.19.2 (Windows x64) ou une version ultérieure.
-2. Installez les dépendances (les modules natifs comme **better-sqlite3** seront
-   récupérés en version précompilée grâce au script `postinstall`) :
-   ```bash
-   npm install
-   ```
-3. Initialisez la configuration et la base :
-   ```bash
-   npm run install-app
-   ```
-4. Générez les fichiers du renderer (le dossier `dist/` n'est plus suivi dans le dépôt) :
-   ```bash
-   npx vite build
-   ```
+```
+src/main.js        Processus principal Electron et API SQLite
+src/preload.ts     Passerelle sécurisée
+src/renderer/      Application React (renderer Vite)
+scripts/install.js Initialisation de la base
+```
+
+Le schéma SQLite est créé lors de l'exécution de `npm run install-app`.
 
 ## Développement
 
-Lancez l'application avec rechargement automatique :
+Lancement avec rechargement automatique :
 
 ```bash
 npm run dev
 ```
 
+La structure détaillée et des conseils supplémentaires se trouvent dans [docs/developpement.md](docs/developpement.md).
+
 ## Construction et distribution
 
-Générez les binaires avec Electron Forge :
+Générez les binaires :
 
 ```bash
 npm run make
 ```
 
-Les fichiers sont disponibles dans `out/make/`.
-
-### Build du renderer seul
-
-Pour compiler uniquement la partie React :
-
-```bash
-npx vite build
-```
-
-Le résultat se trouve dans `dist/` et doit être regénéré après chaque modification ou après avoir cloné le dépôt.
+Les artefacts sont placés dans `out/make/`. Consultez `forge.config.mjs` et `electron-builder.json` pour modifier les options de packaging.
 
 ## Documentation
 
-Consultez le [guide d'administration](docs/guide-administration.md) pour la gestion des catégories et des champs dynamiques.
+- [Guide d'administration](docs/guide-administration.md)
+- [Guide d'utilisation](docs/guide-utilisation.md)
+- [Guide de développement](docs/developpement.md)
 
 ## Licence
 
