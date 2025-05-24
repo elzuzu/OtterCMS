@@ -17,11 +17,7 @@
   --neo-gray-900: #f3f4f6;
   --neo-white: #FFFFFF;
 
-  /* Theme Colors */
-  --theme-color: var(--neo-green);
-  --theme-color-rgb: 16, 124, 16;
-  --theme-color-light: #14A814;
-  --theme-color-dark: #0B5B0B;
+  /* Theme Colors - defined by active theme in colors.css */
   
   /* Surface Colors */
   --surface-primary: var(--neo-darker);
