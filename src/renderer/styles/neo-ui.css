@@ -131,43 +131,61 @@
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.3);
 }
 
-/* Theme Variations */
+/* Theme Variations - Synchronisé avec app.css */
 body.theme-blue {
-  --theme-color: #0078D4;
-  --theme-color-rgb: 0, 120, 212;
-  --theme-color-light: #106EBE;
-  --theme-color-dark: #005A9E;
+  --theme-color: #3b82f6;
+  --theme-color-rgb: 59, 130, 246;
+  --theme-color-light: #93c5fd;
+  --theme-color-dark: #1d4ed8;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-50: #eff6ff;
 }
 
 body.theme-green {
-  --theme-color: #107C10;
-  --theme-color-rgb: 16, 124, 16;
-  --theme-color-light: #14A814;
-  --theme-color-dark: #0B5B0B;
+  --theme-color: #10b981;
+  --theme-color-rgb: 16, 185, 129;
+  --theme-color-light: #6ee7b7;
+  --theme-color-dark: #047857;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-50: #ecfdf5;
 }
 
 body.theme-purple {
-  --theme-color: #8B38FF;
-  --theme-color-rgb: 139, 56, 255;
-  --theme-color-light: #A255FF;
-  --theme-color-dark: #6B20E3;
+  --theme-color: #8b5cf6;
+  --theme-color-rgb: 139, 92, 246;
+  --theme-color-light: #c4b5fd;
+  --theme-color-dark: #6d28d9;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-50: #f5f3ff;
 }
 
 body.theme-orange {
-  --theme-color: #FF8C00;
-  --theme-color-rgb: 255, 140, 0;
-  --theme-color-light: #FFB84D;
-  --theme-color-dark: #CC7000;
+  --theme-color: #f97316;
+  --theme-color-rgb: 249, 115, 22;
+  --theme-color-light: #fdba74;
+  --theme-color-dark: #c2410c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-50: #fff7ed;
 }
 
 body.theme-red {
-  --theme-color: #E81123;
-  --theme-color-rgb: 232, 17, 35;
-  --theme-color-light: #F03A47;
-  --theme-color-dark: #A80000;
+  --theme-color: #ef4444;
+  --theme-color-rgb: 239, 68, 68;
+  --theme-color-light: #fca5a5;
+  --theme-color-dark: #b91c1c;
+  --color-primary-500: #ef4444;
+  --color-primary-600: #dc2626;
+  --color-primary-700: #b91c1c;
+  --color-primary-50: #fef2f2;
 }
-
-/* ===== BASE STYLES ===== */
 * {
   box-sizing: border-box;
   margin: 0;
