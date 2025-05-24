@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getPermissionsForRole } from '../utils/permissions';
+import WindowControls from './common/WindowControls';
 
 export default function Auth({ setUser }) {
   const [username, setUsername] = useState('');
@@ -137,6 +138,7 @@ export default function Auth({ setUser }) {
 
   return (
     <div className="auth-container">
+      <WindowControls />
       <form className="auth-form" onSubmit={handleLogin}>
         <h2>Connexion</h2>
         <div className="form-group">
