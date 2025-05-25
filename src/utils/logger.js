@@ -110,6 +110,31 @@ class Logger {
 const logger = new Logger();
 
 // Export pour CommonJS et ES6
+/**
+ * Fonctions utilitaires pour simplifier l'appel depuis main.js
+ * - log: alias de info
+ * - logError: formatte les erreurs avec leur stack
+ * - logIPC: trace simplifiée des appels IPC
+ */
+function log(message, ...args) {
+    logger.info(message, ...args);
+}
+
+function logError(context, err) {
+    const msg = err && err.message ? `${context}: ${err.message}` : context;
+    logger.error(msg);
+    if (err && err.stack) {
+        logger.debug(err.stack);
+    }
+}
+
+function logIPC(channel, ...args) {
+    const payload = args.map(a => {
+        try { return JSON.stringify(a); } catch { return String(a); }
+    }).join(' ');
+    logger.debug(`[IPC] ${channel} ${payload}`);
+}
+
 module.exports = {
     Logger: logger,
     logger,
@@ -118,7 +143,11 @@ module.exports = {
     warn: (msg, ...args) => logger.warn(msg, ...args),
     info: (msg, ...args) => logger.info(msg, ...args),
     debug: (msg, ...args) => logger.debug(msg, ...args),
-    setLevel: (level) => logger.setLevel(level)
+    setLevel: (level) => logger.setLevel(level),
+    // Fonctions attendues par main.js
+    log,
+    logError,
+    logIPC
 };
 
 // Log de démarrage
