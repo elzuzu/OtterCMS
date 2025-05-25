@@ -77,8 +77,6 @@
       ".vite/build/preload.js",
       "dist/**/*",
       ".vite/build/utils/**/*",
-      "config/**/*",
-      "db/**/*",
       "!src/renderer/**/*",
       "!src/*.ts",
       "!**/*.map"
@@ -91,6 +89,16 @@
       {
         "from": "src/assets",
         "to": "assets"
+      }
+    ],
+    "extraFiles": [
+      {
+        "from": "config",
+        "to": "config"
+      },
+      {
+        "from": "db",
+        "to": "db"
       }
     ],
     "win": {
