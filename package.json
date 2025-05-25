@@ -72,7 +72,7 @@
       "icon": "src/assets/app-icon.ico"
     },
     "squirrelWindows": {
-      "setupIcon": "src/assets/app-icon.ico"
+      "iconUrl": "src/assets/app-icon.ico"
     }
   }
 }
