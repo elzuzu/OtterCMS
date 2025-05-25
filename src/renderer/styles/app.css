@@ -2398,11 +2398,14 @@ input[type="checkbox"]:focus {
    flex-wrap: wrap;
    gap: var(--spacing-3);
    margin-bottom: var(--spacing-4);
-   background-color: var(--color-neutral-50);
+   background-color: var(--surface-color);
    padding: var(--spacing-4);
    border-radius: var(--border-radius-lg);
-   border: 1px solid var(--border-color-light);
+   border: 1px solid var(--current-border-medium);
    justify-content: space-around;
+}
+[data-theme="dark"] .mass-attribution-wizard .stats-panel {
+   background-color: var(--current-surface-color-dp01);
 }
 
 .mass-attribution-wizard .stats-item {
@@ -2437,8 +2440,15 @@ input[type="checkbox"]:focus {
    background-color: var(--color-primary-50);
    border: 1px solid var(--color-primary-200);
 }
+[data-theme="dark"] .mass-attribution-wizard .stats-item.highlight {
+   background-color: rgba(var(--theme-color-rgb), 0.15);
+   border-color: var(--current-primary-color);
+}
 .mass-attribution-wizard .stats-item.highlight .stats-value {
-      color: var(--color-primary-600);
+   color: var(--color-primary-600);
+}
+[data-theme="dark"] .mass-attribution-wizard .stats-item.highlight .stats-value {
+   color: var(--current-primary-color);
 }
 
 
@@ -2894,6 +2904,49 @@ input[type="checkbox"]:focus {
    display: flex;
    gap: var(--spacing-2);
    flex-shrink: 0;
+}
+
+.category-actions .btn-small {
+   padding: var(--spacing-1) var(--spacing-2);
+   font-size: 0.75rem;
+   border-radius: var(--border-radius-sm);
+}
+
+.category-actions .btn-icon {
+   display: inline-flex;
+   align-items: center;
+   gap: var(--spacing-1);
+}
+
+.category-actions .btn-secondary {
+   background-color: var(--current-surface-color);
+   color: var(--current-primary-color);
+   border-color: var(--current-primary-color);
+}
+.category-actions .btn-secondary:hover:not(:disabled) {
+   background-color: var(--current-primary-color-hover);
+   color: var(--current-text-on-primary-color);
+   border-color: var(--current-primary-color-hover);
+}
+
+.category-actions .btn-danger {
+   background-color: var(--current-danger-color);
+   color: var(--current-text-on-primary-color);
+   border-color: var(--current-danger-color);
+}
+.category-actions .btn-danger:hover:not(:disabled) {
+   background-color: var(--current-danger-color-hover);
+   border-color: var(--current-danger-color-hover);
+}
+
+.category-actions .btn-success {
+   background-color: var(--current-success-color);
+   color: var(--current-text-on-primary-color);
+   border-color: var(--current-success-color);
+}
+.category-actions .btn-success:hover:not(:disabled) {
+   background-color: var(--current-success-color-hover);
+   border-color: var(--current-success-color-hover);
 }
 
 .btn-small {
