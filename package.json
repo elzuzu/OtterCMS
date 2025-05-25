@@ -76,10 +76,9 @@
       ".vite/build/main.js",
       ".vite/build/preload.js",
       "dist/**/*",
-      "src/utils/**/*",
+      ".vite/build/utils/**/*",
       "config/**/*",
       "db/**/*",
-      "!**/node_modules/**/*",
       "!src/renderer/**/*",
       "!src/*.ts",
       "!**/*.map"

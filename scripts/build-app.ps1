@@ -198,6 +198,14 @@ module.exports = { Logger };
             }
             Write-ColorText "   ✓ Vérifié: $file" $Green
         }
+
+        # Copier les utilitaires nécessaires dans le dossier de build
+        $utilsSrc = "src\utils"
+        $utilsDest = ".vite\build\utils"
+        if (Test-Path $utilsSrc) {
+            Copy-Item $utilsSrc $utilsDest -Recurse -Force
+            Write-ColorText "   ✓ Utils copiés dans le build" $Green
+        }
         Write-ColorText "`n🔧 Rebuild des modules natifs..." $Yellow
         npx electron-rebuild -f -w better-sqlite3 2>$null
         if ($LASTEXITCODE -ne 0) {

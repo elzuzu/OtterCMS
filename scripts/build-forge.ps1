@@ -87,6 +87,14 @@ module.exports = {
         npx tsc src/preload.ts --outDir .vite/build --module commonjs --target es2020 --esModuleInterop --skipLibCheck
         if (-not (Test-Path ".vite/build/preload.js")) { npx vite build --config vite.preload.config.ts }
     }
+
+    # Copier les utilitaires dans le dossier de build
+    $utilsSrc = "src\utils"
+    $utilsDest = ".vite\build\utils"
+    if (Test-Path $utilsSrc) {
+        Copy-Item $utilsSrc $utilsDest -Recurse -Force
+        Write-Host "   ✓ Utils copiés dans le build" -ForegroundColor Green
+    }
     
     $packageJsonPath = "package.json"
     if (Test-Path $packageJsonPath) {
