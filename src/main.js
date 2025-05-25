@@ -2,8 +2,8 @@ const { app, BrowserWindow, ipcMain, protocol, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-// Gestion de Squirrel pour Windows
-if (require('electron-squirrel-startup')) app.quit();
+// Squirrel n'est plus utilisé (NSIS)
+// if (require('electron-squirrel-startup')) app.quit();
 
 // Chargement conditionnel de electron-updater
 let autoUpdater = null;
