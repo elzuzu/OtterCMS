@@ -1449,9 +1449,7 @@ app.on('window-all-closed', () => {
 function createWindow () {
   log('Creating main window...');
   const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-  const preloadPath = isDev
-    ? path.join(__dirname, '../.vite/build/preload.js')
-    : path.join(__dirname, 'preload.js');
+  const preloadPath = path.join(__dirname, 'preload.js');
 
   const win = new BrowserWindow({
     width: 1366,
