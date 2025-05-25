@@ -1007,7 +1007,7 @@ input[type="checkbox"]:focus {
 
 .data-table th,
 .data-table td {
-   padding: var(--spacing-3) var(--spacing-2); /* Adjusted padding */
+   padding: var(--spacing-1) var(--spacing-1); /* Reduced padding */
    text-align: left;
    border-bottom: 1px solid var(--border-color-light);
    vertical-align: middle; /* Added for better alignment */
@@ -1071,7 +1071,7 @@ input[type="checkbox"]:focus {
 }
 
 .data-table .filter-row td {
-   padding: var(--spacing-2); /* Reduced padding for filter inputs */
+   padding: var(--spacing-1); /* Reduced padding for filter inputs */
    border-bottom: none; /* No bottom border for filter cells */
    vertical-align: middle;
 }

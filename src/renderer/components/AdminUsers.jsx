@@ -240,7 +240,8 @@ export default function AdminUsers() {
             { header: 'Login Windows', accessor: 'windows_login', render: u => u.windows_login || '-' },
             {
               header: 'Actions',
-              thStyle: { textAlign: 'center' },
+              thStyle: { textAlign: 'center', width: '80px' },
+              tdStyle: { textAlign: 'center', width: '80px' },
               render: u => (
                 <>
                   <button
