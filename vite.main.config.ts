@@ -1,51 +1,62 @@
-// vite.main.config.ts (NOUVELLE VERSION - PLUS ROBUSTE POUR LA LECTURE DYNAMIQUE)
 import { defineConfig } from 'vite';
 import { builtinModules } from 'node:module';
-import { readFileSync } from 'node:fs'; // Pour lire le fichier package.json directement
-import { resolve } from 'node:path';    // Pour obtenir le chemin absolu vers package.json
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-// Fonction pour charger et parser package.json de manière plus directe
+// Fonction pour charger et parser package.json
 function getPackageJsonDependencies() {
   try {
-    // Construit le chemin absolu vers package.json depuis le répertoire racine du projet
     const packageJsonPath = resolve(process.cwd(), 'package.json');
     const packageJsonContent = readFileSync(packageJsonPath, 'utf-8');
     const pkg = JSON.parse(packageJsonContent);
     console.log('[vite.main.config.ts] Dépendances lues depuis package.json:', Object.keys(pkg.dependencies || {}));
     return Object.keys(pkg.dependencies || {});
   } catch (error) {
-    console.error('[vite.main.config.ts] Erreur lors de la lecture/parsing de package.json pour les externes:', error);
-    // Solution de repli si la lecture de package.json échoue - listez ici les dépendances critiques connues
-    // Normalement, cela ne devrait pas arriver.
+    console.error('[vite.main.config.ts] Erreur lors de la lecture de package.json:', error);
+    // Fallback avec les dépendances critiques
     return [
-        'electron-squirrel-startup', // Assurez-vous que les plus critiques sont là en cas de problème
-        'electron-updater',
-        'better-sqlite3',
-        'bcryptjs',
-        'xlsx',
+      'electron-squirrel-startup',
+      'electron-updater',
+      'better-sqlite3',
+      'bcryptjs',
+      'xlsx',
+      'chart.js',
+      'framer-motion',
+      'lucide-react',
+      'react',
+      'react-chartjs-2',
+      'react-dom',
+      'react-router-dom',
+      'zustand'
     ];
   }
 }
-
 const packageDependencies = getPackageJsonDependencies();
-
 export default defineConfig({
   build: {
+    // IMPORTANT: Spécifier le répertoire de sortie pour correspondre à package.json
+    outDir: '.vite/build',
+    emptyOutDir: true,
     sourcemap: true,
-    target: 'es2022', // Conservé depuis votre configuration
+    target: 'es2022',
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
       formats: ['cjs'],
+      fileName: () => 'main.js' // Force le nom du fichier de sortie
     },
     rollupOptions: {
       external: [
-        'electron', // Toujours externaliser Electron lui-même
-        // Ajout dynamique de toutes les dépendances de production
+        'electron',
         ...packageDependencies,
-        // Ajout des modules Node.js intégrés
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
       ],
+      output: {
+        // Force le format CommonJS pour Electron
+        format: 'cjs',
+        // Empêche la minification des noms pour debug plus facile
+        preserveModules: false,
+      }
     },
   },
 });
