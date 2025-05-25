@@ -4436,7 +4436,7 @@ body { margin:0; font-family:system-ui; }
 
 /* === ADAPTATION POUR MODE SOMBRE === */
 [data-theme="dark"] .window-control {
-  color: #000000 !important;
+  color: var(--titlebar-icon-color) !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -4444,12 +4444,12 @@ body { margin:0; font-family:system-ui; }
 
 [data-theme="dark"] .window-control:hover {
   background: var(--sidebar-hover-bg) !important;
-  color: #000000 !important;
+  color: var(--titlebar-icon-color) !important;
 }
 
 [data-theme="dark"] .window-control.close:hover {
   background: #ef4444 !important;
-  color: #000000 !important;
+  color: var(--titlebar-icon-color) !important;
 }
 
 /* === ADAPTATION POUR MODE CLAIR === */
