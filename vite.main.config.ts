@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import { builtinModules } from 'node:module';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, statSync, readdirSync, mkdirSync, copyFileSync } from 'node:fs';
+import { resolve, join, dirname } from 'node:path';
 
 // Fonction pour charger et parser package.json
 function getPackageJsonDependencies() {
@@ -32,7 +32,38 @@ function getPackageJsonDependencies() {
   }
 }
 const packageDependencies = getPackageJsonDependencies();
+
+function copyRecursive(srcDir: string, destDir: string) {
+  try {
+    const stats = statSync(srcDir);
+    if (stats.isDirectory()) {
+      mkdirSync(destDir, { recursive: true });
+      for (const entry of readdirSync(srcDir)) {
+        const srcPath = join(srcDir, entry);
+        const destPath = join(destDir, entry);
+        copyRecursive(srcPath, destPath);
+      }
+    } else {
+      mkdirSync(dirname(destDir), { recursive: true });
+      copyFileSync(srcDir, destDir);
+    }
+  } catch (err) {
+    console.error('[vite.main.config.ts] copyRecursive failed', err);
+  }
+}
+
+function copyUtilsPlugin() {
+  const src = resolve(__dirname, 'src/utils');
+  const dest = resolve(__dirname, '.vite/build/utils');
+  return {
+    name: 'copy-utils-plugin',
+    buildStart() {
+      copyRecursive(src, dest);
+    }
+  } as const;
+}
 export default defineConfig({
+  plugins: [copyUtilsPlugin()],
   build: {
     // IMPORTANT: Spécifier le répertoire de sortie pour correspondre à package.json
     outDir: '.vite/build',
