@@ -109,7 +109,8 @@ export default function AdminRoles({ user }) {
           { header: 'Permissions', render: r => r.permissions.join(', ') },
           {
             header: 'Actions',
-            thStyle: { textAlign: 'center' },
+            thStyle: { textAlign: 'center', width: '80px' },
+            tdStyle: { textAlign: 'center', width: '80px' },
             render: r => (
               <>
                 <button
