@@ -30,6 +30,9 @@ npm run dev
 ```
 
 Les fichiers du renderer sont générés à chaud par Vite. Toute modification dans `src/renderer` rechargera l'interface.
+Le script se termine automatiquement quand la fenêtre Electron est fermée grâce
+à l'option `-k` de `concurrently`. Vous pouvez aussi l'interrompre manuellement
+via <kbd>Ctrl</kbd>+<kbd>C</kbd> si besoin.
 
 ## Structure du projet
 
