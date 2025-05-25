@@ -68,11 +68,19 @@
       "output": "release-builds"
     },
     "win": {
-      "target": "squirrel",
+      "target": "nsis",
       "icon": "src/assets/app-icon.ico"
     },
-    "squirrelWindows": {
-      "iconUrl": "src/assets/app-icon.ico"
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "src/assets/app-icon.ico",
+      "uninstallerIcon": "src/assets/app-icon.ico",
+      "installerHeaderIcon": "src/assets/app-icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Indi-Suivi"
     }
   }
 }
