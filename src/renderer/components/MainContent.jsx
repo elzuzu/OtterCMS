@@ -22,6 +22,7 @@ import {
   User2,
   Palette,
 } from 'lucide-react';
+import logo from '../logo.svg';
 
 const tabIcons = {
   dashboard: <Home size={18} aria-hidden="true" />,
@@ -227,7 +228,7 @@ export default function MainContent({ user, onLogout }) {
     <div className="app-container" data-theme={theme}>
       <aside className="app-sidebar">
         <div className="sidebar-header">
-          <img src="/logo.svg" className="app-logo" />
+          <img src={logo} className="app-logo" />
           <h1 className="app-title">{appTitle}</h1>
         </div>
         <nav className="sidebar-nav" aria-label="Navigation principale">
