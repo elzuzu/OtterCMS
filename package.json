@@ -6,7 +6,7 @@
   "homepage": "./",
   "scripts": {
     "start": "electron .",
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:main\" \"npm run dev:preload\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev": "concurrently -k \"npm run dev:vite\" \"npm run dev:main\" \"npm run dev:preload\" \"wait-on http://localhost:5173 && electron .\"",
     "dev:vite": "vite --config vite.config.js --port 5173",
     "dev:main": "vite build --config vite.main.config.ts --watch",
     "dev:preload": "vite build --config vite.preload.config.ts --watch",
