@@ -84,7 +84,7 @@ npm run dist
 ```
 
 Les artefacts sont placés dans `release-builds/`. La configuration d'Electron Builder se trouve dans la section `build` du `package.json` (packaging **NSIS** sous Windows).
-Sous Windows, vous pouvez exécuter `scripts/build-app.ps1` pour nettoyer et lancer la construction en une seule commande. Utilisez `scripts/check-icon.ps1` pour vérifier que `src/assets/app-icon.ico` est valide avant de compiler.
+Sous Windows, le script `scripts/build-app.ps1` permet de nettoyer puis de lancer la compilation complète. Il propose également les options `-UseForge` et `-UsePackager` pour essayer d'autres outils si besoin. Pensez à exécuter `scripts/check-icon.ps1` pour valider l'icône `src/assets/app-icon.ico` avant de compiler.
 
 
 ## Documentation

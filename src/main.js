@@ -19,8 +19,8 @@ if (!isDev) {
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
-const { log, logError, logIPC } = require('../utils/logger');
-const { inferType } = require('../utils/inferType');
+const { log, logError, logIPC } = require('./utils/logger');
+const { inferType } = require('./utils/inferType');
 const os = require('os');
 
 const DEFAULT_ROLE_PERMISSIONS = {
