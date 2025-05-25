@@ -1430,7 +1430,7 @@ app.whenReady().then(() => {
   }
   protocol.registerFileProtocol('app', (request, callback) => {
     const url = request.url.substring(6);
-    callback({ path: path.join(__dirname, '..', 'dist', url) });
+    callback({ path: path.join(__dirname, '..', '..', 'dist', url) });
   });
   initDb(); 
   createWindow();
@@ -1483,7 +1483,7 @@ function createWindow () {
     log(`[CONSOLE RENDERER - ${levelStr}] ${message} (source: ${path.basename(sourceId)}:${line})`);
   });
 
-  const indexPath = path.join(__dirname, '..', 'dist', 'index.html');
+  const indexPath = path.join(__dirname, '..', '..', 'dist', 'index.html');
   log(`Index.html path for window: ${indexPath}`);
 
   if (app.isPackaged) {
