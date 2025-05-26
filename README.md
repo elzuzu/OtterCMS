@@ -54,6 +54,15 @@ Le fichier `config/app-config.json` définit le chemin de la base SQLite et d'au
 
 Placez ce fichier à côté de l'exécutable après packaging pour personnaliser l'installation.
 
+Les variables d'environnement pour le **MetaCoordinatorAgent** sont définies dans `.env` :
+```
+CONSENSUS_THRESHOLD=0.65
+AGENT_SCORE_DECAY=0.95
+CONFLICT_RESOLUTION_TIMEOUT_MS=500
+MIN_AGENTS_FOR_DECISION=3
+DECISION_CONFIDENCE_MIN=0.7
+```
+
 ## Architecture
 
 ```
