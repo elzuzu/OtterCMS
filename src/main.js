@@ -90,12 +90,16 @@ function loadConfig() {
     path.join(app.getAppPath(), 'config', 'app-config.json'),
     path.join(__dirname, 'config', 'app-config.json')
   ];
-  
+
   for (const configPath of configPaths) {
     try {
       if (fs.existsSync(configPath)) {
         log('Configuration loaded from:', configPath);
-        return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        const json = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        if (json.dbPath && !path.isAbsolute(json.dbPath)) {
+          json.dbPath = path.resolve(path.dirname(configPath), json.dbPath);
+        }
+        return json;
       }
     } catch (error) {
       logError('loadConfig from ' + configPath, error);
