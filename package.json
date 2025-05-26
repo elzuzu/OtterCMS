@@ -100,24 +100,25 @@
         "to": "db"
       }
     ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "src/assets/app-icon.ico",
-      "requestedExecutionLevel": "asInvoker"
-    },
+      "win": {
+        "target": [
+          {
+            "target": "nsis",
+            "arch": [
+              "x64"
+            ]
+          },
+          {
+            "target": "portable",
+            "arch": [
+              "x64"
+            ]
+          }
+        ],
+        "icon": "src/assets/app-icon.ico",
+        "requestedExecutionLevel": "asInvoker",
+        "sign": false
+      },
     "nsis": {
       "oneClick": false,
       "allowElevation": true,
