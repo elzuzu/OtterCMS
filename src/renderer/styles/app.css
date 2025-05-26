@@ -1007,7 +1007,7 @@ input[type="checkbox"]:focus {
 
 .data-table th,
 .data-table td {
-   padding: var(--spacing-1) var(--spacing-1); /* Reduced padding */
+   padding: 1px; /* Updated padding to 1px */
    text-align: left;
    border-bottom: 1px solid var(--border-color-light);
    vertical-align: middle; /* Added for better alignment */
