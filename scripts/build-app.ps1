@@ -145,8 +145,8 @@ module.exports = { Logger };
         npx electron-forge make
     } elseif ($UsePackager) {
         Write-ColorText "`n🔧 Mode Electron Packager..." $Cyan
-        if (-not (Test-Path "node_modules\@electron\packager")) {
-            npm install --save-dev @electron/packager
+        if (-not (Test-Path "node_modules\@electron-forge\packager")) {
+            npm install --save-dev @electron-forge/packager
         }
         npx electron-packager . "Indi-Suivi" --platform=win32 --arch=x64 --out=release-builds --overwrite --icon="src/assets/app-icon.ico"
     } else {
