@@ -117,7 +117,7 @@
         ],
         "icon": "src/assets/app-icon.ico",
         "requestedExecutionLevel": "asInvoker",
-        "sign": false
+        "signAndEditExecutable": false
       },
     "nsis": {
       "oneClick": false,
