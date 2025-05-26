@@ -1,4 +1,4 @@
-﻿# Script simple de build avec @electron-forge/packager
+# Script simple de build avec @electron/packager
 param(
     [switch]$Clean = $true
 )
@@ -14,9 +14,9 @@ try {
         Get-Process node*, electron* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
         @("release-builds") | ForEach-Object { if (Test-Path $_) { Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue } }
     }
-    if (-not (Test-Path "node_modules/@electron-forge/packager")) {
-        npm install --save-dev @electron-forge/packager
-        if ($LASTEXITCODE -ne 0) { throw "Installation de @electron-forge/packager echouée" }
+    if (-not (Test-Path "node_modules/@electron/packager")) {
+        npm install --save-dev @electron/packager
+        if ($LASTEXITCODE -ne 0) { throw "Installation de @electron/packager echouée" }
     }
     npx electron-packager . "Indi-Suivi" --platform=win32 --arch=x64 --out=release-builds --overwrite --icon="src/assets/app-icon.ico"
     if ($LASTEXITCODE -eq 0) {
