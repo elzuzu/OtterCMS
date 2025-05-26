@@ -1,4 +1,4 @@
-# Script simple de build avec @electron-forge/packager
+﻿# Script simple de build avec @electron-forge/packager
 param(
     [switch]$Clean = $true
 )

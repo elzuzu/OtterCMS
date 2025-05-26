@@ -1,4 +1,4 @@
-# Script alternatif avec Electron Forge
+﻿# Script alternatif avec Electron Forge
 param(
     [switch]$Clean = $true,
     [switch]$Verbose = $false
