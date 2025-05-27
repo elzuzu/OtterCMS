@@ -22,7 +22,7 @@ function getPackageJsonDependencies() {
       'xlsx',
       'chart.js',
       'framer-motion',
-      'lucide-react',
+      '@tabler/icons-react',
       'react',
       'react-chartjs-2',
       'react-dom',

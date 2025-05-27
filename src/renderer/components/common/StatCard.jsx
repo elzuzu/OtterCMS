@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 
 export default function StatCard({ icon, title, value, change, trend = 'up', gradient = 'blue' }) {
   const gradients = {
@@ -20,7 +20,7 @@ export default function StatCard({ icon, title, value, change, trend = 'up', gra
         <p className="stat-label">{title}</p>
         {change && (
           <div className={`stat-trend trend-${trend}`}>
-            {trend === 'up' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            {trend === 'up' ? <IconTrendingUp size={16} /> : <IconTrendingDown size={16} />}
             <span>{change}</span>
           </div>
         )}

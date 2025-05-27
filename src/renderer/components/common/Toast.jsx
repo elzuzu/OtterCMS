@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
+import { IconCircleCheck, IconAlertCircle, IconInfoCircle, IconX } from '@tabler/icons-react';
 
 export default function Toast({ toasts, removeToast }) {
   const icons = {
-    success: <CheckCircle size={20} />,
-    error: <AlertCircle size={20} />,
-    info: <Info size={20} />,
+    success: <IconCircleCheck size={20} />,
+    error: <IconAlertCircle size={20} />,
+    info: <IconInfoCircle size={20} />,
   };
 
   return (
@@ -27,7 +27,7 @@ export default function Toast({ toasts, removeToast }) {
               {toast.message && <div className="toast-message">{toast.message}</div>}
             </div>
             <button className="toast-close" onClick={() => removeToast(toast.id)}>
-              <X size={16} />
+              <IconX size={16} />
             </button>
           </motion.div>
         ))}

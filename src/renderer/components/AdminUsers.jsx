@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DataTable from './common/DataTable';
+import DattaDataTable from './common/DattaDataTable';
 import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminUsers() {
@@ -229,10 +229,9 @@ export default function AdminUsers() {
       {!loading && filteredUsers.length === 0 ? (
         <div className="no-data-message">Aucun utilisateur trouvé.</div>
       ) : (
-        <DataTable
+        <DattaDataTable
           data={filteredUsers}
           getRowKey={u => u.id}
-          tableClassName="users-table data-table"
           columns={[
             { header: 'ID', accessor: 'id' },
             { header: "Nom d'utilisateur", accessor: 'username' },
