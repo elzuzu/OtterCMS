@@ -9,19 +9,19 @@
 
 
    /* Surface et Fond */
-   --surface-color: #ffffff; /* Fond des cartes, modales */
-   --background-color: var(--color-neutral-50);
+   --surface-color: var(--surface-secondary); /* Aligned with Neo UI for component backgrounds, was #ffffff */
+   /* --background-color variable removed */
 
    /* Texte */
-   --text-color-primary: #1a1d29;
-   --text-color-secondary: #4b5563;
-   --text-color-placeholder: #6b7280;
-   --text-color-on-primary: #ffffff; /* Texte sur fond --color-primary-500 */
+   /* --text-color-primary variable removed */
+   --text-color-secondary: var(--text-secondary); /* Alias to Neo UI, was #4b5563 */
+   --text-color-placeholder: var(--text-tertiary); /* Alias to Neo UI, was #6b7280 */
+   --text-color-on-primary: #ffffff; /* Texte sur fond --color-primary-500 - Retained, Neo uses --text-on-theme */
 
    /* Bordures */
    --border-color-light: var(--color-neutral-200);
    --border-color-medium: var(--color-neutral-300);
-   --border-focus-ring: rgba(59, 130, 246, 0.5); /* Bleu avec opacité pour l'anneau de focus */
+   --border-focus-ring: rgba(var(--theme-color-rgb), 0.4); /* Aligned with Neo UI, themeable */
 
    /* Rayons */
    --border-radius-sm: 0.25rem; /* 4px */
@@ -30,13 +30,13 @@
    --border-radius-xl: 1rem;     /* 16px */
    --border-radius-full: 9999px; /* Pour les éléments circulaires */
 
-   /* Ombres */
-   --shadow-xs: none;
-   --shadow-sm: none;
-   --shadow-md: none;
-   --shadow-lg: none;
-   --shadow-xl: none;
-   --shadow-inner: none;
+   /* Ombres - Aligned with Neo UI defaults (dark) */
+   --shadow-xs: none; /* Neo UI doesn't have xs, kept for now */
+   --shadow-sm: var(--shadow-sm); /* Alias to Neo UI */
+   --shadow-md: var(--shadow-md); /* Alias to Neo UI */
+   --shadow-lg: var(--shadow-lg); /* Alias to Neo UI */
+   --shadow-xl: var(--shadow-xl); /* Alias to Neo UI */
+   --shadow-inner: none; /* Neo UI doesn't have inner, kept for now */
 
    /* Espacements */
    --spacing-1: 0.25rem; /* 4px */
@@ -230,6 +230,7 @@
 
 /* ===== BOUTONS ET AUTRES ÉLÉMENTS UTILISANT LES COULEURS PRIMAIRES ===== */
 
+/* This .btn-primary rule seems to be an override for external components, keep as is or review separately if it needs Neo alignment. */
 .btn-primary {
   background-color: var(--color-primary-500) !important;
   border-color: var(--color-primary-500) !important;
@@ -258,36 +259,39 @@
   --surface-overlay: rgba(255, 255, 255, 0.07);
 
   --text-primary: var(--text-color-dark);
-  --text-secondary: var(--text-color-secondary-dark);
-  --text-tertiary: var(--text-color-disabled-dark);
+   --text-secondary: var(--text-secondary); /* Uses Neo var */
+   --text-tertiary: var(--text-tertiary); /* Uses Neo var */
 
-  --text-primary-dark: var(--text-color-dark);
-  --text-secondary-dark: var(--text-color-secondary-dark);
-  --text-tertiary-dark: var(--text-color-disabled-dark);
-  --text-disabled-dark: var(--text-color-disabled-dark);
+   /* --text-primary-dark, --text-secondary-dark, etc. may become redundant if Neo vars cover them */
+   --text-primary-dark: var(--text-color-dark); 
+   --text-secondary-dark: var(--text-color-secondary-dark); 
+   --text-tertiary-dark: var(--text-color-disabled-dark); 
+   --text-disabled-dark: var(--text-color-disabled-dark); 
 
   /* Adaptation des couleurs de base */
-  --background-color: var(--surface-level-0);
-  --surface-color: var(--surface-level-1);
-  --text-color-primary: var(--text-primary);
-  --text-color-secondary: var(--text-secondary);
-  --text-color-tertiary: var(--text-tertiary);
+   /* Redundant definitions removed as they should be inherited from neo-ui via :root or direct usage */
+   /* --background-color: var(--surface-level-0); */
+   /* --surface-color: var(--surface-level-1); */
+   /* --text-color-primary: var(--text-primary); */
+   /* --text-color-secondary: var(--text-secondary); */
+   /* --text-color-tertiary: var(--text-tertiary); */
 
   /* Couleurs d'accentuation adaptées */
   --accent-primary-dark: var(--theme-color-light);
   --accent-on-dark: rgba(var(--theme-color-rgb), 0.15);
 
-  --glass-bg: rgba(17, 24, 39, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+   --glass-bg: rgba(17, 24, 39, 0.7); /* Retained from app.css, Neo has similar */
+   --glass-border: rgba(255, 255, 255, 0.1); /* Retained from app.css, Neo has similar */
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-  --shadow-card: 0 0 20px rgba(0, 0, 0, 0.4);
-  --elevation-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --elevation-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --elevation-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+   /* Shadow overrides for dark theme in app.css are removed, Neo UI should handle this */
+   /* --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3); */
+   /* --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3); */
+   /* --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3); */
+   /* --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3); */
+   /* --shadow-card: 0 0 20px rgba(0, 0, 0, 0.4); */
+   /* --elevation-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3); */
+   /* --elevation-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4); */
+   /* --elevation-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5); */
 
   --titlebar-bg: var(--header-background);
   --titlebar-text-color: var(--text-on-accent);
@@ -311,8 +315,8 @@
 
   /* Textes avec contraste adapté - Mode Light */
   --text-primary-light: #1a1a1a;
-  --text-secondary-light: #444444;
-  --text-tertiary-light: #666666;
+   --text-secondary-light: #444444; /* These specific light theme text colors might be covered by Neo's --text-secondary in light mode */
+   --text-tertiary-light: #666666;  /* These specific light theme text colors might be covered by Neo's --text-tertiary in light mode */
   --text-disabled-light: #999999;
 
   /* Couleurs d'accentuation adaptées - Mode Light */
@@ -320,14 +324,16 @@
   --accent-on-light: rgba(var(--theme-color-rgb), 0.08);
 
   /* Adaptation des couleurs de base */
-  --background-color: var(--surface-level-0);
-  --surface-color: var(--surface-level-1);
-  --text-color-primary: var(--text-primary-light);
-  --text-color-secondary: var(--text-secondary-light);
-  --text-color-tertiary: var(--text-tertiary-light);
+   /* Redundant definitions removed as they should be inherited from neo-ui via :root or direct usage */
+   /* --background-color: var(--surface-level-0); */
+   /* --surface-color: var(--surface-level-1); */
+   /* --text-color-primary: var(--text-primary-light); */
+   /* --text-color-secondary: var(--text-secondary-light); */
+   /* --text-color-tertiary: var(--text-tertiary-light); */
 
   --theme-color-adapted: hsl(from var(--theme-color) h calc(s * 0.9) calc(l * 0.8));
   --theme-color-light-adapted: hsl(from var(--theme-color) h calc(s * 0.7) calc(l * 0.9));
+   /* Shadow overrides for light theme in app.css are removed, Neo UI should handle this */
 }
 
 *,
@@ -341,7 +347,7 @@
 html {
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
-   font-size: 16px; /* Base pour les rem */
+   font-size: 14px; /* Aligned with Neo UI */
 }
 
 body, html, #root, .app {
@@ -350,34 +356,41 @@ body, html, #root, .app {
    height: 100%;
 }
 
+*:focus-visible {
+  outline: 2px solid var(--theme-color);
+  outline-offset: 2px;
+}
+
 body {
    font-family: var(--font-family-sans);
-   background-color: var(--background-color);
-   color: var(--text-color-primary);
+   background-color: var(--surface-primary); /* Aligned with Neo UI */
+   color: var(--text-primary); /* Aligned with Neo UI */
    line-height: 1.6;
 }
 
 /* ===== TYPOGRAPHIE ===== */
 h1, h2, h3, h4, h5, h6 {
-   color: var(--color-neutral-900);
-   font-weight: 600; /* Semi-bold pour les titres */
-   margin-bottom: var(--spacing-4);
+   color: var(--text-primary); /* Aligned with Neo UI */
+   font-weight: 600; /* Semi-bold pour les titres - Retained from app.css, Neo doesn't specify general heading weight */
    line-height: 1.3;
 }
 
-h1 { font-size: 2.25rem; /* 36px */ }
-h2 { font-size: 1.875rem; /* 30px */ margin-bottom: var(--spacing-6); }
-h3 { font-size: 1.5rem; /* 24px */ margin-bottom: var(--spacing-5); }
-h4 { font-size: 1.25rem; /* 20px */ }
-p { margin-bottom: var(--spacing-4); }
+h1 { font-size: 2.25rem; margin-bottom: var(--spacing-md); } /* 36px, margin aligned to neo (--spacing-md is 16px) */
+h2 { font-size: 1.875rem; margin-bottom: var(--spacing-lg); } /* 30px, margin aligned to neo (--spacing-lg is 24px) */
+h3 { font-size: 1.5rem; margin-bottom: var(--spacing-lg); }    /* 24px, margin aligned to neo (--spacing-lg is 24px, was spacing-5/20px) */
+h4 { font-size: 1.25rem; margin-bottom: var(--spacing-md); } /* 20px, margin aligned to neo */
+h5 { font-size: 1rem; margin-bottom: var(--spacing-md); }    /* Added h5 with margin */
+h6 { font-size: 0.875rem; margin-bottom: var(--spacing-md); } /* Added h6 with margin */
+
+p { margin-bottom: var(--spacing-md); } /* Aligned with Neo UI (--spacing-md is 16px) */
 
 a {
-   color: var(--color-primary-600);
+   color: var(--theme-color); /* Aligned with Neo UI */
    text-decoration: none;
-   transition: color var(--transition-duration) var(--transition-timing-function);
+   transition: color var(--transition-fast); /* Aligned with Neo UI */
 }
 a:hover {
-   color: var(--color-primary-700);
+   color: var(--theme-color-dark); /* Aligned with Neo UI */
    text-decoration: underline;
 }
 
@@ -452,7 +465,7 @@ header.app-header {
 .main-nav {
    width: 220px;
    padding: var(--spacing-4) var(--spacing-2);
-   border-right: 1px solid var(--border-color-medium);
+   border-right: 1px solid var(--border-default); /* Neo UI consistent border */
    background-color: var(--surface-color);
    position: sticky;
    top: var(--header-height); /* Utilise la variable pour la hauteur de l'en-tête */
@@ -520,28 +533,30 @@ header.app-header {
 
 
 /* ===== BOUTONS (BASE ET VARIANTES) ===== */
-/* Style de base commun   tous les boutons spécifiques ci-dessous */
+/* Style de base commun   tous les boutons spécifiques ci-dessous - Aligned with Neo UI .btn */
 .btn-base {
    display: inline-flex;
    align-items: center;
    justify-content: center;
-   padding: var(--spacing-2) var(--spacing-4);
-   font-size: 0.875rem; /* 14px */
-   font-weight: 500; /* Medium */
-   border-radius: var(--border-radius-md);
-   border: 1px solid transparent;
+   padding: var(--spacing-sm) var(--spacing-lg); /* Neo UI: 8px 24px */
+   font-size: 0.875rem; /* 14px - Consistent */
+   font-weight: 600; /* Neo UI: 600 */
+   border-radius: var(--radius-md); /* Neo UI: 8px - Consistent with app.css's --border-radius-md */
+   border: none; /* Neo UI: border: none */
    cursor: pointer;
-   transition-property: background-color, border-color, color, box-shadow;
-   transition-duration: var(--transition-duration);
-   transition-timing-function: var(--transition-timing-function);
+   transition: all var(--transition-fast); /* Neo UI */
    text-decoration: none;
    white-space: nowrap;
+   letter-spacing: 0.05em; /* Neo UI */
+   text-transform: uppercase; /* Neo UI */
+   position: relative; /* For Neo UI's ::before ripple effect if added later */
+   overflow: hidden; /* For Neo UI's ::before ripple effect if added later */
 }
 
 .btn-base:focus-visible {
-   outline: 2px solid transparent;
-   outline-offset: 2px;
-   box-shadow: 0 0 0 3px var(--border-focus-ring);
+   outline: 2px solid transparent; /* Retained from app.css */
+   outline-offset: 2px; /* Retained from app.css */
+   box-shadow: 0 0 0 3px var(--border-focus-ring); /* Consistent with app.css focus ring variable */
 }
 
 .btn-base:disabled {
@@ -549,196 +564,248 @@ header.app-header {
    cursor: not-allowed;
 }
 
-/* Bouton Primaire */
+/* Bouton Primaire - Aligned with Neo UI .btn-primary */
 .btn-primary {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-primary-500);
-   color: var(--text-color-on-primary);
-   border-color: var(--color-primary-500);
+   /* Inherits structure from .btn-base if class is applied, or repeat properties if used as a standalone class */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--theme-color); /* Neo UI */
+   color: var(--text-on-theme); /* Neo UI */
+   /* border: none; implicitly from .btn-base if class is applied, or explicitly here */
 }
 .btn-primary:hover:not(:disabled) {
-   background-color: var(--color-primary-600);
-   border-color: var(--color-primary-600);
+   background-color: var(--theme-color-dark); /* Neo UI uses theme-color-light, using dark for more typical hover */
+   transform: translateY(-1px); /* Neo UI */
+   box-shadow: var(--shadow-md); /* Neo UI */
 }
 .btn-primary:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 
-/* Bouton Secondaire (contour) */
+/* Bouton Secondaire (contour) - Aligned with Neo UI .btn-secondary */
 .btn-secondary {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--surface-color);
-   color: var(--color-primary-600);
-   border-color: var(--color-primary-500);
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: transparent; /* Neo UI */
+   color: var(--theme-color); /* Neo UI */
+   border: 1px solid var(--theme-color); /* Neo UI */
 }
 .btn-secondary:hover:not(:disabled) {
-   background-color: var(--color-primary-50);
-   border-color: var(--color-primary-600);
+   background-color: rgba(var(--theme-color-rgb), 0.1); /* Neo UI */
+   border-color: var(--theme-color-light); /* Neo UI */
 }
 .btn-secondary:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* Bouton Tertiaire/Ghost (texte seul) */
+/* Bouton Tertiaire/Ghost (texte seul) - Aligned with Neo UI .btn-ghost */
 .btn-tertiary {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: transparent;
-   color: var(--color-primary-600);
-   border-color: transparent;
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; position: relative; overflow: hidden; /* Base structure from .btn-base */
+   background-color: transparent; /* Neo UI */
+   color: var(--text-secondary); /* Neo UI */
+   border: 1px solid var(--border-default); /* Neo UI */
+   text-transform: none; /* Neo UI */
+   letter-spacing: normal; /* Neo UI */
 }
 .btn-tertiary:hover:not(:disabled) {
-   background-color: var(--color-primary-50);
-   color: var(--color-primary-700);
+   background-color: rgba(255, 255, 255, 0.05); /* Neo UI */
+   color: var(--text-primary); /* Neo UI */
+   border-color: var(--border-strong); /* Neo UI */
 }
 .btn-tertiary:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-tertiary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Bouton Danger */
 .btn-danger {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
    background-color: var(--color-danger-500);
-   color: var(--text-color-on-primary);
-   border-color: var(--color-danger-500);
+   color: var(--text-on-theme); /* Consistent with Neo's primary button text on theme color */
+   /* border: none; by default from .btn-base structure */
 }
 .btn-danger:hover:not(:disabled) {
-   background-color: var(--color-danger-700);
-   border-color: var(--color-danger-700);
+   background-color: var(--color-danger-700); /* Darken on hover */
+   transform: translateY(-1px); /* Neo UI hover effect */
+   box-shadow: var(--shadow-md); /* Neo UI hover effect */
 }
 .btn-danger:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Bouton Succès */
 .btn-success {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
    background-color: var(--color-success-500);
-   color: var(--text-color-on-primary);
-   border-color: var(--color-success-500);
+   color: var(--text-on-theme); /* Consistent with Neo's primary button text on theme color */
+   /* border: none; by default from .btn-base structure */
 }
 .btn-success:hover:not(:disabled) {
-   background-color: var(--color-success-700);
-   border-color: var(--color-success-700);
+   background-color: var(--color-success-700); /* Darken on hover */
+   transform: translateY(-1px); /* Neo UI hover effect */
+   box-shadow: var(--shadow-md); /* Neo UI hover effect */
 }
 .btn-success:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-success:disabled { opacity: 0.6; cursor: not-allowed; }
 
 
 /* Application des styles de boutons aux éléments HTML (via leurs classes existantes) */
+/* These will now inherit from .btn-danger or .btn-success, etc. or have their styles directly updated */
 header .logout-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
    background-color: var(--color-danger-500);
-   color: var(--text-color-on-primary);
-   border-color: var(--color-danger-500);
+   color: var(--text-on-theme);
 }
 header .logout-button:hover:not(:disabled) {
    background-color: var(--color-danger-700);
-   border-color: var(--color-danger-700);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
 }
 header .logout-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 header .logout-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.add-button {
-   display: inline-flex;
-   align-items: center;
-   justify-content: center;
-   padding: var(--spacing-2) var(--spacing-4);
-   font-size: 0.875rem;
-   font-weight: 500;
-   border-radius: var(--border-radius-md);
-   border: 1px solid transparent;
-   cursor: pointer;
-   transition-property: background-color, border-color, color, box-shadow;
-   transition-duration: var(--transition-duration);
-   transition-timing-function: var(--transition-timing-function);
-   text-decoration: none;
-   white-space: nowrap;
-   background-color: var(--surface-color);
-   color: var(--color-primary-600);
-   border-color: var(--color-primary-500);
+.add-button { /* To look like new .btn-secondary */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: transparent;
+   color: var(--theme-color);
+   border: 1px solid var(--theme-color);
 }
 .add-button:hover:not(:disabled) {
-   background-color: var(--color-primary-50);
-   border-color: var(--color-primary-600);
+   background-color: rgba(var(--theme-color-rgb), 0.1);
+   border-color: var(--theme-color-light);
 }
 .add-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .add-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.columns-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--surface-color); color: var(--color-primary-600); border-color: var(--color-primary-500);
+.columns-button { /* To look like new .btn-secondary */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: transparent;
+   color: var(--theme-color);
+   border: 1px solid var(--theme-color);
 }
-.columns-button:hover:not(:disabled) { background-color: var(--color-primary-50); border-color: var(--color-primary-600); }
+.columns-button:hover:not(:disabled) {
+   background-color: rgba(var(--theme-color-rgb), 0.1);
+   border-color: var(--theme-color-light);
+}
 .columns-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .columns-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.delete-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-danger-500); color: var(--text-color-on-primary); border-color: var(--color-danger-500);
+.delete-button { /* To look like new .btn-danger */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--color-danger-500);
+   color: var(--text-on-theme);
 }
-.delete-button:hover:not(:disabled) { background-color: var(--color-danger-700); border-color: var(--color-danger-700); }
+.delete-button:hover:not(:disabled) {
+   background-color: var(--color-danger-700);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
 .delete-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .delete-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.cancel-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--surface-color); color: var(--color-neutral-700); border-color: var(--color-neutral-300);
+.cancel-button { /* To look like new .btn-tertiary but with neutral colors */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; position: relative; overflow: hidden;
+   background-color: transparent;
+   color: var(--text-color-secondary); /* Using app's secondary text color for neutral */
+   border: 1px solid var(--border-color-medium); /* Using app's medium border for neutral */
+   text-transform: none;
+   letter-spacing: normal;
 }
-.cancel-button:hover:not(:disabled) { background-color: var(--color-neutral-100); border-color: var(--color-neutral-400); }
+.cancel-button:hover:not(:disabled) {
+   background-color: rgba(108, 117, 125, 0.1); /* Neutral hover, e.g. using gray values */
+   color: var(--text-color-primary);
+   border-color: var(--border-color-medium) /* Or a slightly darker neutral border */;
+}
 .cancel-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .cancel-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.btn-modifier {
-     display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-primary-500); color: var(--text-color-on-primary); border-color: var(--color-primary-500);
+.btn-modifier { /* To look like new .btn-primary */
+     display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--theme-color);
+   color: var(--text-on-theme);
 }
-.btn-modifier:hover:not(:disabled) { background-color: var(--color-primary-600); border-color: var(--color-primary-600); }
+.btn-modifier:hover:not(:disabled) {
+   background-color: var(--theme-color-dark);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
 .btn-modifier:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-modifier:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.btn-sauvegarder {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-success-500); color: var(--text-color-on-primary); border-color: var(--color-success-500);
+.btn-sauvegarder { /* To look like new .btn-success */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--color-success-500);
+   color: var(--text-on-theme);
 }
-.btn-sauvegarder:hover:not(:disabled) { background-color: var(--color-success-700); border-color: var(--color-success-700); }
+.btn-sauvegarder:hover:not(:disabled) {
+   background-color: var(--color-success-700);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
 .btn-sauvegarder:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-sauvegarder:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.btn-annuler {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-danger-500); color: var(--text-color-on-primary); border-color: var(--color-danger-500);
+.btn-annuler { /* To look like new .btn-danger */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--color-danger-500);
+   color: var(--text-on-theme);
 }
-.btn-annuler:hover:not(:disabled) { background-color: var(--color-danger-700); border-color: var(--color-danger-700); }
+.btn-annuler:hover:not(:disabled) {
+   background-color: var(--color-danger-700);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
 .btn-annuler:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-annuler:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.btn-fermer {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: transparent; color: var(--color-neutral-700); border-color: transparent;
+.btn-fermer { /* To look like new .btn-tertiary */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; position: relative; overflow: hidden;
+   background-color: transparent;
+   color: var(--text-secondary);
+   border: 1px solid var(--border-default);
+   text-transform: none;
+   letter-spacing: normal;
 }
-.btn-fermer:hover:not(:disabled) { background-color: var(--color-neutral-100); }
+.btn-fermer:hover:not(:disabled) {
+   background-color: rgba(255, 255, 255, 0.05);
+   color: var(--text-primary);
+   border-color: var(--border-strong);
+}
 .btn-fermer:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .btn-fermer:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.restore-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-success-500); color: var(--text-color-on-primary); border-color: var(--color-success-500);
+.restore-button { /* To look like new .btn-success */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--color-success-500);
+   color: var(--text-on-theme);
 }
-.restore-button:hover:not(:disabled) { background-color: var(--color-success-700); border-color: var(--color-success-700); }
+.restore-button:hover:not(:disabled) {
+   background-color: var(--color-success-700);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
+}
 .restore-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .restore-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.toggle-button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--surface-color); color: var(--color-primary-600); border-color: var(--color-primary-500);
+.toggle-button { /* To look like new .btn-secondary */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: transparent;
+   color: var(--theme-color);
+   border: 1px solid var(--theme-color);
 }
-.toggle-button:hover:not(:disabled) { background-color: var(--color-primary-50); border-color: var(--color-primary-600); }
+.toggle-button:hover:not(:disabled) {
+   background-color: rgba(var(--theme-color-rgb), 0.1);
+   border-color: var(--theme-color-light);
+}
 .toggle-button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .toggle-button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-button:not([class*="btn-"]):not([class*="-button"]):not([class*="button-"]):not(.nav-item) {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--surface-color); color: var(--color-primary-600); border-color: var(--color-primary-500);
+button:not([class*="btn-"]):not([class*="-button"]):not([class*="button-"]):not(.nav-item) { /* To look like new .btn-tertiary */
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; position: relative; overflow: hidden;
+   background-color: transparent;
+   color: var(--text-secondary);
+   border: 1px solid var(--border-default);
+   text-transform: none;
+   letter-spacing: normal;
 }
 button:not([class*="btn-"]):not([class*="-button"]):not([class*="button-"]):not(.nav-item):hover:not(:disabled) {
-   background-color: var(--color-primary-50); border-color: var(--color-primary-600);
+   background-color: rgba(255, 255, 255, 0.05);
+   color: var(--text-primary);
+   border-color: var(--border-strong);
 }
 button:not([class*="btn-"]):not([class*="-button"]):not([class*="button-"]):not(.nav-item):focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 button:not([class*="btn-"]):not([class*="-button"]):not([class*="button-"]):not(.nav-item):disabled { opacity: 0.6; cursor: not-allowed; }
@@ -767,86 +834,90 @@ textarea,
 select {
    display: block;
    width: 100%;
-   padding: var(--spacing-2) var(--spacing-3);
-   font-size: 0.875rem; /* 14px */
-   line-height: 1.5;
-   color: var(--text-color-primary);
-   background-color: var(--surface-color);
-   background-clip: padding-box;
-   border: 1px solid var(--border-color-medium);
-   border-radius: var(--border-radius-md);
-   box-shadow: var(--shadow-inner);
-   transition: border-color var(--transition-duration) var(--transition-timing-function), box-shadow var(--transition-duration) var(--transition-timing-function);
+   padding: var(--spacing-md); /* Neo UI: 16px */
+   font-size: 0.9375rem; /* Neo UI: 15px */
+   line-height: 1.5; /* Retained from app.css */
+   color: var(--text-primary); /* Neo UI (via body color) */
+   /* background-color handled by theme-specific rules below */
+   background-clip: padding-box; /* Retained */
+   border: 1px solid var(--border-default); /* Neo UI */
+   border-radius: var(--radius-md); /* Neo UI (8px), consistent with app.css's --border-radius-md */
+   box-shadow: none; /* Neo UI inputs don't have inner shadow by default */
+   transition: all var(--transition-fast); /* Neo UI */
 }
 
 input:focus, textarea:focus, select:focus {
-   border-color: var(--color-primary-500);
    outline: 0;
-   box-shadow: var(--shadow-inner), 0 0 0 0.2rem var(--border-focus-ring);
+   border-color: var(--theme-color); /* Neo UI */
+   /* background-color handled by theme-specific focus rules below */
+   box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.25); /* Neo UI */
 }
 
 input::placeholder, textarea::placeholder {
-   color: var(--text-color-placeholder);
-   opacity: 1;
+   color: var(--text-tertiary); /* Neo UI (via app.css alias) */
+   opacity: 1; /* Retained */
 }
 
+/* Theme-specific input styling based on Neo UI */
 [data-theme="dark"] input,
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
-  background: var(--surface-level-3);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary-dark);
+  background: var(--neo-gray-200); /* Slightly lighter than Neo's default input for better contrast if needed, or use var(--surface-tertiary) / rgba(255,255,255,0.05) */
+  border-color: var(--border-default); /* Consistent with Neo */
+  color: var(--text-primary); /* Consistent */
 }
 
-[data-theme="dark"] input:focus {
-  background: var(--surface-level-2);
-  border-color: var(--theme-color-light);
-  box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.25);
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  background: rgba(255, 255, 255, 0.1); /* Neo UI focus background for dark */
+  border-color: var(--theme-color); /* Consistent */
+  box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.25); /* Consistent */
 }
 
 [data-theme="light"] input,
 [data-theme="light"] select,
 [data-theme="light"] textarea {
-  background: var(--surface-level-0);
-  border-color: rgba(0, 0, 0, 0.15);
-  color: var(--text-primary-light);
+  background: var(--neo-gray-900); /* Neo UI light theme input background (e.g. --surface-level-0 or a specific light input bg) */
+  border-color: var(--border-default); /* Consistent with Neo */
+  color: var(--text-primary); /* Consistent for light mode */
 }
 
 [data-theme="light"] input:focus,
 [data-theme="light"] select:focus,
 [data-theme="light"] textarea:focus {
-  background: var(--surface-level-0);
-  border-color: var(--theme-color);
-  box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.15);
+  background: var(--neo-white); /* Neo UI light theme focus background */
+  border-color: var(--theme-color); /* Consistent */
+  box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.15); /* Neo UI light theme focus shadow */
 }
 
 [data-theme="light"] input::placeholder,
 [data-theme="light"] textarea::placeholder {
-  color: var(--text-tertiary-light);
+  color: var(--text-tertiary); /* Consistent */
 }
 
 input[type="file"] {
-   border: 1px dashed var(--border-color-medium);
-   padding: var(--spacing-3);
-   background-color: var(--color-neutral-50);
-   border-radius: var(--border-radius-md);
+   border: 1px dashed var(--border-default); /* Neo UI border variable */
+   padding: var(--spacing-md); /* Neo UI spacing (16px) */
+   background-color: var(--color-neutral-50); /* Retained, suitable light gray */
+   border-radius: var(--radius-md); /* Neo UI radius (8px), consistent with app.css --border-radius-md */
 }
 input[type="file"]:hover {
-   border-color: var(--color-primary-500);
+   border-color: var(--theme-color); /* Neo UI theme color for hover */
 }
 
 input[type="checkbox"] {
    width: 1rem; /* 16px */
    height: 1rem; /* 16px */
-   margin-right: var(--spacing-2);
-   border-radius: var(--border-radius-sm);
-   border: 1px solid var(--border-color-medium);
-   accent-color: var(--color-primary-500); /* Couleur de la coche */
+   margin-right: var(--spacing-2); /* Retained from app.css */
+   border-radius: var(--radius-sm); /* Neo UI (4px), consistent with app.css --border-radius-sm */
+   border: 1px solid var(--border-default); /* Neo UI */
+   accent-color: var(--theme-color); /* Neo UI */
 }
 input[type="checkbox"]:focus {
-   outline: 2px solid transparent;
-   outline-offset: 2px;
-   box-shadow: 0 0 0 3px var(--border-focus-ring);
+   outline: 2px solid transparent; /* Retained */
+   outline-offset: 2px; /* Retained */
+   box-shadow: 0 0 0 3px var(--border-focus-ring); /* Consistent with updated focus ring */
 }
 
 .checkbox-container {
@@ -1007,7 +1078,7 @@ input[type="checkbox"]:focus {
 
 .data-table th,
 .data-table td {
-   padding: var(--spacing-1) var(--spacing-1); /* Reduced padding */
+   padding: 1px; /* Updated padding to 1px */
    text-align: left;
    border-bottom: 1px solid var(--border-color-light);
    vertical-align: middle; /* Added for better alignment */
@@ -1093,27 +1164,33 @@ input[type="checkbox"]:focus {
    box-shadow: 0 0 0 2px var(--border-focus-ring);
 }
 
-/* Style pour les boutons d'action dans les cellules */
+/* Style pour les boutons d'action dans les cellules - Aligned with Neo UI .btn-icon principles */
 .data-table .btn-icon {
-   padding: var(--spacing-1) var(--spacing-2); /* Consistent padding */
-   border-radius: var(--border-radius-sm); /* Consistent border-radius */
-   background-color: transparent; /* Default transparent */
-   border: 1px solid transparent;
-   color: var(--text-color-secondary);
+   width: 32px; /* Adjusted for table density */
+   height: 32px; /* Adjusted for table density */
+   padding: 0; 
+   border-radius: var(--radius-full); /* Neo UI: circular */
+   background-color: transparent;
+   border: 1px solid transparent; 
+   color: var(--text-secondary); /* Neo UI: default secondary text color */
    display: inline-flex;
    align-items: center;
-   justify-content: center;
-   min-width: 32px; /* Ensure a minimum tap target size */
-   height: 32px;
-   transition: background-color var(--transition-duration), color var(--transition-duration), border-color var(--transition-duration);
+   justify-content: center; 
+   transition: all var(--transition-fast); 
+   text-transform: none; /* Icon buttons typically don't have text transform */
+   letter-spacing: normal; /* Reset letter-spacing */
 }
 .data-table .btn-icon:hover {
-   background-color: var(--color-neutral-100);
-   color: var(--color-primary-500);
+   background-color: rgba(var(--theme-color-rgb), 0.1); /* Neo UI: themed hover */
+   color: var(--theme-color); /* Neo UI: themed hover text color */
 }
-/* Specific icon button types if needed */
-.data-table .btn-icon.edit:hover { color: var(--color-primary-500); }
-.data-table .btn-icon.delete:hover { color: var(--color-danger-500); }
+/* Specific icon button types if needed - ensure hover color is appropriate */
+.data-table .btn-icon.edit:hover { 
+    color: var(--theme-color); /* Explicitly use theme-color for edit icon hover */
+}
+.data-table .btn-icon.delete:hover { 
+    color: var(--color-danger-500); /* Retain danger color for delete icon hover */
+}
 
 [data-theme="dark"] .data-table {
   background: var(--surface-level-1);
@@ -1195,13 +1272,12 @@ input[type="checkbox"]:focus {
    flex-wrap: wrap;
    justify-content: space-between;
    align-items: center;
-   margin-bottom: var(--spacing-6);
-   gap: var(--spacing-4);
-   /* Added from new block */
-   padding: var(--spacing-4);
-   background-color: var(--color-neutral-50);
-   border-radius: var(--border-radius-lg);
-   border: 1px solid var(--border-color-light);
+   margin-bottom: var(--spacing-lg); /* Neo UI consistent (was --spacing-6) */
+   gap: var(--spacing-md); /* Neo UI consistent (was --spacing-4) */
+   padding: var(--spacing-md); /* Neo UI consistent (was --spacing-4) */
+   background-color: var(--surface-tertiary); /* Neo UI surface */
+   border-radius: var(--radius-lg); /* Neo UI radius */
+   border: 1px solid var(--border-default); /* Neo UI border */
 }
 
 .search-container {
@@ -1239,12 +1315,12 @@ input[type="checkbox"]:focus {
 
 /* ===== COLONNES CONFIGURABLES ===== */
 .colonnes-picker {
-   background: var(--color-neutral-100);
-   border: 1px solid var(--border-color-light);
-   border-radius: var(--border-radius-lg);
-   padding: var(--spacing-5);
-   margin-bottom: var(--spacing-6);
-   box-shadow: var(--shadow-sm);
+   background: var(--surface-tertiary); /* Neo UI surface */
+   border: 1px solid var(--border-default); /* Neo UI border */
+   border-radius: var(--radius-lg); /* Neo UI radius */
+   padding: var(--spacing-lg); /* Neo UI (24px), was --spacing-5 (20px) */
+   margin-bottom: var(--spacing-lg); /* Neo UI (24px), was --spacing-6 (24px) */
+   box-shadow: var(--shadow-sm); /* Consistent */
 }
 .colonnes-picker h4 {
    margin-top: 0;
@@ -1293,13 +1369,14 @@ input[type="checkbox"]:focus {
 }
 
 .modal-content {
-   background: var(--surface-color);
-   border-radius: var(--border-radius-xl);
+   background: var(--surface-secondary); /* Was --surface-color, now directly Neo var */
+   border-radius: var(--radius-xl); /* Consistent */
    width: 100%;
    max-width: 900px;
    max-height: 90vh;
    overflow-y: auto;
-   box-shadow: var(--shadow-xl);
+   box-shadow: var(--shadow-xl); /* Consistent */
+   border: 1px solid var(--border-default); /* Added Neo border */
    display: flex;
    flex-direction: column;
    animation: slideInUpModal 0.25s var(--transition-timing-function);
@@ -1416,20 +1493,30 @@ input[type="checkbox"]:focus {
 }
 
 .fiche-tabs button {
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-3) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: transparent; color: var(--text-color-secondary); border-color: transparent;
-   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-   border-bottom: 2px solid transparent;
+   display: inline-flex; align-items: center; justify-content: center; 
+   padding: var(--spacing-sm) var(--spacing-md); /* 8px 16px, consistent with view-mode-selector */
+   font-size: 0.875rem; 
+   font-weight: 600; /* Consistent with .btn-base */
+   border: none; /* No side borders */
+   cursor: pointer; 
+   transition: all var(--transition-fast);
+   text-decoration: none; white-space: nowrap;
+   background-color: transparent; 
+   color: var(--text-secondary); /* Default color */
+   border-radius: var(--radius-md) var(--radius-md) 0 0; /* Neo radius */
+   border-bottom: 2px solid transparent; /* Underline for active state */
+   text-transform: none; /* Tabs usually not uppercase */
+   letter-spacing: normal;
 }
 .fiche-tabs button:hover:not(:disabled) {
-   color: var(--color-primary-600);
-   background-color: var(--color-primary-50);
+   color: var(--theme-color); /* Themed text on hover */
+   background-color: rgba(var(--theme-color-rgb), 0.1); /* Subtle themed background on hover */
 }
 .fiche-tabs button.active {
-   color: var(--color-primary-700);
-   border-bottom-color: var(--color-primary-600);
-   background-color: var(--color-primary-50);
-   font-weight: 600;
+   color: var(--theme-color); /* Themed text for active */
+   border-bottom-color: var(--theme-color); /* Themed underline for active */
+   background-color: rgba(var(--theme-color-rgb), 0.1); /* Subtle themed background for active */
+   font-weight: 600; /* Keep bold for active */
 }
 .fiche-tabs button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .fiche-tabs button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -1558,19 +1645,23 @@ input[type="checkbox"]:focus {
    margin-top: var(--spacing-4);
 }
 
-.stats-card, .user-info-card {
+.stats-card, .user-info-card { /* Aligned with Neo UI .card */
    display: flex;
    flex-direction: column;
    height: 100%;
-   background-color: var(--surface-color);
-   border-radius: var(--border-radius-lg);
-   padding: var(--spacing-4);
-   box-shadow: var(--shadow-md);
-   transition: box-shadow var(--transition-duration) var(--transition-timing-function), transform var(--transition-duration) var(--transition-timing-function);
+   background-color: var(--surface-card); /* Neo UI */
+   border: 1px solid var(--border-subtle); /* Neo UI */
+   border-radius: var(--radius-lg); /* Neo UI (12px), app.css --border-radius-lg is 0.75rem (12px) - consistent */
+   padding: var(--spacing-lg); /* Neo UI (24px), was var(--spacing-4) (16px) */
+   box-shadow: var(--shadow-md); /* Aliased to Neo UI shadow */
+   transition: all var(--transition-normal); /* Neo UI */
+   position: relative; /* For ::before pseudo-element if added */
+   overflow: hidden; /* For ::before pseudo-element if added */
 }
 .stats-card:hover, .user-info-card:hover {
-   box-shadow: var(--shadow-lg);
-   transform: translateY(-4px);
+   transform: translateY(-2px); /* Neo UI */
+   box-shadow: var(--shadow-lg), var(--shadow-glow); /* Neo UI */
+   border-color: var(--border-default); /* Neo UI */
 }
 
 .stats-card h3, .user-info-card h3 {
@@ -1736,34 +1827,33 @@ input[type="checkbox"]:focus {
 }
 
 .view-mode-selector button {
-   padding: var(--spacing-2) var(--spacing-3);
-   border-radius: var(--border-radius-sm);
-   border: none; /* Simplified from border: 1px solid transparent */
+   padding: var(--spacing-sm) var(--spacing-md); /* Adjusted padding: 8px 16px */
+   border-radius: var(--radius-md); /* Consistent with Neo: 8px */
+   border: none;
    background-color: transparent;
-   color: var(--color-neutral-600);
-   font-weight: 500;
+   color: var(--text-secondary); /* Aligned with Neo ghost/tertiary text */
+   font-weight: 600; /* Aligned with .btn-base */
    font-size: 0.875rem;
    cursor: pointer;
-   transition: all var(--transition-duration) var(--transition-timing-function); /* Use 'all' for simplicity or specify properties */
+   transition: all var(--transition-fast); /* Use Neo transition */
    white-space: nowrap;
-   /* flex-grow: 1; */ /* Removed as it might not be desired for 'fit-content' container */
+   text-transform: none; /* No uppercase for view toggles */
+   letter-spacing: normal; /* Reset from potential .btn-base inheritance */
 }
 
-.view-mode-selector button:hover:not(.active-view-button):not(:disabled) { /* Added :not(:disabled) */
-   background-color: var(--color-neutral-200);
-   color: var(--color-neutral-700);
+.view-mode-selector button:hover:not(.active-view-button):not(:disabled) { 
+   background-color: rgba(255, 255, 255, 0.05); /* Neo ghost hover */
+   color: var(--text-primary); /* Neo ghost hover text */
 }
 
 .view-mode-selector button.active-view-button {
-   background-color: var(--color-primary-500);
-   color: var(--text-color-on-primary);
-   /* border-color: var(--color-primary-500); */ /* Removed as border is none */
-   box-shadow: var(--shadow-sm); /* Added shadow for active state */
+   background-color: var(--theme-color); /* Active state like a primary button */
+   color: var(--text-on-theme);
+   box-shadow: var(--shadow-sm); 
 }
 
-.view-mode-selector button.active-view-button:hover:not(:disabled) { /* Added :not(:disabled) */
-   background-color: var(--color-primary-600);
-   /* border-color: var(--color-primary-600); */
+.view-mode-selector button.active-view-button:hover:not(:disabled) { 
+   background-color: var(--theme-color-dark); /* Darken themed active button on hover */
 }
 .view-mode-selector button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .view-mode-selector button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -1778,16 +1868,16 @@ input[type="checkbox"]:focus {
 .input-action input {
    flex-grow: 1;
 }
-.input-action button {
+.input-action button { /* Aligned with new .btn-primary */
    flex-shrink: 0;
-   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-2) var(--spacing-4); font-size: 0.875rem; font-weight: 500; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition-property: background-color, border-color, color, box-shadow; transition-duration: var(--transition-duration); transition-timing-function: var(--transition-timing-function); text-decoration: none; white-space: nowrap;
-   background-color: var(--color-primary-500);
-   color: var(--text-color-on-primary);
-   border-color: var(--color-primary-500);
+   display: inline-flex; align-items: center; justify-content: center; padding: var(--spacing-sm) var(--spacing-lg); font-size: 0.875rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; transition: all var(--transition-fast); text-decoration: none; white-space: nowrap; letter-spacing: 0.05em; text-transform: uppercase; position: relative; overflow: hidden;
+   background-color: var(--theme-color);
+   color: var(--text-on-theme);
 }
 .input-action button:hover:not(:disabled) {
-   background-color: var(--color-primary-600);
-   border-color: var(--color-primary-600);
+   background-color: var(--theme-color-dark);
+   transform: translateY(-1px);
+   box-shadow: var(--shadow-md);
 }
 .input-action button:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px var(--border-focus-ring); }
 .input-action button:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -1797,12 +1887,13 @@ input[type="checkbox"]:focus {
 /* Structure générale des wizards */
 .import-wizard, /* Classe pour ImportData */
 .admin-panel { /* Classe générique pour les panneaux d'administration */
-   background-color: var(--surface-color);
-   padding: var(--spacing-6);
-   border-radius: var(--border-radius-lg);
-   box-shadow: var(--shadow-md);
-   margin-bottom: var(--spacing-8);
-   /* overflow-x: hidden; */ /* MODIFICATION: Commenté pour permettre le défilement des enfants */
+   background-color: var(--surface-secondary); /* Was --surface-color, now directly using Neo var if different */
+   padding: var(--spacing-lg); /* Was --spacing-6 (24px), consistent with Neo's lg */
+   border-radius: var(--radius-lg); /* Neo var, consistent with app's --border-radius-lg */
+   box-shadow: var(--shadow-md); /* Aliased to Neo var */
+   margin-bottom: var(--spacing-xl); /* Neo var (32px), was --spacing-8 */
+   border: 1px solid var(--border-default); /* Added Neo border */
+   /* overflow-x: hidden; */ 
 }
 .import-wizard {
    width: 100%;
@@ -2210,12 +2301,12 @@ input[type="checkbox"]:focus {
 
 /* Panneau des filtres pour MassAttribution */
 .filters-panel {
-   background-color: var(--color-neutral-50);
-   border: 1px solid var(--border-color-light);
-   border-radius: var(--border-radius-lg);
-   padding: var(--spacing-5);
-   box-shadow: var(--shadow-sm);
-   margin-bottom: var(--spacing-5);
+   background-color: var(--surface-tertiary); /* Changed from --color-neutral-50 */
+   border: 1px solid var(--border-default); /* Changed from --border-color-light */
+   border-radius: var(--radius-lg); /* Consistent */
+   padding: var(--spacing-lg); /* Was --spacing-5 (20px), now 24px */
+   box-shadow: var(--shadow-sm); /* Consistent */
+   margin-bottom: var(--spacing-lg); /* Was --spacing-5 (20px), now 24px */
 }
 
 @media (min-width: 992px) {
@@ -2656,8 +2747,9 @@ input[type="checkbox"]:focus {
 
 .mass-attribution-wizard .btn-primary,
 .mass-attribution-wizard .btn-secondary {
-   padding: var(--spacing-2) var(--spacing-5);
-   font-size: 0.9rem;
+   padding: var(--spacing-sm) var(--spacing-lg); /* Standard Neo button padding */
+   font-size: 0.875rem; /* Standard Neo button font size */
+   /* Other properties will be inherited if these buttons also have .btn-primary/secondary classes */
 }
 
 
@@ -2675,6 +2767,62 @@ input[type="checkbox"]:focus {
 
 /* Fin des styles pour MassAttribution */
 
+
+/* Styles pour les cartes - Aligned with Neo UI .card principles */
+.ui-card {
+  background-color: var(--surface-card); /* Neo UI */
+  border: 1px solid var(--border-subtle); /* Neo UI */
+  border-radius: var(--radius-lg); /* Neo UI (12px) */
+  margin-bottom: var(--spacing-lg); /* Neo UI (24px) */
+  box-shadow: var(--shadow-md); /* Neo UI (aliased) */
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal); /* Neo UI */
+  position: relative; 
+  overflow: hidden; 
+}
+.ui-card:hover { /* Adding Neo UI hover effect */
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-lg), var(--shadow-glow); /* --shadow-glow is from neo-ui */
+   border-color: var(--border-default);
+}
+
+.ui-card-header {
+  padding: var(--spacing-3) var(--spacing-4); /* Retained internal padding */
+  border-bottom: 1px solid var(--border-subtle); /* Use Neo UI subtle border */
+  background-color: transparent; 
+}
+
+.ui-card-header > h2,
+.ui-card-header > h3,
+.ui-card-header > h4 {
+  margin: 0;
+  font-size: 1.1rem; /* Retained */
+  color: var(--text-primary); /* Aligned with global text color */
+}
+
+.ui-card-body {
+  padding: var(--spacing-4); /* Retained internal padding */
+  flex-grow: 1;
+}
+
+.ui-card-footer {
+  padding: var(--spacing-3) var(--spacing-4); /* Retained internal padding */
+  border-top: 1px solid var(--border-subtle); /* Use Neo UI subtle border */
+  background-color: transparent; 
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+.ui-card-nested {
+  padding: var(--spacing-3);
+  margin-top: var(--spacing-3);
+  background-color: var(--surface-tertiary); /* Using Neo UI surface for nested */
+  box-shadow: none;
+  border-radius: var(--radius-md); /* Neo UI radius */
+  border: 1px solid var(--border-default); /* Neo UI border */
+}
 
 /* ===== STYLES SPÉCIFIQUES POUR ADMINCATEGORIES.JSX (Refonte) ===== */
 
@@ -2695,11 +2843,12 @@ input[type="checkbox"]:focus {
 .category-form-panel {
    flex: 1 1 550px;
    min-width: 300px;
-   background-color: var(--surface-color);
-   padding: var(--spacing-6);
-   border-radius: var(--border-radius-lg);
+   background-color: var(--surface-secondary); /* Was --surface-color */
+   padding: var(--spacing-lg); /* Was --spacing-6 */
+   border-radius: var(--radius-lg);
    box-shadow: var(--shadow-md);
    height: fit-content;
+   border: 1px solid var(--border-default); /* Added Neo border */
 }
 .category-form-panel h3 {
    margin-top: 0;
@@ -2785,13 +2934,14 @@ input[type="checkbox"]:focus {
 }
 
 
-.champ-form-item {
-   background-color: var(--color-neutral-50);
-   border: 1px solid var(--border-color-light);
-   border-radius: var(--border-radius-md);
-   padding: var(--spacing-4);
-   margin-bottom: var(--spacing-5);
-   box-shadow: var(--shadow-xs);
+.champ-form-item { /* Aligned with Neo UI card principles */
+   background-color: var(--surface-card); /* Neo UI */
+   border: 1px solid var(--border-subtle); /* Neo UI */
+   border-radius: var(--radius-md); /* Neo UI */
+   padding: var(--spacing-md); /* Neo UI (16px), was --spacing-4 (16px) - consistent */
+   margin-bottom: var(--spacing-lg); /* Neo UI (24px), was --spacing-5 (20px) */
+   box-shadow: var(--shadow-sm); /* Neo UI (aliased) */
+   transition: all var(--transition-normal); /* Added for consistency */
 }
 
 .champ-form-item-header {
@@ -2915,74 +3065,167 @@ input[type="checkbox"]:focus {
 .category-actions .btn-icon {
    display: inline-flex;
    align-items: center;
-   gap: var(--spacing-1);
+   gap: 0; /* Reset gap from any inherited style if this is purely an icon button */
+   width: 32px; /* Consistent small icon button size */
+   height: 32px; /* Consistent small icon button size */
+   padding: 0; /* No padding, icon should be centered */
+   justify-content: center; /* Center icon */
+   border-radius: var(--radius-full); /* Circular */
+   transition: all var(--transition-fast);
+   /* Base color/border, can be overridden by specific semantic versions */
+   background-color: transparent;
+   color: var(--text-secondary);
+   border: 1px solid transparent; /* Default to no visible border */
+}
+/* Hover for generic icon button in category actions */
+.category-actions .btn-icon:hover {
+    background-color: rgba(var(--theme-color-rgb), 0.1);
+    color: var(--theme-color);
 }
 
-.category-actions .btn-secondary {
-   background-color: var(--current-surface-color);
-   color: var(--current-primary-color);
-   border-color: var(--current-primary-color);
+
+/* Specific semantic icon buttons in category-actions */
+.category-actions .btn-secondary { /* Styled as a small, themed icon button */
+   display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: var(--radius-full); transition: all var(--transition-fast);
+   background-color: transparent;
+   color: var(--theme-color);
+   border: 1px solid var(--theme-color); /* Themed outline */
 }
 .category-actions .btn-secondary:hover:not(:disabled) {
-   background-color: var(--current-primary-color-hover);
-   color: var(--current-text-on-primary-color);
-   border-color: var(--current-primary-color-hover);
+   background-color: rgba(var(--theme-color-rgb), 0.1);
+   color: var(--theme-color-light); /* Or keep var(--theme-color) */
+   border-color: var(--theme-color-light);
 }
 
-.category-actions .btn-danger {
-   background-color: var(--current-danger-color);
-   color: var(--current-text-on-primary-color);
-   border-color: var(--current-danger-color);
+.category-actions .btn-danger { /* Styled as a small, danger icon button */
+   display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: var(--radius-full); transition: all var(--transition-fast);
+   background-color: transparent;
+   color: var(--color-danger-500);
+   border: 1px solid var(--color-danger-500);
 }
 .category-actions .btn-danger:hover:not(:disabled) {
-   background-color: var(--current-danger-color-hover);
-   border-color: var(--current-danger-color-hover);
+   background-color: rgba(var(--color-danger-500-rgb), 0.1);
+   color: var(--color-danger-700); /* Darker danger color on hover */
+   border-color: var(--color-danger-700);
 }
 
-.category-actions .btn-success {
-   background-color: var(--current-success-color);
-   color: var(--current-text-on-primary-color);
-   border-color: var(--current-success-color);
+.category-actions .btn-success { /* Styled as a small, success icon button */
+   display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: var(--radius-full); transition: all var(--transition-fast);
+   background-color: transparent;
+   color: var(--color-success-500);
+   border: 1px solid var(--color-success-500);
 }
 .category-actions .btn-success:hover:not(:disabled) {
-   background-color: var(--current-success-color-hover);
-   border-color: var(--current-success-color-hover);
+   background-color: rgba(var(--color-success-500-rgb), 0.1);
+   color: var(--color-success-700); /* Darker success color on hover */
+   border-color: var(--color-success-700);
 }
 
-.btn-small {
-   padding: var(--spacing-1) var(--spacing-2);
+.btn-small { /* For small text buttons, align with .btn-tertiary (ghost) but smaller */
+   padding: var(--spacing-xs) var(--spacing-sm); /* 4px 8px */
    font-size: 0.75rem; /* 12px */
+   font-weight: 600; /* Consistent with .btn-base */
+   border-radius: var(--radius-sm); /* Smaller radius: 4px */
+   background-color: transparent;
+   color: var(--text-secondary);
+   border: 1px solid var(--border-default);
+   text-transform: none; /* Consistent with .btn-tertiary */
+   letter-spacing: normal; /* Consistent with .btn-tertiary */
+   transition: all var(--transition-fast);
+   display: inline-flex; /* Ensure flex properties for alignment */
+   align-items: center;
+   justify-content: center;
+   white-space: nowrap;
+}
+.btn-small:hover:not(:disabled) {
+   background-color: rgba(255, 255, 255, 0.05);
+   color: var(--text-primary);
+   border-color: var(--border-strong);
 }
 .sub-tabs {
    display: flex;
    gap: var(--spacing-2);
    margin-bottom: var(--spacing-4);
 }
-.sub-tabs button {
-   background: var(--color-neutral-100);
-   border: 1px solid var(--border-color);
-   padding: var(--spacing-2) var(--spacing-3);
-   cursor: pointer;
+.sub-tabs button { /* Align with .btn-tertiary (ghost) */
+   padding: var(--spacing-sm) var(--spacing-lg); 
+   font-size: 0.875rem; 
+   font-weight: 600; 
+   border-radius: var(--radius-md); 
+   cursor: pointer; 
+   transition: all var(--transition-fast);
+   background-color: transparent;
+   color: var(--text-secondary);
+   border: 1px solid var(--border-default);
+   text-transform: none; 
+   letter-spacing: normal; 
+   /* Added from .btn-base structure */
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   white-space: nowrap;
+   position: relative;
+   overflow: hidden;
 }
 .sub-tabs button.active {
-   background: var(--color-primary-600);
-   color: #fff;
-   border-color: var(--color-primary-600);
-   font-weight: 600;
+   background: var(--theme-color); /* Neo UI: active tab often uses theme color */
+   color: var(--text-on-theme);
+   border-color: var(--theme-color);
+   font-weight: 600; /* Retained from app.css active style */
 }
-.btn-icon {
-   padding: var(--spacing-1);
-   line-height: 1;
+.sub-tabs button:hover:not(.active):not(:disabled) { /* Added :not(:disabled) */
+    background-color: rgba(255, 255, 255, 0.05); 
+    color: var(--text-primary); 
+    border-color: var(--border-strong); 
 }
-.btn-icon svg {
-   width: 1em;
-   height: 1em;
+
+/* General .btn-icon, ensuring it's modernized if used elsewhere */
+.btn-icon { 
+   width: 40px; 
+   height: 40px; 
+   padding: 0; 
+   border-radius: var(--radius-full); 
+   background-color: transparent;
+   /* border: 1px solid var(--border-default); */ /* Let specific instances define border if needed */
+   border: 1px solid transparent; /* Default to no visible border */
+   color: var(--text-secondary); 
+   display: inline-flex;
+   align-items: center;
+   justify-content: center; 
+   transition: all var(--transition-fast); 
+   text-transform: none;
+   letter-spacing: normal;
+}
+.btn-icon:hover:not(:disabled) { /* Added :not(:disabled) */
+   background-color: rgba(var(--theme-color-rgb), 0.1);
+   color: var(--theme-color);
+   /* border-color: var(--theme-color); */ /* Only if initial border is visible */
+}
+.btn-icon svg { /* Ensure SVGs scale well within icon buttons */
+   width: 1.25em; /* Adjust size as needed, e.g., 20px if font-size is 1em (14px) */
+   height: 1.25em;
    vertical-align: middle;
 }
-.btn-danger.btn-icon, .btn-secondary.btn-icon, .btn-success.btn-icon {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--spacing-1);
+/* Specific semantic general .btn-icon (if used) */
+.btn-danger.btn-icon:hover:not(:disabled) { /* Added :not(:disabled) */
+    background-color: rgba(var(--color-danger-500-rgb), 0.1);
+    color: var(--color-danger-500);
+    /* border-color: var(--color-danger-500); */
+}
+.btn-success.btn-icon:hover:not(:disabled) { /* Added :not(:disabled) */
+    background-color: rgba(var(--color-success-500-rgb), 0.1);
+    color: var(--color-success-500);
+    /* border-color: var(--color-success-500); */
+}
+.btn-secondary.btn-icon { /* This is an icon button styled as secondary (outlined) */
+    /* Ensures it picks up the main .btn-icon structure and then overrides for secondary look */
+    border: 1px solid var(--theme-color);
+    color: var(--theme-color);
+}
+.btn-secondary.btn-icon:hover:not(:disabled) { /* Added :not(:disabled) */
+    background-color: rgba(var(--theme-color-rgb), 0.1);
+    color: var(--theme-color-light); 
+    border-color: var(--theme-color-light); 
 }
 
 
@@ -3830,6 +4073,63 @@ textarea[readOnly] {
       display: none;
    }
 }
+
+/* Styles pour les cartes - Aligned with Neo UI .card principles */
+.ui-card {
+  background-color: var(--surface-card); /* Neo UI */
+  border: 1px solid var(--border-subtle); /* Neo UI */
+  border-radius: var(--radius-lg); /* Neo UI (12px) */
+  margin-bottom: var(--spacing-lg); /* Neo UI (24px) */
+  box-shadow: var(--shadow-md); /* Neo UI (aliased) */
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal); /* Neo UI */
+  position: relative; 
+  overflow: hidden; 
+}
+.ui-card:hover { /* Adding Neo UI hover effect */
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-lg), var(--shadow-glow); /* --shadow-glow is from neo-ui */
+   border-color: var(--border-default);
+}
+
+.ui-card-header {
+  padding: var(--spacing-3) var(--spacing-4); /* Retained internal padding */
+  border-bottom: 1px solid var(--border-subtle); /* Use Neo UI subtle border */
+  background-color: transparent; 
+}
+
+.ui-card-header > h2,
+.ui-card-header > h3,
+.ui-card-header > h4 {
+  margin: 0;
+  font-size: 1.1rem; /* Retained */
+  color: var(--text-primary); /* Aligned with global text color */
+}
+
+.ui-card-body {
+  padding: var(--spacing-4); /* Retained internal padding */
+  flex-grow: 1;
+}
+
+.ui-card-footer {
+  padding: var(--spacing-3) var(--spacing-4); /* Retained internal padding */
+  border-top: 1px solid var(--border-subtle); /* Use Neo UI subtle border */
+  background-color: transparent; 
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+.ui-card-nested {
+  padding: var(--spacing-3);
+  margin-top: var(--spacing-3);
+  background-color: var(--surface-tertiary); /* Using Neo UI surface for nested */
+  box-shadow: none;
+  border-radius: var(--radius-md); /* Neo UI radius */
+  border: 1px solid var(--border-default); /* Neo UI border */
+}
+
 :root {
   --clr-primary: #2563eb;
   --clr-primary-dark: #1e40af;
@@ -4589,3 +4889,5 @@ Puis remplacez les symboles par :
   opacity: 1;
   transform: scale(1);
 }
+
+[end of src/renderer/styles/app.css]
