@@ -20,7 +20,6 @@ export default function LayoutManager({
     <div className="pc-container">
       <DattaSidebar
         open={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
         user={user}
         activeTab={activeTab}
         onTabChange={onTabChange}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   IconHome2,
   IconList,
@@ -23,35 +23,38 @@ const icons = {
   settings: <IconSettings size={18} />,
 };
 
-export default function DattaSidebar({ open, onToggle, user, activeTab, onTabChange }) {
-  const tabs = [];
-  if (hasPermission(user, PERMISSIONS.VIEW_DASHBOARD)) {
-    tabs.push({ id: 'dashboard', label: 'Tableau de bord' });
-  }
-  if (hasPermission(user, PERMISSIONS.VIEW_INDIVIDUS)) {
-    tabs.push({ id: 'individus', label: 'Individus' });
-  }
-  if (hasPermission(user, PERMISSIONS.IMPORT_DATA)) {
-    tabs.push({ id: 'import', label: 'Import de données' });
-  }
-  if (hasPermission(user, PERMISSIONS.MASS_ATTRIBUTION)) {
-    tabs.push({ id: 'attribution', label: 'Attribution de masse' });
-  }
-  if (hasPermission(user, PERMISSIONS.MANAGE_CATEGORIES)) {
-    tabs.push({ id: 'categories', label: 'Gérer les catégories' });
-  }
-  if (hasPermission(user, PERMISSIONS.MANAGE_USERS) || hasPermission(user, PERMISSIONS.MANAGE_ROLES)) {
-    tabs.push({ id: 'users', label: 'Gérer les utilisateurs' });
-  }
-  if (hasPermission(user, PERMISSIONS.MANAGE_COLUMNS)) {
-    tabs.push({ id: 'template', label: 'Templates' });
-  }
+export default function DattaSidebar({ open, user, activeTab, onTabChange }) {
+  const tabs = useMemo(() => {
+    const t = [];
+    if (hasPermission(user, PERMISSIONS.VIEW_DASHBOARD)) {
+      t.push({ id: 'dashboard', label: 'Tableau de bord' });
+    }
+    if (hasPermission(user, PERMISSIONS.VIEW_INDIVIDUS)) {
+      t.push({ id: 'individus', label: 'Individus' });
+    }
+    if (hasPermission(user, PERMISSIONS.IMPORT_DATA)) {
+      t.push({ id: 'import', label: 'Import de données' });
+    }
+    if (hasPermission(user, PERMISSIONS.MASS_ATTRIBUTION)) {
+      t.push({ id: 'attribution', label: 'Attribution de masse' });
+    }
+    if (hasPermission(user, PERMISSIONS.MANAGE_CATEGORIES)) {
+      t.push({ id: 'categories', label: 'Gérer les catégories' });
+    }
+    if (hasPermission(user, PERMISSIONS.MANAGE_USERS) || hasPermission(user, PERMISSIONS.MANAGE_ROLES)) {
+      t.push({ id: 'users', label: 'Gérer les utilisateurs' });
+    }
+    if (hasPermission(user, PERMISSIONS.MANAGE_COLUMNS)) {
+      t.push({ id: 'template', label: 'Templates' });
+    }
+    return t;
+  }, [user]);
 
   return (
     <nav className={`pc-sidebar ${!open ? 'pc-sidebar-hide' : ''}`}>
       <div className="navbar-wrapper">
         <div className="m-header">
-          <a href="#" className="b-brand text-primary" onClick={onToggle}>
+          <a href="#" className="b-brand text-primary">
             <i className="ph-duotone ph-buildings f-26"></i>
             <span className="badge bg-brand-color-3 rounded-pill ms-2">v2.0</span>
           </a>
