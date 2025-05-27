@@ -28,6 +28,11 @@ Write-ColorText "🚀 Répertoire du projet: $projectRoot" $Cyan
 # Se déplacer dans le répertoire racine
 Push-Location $projectRoot
 
+# Variables d'environnement pour optimisation
+$env:NODE_ENV = "production"
+$env:GENERATE_SOURCEMAP = "false"
+$env:SKIP_PREFLIGHT_CHECK = "true"
+
 try {
     # Étape 0: Vérifications préalables
     Write-ColorText "`n🔍 Vérifications préalables..." $Yellow
@@ -228,6 +233,25 @@ module.exports = { Logger };
             npx electron-builder --win --dir
             if ($LASTEXITCODE -ne 0) { throw "Tous les modes de build ont échoué" }
         }
+
+        # Nouvelle section : Optimisation de la taille
+        Write-ColorText "`n🗜️ Optimisation de la taille..." $Yellow
+
+        if (Test-Path ".vite") {
+            Get-ChildItem -Path ".vite" -Recurse -Include "*.map" | Remove-Item -Force
+            Write-ColorText "   ✓ Source maps supprimées" $Gray
+        }
+
+        if (Test-Path "dist") {
+            Get-ChildItem -Path "dist" -Recurse -Include "*.md", "*.txt", "LICENSE*" | Remove-Item -Force
+            Write-ColorText "   ✓ Documentation supprimée" $Gray
+
+            Get-ChildItem -Path "dist" -Recurse -Include "*.css", "*.js" | ForEach-Object {
+                if (-not (Test-Path "$($_.FullName).gz")) {
+                    # Ici vous pouvez ajouter la compression gzip si souhaité
+                }
+            }
+        }
     }
     Write-ColorText "`n✅ Build terminé avec succès!" $Green
     $outputPaths = @("release-builds", "out", "dist")
@@ -244,6 +268,16 @@ module.exports = { Logger };
             $size = [math]::Round($file.Length / 1MB, 2)
             Write-ColorText "   ✓ $($file.Name) ($size MB)" $Green
             Write-ColorText "     $($file.FullName)" $Gray
+        }
+
+        Write-ColorText "`n📊 Analyse de taille finale:" $Cyan
+        foreach ($file in $foundFiles) {
+            $sizeMB = [math]::Round($file.Length / 1MB, 2)
+            $color = if ($sizeMB -gt 100) { $Red } elseif ($sizeMB -gt 50) { $Yellow } else { $Green }
+            Write-ColorText "   $($file.Name): $sizeMB MB" $color
+            if ($sizeMB -gt 80) {
+                Write-ColorText "   ⚠️ Taille encore élevée. Vérifiez l'inclusion des dépendances." $Yellow
+            }
         }
         $mainExe = $foundFiles | Where-Object { $_.Extension -eq '.exe' -and $_.Name -like '*Indi-Suivi*' } | Select-Object -First 1
         if ($mainExe) {
