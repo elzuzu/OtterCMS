@@ -130,7 +130,7 @@ export default function Auth({ setUser }) {
 
   if (loading && !isAutoLoginAttempted) {
     return (
-      <div className="auth-wrapper auth-bg">
+      <div className="auth-wrapper auth-bg auth-bg-animate">
         <div className="auth-content">
           <div className="card auth-card">
             <div className="card-body text-center">
@@ -144,7 +144,7 @@ export default function Auth({ setUser }) {
   }
 
   return (
-    <div className="auth-wrapper auth-bg">
+    <div className="auth-wrapper auth-bg auth-bg-animate">
       <WindowControls />
       <div className="auth-content">
         <div className="card auth-card">
