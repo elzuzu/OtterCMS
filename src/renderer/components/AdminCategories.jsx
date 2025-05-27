@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import Banner from './common/Banner';
+import DattaAlert from "./common/DattaAlert";
 
 // Icon components (simple SVGs for +/-)
 const PlusIcon = () => (
@@ -309,7 +309,7 @@ export default function AdminCategories() {
       <div className="category-form-panel">
         <h3>{editTemplate ? `Modifier la catégorie "${editTemplate.nom}"` : 'Ajouter une nouvelle catégorie'}</h3>
         {message.text && (
-          <Banner type={message.type || 'info'}>{message.text}</Banner>
+          <DattaAlert type={message.type || 'info'}>{message.text}</DattaAlert>
         )}
         <form onSubmit={handleSaveCategory}>
           <div className="form-group">

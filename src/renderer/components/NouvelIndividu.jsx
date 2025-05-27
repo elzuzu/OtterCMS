@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Banner from './common/Banner';
+import DattaAlert from './common/DattaAlert';
 import { evaluateDynamicField } from '../utils/dynamic';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
@@ -216,9 +216,9 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
         </div>
         
         {message && (
-          <Banner type={message.includes('succès') ? 'success' : 'error'}>
+          <DattaAlert type={message.includes('succès') ? 'success' : 'error'}>
             {message.includes('succès') ? '✓ ' : '⚠ '}{message}
-          </Banner>
+          </DattaAlert>
         )}
         
         <div className="fiche-main-info">

@@ -1,53 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import StatCard from './common/StatCard';
+import { Card, CardContent, CardActions, Button, Grid, Typography } from '@mui/material';
 import CircularProgress from './common/CircularProgress';
+import { IconFolder, IconUsers, IconUserCheck, IconUserX } from '@tabler/icons-react';
 
-// SVG Icon Components
-const FolderIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }}>
-    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }}>
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-    <circle cx="9" cy="7" r="4"></circle>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-  </svg>
-);
-
-const UserCheckIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }}>
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="8.5" cy="7" r="4"></circle>
-        <polyline points="17 11 19 13 23 9"></polyline>
-    </svg>
-);
-
-const UserXIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-warning-500)', marginBottom: 'var(--spacing-2)' }}>
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-        <circle cx="8.5" cy="7" r="4"></circle>
-        <line x1="18" y1="8" x2="23" y2="13"></line>
-        <line x1="23" y1="8" x2="18" y2="13"></line>
-    </svg>
-);
-
-/**
- * Composant Dashboard
- * Affiche les statistiques clés et fournit des boutons de navigation.
- * @param {object} user - L'objet utilisateur connecté.
- * @param {function} onNavigateToMyIndividus - Callback pour naviguer vers "Mes individus".
- * @param {function} onNavigateToAllIndividus - Callback pour naviguer vers "Tous les individus".
- */
 export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToAllIndividus }) {
-  const [stats, setStats] = useState(null); // État pour les statistiques
-  const [loading, setLoading] = useState(true); // État de chargement
-  const [error, setError] = useState(null); // État pour les erreurs
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Styles pour les cartes de statistiques
+  // Styles kept for backward compatibility although not heavily used
   const valueStyle = {
     fontSize: '1.8rem',
     fontWeight: '700',
@@ -56,82 +17,53 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
     marginBottom: 'var(--spacing-1)',
     textAlign: 'center',
   };
-
   const labelStyle = {
     fontSize: '0.8rem',
     color: 'var(--text-color-secondary)',
     textAlign: 'center',
     minHeight: '2em',
   };
-  
-  const descriptionStyle = {
-    fontSize: '0.7rem',
-    color: 'var(--text-color-placeholder)',
-    textAlign: 'center',
-    marginTop: 'var(--spacing-1)',
-    minHeight: '2em',
-    marginBottom: 'var(--spacing-2)',
-  };
 
-  const cardButtonStyle = {
-    display: 'block',
-    width: 'calc(100% - var(--spacing-4))',
-    margin: 'auto auto 0',
-    padding: 'var(--spacing-1) var(--spacing-2)',
-    fontSize: '0.8rem',
-  };
-
-  // Fonction pour charger les statistiques depuis l'API.
   const loadStats = useCallback(async () => {
     setLoading(true);
     setError(null);
     if (!user || (!user.id && !user.userId)) {
-      setError("Utilisateur invalide. Impossible de charger les statistiques.");
+      setError('Utilisateur invalide. Impossible de charger les statistiques.');
       setLoading(false);
       return;
     }
-    const params = {
-      userId: user.id || user.userId,
-      role: user.role,
-    };
-    console.log("[Dashboard] Chargement des statistiques pour l'utilisateur:", params.userId, "Rôle:", params.role);
+    const params = { userId: user.id || user.userId, role: user.role };
     try {
       const result = await window.api.getDashboardStats(params);
       if (result && result.success && result.data) {
-        console.log("[Dashboard] Statistiques reçues:", result.data);
         setStats(result.data);
       } else {
-        console.error("[Dashboard] Erreur lors du chargement des statistiques:", result?.error);
-        setError(result?.error || "Erreur lors du chargement des statistiques.");
+        setError(result?.error || 'Erreur lors du chargement des statistiques.');
         setStats(null);
       }
     } catch (err) {
-      console.error("[Dashboard] Erreur de communication avec le serveur:", err);
       setError(`Erreur de communication avec le serveur: ${err.message}`);
       setStats(null);
     } finally {
       setLoading(false);
     }
-  }, [user]); // Dépendance: `user`
+  }, [user]);
 
-  // Charger les statistiques au montage du composant et si `loadStats` change.
-  useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+  useEffect(() => { loadStats(); }, [loadStats]);
 
-  // Affichage pendant le chargement.
   if (loading) {
     return (
       <div>
         <div className="page-header">
           <h2 className="page-title">Tableau de bord</h2>
         </div>
-        <div className="loading">Chargement des statistiques...</div>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <CircularProgress value={50} label="Chargement..." />
+        </div>
       </div>
     );
   }
 
-  // Affichage en cas d'erreur.
   if (error) {
     return (
       <div>
@@ -146,7 +78,6 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
     );
   }
 
-  // Rendu principal du Dashboard.
   return (
     <div>
       <div className="page-header">
@@ -158,97 +89,105 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
           <button onClick={loadStats} className="btn-primary" style={{ marginTop: 'var(--spacing-3)' }}>Recharger</button>
         </div>
       ) : (
-        <div className="stats-container">
+        <Grid container spacing={2} className="stats-container">
           {stats.mesIndividus !== undefined && (
-            <div className="stats-card">
-              <UserCheckIcon />
-              <div className="stat-value" style={valueStyle}>{stats.mesIndividus}</div>
-              <div className="stat-label" style={labelStyle}>Dossiers en charge</div>
-              <p style={descriptionStyle}>Nombre de dossiers relevant de votre responsabilité directe.</p>
-              <button
-                className="btn-primary"
-                style={cardButtonStyle}
-                onClick={() => {
-                  if (typeof onNavigateToMyIndividus === 'function') {
-                    onNavigateToMyIndividus();
-                  }
-                }}
-              >
-                Voir mes individus suivis
-              </button>
-            </div>
+            <Grid item xs={12} sm={6} md={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <IconUserCheck size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
+                  <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.mesIndividus}</Typography>
+                  <Typography variant="body2">Dossiers en charge</Typography>
+                  <Typography variant="caption" display="block" sx={{ mt: 1, mb: 2 }}>
+                    Nombre de dossiers relevant de votre responsabilité directe.
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button fullWidth variant="contained" onClick={() => typeof onNavigateToMyIndividus === 'function' && onNavigateToMyIndividus()}>
+                    Voir mes individus suivis
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
           )}
 
           {stats.totalIndividus !== undefined && (
-            <div className="stats-card">
-              <UsersIcon />
-              <div className="stat-value" style={valueStyle}>{stats.totalIndividus}</div>
-              <div className="stat-label" style={labelStyle}>Total des individus</div>
-              <p style={descriptionStyle}>Nombre total d'individus enregistrés dans le système.</p>
-              <button
-                className="btn-primary"
-                style={cardButtonStyle}
-                onClick={() => {
-                  if (typeof onNavigateToAllIndividus === 'function') {
-                    onNavigateToAllIndividus();
-                  }
-                }}
-              >
-                Voir tous les individus
-              </button>
-            </div>
+            <Grid item xs={12} sm={6} md={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <IconUsers size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
+                  <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.totalIndividus}</Typography>
+                  <Typography variant="body2">Total des individus</Typography>
+                  <Typography variant="caption" display="block" sx={{ mt: 1, mb: 2 }}>
+                    Nombre total d'individus enregistrés dans le système.
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button fullWidth variant="contained" onClick={() => typeof onNavigateToAllIndividus === 'function' && onNavigateToAllIndividus()}>
+                    Voir tous les individus
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
           )}
 
           {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
-            <div className="stats-card">
-              <UserXIcon />
-              <div
-                className="stat-value"
-                style={{ ...valueStyle, color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}
-              >
-                {stats.individusNonAttribues}
-              </div>
-              <div className="stat-label" style={labelStyle}>Individus non attribués</div>
-              <p style={descriptionStyle}>Individus en attente d'assignation à un responsable.</p>
-            </div>
+            <Grid item xs={12} sm={6} md={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <IconUserX size={32} style={{ color: 'var(--color-warning-500)', marginBottom: 'var(--spacing-2)' }} />
+                  <Typography variant="h5" sx={{ color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>
+                    {stats.individusNonAttribues}
+                  </Typography>
+                  <Typography variant="body2">Individus non attribués</Typography>
+                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                    Individus en attente d'assignation à un responsable.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           )}
 
-          <div className="user-info-card">
-            <h3 style={{ color: 'var(--color-neutral-700)', fontSize: '1.125rem', borderBottom: '1px solid var(--border-color-light)', paddingBottom: 'var(--spacing-3)', marginBottom: 'var(--spacing-4)' }}>
-              Vos Informations
-            </h3>
-            <div className="user-info-item">
-              <span className="user-info-label">Nom d'utilisateur:</span>
-              <span className="user-info-value">{user.username}</span>
-            </div>
-            <div className="user-info-item">
-              <span className="user-info-label">Rôle:</span>
-              <span className="user-info-value" style={{ textTransform: 'capitalize' }}>{user.role}</span>
-            </div>
-            <div className="user-info-item">
-              <span className="user-info-label">ID Utilisateur:</span>
-              <span className="user-info-value">{user.id || user.userId}</span>
-            </div>
-          </div>
+          <Grid item xs={12} md={4}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>Vos Informations</Typography>
+                <Typography variant="body2">Nom d'utilisateur: {user.username}</Typography>
+                <Typography variant="body2">Rôle: {user.role}</Typography>
+                <Typography variant="body2">ID Utilisateur: {user.id || user.userId}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
           {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
-            <div className="stats-card">
-              <FolderIcon />
-              <div className="stat-value" style={valueStyle}>{stats.totalUsers}</div>
-              <div className="stat-label" style={labelStyle}>Total des utilisateurs</div>
-              <p style={descriptionStyle}>Nombre total de comptes utilisateurs actifs.</p>
-            </div>
+            <Grid item xs={12} sm={6} md={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <IconFolder size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
+                  <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.totalUsers}</Typography>
+                  <Typography variant="body2">Total des utilisateurs</Typography>
+                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                    Nombre total de comptes utilisateurs actifs.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           )}
 
           {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
-            <div className="stats-card">
-              <FolderIcon />
-              <div className="stat-value" style={{ ...valueStyle, color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</div>
-              <div className="stat-label" style={labelStyle}>Catégories masquées</div>
-              <p style={descriptionStyle}>Catégories archivées non disponibles pour de nouvelles saisies.</p>
-            </div>
+            <Grid item xs={12} sm={6} md={4}>
+              <Card>
+                <CardContent sx={{ textAlign: 'center' }}>
+                  <IconFolder size={32} style={{ color: 'var(--color-neutral-500)', marginBottom: 'var(--spacing-2)' }} />
+                  <Typography variant="h5" sx={{ color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</Typography>
+                  <Typography variant="body2">Catégories masquées</Typography>
+                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                    Catégories archivées non disponibles pour de nouvelles saisies.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
           )}
-        </div>
+        </Grid>
       )}
     </div>
   );
