@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import DattaAlert from './common/DattaAlert';
 import { evaluateDynamicField } from '../utils/dynamic';
+import { DattaTextField, DattaSelect } from './common/DattaForm';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
   const [allCategories, setAllCategories] = useState([]);
@@ -157,34 +164,26 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
 
     switch (champ.type) {
       case 'text':
-        return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} />;
+        return <DattaTextField {...commonProps} label={champ.label} maxLength={champ.maxLength || undefined} size="small" />;
       case 'number':
-        return <input type="number" {...commonProps} placeholder={champ.label} />;
       case 'number-graph':
-        return <input type="number" {...commonProps} placeholder={champ.label} />;
+        return <DattaTextField {...commonProps} label={champ.label} type="number" size="small" />;
       case 'date':
-        return <input type="date" {...commonProps} />;
+        return <DattaTextField {...commonProps} type="date" label={champ.label} size="small" InputLabelProps={{ shrink: true }} />;
       case 'list':
         return (
-          <select className="select-stylish" {...commonProps}>
-            <option value="">Sélectionner...</option>
-            {(champ.options || []).map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
-          </select>
+          <DattaSelect {...commonProps} label={champ.label} options={(champ.options || []).map(opt => ({ value: opt, label: opt }))} />
         );
       case 'checkbox':
         return (
-          <div className="checkbox-container" style={{justifyContent: 'flex-start'}}>
-            <input type="checkbox" {...commonProps} checked={!!valeur} />
-            {/* Le label est déjà affiché, mais on peut ajouter un specific pour la checkbox si besoin */}
-            {/* <label htmlFor={`champ-new-${champ.key}`}>{champ.label}</label> */}
-          </div>
+          <FormControlLabel control={<Checkbox checked={!!valeur} onChange={e => handleValeurChange(champ.key, e.target.checked)} />} label={champ.label} />
         );
       case 'dynamic':
         const baseVals = { ...valeursChamps, numero_unique: numeroUnique, en_charge: enChargeId };
         const res = evaluateDynamicField(champ.formule, baseVals);
         return <span className="form-value-display form-value-readonly">{res === undefined || res === null ? '' : String(res)}</span>;
       default:
-        return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} />;
+        return <DattaTextField {...commonProps} label={champ.label} size="small" />;
     }
   };
   
@@ -203,7 +202,7 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
     <div className="modal-content moderne">
       <form onSubmit={(e) => handleSubmit(e, false)} className="fiche-individu"> 
         <div className="fiche-header">
-          <h2>Nouvel individu</h2>
+          <Typography variant="h5" className="page-title">Nouvel individu</Typography>
           <div className="fiche-actions">
             <button type="submit" className="btn-success btn-sauvegarder" disabled={loading}>
               {loading ? 'Création...' : 'Enregistrer et Fermer'}
@@ -226,28 +225,38 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
             <div>
               <div className="info-cell-label">Numéro d'individu (unique) <span className="obligatoire">*</span></div>
               <div className="info-cell-value">
-                <input id="numeroUnique" type="text" value={numeroUnique} onChange={(e) => setNumeroUnique(e.target.value)} placeholder="Saisissez un identifiant unique" required />
+                <DattaTextField
+                  id="numeroUnique"
+                  label="Numéro d'individu"
+                  value={numeroUnique}
+                  onChange={(e) => setNumeroUnique(e.target.value)}
+                  required
+                  size="small"
+                />
               </div>
             </div>
             <div>
               <div className="info-cell-label">Personne en charge</div>
               <div className="info-cell-value">
-                <select id="enCharge" className="select-stylish" value={enChargeId} onChange={(e) => setEnChargeId(e.target.value)}>
-                  <option value="">Non assigné</option> 
-                  {users.map(u => <option key={u.id} value={u.id}>{u.username}</option>)}
-                </select>
+                <DattaSelect
+                  id="enCharge"
+                  label="Personne en charge"
+                  value={enChargeId}
+                  onChange={(e) => setEnChargeId(e.target.value)}
+                  options={[{ value: '', label: 'Non assigné' }, ...users.map(u => ({ value: String(u.id), label: u.username }))]}
+                />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="fiche-tabs">
-          {allCategories.map(cat => (
-            <button type="button" key={`tab-${cat.id}`} className={ongletActif === `cat-${cat.id}` ? 'active' : ''} onClick={() => setOngletActif(`cat-${cat.id}`)}>
-              {cat.nom}
-            </button>
-          ))}
-        </div>
+        <Box className="fiche-tabs">
+          <Tabs value={ongletActif} onChange={(e, v) => setOngletActif(v)} variant="scrollable" allowScrollButtonsMobile>
+            {allCategories.map(cat => (
+              <Tab key={`tab-${cat.id}`} label={cat.nom} value={`cat-${cat.id}`} />
+            ))}
+          </Tabs>
+        </Box>
 
         <div className="fiche-content-wrapper">
           {allCategories.map(cat => {
@@ -256,7 +265,7 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
             const champsSaisissables = cat.champs ? cat.champs.filter(champ => champ.visible && !champ.readonly) : []; 
             return (
               <div key={`content-${cat.id}`} className="fiche-content">
-                <h3>{cat.nom}</h3>
+                <Typography variant="h6" className="section-title">{cat.nom}</Typography>
                 {champsSaisissables.length > 0 ? (
                     <div className="info-grid">
                       {champsSaisissables

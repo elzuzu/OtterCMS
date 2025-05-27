@@ -3,6 +3,27 @@
 @import './themes.css';
 
 /* -------------------------------------------------------------------------- */
+/* Global typography and layout helpers                                       */
+/* -------------------------------------------------------------------------- */
+.page-title {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 var(--spacing-4) 0;
+}
+
+.section-title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  margin: var(--spacing-4) 0 var(--spacing-2) 0;
+}
+
+label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--current-text-secondary);
+}
+
+/* -------------------------------------------------------------------------- */
 /* Wizard components (Import & Mass Attribution)                               */
 /* -------------------------------------------------------------------------- */
 .import-wizard,

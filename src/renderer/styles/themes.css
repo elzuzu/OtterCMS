@@ -40,6 +40,34 @@
   --current-primary-color: var(--color-primary-500);
   --current-primary-color-hover: var(--color-primary-600);
   --current-primary-color-active: var(--color-primary-700);
+
+  /* Typography */
+  --font-family-base: 'Inter', sans-serif;
+  --font-family-mono: 'SFMono-Regular', monospace;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.5rem;
+  --font-size-h3: 1.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Spacing scale */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+
+  /* Misc */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-full: 9999px;
+  --transition-duration: 150ms;
 }
 
 /* Dark theme overrides */
