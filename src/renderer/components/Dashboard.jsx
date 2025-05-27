@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CardContent, CardActions, Button, Grid, Typography } from '@mui/material';
-import DattaCard from './common/DattaCard';
 import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
 import { IconFolder, IconUsers, IconUserCheck, IconUserX } from '@tabler/icons-react';
@@ -85,105 +83,87 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
           <button onClick={loadStats} className="btn-primary" style={{ marginTop: 'var(--spacing-3)' }}>Recharger</button>
         </div>
       ) : (
-        <Grid container spacing={2} className="stats-container">
+        <div className="row">
           {stats.mesIndividus !== undefined && (
-            <Grid item xs={12} sm={6} md={4}>
-              <DattaCard>
-                <CardContent sx={{ textAlign: 'center' }}>
+            <div className="col-xl-3 col-md-6 mb-4">
+              <div className="card border-left-primary shadow h-100 py-2">
+                <div className="card-body text-center">
                   <IconUserCheck size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.mesIndividus}</Typography>
-                  <Typography variant="body2">Dossiers en charge</Typography>
-                  <Typography variant="caption" display="block" sx={{ mt: 1, mb: 2 }}>
-                    Nombre de dossiers relevant de votre responsabilité directe.
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button fullWidth variant="contained" onClick={() => typeof onNavigateToMyIndividus === 'function' && onNavigateToMyIndividus()}>
-                    Voir mes individus suivis
-                  </Button>
-                </CardActions>
-              </DattaCard>
-            </Grid>
+                  <div className="h5 mb-2 font-weight-bold text-gray-800">{stats.mesIndividus}</div>
+                  <div className="text-xs font-weight-bold text-primary text-uppercase mb-2">Dossiers en charge</div>
+                  <p className="mb-2 small">Nombre de dossiers relevant de votre responsabilité directe.</p>
+                  <button className="btn btn-primary btn-block btn-sm" onClick={() => typeof onNavigateToMyIndividus === 'function' && onNavigateToMyIndividus()}>Voir mes individus suivis</button>
+                </div>
+              </div>
+            </div>
           )}
 
           {stats.totalIndividus !== undefined && (
-            <Grid item xs={12} sm={6} md={4}>
-              <DattaCard>
-                <CardContent sx={{ textAlign: 'center' }}>
+            <div className="col-xl-3 col-md-6 mb-4">
+              <div className="card border-left-primary shadow h-100 py-2">
+                <div className="card-body text-center">
                   <IconUsers size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.totalIndividus}</Typography>
-                  <Typography variant="body2">Total des individus</Typography>
-                  <Typography variant="caption" display="block" sx={{ mt: 1, mb: 2 }}>
-                    Nombre total d'individus enregistrés dans le système.
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button fullWidth variant="contained" onClick={() => typeof onNavigateToAllIndividus === 'function' && onNavigateToAllIndividus()}>
-                    Voir tous les individus
-                  </Button>
-                </CardActions>
-              </DattaCard>
-            </Grid>
+                  <div className="h5 mb-2 font-weight-bold text-gray-800">{stats.totalIndividus}</div>
+                  <div className="text-xs font-weight-bold text-primary text-uppercase mb-2">Total des individus</div>
+                  <p className="mb-2 small">Nombre total d'individus enregistrés dans le système.</p>
+                  <button className="btn btn-primary btn-block btn-sm" onClick={() => typeof onNavigateToAllIndividus === 'function' && onNavigateToAllIndividus()}>Voir tous les individus</button>
+                </div>
+              </div>
+            </div>
           )}
 
           {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
-            <Grid item xs={12} sm={6} md={4}>
-              <DattaCard>
-                <CardContent sx={{ textAlign: 'center' }}>
+            <div className="col-xl-3 col-md-6 mb-4">
+              <div className="card border-left-warning shadow h-100 py-2">
+                <div className="card-body text-center">
                   <IconUserX size={32} style={{ color: 'var(--color-warning-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <Typography variant="h5" sx={{ color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>
+                  <div className="h5 mb-2 font-weight-bold" style={{ color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>
                     {stats.individusNonAttribues}
-                  </Typography>
-                  <Typography variant="body2">Individus non attribués</Typography>
-                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    Individus en attente d'assignation à un responsable.
-                  </Typography>
-                </CardContent>
-              </DattaCard>
-            </Grid>
+                  </div>
+                  <div className="text-xs font-weight-bold text-uppercase mb-2">Individus non attribués</div>
+                  <p className="mb-0 small">Individus en attente d'assignation à un responsable.</p>
+                </div>
+              </div>
+            </div>
           )}
 
-          <Grid item xs={12} md={4}>
-            <DattaCard>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>Vos Informations</Typography>
-                <Typography variant="body2">Nom d'utilisateur: {user.username}</Typography>
-                <Typography variant="body2">Rôle: {user.role}</Typography>
-                <Typography variant="body2">ID Utilisateur: {user.id || user.userId}</Typography>
-              </CardContent>
-            </DattaCard>
-          </Grid>
+          <div className="col-xl-3 col-md-6 mb-4">
+            <div className="card shadow h-100 py-2">
+              <div className="card-body">
+                <h6 className="mb-2">Vos Informations</h6>
+                <p className="mb-1">Nom d'utilisateur: <strong>{user.username}</strong></p>
+                <p className="mb-1">Rôle: <strong>{user.role}</strong></p>
+                <p className="mb-0">ID Utilisateur: <strong>{user.id || user.userId}</strong></p>
+              </div>
+            </div>
+          </div>
 
           {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
-            <Grid item xs={12} sm={6} md={4}>
-              <DattaCard>
-                <CardContent sx={{ textAlign: 'center' }}>
+            <div className="col-xl-3 col-md-6 mb-4">
+              <div className="card border-left-primary shadow h-100 py-2">
+                <div className="card-body text-center">
                   <IconFolder size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.totalUsers}</Typography>
-                  <Typography variant="body2">Total des utilisateurs</Typography>
-                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    Nombre total de comptes utilisateurs actifs.
-                  </Typography>
-                </CardContent>
-              </DattaCard>
-            </Grid>
+                  <div className="h5 mb-2 font-weight-bold text-gray-800">{stats.totalUsers}</div>
+                  <div className="text-xs font-weight-bold text-primary text-uppercase mb-2">Total des utilisateurs</div>
+                  <p className="mb-0 small">Nombre total de comptes utilisateurs actifs.</p>
+                </div>
+              </div>
+            </div>
           )}
 
           {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
-            <Grid item xs={12} sm={6} md={4}>
-              <DattaCard>
-                <CardContent sx={{ textAlign: 'center' }}>
+            <div className="col-xl-3 col-md-6 mb-4">
+              <div className="card shadow h-100 py-2">
+                <div className="card-body text-center">
                   <IconFolder size={32} style={{ color: 'var(--color-neutral-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <Typography variant="h5" sx={{ color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</Typography>
-                  <Typography variant="body2">Catégories masquées</Typography>
-                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-                    Catégories archivées non disponibles pour de nouvelles saisies.
-                  </Typography>
-                </CardContent>
-              </DattaCard>
-            </Grid>
+                  <div className="h5 mb-2 font-weight-bold" style={{ color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</div>
+                  <div className="text-xs font-weight-bold text-uppercase mb-2">Catégories masquées</div>
+                  <p className="mb-0 small">Catégories archivées non disponibles pour de nouvelles saisies.</p>
+                </div>
+              </div>
+            </div>
           )}
-        </Grid>
+        </div>
       )}
     </div>
   );

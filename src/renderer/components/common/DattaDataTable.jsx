@@ -1,12 +1,4 @@
 import React from 'react';
-import Table from '@mui/material/Table';
-import TableHead from '@mui/material/TableHead';
-import TableBody from '@mui/material/TableBody';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
-import TablePagination from '@mui/material/TablePagination';
 import { IconArrowsSort } from '@tabler/icons-react';
 
 export default function DattaDataTable({
@@ -35,86 +27,92 @@ export default function DattaDataTable({
   };
 
   return (
-    <Paper
-      sx={{
-        width: '100%',
-        overflowX: 'auto',
-        boxShadow: 'var(--datta-box-shadow)',
-        borderRadius: 'var(--datta-border-radius)',
-      }}
-    >
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {columns.map(col => (
-                <TableCell
-                  key={col.key || col.header}
-                  onClick={col.sortable ? () => handleSort(col.key) : undefined}
-                  sx={{
-                    cursor: col.sortable ? 'pointer' : 'default',
-                    fontWeight: 600,
-                    backgroundColor: 'var(--datta-card-bg)',
-                  }}
-                >
-                  {col.header}
-                  {col.sortable && sortConfig?.key === col.key && (
-                    <IconArrowsSort
-                      size={14}
-                      style={{ marginLeft: 4, transform: sortConfig.direction === 'descending' ? 'rotate(180deg)' : 'none' }}
-                    />
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-            {onColumnFilterChange && (
-              <TableRow>
+    <div className="card">
+      <div className="card-header">
+        <h6 className="m-0 font-weight-bold text-primary">Données</h6>
+      </div>
+      <div className="card-body">
+        <div className="table-responsive">
+          <table className="table table-bordered" width="100%">
+            <thead>
+              <tr>
                 {columns.map(col => (
-                  <TableCell key={`filter-${col.key || col.header}`}> 
-                    {col.filterable && (
-                      <input
-                        type="text"
-                        value={columnFilters[col.key] || ''}
-                        onChange={e => handleFilterChange(col.key, e.target.value)}
-                        style={{
-                          width: '100%',
-                          height: 32,
-                          border: '1px solid var(--current-border-medium)',
-                          borderRadius: 'var(--datta-border-radius)',
-                          padding: '0 8px',
-                        }}
-                      />
+                  <th
+                    key={col.key || col.header}
+                    onClick={col.sortable ? () => handleSort(col.key) : undefined}
+                    style={{ cursor: col.sortable ? 'pointer' : 'default' }}
+                  >
+                    {col.header}
+                    {col.sortable && sortConfig?.key === col.key && (
+                      <i
+                        className="fas fa-sort"
+                        style={{ marginLeft: 4, transform: sortConfig.direction === 'descending' ? 'rotate(180deg)' : 'none' }}
+                      ></i>
                     )}
-                  </TableCell>
+                  </th>
                 ))}
-              </TableRow>
-            )}
-          </TableHead>
-          <TableBody>
-            {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
-              <TableRow key={keyGetter(row, idx)} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                {columns.map(col => (
-                  <TableCell key={col.key || col.header}>
-                    {col.render ? col.render(row) : row[col.accessor]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {data.length > rowsPerPage && (
-        <TablePagination
-          component="div"
-          count={data.length}
-          page={page}
-          onPageChange={(e, newPage) => onPageChange && onPageChange(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={e => onRowsPerPageChange && onRowsPerPageChange(parseInt(e.target.value, 10))}
-          rowsPerPageOptions={[5, 10, 20, 50]}
-          sx={{ borderTop: '1px solid var(--current-border-light)' }}
-        />
-      )}
-    </Paper>
+              </tr>
+              {onColumnFilterChange && (
+                <tr className="filter-row">
+                  {columns.map(col => (
+                    <th key={`filter-${col.key || col.header}`}>
+                      {col.filterable && (
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={columnFilters[col.key] || ''}
+                          onChange={e => handleFilterChange(col.key, e.target.value)}
+                        />
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              )}
+            </thead>
+            <tbody>
+              {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
+                <tr key={keyGetter(row, idx)}>
+                  {columns.map(col => (
+                    <td key={col.key || col.header}>{col.render ? col.render(row) : row[col.accessor]}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {data.length > rowsPerPage && (
+          <div className="d-flex justify-content-between align-items-center mt-2">
+            <select
+              className="form-select form-select-sm"
+              value={rowsPerPage}
+              onChange={e => onRowsPerPageChange && onRowsPerPageChange(parseInt(e.target.value, 10))}
+            >
+              {[5, 10, 20, 50].map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+            <div>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => onPageChange && onPageChange(page - 1)}
+                disabled={page === 0}
+              >
+                Préc.
+              </button>
+              <span className="mx-2">
+                {page + 1} / {Math.ceil(data.length / rowsPerPage)}
+              </span>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => onPageChange && onPageChange(page + 1)}
+                disabled={(page + 1) * rowsPerPage >= data.length}
+              >
+                Suiv.
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

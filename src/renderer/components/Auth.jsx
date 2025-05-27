@@ -147,8 +147,10 @@ export default function Auth({ setUser }) {
       <WindowControls />
       <div className="auth-content">
         <div className="card">
-          <div className="card-body text-center">
+          <div className="card-header">
             <h4 className="mb-3 f-w-400">Connexion</h4>
+          </div>
+          <div className="card-body">
             <form onSubmit={handleLogin}>
               <div className="form-group mb-3 text-start">
                 <label className="form-label" htmlFor="username">

@@ -5,9 +5,9 @@
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-300: #93c5fd;
-  --color-primary-500: #3b82f6;
+  --color-primary-500: #1890ff;
   --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
+  --color-primary-700: #096dd9;
 
   /* Semantic colors */
   --color-success-50: #f6ffed;
@@ -43,19 +43,27 @@
   --current-text-placeholder: #6b7280;
   --current-border-light: var(--color-neutral-200);
   --current-border-medium: var(--color-neutral-300);
-  --current-primary-color: var(--datta-primary);
-  --current-primary-color-hover: var(--datta-primary-light);
-  --current-primary-color-active: var(--datta-primary-dark);
+  --current-primary-color: var(--color-primary-500);
+  --current-primary-color-hover: var(--color-primary-400);
+  --current-primary-color-active: var(--color-primary-700);
 
-  /* Datta palette */
-  --datta-primary: #1890ff;
-  --datta-primary-light: #40a9ff;
-  --datta-primary-dark: #096dd9;
+  /* DattaAble base tokens */
+  --color-primary-400: #40a9ff;
+  --color-primary-700: #096dd9;
+  --sidebar-bg-dark: #001529;
+  --card-bg: #fafafa;
+  --border-radius-base: 6px;
+  --box-shadow-base: 0 2px 8px rgba(0,0,0,0.15);
+
+  /* Legacy aliases for backward compatibility */
+  --datta-primary: var(--color-primary-500);
+  --datta-primary-light: var(--color-primary-400);
+  --datta-primary-dark: var(--color-primary-700);
   --datta-sidebar-bg-light: #ffffff;
-  --datta-sidebar-bg-dark: #001529;
-  --datta-card-bg: #fafafa;
-  --datta-border-radius: 6px;
-  --datta-box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  --datta-sidebar-bg-dark: var(--sidebar-bg-dark);
+  --datta-card-bg: var(--card-bg);
+  --datta-border-radius: var(--border-radius-base);
+  --datta-box-shadow: var(--box-shadow-base);
 
   /* Typography */
   --font-family-base: 'Inter', sans-serif;
@@ -103,8 +111,8 @@
   --current-border-light: rgba(255, 255, 255, 0.12);
   --current-border-medium: rgba(255, 255, 255, 0.2);
 
-  --datta-card-bg: #001529;
-  --datta-sidebar-bg-dark: #001529;
-  --current-primary-color-hover: var(--datta-primary-light);
-  --current-primary-color-active: var(--datta-primary-dark);
+  --card-bg: #001529;
+  --sidebar-bg-dark: #001529;
+  --current-primary-color-hover: var(--color-primary-400);
+  --current-primary-color-active: var(--color-primary-700);
 }
