@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Stepper, Step, StepLabel } from '@mui/material';
+import DattaAlert from './common/DattaAlert';
 
 export default function MassAttribution({ user }) {
   const [loading, setLoading] = useState(false);
@@ -397,12 +399,18 @@ export default function MassAttribution({ user }) {
   return (
     <div className="mass-attribution-wizard">
       <h2>Attribution de masse</h2>
-      {message && (<div className={message.includes('réussie') || message.includes('succès') ? "success-message" : "error-message"}>{message}</div>)}
-      <div className="wizard-steps">
-        <div className={`wizard-step ${step === 1 ? 'active' : step > 1 ? 'completed' : ''}`}>1. Sélection des individus</div>
-        <div className={`wizard-step ${step === 2 ? 'active' : step > 2 ? 'completed' : ''}`}>2. Définir l'attribution</div>
-        <div className={`wizard-step ${step === 3 ? 'active' : ''}`}>3. Confirmation</div>
-      </div>
+      {message && (
+        <DattaAlert type={message.includes('réussie') || message.includes('succès') ? 'success' : 'error'}>
+          {message}
+        </DattaAlert>
+      )}
+      <Stepper activeStep={step - 1} alternativeLabel sx={{ mb: 3 }}>
+        {['Sélection des individus', "Définir l'attribution", 'Confirmation'].map((label, idx) => (
+          <Step key={idx} disabled={(idx === 1 && step < 2) || (idx === 2 && step < 3)}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
       <div className="wizard-content">
         {step === 1 && (
           <div className="wizard-panel">
@@ -511,7 +519,7 @@ export default function MassAttribution({ user }) {
           <div className="wizard-panel">
             <div className="confirmation">
               <h3>Attribution terminée</h3>
-              <p className="success-message">{message}</p>
+              <DattaAlert type="success">{message}</DattaAlert>
               <div className="confirmation-actions">
                 <button onClick={handleReset} className="btn-primary">Nouvelle attribution de masse</button>
               </div>

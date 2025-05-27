@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { formatDateToDDMMYYYY } from '../utils/date';
-import Banner from './common/Banner';
+import DattaAlert from './common/DattaAlert';
+import { Stepper, Step, StepLabel } from '@mui/material';
 
 // Constantes pour les types de champs disponibles
 const FIELD_TYPES = [
@@ -919,24 +920,17 @@ export default function ImportData({ user }) {
         <h2 className="page-title">Importation de données individus</h2>
       </div>
       {message.text && (
-        <Banner type={message.type || 'info'}>
+        <DattaAlert type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
-        </Banner>
+        </DattaAlert>
       )}
-      <div className="wizard-steps">
-        <div className={`wizard-step ${importStep === 1 ? 'active' : importStep > 1 ? 'completed' : ''}`}>
-          <span className="step-number">1. </span><span className="step-label">Fichier</span>
-        </div>
-        <div className={`wizard-step ${importStep === 2 ? 'active' : importStep > 2 ? 'completed' : ''} ${!fileContent ? 'disabled' : ''}`}>
-          <span className="step-number">2. </span><span className="step-label">N° Individu</span>
-        </div>
-        <div className={`wizard-step ${importStep === 3 ? 'active' : importStep > 3 ? 'completed' : ''} ${!numeroIndividuHeader ? 'disabled' : ''}`}>
-          <span className="step-number">3. </span><span className="step-label">Mapping</span>
-        </div>
-        <div className={`wizard-step ${importStep === 4 ? 'active' : ''} ${importStep < 4 ? 'disabled' : ''}`}>
-          <span className="step-number">4. </span><span className="step-label">Résultats</span>
-        </div>
-      </div>
+      <Stepper activeStep={importStep - 1} alternativeLabel sx={{ mb: 3 }}>
+        {["Fichier", "N° Individu", "Mapping", "Résultats"].map(label => (
+          <Step key={label} disabled={(label === "N° Individu" && !fileContent) || (label === "Mapping" && !numeroIndividuHeader) || (label === "Résultats" && importStep < 4)}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
       <div className="wizard-content">
         {loading && importStep > 1 && importStep < 4 && (
           <div className="loading-overlay">
