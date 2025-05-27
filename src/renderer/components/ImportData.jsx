@@ -500,7 +500,6 @@ export default function ImportData({ user }) {
     }
     // ... (reste du code de summaryMsg existant)
     if (summaryMsg) {
-      console.log("Résumé de l'importation (avant envoi au backend):\n", summaryMsg);
       setAndClearMessage({ text: "Préparation de l'import...\n" + summaryMsg.substring(0, 300) + (summaryMsg.length > 300 ? "..." : ""), type: 'info' }, 10000);
     }
 
@@ -544,7 +543,6 @@ export default function ImportData({ user }) {
         }
       });
       
-      console.log("Données nettoyées (échantillon de 3 lignes):", cleanedRows.slice(0, 3));
       // --- FIN DE LA SECTION DE NETTOYAGE DES DONNÉES ---
       
       // Préparer les paramètres pour l'appel API, incluant les données nettoyées
@@ -560,13 +558,6 @@ export default function ImportData({ user }) {
         headers: previewData.rawHeaders // NOUVEAU : Ajouter les en-têtes bruts
       };
       
-      // Logs de vérification (existants, adaptés)
-      console.log("=== VÉRIFICATION FINALE AVANT ENVOI (AVEC DONNÉES NETTOYÉES) ===");
-      console.log("Paramètres complets à envoyer:", JSON.stringify(params, (key, value) => {
-        if (key === 'fileContent' && value && typeof value === 'string' && value.length > 200) return `[FILE CONTENT base64, length ${value.length}]`; // Tronquer pour le log
-        if (key === 'cleanedData' && Array.isArray(value) && value.length > 5) return `[CLEANED DATA, ${value.length} rows]`; // Résumer pour le log
-        return value;
-      }, 2));
 
       // Appel API avec les données (potentiellement nettoyées)
       const res = await window.api.importCSV(params);
