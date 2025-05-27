@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ALL_PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
 import DattaDataTable from './common/DattaDataTable';
+import DattaButton from './common/DattaButton';
 import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminRoles({ user }) {
@@ -88,13 +89,13 @@ export default function AdminRoles({ user }) {
             ))}
           </div>
           <div className="form-actions">
-            <button type="submit" className="btn-primary">
+            <DattaButton type="submit" variant="primary">
               {editingRole ? 'Mettre à jour' : 'Créer'}
-            </button>
+            </DattaButton>
             {editingRole && (
-              <button type="button" onClick={resetForm} className="btn-secondary">
+              <DattaButton type="button" onClick={resetForm} variant="secondary">
                 Annuler
-              </button>
+              </DattaButton>
             )}
           </div>
         </form>
@@ -112,20 +113,24 @@ export default function AdminRoles({ user }) {
             tdStyle: { textAlign: 'center', width: '80px' },
             render: r => (
               <>
-                <button
+                <DattaButton
                   onClick={() => startEdit(r)}
-                  className="btn-secondary btn-small btn-icon"
+                  variant="secondary"
+                  size="sm"
+                  className="btn-icon"
                   aria-label="Éditer le rôle"
                 >
                   <EditIcon />
-                </button>
-                <button
+                </DattaButton>
+                <DattaButton
                   onClick={() => handleDelete(r.name)}
-                  className="btn-danger btn-small btn-icon"
+                  variant="danger"
+                  size="sm"
+                  className="btn-icon"
                   aria-label="Supprimer le rôle"
                 >
                   <TrashIcon />
-                </button>
+                </DattaButton>
               </>
             )
           }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import DattaAlert from "./common/DattaAlert";
+import DattaButton from "./common/DattaButton";
 
 // Icon components (simple SVGs for +/-)
 const PlusIcon = () => (
@@ -342,14 +343,16 @@ export default function AdminCategories() {
             <div key={champ.key || `new-champ-${i}`} className="champ-form-item">
               <div className="champ-form-item-header">
                 <h5>Champ #{i + 1} {champ.label && `- "${champ.label}"`}</h5>
-                <button 
-                    type="button" 
-                    onClick={() => supprimerChamp(i)} 
-                    className="btn-danger btn-small btn-icon"
+                <DattaButton
+                    type="button"
+                    onClick={() => supprimerChamp(i)}
+                    variant="danger"
+                    size="sm"
+                    className="btn-icon"
                     aria-label="Supprimer ce champ"
                 >
                    <TrashIcon /> Supprimer
-                </button>
+                </DattaButton>
               </div>
               <div className="form-grid">
                 <div className="form-group">
@@ -411,16 +414,16 @@ export default function AdminCategories() {
             </div>
           ))}
           <div className="form-actions">
-            <button type="button" onClick={ajouterChamp} className="btn-secondary btn-icon-text">
+            <DattaButton type="button" onClick={ajouterChamp} variant="secondary" className="btn-icon-text">
               <PlusIcon /> Ajouter un champ
-            </button>
-            <button type="submit" className="btn-primary" disabled={loading}>
+            </DattaButton>
+            <DattaButton type="submit" variant="primary" disabled={loading}>
               {loading ? (editTemplate ? 'Mise à jour en cours...' : 'Ajout en cours...') : (editTemplate ? 'Mettre à jour la catégorie' : 'Ajouter la catégorie')}
-            </button>
+            </DattaButton>
             {editTemplate && (
-              <button type="button" onClick={resetForm} className="btn-tertiary" disabled={loading}>
+              <DattaButton type="button" onClick={resetForm} variant="tertiary" disabled={loading}>
                 Annuler les modifications
-              </button>
+              </DattaButton>
             )}
           </div>
         </form>
@@ -441,12 +444,12 @@ export default function AdminCategories() {
                   <span className="category-details">(ID: {cat.id}, Ordre: {cat.ordre || 0}, {cat.champs ? cat.champs.length : 0} champs)</span>
                 </div>
                 <div className="category-actions">
-                  <button onClick={() => handleEditCategory(cat)} className="btn-secondary btn-small btn-icon" aria-label="Éditer la catégorie">
+                  <DattaButton onClick={() => handleEditCategory(cat)} variant="secondary" size="sm" className="btn-icon" aria-label="Éditer la catégorie">
                     <EditIcon /> Éditer
-                  </button>
-                  <button onClick={() => handleHideCategory(cat.id)} className="btn-danger btn-small btn-icon" aria-label="Masquer la catégorie">
+                  </DattaButton>
+                  <DattaButton onClick={() => handleHideCategory(cat.id)} variant="danger" size="sm" className="btn-icon" aria-label="Masquer la catégorie">
                     <HideIcon /> Masquer
-                  </button>
+                  </DattaButton>
                 </div>
               </li>
             ))}
@@ -456,14 +459,15 @@ export default function AdminCategories() {
         <div className="category-section">
           <div className="category-section-header">
             <h3>Catégories Masquées ({categoriesMasquees.length})</h3>
-            {(categoriesMasquees.length > 0 || afficherMasquees || (loading && categoriesMasquees.length === 0)) && ( 
-                <button 
-                    onClick={() => setAfficherMasquees(!afficherMasquees)} 
-                    className="btn-tertiary btn-small"
+            {(categoriesMasquees.length > 0 || afficherMasquees || (loading && categoriesMasquees.length === 0)) && (
+                <DattaButton
+                    onClick={() => setAfficherMasquees(!afficherMasquees)}
+                    variant="tertiary"
+                    size="sm"
                     aria-expanded={afficherMasquees}
                 >
                     {afficherMasquees ? 'Cacher la liste' : 'Afficher la liste'}
-                </button>
+                </DattaButton>
             )}
           </div>
           {afficherMasquees && (
@@ -479,9 +483,9 @@ export default function AdminCategories() {
                         <span className="category-details">(ID: {cat.id}, Ordre: {cat.ordre || 0}, {cat.champs ? cat.champs.length : 0} champs)</span>
                       </div>
                       <div className="category-actions">
-                        <button onClick={() => handleRestoreCategory(cat.id)} className="btn-success btn-small btn-icon" aria-label="Démasquer la catégorie">
+                        <DattaButton onClick={() => handleRestoreCategory(cat.id)} variant="success" size="sm" className="btn-icon" aria-label="Démasquer la catégorie">
                           <UnhideIcon /> Démasquer
-                        </button>
+                        </DattaButton>
                       </div>
                     </li>
                   ))}
