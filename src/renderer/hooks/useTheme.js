@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { createTheme } from '@mui/material/styles';
 
 const COLORS = ['blue', 'green', 'purple', 'orange', 'red'];
 
@@ -52,5 +53,21 @@ export default function useTheme() {
     localStorage.setItem('themeColor', c);
   };
 
-  return { mode, color, toggleMode, changeColor };
+  const theme = useMemo(() => createTheme({
+    palette: {
+      mode,
+      primary: { main: 'var(--current-primary-color)' },
+      background: {
+        default: 'var(--current-background-color)',
+        paper: 'var(--current-surface-color)'
+      },
+      text: {
+        primary: 'var(--current-text-primary)',
+        secondary: 'var(--current-text-secondary)'
+      }
+    },
+    typography: { fontFamily: 'var(--font-family-base)' }
+  }), [mode]);
+
+  return { mode, color, toggleMode, changeColor, theme };
 }

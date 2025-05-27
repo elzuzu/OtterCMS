@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import DattaAlert from './common/DattaAlert';
+import DattaPageTitle from './common/DattaPageTitle';
 
 export default function UserSettings({ user }) {
   const [loginWin, setLoginWin] = useState('');
@@ -41,7 +42,7 @@ export default function UserSettings({ user }) {
 
   return (
     <Box className="user-settings">
-      <Typography variant="h5" className="page-title">Paramètres utilisateur</Typography>
+      <DattaPageTitle title="Paramètres utilisateur" />
       <Box className="ui-card" sx={{ p: 2 }}>
         <div className="form-group">
           <label>Login Windows (nom d'utilisateur uniquement):</label>

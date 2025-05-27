@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import * as XLSX from 'xlsx';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import DattaAlert from './common/DattaAlert';
+import DattaPageTitle from './common/DattaPageTitle';
 import { Stepper, Step, StepLabel } from '@mui/material';
 
 // Constantes pour les types de champs disponibles
@@ -916,9 +917,7 @@ export default function ImportData({ user }) {
 
   return (
     <div className="import-wizard admin-panel">
-      <div className="page-header">
-        <h2 className="page-title">Importation de données individus</h2>
-      </div>
+      <DattaPageTitle title="Importation de données individus" />
       {message.text && (
         <DattaAlert type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>

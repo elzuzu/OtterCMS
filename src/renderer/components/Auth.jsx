@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import DattaAlert from './common/DattaAlert';
+import DattaPageTitle from './common/DattaPageTitle';
 
 export default function Auth({ setUser }) {
   const [username, setUsername] = useState('');
@@ -150,7 +151,7 @@ export default function Auth({ setUser }) {
         onSubmit={handleLogin}
         sx={{ maxWidth: 360, mx: 'auto', mt: 4, p: 3, backgroundColor: 'var(--current-surface-color)', borderRadius: 'var(--border-radius-md)' }}
       >
-        <Typography variant="h5" className="page-title">Connexion</Typography>
+        <DattaPageTitle title="Connexion" />
         <TextField
           id="username"
           label="Nom d'utilisateur"
