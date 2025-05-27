@@ -78,7 +78,8 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'electron',
-        ...packageDependencies,
+        // TEMPORAIREMENT: retirer bcryptjs des externals pour le bundler
+        ...packageDependencies.filter(dep => dep !== 'bcryptjs'),
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
       ],
