@@ -25,3 +25,112 @@ body {
 
 /* Placeholders for other component specific rules still in use */
 
+/* -------------------------------------------------------------------------- */
+/* Datta Able login page styles                                               */
+/* -------------------------------------------------------------------------- */
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.auth-content {
+  width: 100%;
+  padding: var(--spacing-4);
+}
+
+.card {
+  background-color: var(--datta-card-bg);
+  border-radius: var(--datta-border-radius);
+  box-shadow: var(--datta-box-shadow);
+  margin: 0 auto;
+  max-width: 360px;
+}
+
+.card-body {
+  padding: var(--spacing-4);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-3);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-1);
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--current-border-medium);
+  border-radius: var(--datta-border-radius);
+  background-color: var(--current-surface-color);
+  color: var(--current-text-primary);
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  border-radius: var(--datta-border-radius);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--datta-primary);
+  border-color: var(--datta-primary);
+  color: #fff;
+}
+.btn-primary:hover {
+  background-color: var(--datta-primary-light);
+  border-color: var(--datta-primary-light);
+}
+
+.btn-success {
+  background-color: var(--datta-success);
+  border-color: var(--datta-success);
+  color: #fff;
+}
+.btn-success:hover {
+  opacity: 0.9;
+}
+
+.btn-outline-secondary {
+  background-color: transparent;
+  border-color: var(--current-border-medium);
+  color: var(--current-text-primary);
+}
+.btn-outline-secondary:hover {
+  background-color: var(--current-border-light);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.mb-3 {
+  margin-bottom: var(--spacing-3);
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-4);
+}
+
+.mt-3 {
+  margin-top: var(--spacing-3);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.f-w-400 {
+  font-weight: 400;
+}
+
