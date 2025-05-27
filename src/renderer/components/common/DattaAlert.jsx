@@ -7,7 +7,16 @@ import Alert from '@mui/material/Alert';
  */
 export default function DattaAlert({ type = 'info', children, ...props }) {
   return (
-    <Alert severity={type} variant="filled" sx={{ mb: 2 }} {...props}>
+    <Alert
+      severity={type}
+      variant="filled"
+      sx={{
+        mb: 2,
+        borderRadius: 'var(--datta-border-radius)',
+        boxShadow: 'var(--datta-box-shadow)',
+      }}
+      {...props}
+    >
       {children}
     </Alert>
   );
