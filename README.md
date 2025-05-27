@@ -19,6 +19,8 @@ Application Electron et React permettant le suivi d'individus avec champs dynami
 
 Version **2.0 Neo UI** avec thèmes personnalisables et navigation revue.
 
+L'interface repose desormais sur le template **Datta Able** adapte a Electron.
+Les principaux ecrans utilisent des wrappers React (`DattaCard`, `DattaDataTable`...) pour harmoniser le rendu.
 ## Fonctionnalités
 
 - Gestion des utilisateurs et des rôles (login Windows optionnel)
@@ -63,6 +65,12 @@ src/renderer/      Application React (renderer Vite)
 scripts/install.js Initialisation de la base
 ```
 
+## Thèmes et composants Datta
+
+- La fonction `useTheme` applique dynamiquement le mode clair ou sombre et la couleur principale.
+- Les styles principaux se trouvent dans `src/renderer/styles/themes.css` et `app.css`.
+- Des wrappers (`DattaCard`, `DattaDataTable`, `PageWrapper`...) simplifient l'utilisation des composants MUI pour rester proches du design Datta Able.
+
 Le schéma SQLite est créé lors de l'exécution de `npm run install-app`.
 
 ## Développement
@@ -91,6 +99,7 @@ Sous Windows, le script `scripts/build-app.ps1` permet de nettoyer puis de lance
 
 - [Guide d'administration](docs/guide-administration.md)
 - [Guide d'utilisation](docs/guide-utilisation.md)
+- [Architecture des themes](docs/themes.md)
 - [Guide de développement](docs/developpement.md)
 
 ## Licence
