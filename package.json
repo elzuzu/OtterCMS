@@ -22,8 +22,7 @@
     "install-app": "node ./scripts/install.js",
     "clean": "rimraf out dist .vite release-builds build",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "postinstall": "electron-builder install-app-deps && npm run rebuild",
-    "rebuild-and-build": "node scripts/rebuild-and-build.js"
+    "postinstall": "electron-builder install-app-deps && npm run rebuild"
   },
   "keywords": [
     "electron",
