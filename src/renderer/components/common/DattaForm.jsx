@@ -1,10 +1,11 @@
 import React from 'react';
 
-export function DattaTextField({ label, error, helperText, ...props }) {
+export function DattaTextField({ label, error, helperText, id, ...props }) {
   return (
-    <div className="form-group">
-      <label className="form-label">{label}</label>
+    <div className="mb-3">
+      <label className="form-label" htmlFor={id}>{label}</label>
       <input
+        id={id}
         className={`form-control ${error ? 'is-invalid' : ''}`}
         {...props}
       />
@@ -14,11 +15,11 @@ export function DattaTextField({ label, error, helperText, ...props }) {
   );
 }
 
-export function DattaSelect({ label, options = [], error, helperText, ...props }) {
+export function DattaSelect({ label, options = [], error, helperText, id, ...props }) {
   return (
-    <div className="form-group">
-      <label className="form-label">{label}</label>
-      <select className={`form-control ${error ? 'is-invalid' : ''}`} {...props}>
+    <div className="mb-3">
+      <label className="form-label" htmlFor={id}>{label}</label>
+      <select id={id} className={`form-select ${error ? 'is-invalid' : ''}`} {...props}>
         {options.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}

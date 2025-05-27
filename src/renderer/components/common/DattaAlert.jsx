@@ -1,23 +1,33 @@
-import React from 'react';
-import Alert from '@mui/material/Alert';
+import React, { useState } from 'react';
 
-/**
- * Wrapper around MUI Alert to mimic Datta Able style.
- * Supports severity types 'success', 'error', 'warning' and 'info'.
- */
-export default function DattaAlert({ type = 'info', children, ...props }) {
+const DattaAlert = ({ type = 'info', dismissible = false, children, onClose }) => {
+  const [show, setShow] = useState(true);
+  if (!show) return null;
+
+  const typeClass = `alert-${type}`;
+  const iconMap = {
+    success: 'feather icon-check-circle',
+    danger: 'feather icon-alert-circle',
+    warning: 'feather icon-alert-triangle',
+    info: 'feather icon-info',
+  };
+
   return (
-    <Alert
-      severity={type}
-      variant="filled"
-      sx={{
-        mb: 2,
-        borderRadius: 'var(--datta-border-radius)',
-        boxShadow: 'var(--datta-box-shadow)',
-      }}
-      {...props}
-    >
+    <div className={`alert ${typeClass} ${dismissible ? 'alert-dismissible' : ''} fade show`} role="alert">
+      <i className={`${iconMap[type]} me-2`}></i>
       {children}
-    </Alert>
+      {dismissible && (
+        <button
+          type="button"
+          className="btn-close"
+          onClick={() => {
+            setShow(false);
+            onClose && onClose();
+          }}
+        ></button>
+      )}
+    </div>
   );
-}
+};
+
+export default DattaAlert;
