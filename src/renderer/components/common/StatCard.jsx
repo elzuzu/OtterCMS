@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CardContent, Typography, Box } from '@mui/material';
 import DattaCard from './DattaCard';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
@@ -14,38 +13,30 @@ export default function StatCard({ icon, title, value, change, trend = 'up', gra
 
   return (
     <motion.div className="stat-card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-      <DattaCard sx={{ textAlign: 'center' }}>
-        <CardContent>
-          <Box
-            sx={{
+      <DattaCard className="text-center">
+        <div className="card-body">
+          <div
+            className="mx-auto mb-2 d-flex align-items-center justify-content-center"
+            style={{
               width: 48,
               height: 48,
               borderRadius: '50%',
               background: gradients[gradient],
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mx: 'auto',
-              mb: 1,
             }}
           >
             {icon}
-          </Box>
-          <Typography variant="h5" component="div">
-            {value}
-          </Typography>
-          <Typography color="text.secondary" gutterBottom>
-            {title}
-          </Typography>
+          </div>
+          <h5 className="mb-0">{value}</h5>
+          <p className="text-muted mb-2">{title}</p>
           {change && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', color: trend === 'up' ? 'success.main' : 'error.main' }}>
+            <div
+              className={`d-flex justify-content-center align-items-center ${trend === 'up' ? 'text-success' : 'text-danger'}`}
+            >
               {trend === 'up' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-              <Typography variant="caption" sx={{ ml: 0.5 }}>
-                {change}
-              </Typography>
-            </Box>
+              <span className="ms-1">{change}</span>
+            </div>
           )}
-        </CardContent>
+        </div>
       </DattaCard>
     </motion.div>
   );

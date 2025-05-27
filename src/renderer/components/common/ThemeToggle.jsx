@@ -1,5 +1,6 @@
 import React from 'react';
 import useTheme from '../../hooks/useTheme';
+import DattaButton from './DattaButton';
 
 export default function ThemeToggle({ onThemeChange }) {
   const { mode, toggleMode } = useTheme();
@@ -12,8 +13,14 @@ export default function ThemeToggle({ onThemeChange }) {
   };
 
   return (
-    <button className="theme-toggle" onClick={handleToggle} aria-label="Toggle theme">
+    <DattaButton
+      variant="link"
+      className="theme-toggle"
+      onClick={handleToggle}
+      aria-label="Toggle theme"
+      size="sm"
+    >
       <span className="theme-icon">{mode === 'light' ? '🌙' : '☀️'}</span>
-    </button>
+    </DattaButton>
   );
 }

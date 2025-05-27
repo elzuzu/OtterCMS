@@ -38,7 +38,6 @@ export default function MainContent({ user, onLogout }) {
     // and has now been consumed by IndividusList. `requestedViewForIndividus` becomes null.
     // We must ensure `activeTab` remains 'individus'.
     if (activeTab === 'individus' && requestedViewForIndividus === null) {
-      console.log("[MainContent Effect] Vue pour 'individus' consommée ou pas de vue initialement demandée. Maintien de l'onglet 'individus'.");
       return; // Explicitly stay on 'individus'
     }
 
@@ -50,8 +49,6 @@ export default function MainContent({ user, onLogout }) {
         // This is a corrective measure, ideally not hit if nav handlers are correct.
         console.warn(`[MainContent Effect] requestedViewForIndividus ('${requestedViewForIndividus}') est défini, mais activeTab ('${activeTab}') n'est pas 'individus'. Correction vers 'individus'.`);
         setActiveTab('individus');
-      } else {
-        console.log(`[MainContent Effect] Vue '${requestedViewForIndividus}' pour 'individus' active. activeTab est '${activeTab}'. Pas de changement.`);
       }
       return; // A specific 'individus' navigation is in progress or active.
     }
@@ -67,7 +64,6 @@ export default function MainContent({ user, onLogout }) {
     // If the user explicitly clicked on a non-default tab (like 'Import de données'),
     // `activeTab` would be, for example, 'import'. We must respect that choice.
     if (nonDefaultTabs.includes(activeTab)) {
-      console.log(`[MainContent Effect] Onglet explicite '${activeTab}' sélectionné via clic direct. Pas de changement par défaut basé sur le rôle.`);
       return; // Keep the explicitly clicked non-default tab.
     }
 
@@ -77,40 +73,28 @@ export default function MainContent({ user, onLogout }) {
     //   - `activeTab` is NOT one of the `nonDefaultTabs` (e.g., it's 'dashboard', 'individus', or initial state).
     // This is where we apply the default tab based on the user's role,
     // typically on initial load or if the role changes and the user is on a "defaultable" tab.
-    console.log(`[MainContent Effect] Application de la logique d'onglet par défaut. activeTab actuel: ${activeTab}, role: ${user.role}`);
     if (user.role === 'admin' || user.role === 'manager') {
       if (activeTab !== 'dashboard') {
-        console.log("[MainContent Effect] Rôle admin/manager. Passage à l'onglet 'dashboard' par défaut.");
         setActiveTab('dashboard');
-      } else {
-        console.log("[MainContent Effect] Rôle admin/manager. Déjà sur 'dashboard'. Maintien.");
       }
     } else { // user.role === 'user'
       if (activeTab !== 'individus') {
-        console.log("[MainContent Effect] Rôle utilisateur. Passage à l'onglet 'individus' par défaut.");
         setActiveTab('individus');
-      } else {
-        console.log("[MainContent Effect] Rôle utilisateur. Déjà sur 'individus'. Maintien.");
       }
     }
   }, [user.role, requestedViewForIndividus, activeTab]);
 
   const handleNavigateToMyIndividus = useCallback(() => {
-    console.log("[MainContent] handleNavigateToMyIndividus: Début. Demande de vue 'mine'.");
-    setActiveTab('individus'); 
+    setActiveTab('individus');
     setRequestedViewForIndividus('mine');
-    console.log("[MainContent] handleNavigateToMyIndividus: Fin. activeTab='individus', requestedViewForIndividus='mine'.");
   }, []);
 
   const handleNavigateToAllIndividus = useCallback(() => {
-    console.log("[MainContent] handleNavigateToAllIndividus: Début. Demande de vue 'all'.");
-    setActiveTab('individus'); 
+    setActiveTab('individus');
     setRequestedViewForIndividus('all');
-    console.log("[MainContent] handleNavigateToAllIndividus: Fin. activeTab='individus', requestedViewForIndividus='all'.");
   }, []);
 
   const handleRequestedViewConsumed = useCallback(() => {
-    console.log("[MainContent] handleRequestedViewConsumed: Vue demandée consommée, réinitialisation de requestedViewForIndividus à null.");
     setRequestedViewForIndividus(null);
   }, []);
 
