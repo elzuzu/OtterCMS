@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import packageJson from '../../../package.json';
 import Dashboard from './Dashboard';
 import IndividusList from './IndividusList';
 import ImportData from './ImportData';
@@ -8,32 +7,8 @@ import AdminCategories from './AdminCategories';
 import AdminUsersSection from './AdminUsersSection';
 import AdminTemplate from './AdminTemplate';
 import UserSettings from './UserSettings';
-import { PERMISSIONS } from '../constants/permissions';
-import { hasPermission } from '../utils/permissions';
-import ThemeToggle from './common/ThemeToggle';
-import WindowControls from './common/WindowControls';
-import {
-  Home,
-  List,
-  Upload,
-  Users as UsersIcon,
-  Settings as SettingsIcon,
-  Tag,
-  User2,
-  Palette,
-} from 'lucide-react';
-import logo from '../logo.svg';
-
-const tabIcons = {
-  dashboard: <Home size={18} aria-hidden="true" />,
-  individus: <List size={18} aria-hidden="true" />,
-  import: <Upload size={18} aria-hidden="true" />,
-  attribution: <UsersIcon size={18} aria-hidden="true" />,
-  categories: <Tag size={18} aria-hidden="true" />,
-  users: <User2 size={18} aria-hidden="true" />,
-  template: <Palette size={18} aria-hidden="true" />,
-  settings: <SettingsIcon size={18} aria-hidden="true" />,
-};
+import LayoutManager from './layout/LayoutManager';
+import PageWrapper from './layout/PageWrapper';
 
 /**
  * Composant MainContent
@@ -44,27 +19,6 @@ export default function MainContent({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [requestedViewForIndividus, setRequestedViewForIndividus] = useState(null);
   const [appTitle, setAppTitle] = useState('indi-suivi-nodejs');
-  const [theme, setTheme] = useState('dark');
-
-  useEffect(() => {
-    const loadTheme = async () => {
-      try {
-        if (window.api && window.api.getTheme) {
-          const res = await window.api.getTheme();
-          const savedTheme = res?.theme || 'dark';
-          setTheme(savedTheme);
-          document.documentElement.setAttribute('data-theme', savedTheme);
-        } else {
-          const savedTheme = localStorage.getItem('theme') || 'dark';
-          setTheme(savedTheme);
-          document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-      } catch (err) {
-        console.error('MainContent: load theme failed', err);
-      }
-    };
-    loadTheme();
-  }, []);
 
 
   useEffect(() => {
@@ -201,79 +155,20 @@ export default function MainContent({ user, onLogout }) {
     }
   };
 
-  const tabs = [];
-  if (hasPermission(user, PERMISSIONS.VIEW_DASHBOARD)) {
-    tabs.push({ id: 'dashboard', label: 'Tableau de bord' });
-  }
-  if (hasPermission(user, PERMISSIONS.VIEW_INDIVIDUS)) {
-    tabs.push({ id: 'individus', label: 'Individus' });
-  }
-  if (hasPermission(user, PERMISSIONS.IMPORT_DATA)) {
-    tabs.push({ id: 'import', label: 'Import de données' });
-  }
-  if (hasPermission(user, PERMISSIONS.MASS_ATTRIBUTION)) {
-    tabs.push({ id: 'attribution', label: 'Attribution de masse' });
-  }
-  if (hasPermission(user, PERMISSIONS.MANAGE_CATEGORIES)) {
-    tabs.push({ id: 'categories', label: 'Gérer les catégories' });
-  }
-  if (hasPermission(user, PERMISSIONS.MANAGE_USERS) || hasPermission(user, PERMISSIONS.MANAGE_ROLES)) {
-    tabs.push({ id: 'users', label: 'Gérer les utilisateurs' });
-  }
-  if (hasPermission(user, PERMISSIONS.MANAGE_COLUMNS)) {
-    tabs.push({ id: 'template', label: 'Templates' });
-  }
-
   return (
-    <div className="app-container" data-theme={theme}>
-      <aside className="app-sidebar">
-        <div className="sidebar-header">
-          <img src={logo} className="app-logo" />
-          <h1 className="app-title">{appTitle}</h1>
-        </div>
-        <nav className="sidebar-nav" aria-label="Navigation principale">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => {
-                if (activeTab !== tab.id) {
-                  setRequestedViewForIndividus(null);
-                  setActiveTab(tab.id);
-                }
-              }}
-            >
-              <span className="nav-icon">{tabIcons[tab.id]}</span>
-              <span className="nav-label">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-footer">
-          <div className="user-details">
-            <div className="user-name">
-              {user.windows_login
-                ? `${user.windows_login} (${user.role})`
-                : `${user.username} (${user.role})`}
-            </div>
-          </div>
-          <div className="footer-actions">
-            <ThemeToggle onThemeChange={setTheme} />
-            <button onClick={onLogout} className="btn btn-ghost logout-button">Déconnexion</button>
-          </div>
-        </div>
-      </aside>
-
-      <main className="app-main">
-        <header className="app-header">
-          <div className="header-right">
-            <WindowControls />
-          </div>
-        </header>
-        <div className="app-content">{renderContent()}</div>
-        <footer className="app-footer">
-          <div className="app-info">Version {packageJson.version} &bull; &copy; 2025</div>
-        </footer>
-      </main>
-    </div>
+    <LayoutManager
+      user={user}
+      onLogout={onLogout}
+      activeTab={activeTab}
+      title={appTitle}
+      onTabChange={(id) => {
+        if (activeTab !== id) {
+          setRequestedViewForIndividus(null);
+          setActiveTab(id);
+        }
+      }}
+    >
+      <PageWrapper>{renderContent()}</PageWrapper>
+    </LayoutManager>
   );
 }
