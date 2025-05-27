@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import DattaAlert from './common/DattaAlert';
 import { evaluateDynamicField } from '../utils/dynamic';
 import { DattaTextField, DattaSelect } from './common/DattaForm';
+import DattaPageTitle from './common/DattaPageTitle';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Tabs from '@mui/material/Tabs';
@@ -202,7 +203,7 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
     <div className="modal-content moderne">
       <form onSubmit={(e) => handleSubmit(e, false)} className="fiche-individu"> 
         <div className="fiche-header">
-          <Typography variant="h5" className="page-title">Nouvel individu</Typography>
+          <DattaPageTitle title="Nouvel individu" />
           <div className="fiche-actions">
             <button type="submit" className="btn-success btn-sauvegarder" disabled={loading}>
               {loading ? 'Création...' : 'Enregistrer et Fermer'}

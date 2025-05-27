@@ -1,4 +1,6 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import useTheme from './hooks/useTheme';
 const Auth = lazy(() => import('./components/Auth'));
 const MainContent = lazy(() => import('./components/MainContent'));
 
@@ -14,44 +16,13 @@ import './styles/app.css'; // Ensure this is imported for global styles
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [loadingTheme, setLoadingTheme] = useState(true);
-
-  useEffect(() => {
-    async function loadThemeAndUser() {
-      // Load theme from localStorage
-      const saved = localStorage.getItem('themeColor') || 'blue';
-      ['blue', 'green', 'purple', 'orange', 'red'].forEach(c => document.body.classList.remove('theme-' + c));
-      document.body.classList.add('theme-' + saved);
-
-      try {
-        if (window.api && window.api.getTheme) {
-          const result = await window.api.getTheme();
-          const savedTheme = result?.theme || 'dark';
-          document.documentElement.setAttribute('data-theme', savedTheme);
-        } else {
-          const savedTheme = localStorage.getItem('theme') || 'dark';
-          document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-      } catch (err) {
-        console.error('App: load theme failed', err);
-      }
-      setLoadingTheme(false);
-
-      // Potentially load persisted user session here if you implement that
-      // For now, it relies on Auth component to set user
-    }
-    loadThemeAndUser();
-  }, []);
+  const { theme } = useTheme();
 
   const handleLogout = () => {
     setUser(null);
     // Optionally, clear any persisted user session data here
   };
 
-  if (loadingTheme) {
-    // Optional: a very simple loading state to prevent FOUC for theme
-    return <div>Chargement...</div>;
-  }
 
   if (!user) {
     return (
@@ -83,8 +54,10 @@ export default function App() {
   };
 
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <MainContent user={normalizedUser} onLogout={handleLogout} />
-    </Suspense>
+    <ThemeProvider theme={theme}>
+      <Suspense fallback={<LoadingFallback />}>
+        <MainContent user={normalizedUser} onLogout={handleLogout} />
+      </Suspense>
+    </ThemeProvider>
   );
 }

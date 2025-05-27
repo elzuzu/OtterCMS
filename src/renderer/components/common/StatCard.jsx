@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { CardContent, Typography, Box } from '@mui/material';
+import DattaCard from './DattaCard';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export default function StatCard({ icon, title, value, change, trend = 'up', gradient = 'blue' }) {
@@ -13,7 +14,7 @@ export default function StatCard({ icon, title, value, change, trend = 'up', gra
 
   return (
     <motion.div className="stat-card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-      <Card sx={{ textAlign: 'center' }}>
+      <DattaCard sx={{ textAlign: 'center' }}>
         <CardContent>
           <Box
             sx={{
@@ -45,7 +46,7 @@ export default function StatCard({ icon, title, value, change, trend = 'up', gra
             </Box>
           )}
         </CardContent>
-      </Card>
+      </DattaCard>
     </motion.div>
   );
 }

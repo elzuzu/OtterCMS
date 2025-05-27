@@ -5,6 +5,7 @@ import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { EditIcon, SortIcon } from './common/Icons';
 import DattaDataTable from './common/DattaDataTable';
+import DattaPageTitle from './common/DattaPageTitle';
 import { evaluateDynamicField } from '../utils/dynamic';
 
 const ITEMS_PER_PAGE = 20;
@@ -358,9 +359,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   if (loading && individus.length === 0) {
     return (
       <div className="content-container">
-        <div className="page-header">
-          <h2 className="page-title">Gestion des individus</h2>
-        </div>
+        <DattaPageTitle title="Gestion des individus" />
         <div className="loading-message">Chargement des données initiales...</div>
       </div>
     );
@@ -368,9 +367,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   if (error) {
     return (
       <div className="content-container">
-        <div className="page-header">
-          <h2 className="page-title">Gestion des individus</h2>
-        </div>
+        <DattaPageTitle title="Gestion des individus" />
         <div className="error-message">
           {error}
           <button onClick={loadData} className="btn-secondary" style={{ marginTop: '10px' }}>Réessayer de charger</button>
@@ -381,9 +378,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
 
   return (
     <div className="content-container" key={`list-container-${renderKey}`}>
-      <div className="page-header">
-        <h2 className="page-title">Gestion des individus</h2>
-      </div>
+      <DattaPageTitle title="Gestion des individus" />
       <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--color-neutral-50)", borderRadius: "4px", fontSize: "0.9em", color: "var(--text-color-secondary)" }}>
         <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} | 
         <strong> Individus affichés:</strong> {filteredIndividus.length}

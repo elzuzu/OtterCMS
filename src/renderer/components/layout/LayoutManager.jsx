@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import DattaHeader from './DattaHeader';
 import DattaSidebar from './DattaSidebar';
-import useTheme from '../../hooks/useTheme';
 
 export default function LayoutManager({
   user,
@@ -14,7 +13,6 @@ export default function LayoutManager({
   children,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  useTheme();
 
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);

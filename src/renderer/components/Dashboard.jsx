@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardActions, Button, Grid, Typography } from '@mui/material';
+import { CardContent, CardActions, Button, Grid, Typography } from '@mui/material';
+import DattaCard from './common/DattaCard';
+import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
 import { IconFolder, IconUsers, IconUserCheck, IconUserX } from '@tabler/icons-react';
 
@@ -54,9 +56,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   if (loading) {
     return (
       <div>
-        <div className="page-header">
-          <h2 className="page-title">Tableau de bord</h2>
-        </div>
+        <DattaPageTitle title="Tableau de bord" />
         <div style={{ textAlign: 'center', marginTop: '2rem' }}>
           <CircularProgress value={50} label="Chargement..." />
         </div>
@@ -67,9 +67,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   if (error) {
     return (
       <div>
-        <div className="page-header">
-          <h2 className="page-title">Tableau de bord</h2>
-        </div>
+        <DattaPageTitle title="Tableau de bord" />
         <div className="error-message" style={{ margin: 'var(--spacing-4) 0' }}>
           {error}
           <button onClick={loadStats} className="btn-secondary" style={{ marginLeft: 'var(--spacing-3)' }}>Réessayer</button>
@@ -80,9 +78,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
 
   return (
     <div>
-      <div className="page-header">
-        <h2 className="page-title">Tableau de bord</h2>
-      </div>
+      <DattaPageTitle title="Tableau de bord" />
       {!stats ? (
         <div className="no-data-message" style={{ margin: 'var(--spacing-4) 0' }}>
           Aucune statistique disponible pour le moment.
@@ -92,7 +88,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
         <Grid container spacing={2} className="stats-container">
           {stats.mesIndividus !== undefined && (
             <Grid item xs={12} sm={6} md={4}>
-              <Card>
+              <DattaCard>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <IconUserCheck size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
                   <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.mesIndividus}</Typography>
@@ -106,13 +102,13 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                     Voir mes individus suivis
                   </Button>
                 </CardActions>
-              </Card>
+              </DattaCard>
             </Grid>
           )}
 
           {stats.totalIndividus !== undefined && (
             <Grid item xs={12} sm={6} md={4}>
-              <Card>
+              <DattaCard>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <IconUsers size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
                   <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.totalIndividus}</Typography>
@@ -126,13 +122,13 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                     Voir tous les individus
                   </Button>
                 </CardActions>
-              </Card>
+              </DattaCard>
             </Grid>
           )}
 
           {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
             <Grid item xs={12} sm={6} md={4}>
-              <Card>
+              <DattaCard>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <IconUserX size={32} style={{ color: 'var(--color-warning-500)', marginBottom: 'var(--spacing-2)' }} />
                   <Typography variant="h5" sx={{ color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>
@@ -143,24 +139,24 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                     Individus en attente d'assignation à un responsable.
                   </Typography>
                 </CardContent>
-              </Card>
+              </DattaCard>
             </Grid>
           )}
 
           <Grid item xs={12} md={4}>
-            <Card>
+            <DattaCard>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Vos Informations</Typography>
                 <Typography variant="body2">Nom d'utilisateur: {user.username}</Typography>
                 <Typography variant="body2">Rôle: {user.role}</Typography>
                 <Typography variant="body2">ID Utilisateur: {user.id || user.userId}</Typography>
               </CardContent>
-            </Card>
+            </DattaCard>
           </Grid>
 
           {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
             <Grid item xs={12} sm={6} md={4}>
-              <Card>
+              <DattaCard>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <IconFolder size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
                   <Typography variant="h5" sx={{ color: 'var(--color-primary-600)' }}>{stats.totalUsers}</Typography>
@@ -169,13 +165,13 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                     Nombre total de comptes utilisateurs actifs.
                   </Typography>
                 </CardContent>
-              </Card>
+              </DattaCard>
             </Grid>
           )}
 
           {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
             <Grid item xs={12} sm={6} md={4}>
-              <Card>
+              <DattaCard>
                 <CardContent sx={{ textAlign: 'center' }}>
                   <IconFolder size={32} style={{ color: 'var(--color-neutral-500)', marginBottom: 'var(--spacing-2)' }} />
                   <Typography variant="h5" sx={{ color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</Typography>
@@ -184,7 +180,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                     Catégories archivées non disponibles pour de nouvelles saisies.
                   </Typography>
                 </CardContent>
-              </Card>
+              </DattaCard>
             </Grid>
           )}
         </Grid>
