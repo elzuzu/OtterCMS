@@ -1,5 +1,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck, Users, CalendarDays, Tag, Info, PlusCircle, Clock, BarChart3 } from 'lucide-react';
+import {
+  IconFileText,
+  IconEdit,
+  IconTrash,
+  IconDeviceFloppy,
+  IconCircleX,
+  IconHistory,
+  IconAlertCircle,
+  IconUserCheck,
+  IconUsers,
+  IconCalendarEvent,
+  IconTag,
+  IconInfoCircle,
+  IconCirclePlus,
+  IconClock,
+  IconChartBar,
+} from '@tabler/icons-react';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
@@ -235,7 +251,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           <div className="number-graph-field">
             <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? 'form-input-readonly' : ''} />
             <button type="button" className="graph-button" onClick={() => openChart(champ)} aria-label="Voir graphique">
-              <BarChart3 size={18} />
+              <IconChartBar size={18} />
             </button>
           </div>
         );
@@ -334,7 +350,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         <div className="modal-content">
           <div className="modal-header">
             <h2>Erreur</h2>
-            <button onClick={onClose} className="close-button"><XCircle size={24} /></button>
+            <button onClick={onClose} className="close-button"><IconCircleX size={24} /></button>
           </div>
           <div className="modal-body">
             <p>{message || "Impossible de charger les informations de l'individu."}</p>
@@ -349,16 +365,16 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       <div className="modal-content modal-content-large">
         <div className="modal-header">
           <h2>
-            <FileText size={28} style={{ marginRight: '10px', verticalAlign: 'bottom' }} />
+            <IconFileText size={28} style={{ marginRight: '10px', verticalAlign: 'bottom' }} />
             Fiche de l'individu : {individu.numero_unique || individu.id}
           </h2>
-          <button onClick={onClose} className="close-button" aria-label="Fermer"><XCircle size={24} /></button>
+          <button onClick={onClose} className="close-button" aria-label="Fermer"><IconCircleX size={24} /></button>
         </div>
 
         {message && (
           <div className={`form-message message-${messageType}`}>
-            {messageType === 'error' && <AlertCircle size={20} style={{ marginRight: '10px' }} />}
-            {messageType === 'success' && <UserCheck size={20} style={{ marginRight: '10px' }} />}
+            {messageType === 'error' && <IconAlertCircle size={20} style={{ marginRight: '10px' }} />}
+            {messageType === 'success' && <IconUserCheck size={20} style={{ marginRight: '10px' }} />}
             {message}
           </div>
         )}
@@ -404,14 +420,14 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
               className={`tab-button ${onglet === `cat-${cat.id}` ? 'active' : ''}`}
               onClick={() => setOnglet(`cat-${cat.id}`)}
             >
-              <Info size={18} style={{ marginRight: '5px' }} /> {cat.nom}
+              <IconInfoCircle size={18} style={{ marginRight: '5px' }} /> {cat.nom}
             </button>
           ))}
           <button
             className={`tab-button ${onglet === 'historique' ? 'active active-historique' : ''}`}
             onClick={() => setOnglet('historique')}
           >
-            <History size={18} style={{ marginRight: '5px' }} /> Historique
+            <IconHistory size={18} style={{ marginRight: '5px' }} /> Historique
           </button>
         </div>
 
@@ -485,7 +501,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                     return (
                       <div key={a.id} className="audit-entry audit-entry-compact">
                         <div className="audit-icon-type">
-                          {a.action === 'create' ? <PlusCircle size={16} /> : <Edit3 size={16} />}
+                          {a.action === 'create' ? <IconCirclePlus size={16} /> : <IconEdit size={16} />}
                         </div>
                         <div className="audit-details">
                           <div className="audit-header audit-header-compact">
@@ -495,7 +511,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                             <span className="audit-user-time audit-user-time-compact">
                               Par <span className="audit-user">{utilisateurAuteur}</span>
                               <span className="audit-date">
-                                <Clock size={11} style={{marginRight: '3px', marginLeft: '6px'}} />
+                                <IconClock size={11} style={{marginRight: '3px', marginLeft: '6px'}} />
                                 {dateModif}
                               </span>
                             </span>
@@ -524,7 +540,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                             )}
                             {a.fichier_import && (
                               <div className="audit-import-info audit-import-info-compact">
-                                <FileText size={12} style={{ marginRight: '3px', verticalAlign: 'middle' }} />
+                                <IconFileText size={12} style={{ marginRight: '3px', verticalAlign: 'middle' }} />
                                 Via import : {a.fichier_import}
                               </div>
                             )}
@@ -544,22 +560,22 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             enEdition ? (
               <>
                 <button onClick={handleEnregistrement} className="button-primary" disabled={saving}>
-                  <Save size={18} style={{ marginRight: '5px' }} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
+                  <IconDeviceFloppy size={18} style={{ marginRight: '5px' }} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
                 </button>
                 <button onClick={handleCancelEdit} className="button-secondary" disabled={saving}>
-                  <XCircle size={18} style={{ marginRight: '5px' }} /> Annuler
+                  <IconCircleX size={18} style={{ marginRight: '5px' }} /> Annuler
                 </button>
               </>
             ) : (
               userCanEdit() && (
                 <button onClick={() => setEnEdition(true)} className="button-primary">
-                  <Edit3 size={18} style={{ marginRight: '5px' }} /> Modifier
+                  <IconEdit size={18} style={{ marginRight: '5px' }} /> Modifier
                 </button>
               )
             )
           )}
           <button onClick={onClose} className="button-secondary" disabled={saving}>
-            <XCircle size={18} style={{ marginRight: '5px' }} /> Fermer
+            <IconCircleX size={18} style={{ marginRight: '5px' }} /> Fermer
           </button>
         </div>
       </div>

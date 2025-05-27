@@ -4,6 +4,7 @@ import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { EditIcon, SortIcon } from './common/Icons';
+import DattaDataTable from './common/DattaDataTable';
 import { evaluateDynamicField } from '../utils/dynamic';
 
 const ITEMS_PER_PAGE = 20;
@@ -99,6 +100,60 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
     return getUserName(userId, ind);
   }, [getUserName]);
 
+  const tableColumns = useMemo(() => {
+    const cols = [
+      {
+        key: 'actions',
+        header: 'Actions',
+        sortable: false,
+        filterable: false,
+        render: ind => (
+          <button
+            onClick={() => setSelectedIndividuId(ind.id)}
+            className="btn-tertiary btn-icon"
+            title="Éditer l'individu"
+            style={{ padding: '4px 8px' }}
+          >
+            <EditIcon />
+          </button>
+        ),
+      },
+      {
+        key: 'numero_unique',
+        header: 'N° Individu',
+        sortable: true,
+        filterable: true,
+        render: ind => ind.numero_unique || ind.id,
+      },
+      {
+        key: 'en_charge',
+        header: 'En charge',
+        sortable: true,
+        filterable: true,
+        render: ind => getUserNameForDisplay(ind.en_charge, ind),
+      },
+    ];
+    colonnesAffichees.forEach(key => {
+      const champ = champsDisponibles.find(c => c.key === key);
+      if (!champ) return;
+      cols.push({
+        key,
+        header: champ.label,
+        sortable: true,
+        filterable: true,
+        render: ind => {
+          const value = (ind.champs_supplementaires || {})[key];
+          if (champ.type === 'boolean') return value ? 'Oui' : 'Non';
+          if (champ.type === 'date' || value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)))) {
+            return formatDateToDDMMYYYY(value);
+          }
+          return value === null || value === undefined ? '' : String(value);
+        },
+      });
+    });
+    return cols;
+  }, [colonnesAffichees, champsDisponibles, getUserNameForDisplay]);
+
   const filteredIndividus = useMemo(() => {
     if (loading || individus.length === 0) return [];
     let result = [...individus];
@@ -142,12 +197,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
     return result;
   }, [individus, viewMode, currentUserId, filtre, columnFilters, sortConfig, loading, getUserName]);
   
-  const individusToShow = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredIndividus.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredIndividus, currentPage]);
-  
-  const totalPages = Math.max(1, Math.ceil(filteredIndividus.length / ITEMS_PER_PAGE));
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -385,74 +434,19 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           )}
         </div>
       )}
-      {!loading && individusToShow.length > 0 && (
-        <div className="table-responsive" style={{ borderRadius: '8px', overflowX: 'auto', border: '1px solid var(--border-color-light)' }}>
-          <table className="individus-table data-table" style={{ borderCollapse: 'collapse', tableLayout: 'fixed' }}>
-            <thead>
-              <tr>
-                <th style={{ width: columnWidths.actions, minWidth: columnWidths.actions, textAlign: 'center', padding: '4px', backgroundColor: 'var(--color-neutral-50)', borderBottom: '2px solid var(--border-color-medium)', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', position: 'sticky', top: '0', zIndex: '2', boxSizing: 'border-box'}}>Actions</th>
-                <th onClick={() => handleSort('numero_unique')} style={{ width: columnWidths.numero_unique, minWidth: columnWidths.numero_unique, cursor: 'pointer', userSelect: 'none', padding: '4px', backgroundColor: 'var(--color-neutral-50)', borderBottom: '2px solid var(--border-color-medium)', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', position: 'sticky', top: '0', zIndex: '2', boxSizing: 'border-box'}}>N° Individu <SortIcon direction={sortConfig?.key === 'numero_unique' ? sortConfig.direction : undefined} /></th>
-                <th onClick={() => handleSort('en_charge')} style={{ width: columnWidths.en_charge, minWidth: columnWidths.en_charge, cursor: 'pointer', userSelect: 'none', padding: '4px', backgroundColor: 'var(--color-neutral-50)', borderBottom: '2px solid var(--border-color-medium)', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', position: 'sticky', top: '0', zIndex: '2', boxSizing: 'border-box'}}>En charge <SortIcon direction={sortConfig?.key === 'en_charge' ? sortConfig.direction : undefined} /></th>
-                {colonnesAffichees.map(key => {
-                  const champ = champsDisponibles.find(c => c.key === key);
-                  if (!champ) return null; // Ne pas rendre le header si le champ n'existe pas
-                  const currentWidth = columnWidths[key] || '130px';
-                  return (
-                    <th key={key} onClick={() => handleSort(key)} style={{ width: currentWidth, minWidth: currentWidth, cursor: 'pointer', userSelect: 'none', padding: '4px', backgroundColor: 'var(--color-neutral-50)', borderBottom: '2px solid var(--border-color-medium)', fontWeight: '600', fontSize: '0.75rem', textTransform: 'uppercase', position: 'sticky', top: '0', zIndex: '2', boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={champ.label}>{champ.label} <SortIcon direction={sortConfig?.key === key ? sortConfig.direction : undefined} /></th>
-                  );
-                })}
-              </tr>
-              <tr className="filter-row" style={{ backgroundColor: 'var(--color-neutral-100)' }}>
-                <td style={{ width: columnWidths.actions, minWidth: columnWidths.actions, padding: '4px', boxSizing: 'border-box' }}></td>
-                <td style={{ width: columnWidths.numero_unique, minWidth: columnWidths.numero_unique, padding: '4px', boxSizing: 'border-box' }}><input type="text" placeholder="Filtrer N°..." value={columnFilters.numero_unique || ''} onChange={e => setColumnFilters({...columnFilters, numero_unique: e.target.value})} onClick={e => e.stopPropagation()} style={{ width: '100%', padding: '4px 6px', border: '1px solid var(--border-color-medium)', borderRadius: '4px', fontSize: '0.8rem', boxSizing: 'border-box' }}/></td>
-                <td style={{ width: columnWidths.en_charge, minWidth: columnWidths.en_charge, padding: '4px', boxSizing: 'border-box' }}><input type="text" placeholder="Filtrer En charge..." value={columnFilters.en_charge || ''} onChange={e => setColumnFilters({...columnFilters, en_charge: e.target.value})} onClick={e => e.stopPropagation()} style={{ width: '100%', padding: '4px 6px', border: '1px solid var(--border-color-medium)', borderRadius: '4px', fontSize: '0.8rem', boxSizing: 'border-box' }}/></td>
-                {colonnesAffichees.map(key => {
-                  const champ = champsDisponibles.find(c => c.key === key);
-                  if (!champ) return null; // Ne pas rendre la cellule de filtre si le champ n'existe pas
-                  const currentWidth = columnWidths[key] || '130px';
-                  return (<td key={`filter-${key}`} style={{ width: currentWidth, minWidth: currentWidth, padding: '4px', boxSizing: 'border-box' }}><input type="text" placeholder={`Filtrer ${champ.label}...`} value={columnFilters[key] || ''} onChange={e => setColumnFilters({...columnFilters, [key]: e.target.value})} onClick={e => e.stopPropagation()} style={{ width: '100%', padding: '4px 6px', border: '1px solid var(--border-color-medium)', borderRadius: '4px', fontSize: '0.8rem', boxSizing: 'border-box' }}/></td>);
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {individusToShow.map(ind => (
-                <tr key={ind.id || ind.numero_unique} style={{ borderBottom: '1px solid var(--border-color-light)' }}>
-                  <td style={{ width: columnWidths.actions, minWidth: columnWidths.actions, textAlign: 'center', padding: '4px', verticalAlign: 'middle', boxSizing: 'border-box' }}><button onClick={() => setSelectedIndividuId(ind.id)} className="btn-tertiary btn-icon" title="Éditer l'individu" style={{ padding: '4px 8px' }}><EditIcon /></button></td>
-                  <td data-label="N° Individu" style={{ width: columnWidths.numero_unique, minWidth: columnWidths.numero_unique, padding: '4px', verticalAlign: 'middle', boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ind.numero_unique || ind.id}</td>
-                  <td data-label="En charge" style={{ width: columnWidths.en_charge, minWidth: columnWidths.en_charge, padding: '4px', verticalAlign: 'middle', boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getUserNameForDisplay(ind.en_charge, ind)}</td>
-                  {colonnesAffichees.map(key => {
-                    const champConfig = champsDisponibles.find(c => c.key === key);
-                    if (!champConfig) return null; // Correction: Ne pas rendre la cellule si le champConfig n'existe pas
-
-                    const champsSupp = ind.champs_supplementaires || {};
-                    const value = champsSupp[key];
-                    let displayValue = '';
-                    const currentWidth = columnWidths[key] || '130px';
-
-                    if (champConfig.type === 'boolean') {
-                      displayValue = value ? 'Oui' : 'Non';
-                    } else if (champConfig.type === 'date' || value instanceof Date || (typeof value === 'string' && !isNaN(Date.parse(value)))) {
-                      displayValue = formatDateToDDMMYYYY(value);
-                    } else {
-                      displayValue = value === null || value === undefined ? '' : String(value);
-                    }
-                    const champLabel = champConfig.label || key;
-                    return (
-                      <td key={key} data-label={champLabel} style={{ width: currentWidth, minWidth: currentWidth, padding: '4px', verticalAlign: 'middle', boxSizing: 'border-box', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={String(value)}>{displayValue}</td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {totalPages > 1 && (
-        <div className="pagination-controls" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
-          <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="btn-tertiary">Précédent</button>
-          <span style={{ color: 'var(--text-color-secondary)', fontSize: '0.875rem'}}>Page {currentPage} sur {totalPages} (Total: {filteredIndividus.length})</span>
-          <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="btn-tertiary">Suivant</button>
-        </div>
+      {!loading && filteredIndividus.length > 0 && (
+        <DattaDataTable
+          data={filteredIndividus}
+          columns={tableColumns}
+          getRowKey={ind => ind.id || ind.numero_unique}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+          columnFilters={columnFilters}
+          onColumnFilterChange={setColumnFilters}
+          page={currentPage - 1}
+          rowsPerPage={ITEMS_PER_PAGE}
+          onPageChange={(e, p) => setCurrentPage(p + 1)}
+        />
       )}
       {showAddForm && (<div className="modal-overlay"><NouvelIndividu user={user} onClose={() => setShowAddForm(false)} onSuccess={handleAddSuccess} /></div>)}
       {selectedIndividuId && (

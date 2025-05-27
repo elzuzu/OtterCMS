@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { XCircle } from 'lucide-react';
+import { IconX } from '@tabler/icons-react';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -40,7 +40,7 @@ export default function HistoryChartModal({ label, dataByYear, onClose }) {
         <div className="modal-header">
           <h2 style={{ flex: 1 }}>Historique : {label}</h2>
           <button onClick={onClose} className="close-button" aria-label="Fermer">
-            <XCircle size={24} />
+            <IconX size={24} />
           </button>
         </div>
         <div className="modal-body" style={{ padding: '20px' }}>

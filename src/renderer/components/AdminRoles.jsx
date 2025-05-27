@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ALL_PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
-import DataTable from './common/DataTable';
+import DattaDataTable from './common/DattaDataTable';
 import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminRoles({ user }) {
@@ -100,10 +100,9 @@ export default function AdminRoles({ user }) {
         </form>
       </div>
       <h3>Rôles existants</h3>
-      <DataTable
+      <DattaDataTable
         data={roles}
         getRowKey={r => r.name}
-        tableClassName="users-table data-table"
         columns={[
           { header: 'Nom', accessor: 'name' },
           { header: 'Permissions', render: r => r.permissions.join(', ') },
