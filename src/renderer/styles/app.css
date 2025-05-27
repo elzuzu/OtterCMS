@@ -33,10 +33,51 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
 .auth-bg {
   background: linear-gradient(135deg, var(--pc-primary) 0%, var(--pc-primary-dark) 100%);
+}
+
+/* Animated shapes similar to Datta Able login page */
+.auth-bg-animate::before,
+.auth-bg-animate::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.25;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.auth-bg-animate::before {
+  width: 320px;
+  height: 320px;
+  top: -160px;
+  right: -160px;
+  background: var(--datta-primary-light);
+  animation: rotate 20s linear infinite;
+}
+
+.auth-bg-animate::after {
+  width: 240px;
+  height: 240px;
+  bottom: -120px;
+  left: -120px;
+  background: var(--datta-primary-dark);
+  animation: rotate-reverse 25s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotate-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
 }
 
 .auth-card {
