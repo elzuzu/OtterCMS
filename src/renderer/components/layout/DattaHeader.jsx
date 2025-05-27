@@ -13,6 +13,11 @@ export default function DattaHeader({ onToggleSidebar, onLogout, user, title = '
                 <i className="ph-duotone ph-list"></i>
               </a>
             </li>
+            <li className="pc-h-item pc-sidebar-popup d-block d-md-none">
+              <a href="#" className="pc-head-link ms-0" onClick={onToggleSidebar}>
+                <i className="ph-duotone ph-list"></i>
+              </a>
+            </li>
           </ul>
         </div>
         <div className="ms-auto">
