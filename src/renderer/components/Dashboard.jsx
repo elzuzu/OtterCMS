@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
 import DattaButton from './common/DattaButton';
@@ -9,21 +10,6 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Styles kept for backward compatibility although not heavily used
-  const valueStyle = {
-    fontSize: '1.8rem',
-    fontWeight: '700',
-    color: 'var(--color-primary-600)',
-    lineHeight: '1.2',
-    marginBottom: 'var(--spacing-1)',
-    textAlign: 'center',
-  };
-  const labelStyle = {
-    fontSize: '0.8rem',
-    color: 'var(--text-color-secondary)',
-    textAlign: 'center',
-    minHeight: '2em',
-  };
 
   const loadStats = useCallback(async () => {
     setLoading(true);
@@ -91,11 +77,11 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
         <div className="row">
           {stats.mesIndividus !== undefined && (
             <div className="col-xl-3 col-md-6">
-              <div className="card">
+              <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
                 <div className="card-body">
                   <div className="d-flex align-items-center">
                     <div className="flex-shrink-0">
-                      <div className="avtar avtar-s bg-light-primary">
+                      <div className="avtar avtar-s bg-light-success">
                         <IconUserCheck size={24} />
                       </div>
                     </div>
@@ -103,15 +89,20 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                       <h6 className="mb-0">Dossiers en charge</h6>
                       <p className="mb-0 text-muted">{stats.mesIndividus}</p>
                     </div>
+                    <div className="flex-shrink-0 ms-3">
+                      <div className="badge bg-light-success text-success">
+                        <i className="ph-duotone ph-trend-up"></i> 12%
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
 
           {stats.totalIndividus !== undefined && (
             <div className="col-xl-3 col-md-6">
-              <div className="card">
+              <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
                 <div className="card-body">
                   <div className="d-flex align-items-center">
                     <div className="flex-shrink-0">
@@ -123,15 +114,20 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                       <h6 className="mb-0">Total Individus</h6>
                       <p className="mb-0 text-muted">{stats.totalIndividus}</p>
                     </div>
+                    <div className="flex-shrink-0 ms-3">
+                      <div className="badge bg-light-primary text-primary">
+                        <i className="ph-duotone ph-trend-up"></i> 12%
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
 
           {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
             <div className="col-xl-3 col-md-6">
-              <div className="card">
+              <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
                 <div className="card-body">
                   <div className="d-flex align-items-center">
                     <div className="flex-shrink-0">
@@ -143,9 +139,14 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                       <h6 className="mb-0">Individus non attribués</h6>
                       <p className="mb-0 text-muted">{stats.individusNonAttribues}</p>
                     </div>
+                    <div className="flex-shrink-0 ms-3">
+                      <div className="badge bg-light-warning text-warning">
+                        <i className="ph-duotone ph-trend-up"></i> 12%
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
 
@@ -162,7 +163,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
 
           {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
             <div className="col-xl-3 col-md-6">
-              <div className="card">
+              <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
                 <div className="card-body">
                   <div className="d-flex align-items-center">
                     <div className="flex-shrink-0">
@@ -174,19 +175,24 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                       <h6 className="mb-0">Total Utilisateurs</h6>
                       <p className="mb-0 text-muted">{stats.totalUsers}</p>
                     </div>
+                    <div className="flex-shrink-0 ms-3">
+                      <div className="badge bg-light-primary text-primary">
+                        <i className="ph-duotone ph-trend-up"></i> 12%
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
 
           {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
             <div className="col-xl-3 col-md-6">
-              <div className="card">
+              <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
                 <div className="card-body">
                   <div className="d-flex align-items-center">
                     <div className="flex-shrink-0">
-                      <div className="avtar avtar-s bg-light-secondary">
+                      <div className="avtar avtar-s bg-light-danger">
                         <IconFolder size={24} />
                       </div>
                     </div>
@@ -194,9 +200,14 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                       <h6 className="mb-0">Catégories masquées</h6>
                       <p className="mb-0 text-muted">{stats.categoriesMasquees}</p>
                     </div>
+                    <div className="flex-shrink-0 ms-3">
+                      <div className="badge bg-light-danger text-danger">
+                        <i className="ph-duotone ph-trend-up"></i> 12%
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
         </div>
