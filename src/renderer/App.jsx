@@ -1,6 +1,7 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import useTheme from './hooks/useTheme';
+import DattaButton from './components/common/DattaButton';
 const Auth = lazy(() => import('./components/Auth'));
 const MainContent = lazy(() => import('./components/MainContent'));
 
@@ -40,7 +41,7 @@ export default function App() {
         <div className="auth-form" style={{ textAlign: 'center' }}>
           <h2>Erreur d'authentification</h2>
           <p>Les informations utilisateur sont corrompues ou incomplètes. Veuillez vous reconnecter.</p>
-          <button onClick={handleLogout} className="btn-primary">Retour à la connexion</button>
+          <DattaButton onClick={handleLogout}>Retour à la connexion</DattaButton>
         </div>
       </div>
     );
