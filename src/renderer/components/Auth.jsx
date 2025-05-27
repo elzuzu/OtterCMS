@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getPermissionsForRole } from '../utils/permissions';
 import WindowControls from './common/WindowControls';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+import { IconUser, IconLock } from '@tabler/icons-react';
 import DattaAlert from './common/DattaAlert';
-import DattaPageTitle from './common/DattaPageTitle';
 
 export default function Auth({ setUser }) {
   const [username, setUsername] = useState('');
@@ -133,66 +129,85 @@ export default function Auth({ setUser }) {
 
   if (loading && !isAutoLoginAttempted) {
     return (
-      <Box className="auth-container">
-        <Box className="auth-form" sx={{ p: 3 }}>
-          <Typography variant="h6">Connexion automatique...</Typography>
-          <Typography variant="body2">Tente de se connecter avec votre compte Windows...</Typography>
-        </Box>
-      </Box>
+      <div className="auth-wrapper">
+        <div className="auth-content">
+          <div className="card">
+            <div className="card-body text-center">
+              <h6 className="mb-3">Connexion automatique...</h6>
+              <p>Tente de se connecter avec votre compte Windows...</p>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box className="auth-container">
+    <div className="auth-wrapper">
       <WindowControls />
-      <Box
-        component="form"
-        className="auth-form"
-        onSubmit={handleLogin}
-        sx={{ maxWidth: 360, mx: 'auto', mt: 4, p: 3, backgroundColor: 'var(--current-surface-color)', borderRadius: 'var(--border-radius-md)' }}
-      >
-        <DattaPageTitle title="Connexion" />
-        <TextField
-          id="username"
-          label="Nom d'utilisateur"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          margin="normal"
-          fullWidth
-          size="small"
-          required
-          autoFocus
-        />
-        <TextField
-          id="password"
-          label="Mot de passe"
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          margin="normal"
-          fullWidth
-          size="small"
-          required
-        />
-        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
-          <Button type="submit" variant="contained" disabled={loading || isInitializing}>
-            {loading ? 'Connexion...' : 'Se connecter'}
-          </Button>
-          <Button variant="outlined" onClick={testIPC} disabled={isInitializing}>Test IPC</Button>
-          <Button variant="contained" color="success" onClick={initDatabase} disabled={isInitializing || loading}>
-            {isInitializing ? 'Initialisation...' : 'Initialiser la DB'}
-          </Button>
-        </Box>
-        {error && <DattaAlert type="error">{error}</DattaAlert>}
-        {initStatus && (
-          <DattaAlert type={initStatus.includes('succès') ? 'success' : 'warning'}>{initStatus}</DattaAlert>
-        )}
-        <Typography variant="body2" sx={{ mt: 2 }} className="help-text">
-          Identifiants par défaut après initialisation :
-          <br />Utilisateur : <strong>admin</strong> | Mot de passe : <strong>admin</strong>
-          <br />Si vous rencontrez une erreur de base de données ou "User not found", essayez d'abord "Initialiser la DB".
-        </Typography>
-      </Box>
-    </Box>
+      <div className="auth-content">
+        <div className="card">
+          <div className="card-body text-center">
+            <h4 className="mb-3 f-w-400">Connexion</h4>
+            <form onSubmit={handleLogin}>
+              <div className="form-group mb-3 text-start">
+                <label className="form-label" htmlFor="username">
+                  <IconUser size={18} style={{ marginRight: 4 }} /> Nom d'utilisateur
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  className="form-control"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Entrez votre nom d'utilisateur"
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className="form-group mb-4 text-start">
+                <label className="form-label" htmlFor="password">
+                  <IconLock size={18} style={{ marginRight: 4 }} /> Mot de passe
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  className="form-control"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Entrez votre mot de passe"
+                  required
+                />
+              </div>
+              <button className="btn btn-primary btn-block mb-4" type="submit" disabled={loading || isInitializing}>
+                {loading ? 'Connexion...' : 'Se connecter'}
+              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                <button type="button" className="btn btn-outline-secondary" onClick={testIPC} disabled={isInitializing}>
+                  Test IPC
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={initDatabase}
+                  disabled={isInitializing || loading}
+                >
+                  {isInitializing ? 'Initialisation...' : 'Initialiser la DB'}
+                </button>
+              </div>
+            </form>
+            {error && <DattaAlert type="error">{error}</DattaAlert>}
+            {initStatus && (
+              <DattaAlert type={initStatus.includes('succès') ? 'success' : 'warning'}>{initStatus}</DattaAlert>
+            )}
+            <p className="small mt-3 help-text">
+              Identifiants par défaut après initialisation :
+              <br />Utilisateur : <strong>admin</strong> | Mot de passe : <strong>admin</strong>
+              <br />Si vous rencontrez une erreur de base de données ou "User not found", essayez d'abord "Initialiser la DB".
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
