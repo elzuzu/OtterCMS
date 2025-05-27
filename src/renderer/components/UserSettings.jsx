@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import DattaAlert from './common/DattaAlert';
 
 export default function UserSettings({ user }) {
   const [loginWin, setLoginWin] = useState('');
@@ -35,40 +40,35 @@ export default function UserSettings({ user }) {
   };
 
   return (
-    <div className="user-settings">
-      <h2>Paramètres utilisateur</h2>
-      <div className="ui-card">
-        <div className="ui-card-body">
-          <div className="form-group">
-            <label>Login Windows (nom d'utilisateur uniquement):</label>
-            <div className="input-action">
-              <input
-                placeholder="Ex: jean (sans domaine)"
-                value={loginWin}
-                onChange={e => setLoginWin(e.target.value)}
-              />
-              <button onClick={associerLogin} disabled={loading}>
-                {loading ? 'Association...' : 'Associer'}
-              </button>
-            </div>
-            {message && (
-              <div className={message.includes('succès') ? 'success' : 'error'}>
-                {message}
-              </div>
-            )}
-          </div>
+    <Box className="user-settings">
+      <Typography variant="h5" className="page-title">Paramètres utilisateur</Typography>
+      <Box className="ui-card" sx={{ p: 2 }}>
+        <div className="form-group">
+          <label>Login Windows (nom d'utilisateur uniquement):</label>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
+            <TextField
+              placeholder="Ex: jean (sans domaine)"
+              value={loginWin}
+              onChange={e => setLoginWin(e.target.value)}
+              size="small"
+            />
+            <Button variant="contained" onClick={associerLogin} disabled={loading}>
+              {loading ? 'Association...' : 'Associer'}
+            </Button>
+          </Box>
+          {message && <DattaAlert type={message.includes('succès') ? 'success' : 'error'}>{message}</DattaAlert>}
         </div>
-      </div>
-      <div className="ui-card">
+      </Box>
+      <Box className="ui-card" sx={{ mt: 3 }}>
         <div className="ui-card-header">
-          <h3>Informations utilisateur</h3>
+          <Typography variant="h6" className="section-title">Informations utilisateur</Typography>
         </div>
         <div className="ui-card-body user-info">
           <div>Nom d'utilisateur: <strong>{user.username}</strong></div>
           <div>Rôle actuel: <strong>{user.role}</strong></div>
           <div>ID utilisateur: <strong>{user.id || user.userId}</strong></div>
         </div>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getPermissionsForRole } from '../utils/permissions';
 import WindowControls from './common/WindowControls';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import DattaAlert from './common/DattaAlert';
 
 export default function Auth({ setUser }) {
   const [username, setUsername] = useState('');
@@ -127,62 +132,66 @@ export default function Auth({ setUser }) {
 
   if (loading && !isAutoLoginAttempted) {
     return (
-      <div className="auth-container">
-        <div className="auth-form">
-          <h2>Connexion automatique...</h2>
-          <p>Tentative de connexion avec votre compte Windows en cours...</p>
-        </div>
-      </div>
+      <Box className="auth-container">
+        <Box className="auth-form" sx={{ p: 3 }}>
+          <Typography variant="h6">Connexion automatique...</Typography>
+          <Typography variant="body2">Tente de se connecter avec votre compte Windows...</Typography>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <div className="auth-container">
+    <Box className="auth-container">
       <WindowControls />
-      <form className="auth-form" onSubmit={handleLogin}>
-        <h2>Connexion</h2>
-        <div className="form-group">
-          <label htmlFor="username">Nom d&apos;utilisateur</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-            autoFocus
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Mot de passe</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-actions">
-          <button type="submit" className="btn-primary" disabled={loading || isInitializing}>
+      <Box
+        component="form"
+        className="auth-form"
+        onSubmit={handleLogin}
+        sx={{ maxWidth: 360, mx: 'auto', mt: 4, p: 3, backgroundColor: 'var(--current-surface-color)', borderRadius: 'var(--border-radius-md)' }}
+      >
+        <Typography variant="h5" className="page-title">Connexion</Typography>
+        <TextField
+          id="username"
+          label="Nom d'utilisateur"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          margin="normal"
+          fullWidth
+          size="small"
+          required
+          autoFocus
+        />
+        <TextField
+          id="password"
+          label="Mot de passe"
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          margin="normal"
+          fullWidth
+          size="small"
+          required
+        />
+        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+          <Button type="submit" variant="contained" disabled={loading || isInitializing}>
             {loading ? 'Connexion...' : 'Se connecter'}
-          </button>
-          <button type="button" className="btn-secondary" onClick={testIPC} disabled={isInitializing}>
-            Test IPC
-          </button>
-          <button type="button" className="btn-success" onClick={initDatabase} disabled={isInitializing || loading}>
+          </Button>
+          <Button variant="outlined" onClick={testIPC} disabled={isInitializing}>Test IPC</Button>
+          <Button variant="contained" color="success" onClick={initDatabase} disabled={isInitializing || loading}>
             {isInitializing ? 'Initialisation...' : 'Initialiser la DB'}
-          </button>
-        </div>
-        {error && <div className="error">{error}</div>}
+          </Button>
+        </Box>
+        {error && <DattaAlert type="error">{error}</DattaAlert>}
         {initStatus && (
-          <div className={initStatus.includes('succès') ? 'success' : 'warning'}>{initStatus}</div>
+          <DattaAlert type={initStatus.includes('succès') ? 'success' : 'warning'}>{initStatus}</DattaAlert>
         )}
-        <div className="login-info help-text">
-          <p>Identifiants par défaut après initialisation :</p>
-          <p>Utilisateur : <strong>admin</strong> | Mot de passe : <strong>admin</strong></p>
-          <p>Si vous rencontrez une erreur de base de données ou "User not found", essayez d&apos;abord "Initialiser la DB".</p>
-        </div>
-      </form>
-    </div>
+        <Typography variant="body2" sx={{ mt: 2 }} className="help-text">
+          Identifiants par défaut après initialisation :
+          <br />Utilisateur : <strong>admin</strong> | Mot de passe : <strong>admin</strong>
+          <br />Si vous rencontrez une erreur de base de données ou "User not found", essayez d'abord "Initialiser la DB".
+        </Typography>
+      </Box>
+    </Box>
   );
 }
