@@ -1,10 +1,4 @@
 import React from 'react';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import {
   IconHome2,
   IconList,
@@ -54,46 +48,34 @@ export default function DattaSidebar({ open, onClose, user, activeTab, onTabChan
   }
 
   return (
-    <Drawer
-      variant="persistent"
-      open={open}
-      onClose={onClose}
-      sx={{
-        width: 260,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: 260,
-          backgroundColor: 'var(--datta-sidebar-bg-dark)',
-          color: '#fff',
-        },
-      }}
+    <nav
+      className={`navbar-nav bg-gradient-primary sidebar sidebar-dark accordion ${open ? '' : 'toggled'}`}
+      style={{ backgroundColor: 'var(--sidebar-bg-dark)', width: 260 }}
     >
-      <PerfectScrollbar options={{ suppressScrollX: true }} style={{ height: '100%' }}>
-        <List sx={{ width: 260 }}>
-          {tabs.map((tab) => (
-            <ListItemButton
-              key={tab.id}
-              selected={activeTab === tab.id}
-              onClick={() => onTabChange(tab.id)}
-              sx={{
-                '&.Mui-selected': {
-                  color: 'var(--datta-primary)',
-                  borderLeft: '3px solid var(--datta-primary)',
-                  backgroundColor: 'rgba(255,255,255,0.08)',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'inherit' }}>{icons[tab.id]}</ListItemIcon>
-              <ListItemText primary={tab.label} />
-            </ListItemButton>
-          ))}
-        </List>
-        <div style={{ padding: 16, marginTop: 'auto', color: 'rgba(255,255,255,0.65)' }}>
-          <div style={{ fontSize: 12 }}>
-            {user.windows_login ? `${user.windows_login} (${user.role})` : `${user.username} (${user.role})`}
-          </div>
+      <div className="sidebar-brand">
+        <div className="sidebar-brand-icon rotate-n-15">
+          <i className="fas fa-laugh-wink"></i>
         </div>
-      </PerfectScrollbar>
-    </Drawer>
+        <div className="sidebar-brand-text mx-3">Indi-Suivi</div>
+      </div>
+      <hr className="sidebar-divider my-0" />
+      <ul className="nav flex-column">
+        {tabs.map((tab) => (
+          <li key={tab.id} className="nav-item">
+            <a
+              className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => onTabChange(tab.id)}
+              style={{ cursor: 'pointer' }}
+            >
+              {icons[tab.id]}
+              <span style={{ marginLeft: 8 }}>{tab.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div style={{ padding: 16, marginTop: 'auto', color: 'rgba(255,255,255,0.65)', fontSize: 12 }}>
+        {user.windows_login ? `${user.windows_login} (${user.role})` : `${user.username} (${user.role})`}
+      </div>
+    </nav>
   );
 }

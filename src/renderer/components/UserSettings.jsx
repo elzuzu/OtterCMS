@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
@@ -53,9 +52,9 @@ export default function UserSettings({ user }) {
               onChange={e => setLoginWin(e.target.value)}
               size="small"
             />
-            <Button variant="contained" onClick={associerLogin} disabled={loading}>
+            <button className="btn btn-primary" onClick={associerLogin} disabled={loading}>
               {loading ? 'Association...' : 'Associer'}
-            </Button>
+            </button>
           </Box>
           {message && <DattaAlert type={message.includes('succès') ? 'success' : 'error'}>{message}</DattaAlert>}
         </div>

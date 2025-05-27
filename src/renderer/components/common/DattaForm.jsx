@@ -1,38 +1,30 @@
 import React from 'react';
-import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
 
 export function DattaTextField({ label, error, helperText, ...props }) {
   return (
-    <TextField
-      label={label}
-      error={!!error}
-      helperText={error || helperText}
-      variant="outlined"
-      size="small"
-      inputProps={{ style: { height: 32, padding: '0 8px' } }}
-      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--datta-border-radius)' } }}
-      fullWidth
-      {...props}
-    />
+    <div className="form-group">
+      <label className="form-label">{label}</label>
+      <input
+        className={`form-control ${error ? 'is-invalid' : ''}`}
+        {...props}
+      />
+      {error && <div className="invalid-feedback">{error}</div>}
+      {helperText && !error && <small className="form-text text-muted">{helperText}</small>}
+    </div>
   );
 }
 
 export function DattaSelect({ label, options = [], error, helperText, ...props }) {
   return (
-    <FormControl fullWidth size="small" error={!!error} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--datta-border-radius)' } }}>
-      <InputLabel>{label}</InputLabel>
-      <Select label={label} {...props}>
+    <div className="form-group">
+      <label className="form-label">{label}</label>
+      <select className={`form-control ${error ? 'is-invalid' : ''}`} {...props}>
         {options.map(opt => (
-          <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
-      </Select>
-      {error && <FormHelperText>{error}</FormHelperText>}
-    </FormControl>
+      </select>
+      {error && <div className="invalid-feedback">{error}</div>}
+    </div>
   );
 }
 
