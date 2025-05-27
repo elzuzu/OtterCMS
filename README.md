@@ -1,4 +1,4 @@
-# Indi-Suivi - Neo UI Edition
+# Indi-Suivi
 
 Application Electron et React permettant le suivi d'individus avec champs dynamiques et interface moderne.
 
@@ -17,7 +17,7 @@ Application Electron et React permettant le suivi d'individus avec champs dynami
 
 ## Nouveautés
 
-Version **2.0 Neo UI** avec thèmes personnalisables et navigation revue.
+Version **2.0** avec thèmes personnalisables et navigation revue.
 
 L'interface repose desormais sur le template **Datta Able** adapte a Electron.
 Les principaux ecrans utilisent des wrappers React (`DattaCard`, `DattaDataTable`...) pour harmoniser le rendu.
