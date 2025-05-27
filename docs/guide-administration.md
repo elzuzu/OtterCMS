@@ -25,6 +25,7 @@ Par défaut, plusieurs types de champs sont proposés :
 - **Date** : sélection de date au format calendrier.
 - **Liste déroulante** : choix parmi plusieurs options prédéfinies.
 - **Case à cocher** : valeur booléenne (oui/non).
+- **Nombre avec historique** : valeur numérique s'accompagnant d'un graphique mensuel accessible par clic.
 
 ### Nouveau : Champ dynamique
 
@@ -44,5 +45,9 @@ Pour créer un champ dynamique :
 4. Définissez les options habituelles (ordre, visibilité, etc.), puis enregistrez.
 
 Ainsi, les champs dynamiques enrichissent la description des individus sans saisie supplémentaire de la part des utilisateurs.
+
+### Nouveau : Champ nombre avec historique
+
+Ce type s'utilise comme un champ numérique classique mais permet d'afficher un graphique récapitulatif des valeurs mois par mois. Lors de la consultation d'une fiche, un clic sur la valeur ouvre une fenêtre présentant un histogramme. Les utilisateurs peuvent changer d'année pour analyser l'évolution.
 
 Pour la prise en main de l'interface, consultez également le [guide d'utilisation](guide-utilisation.md).

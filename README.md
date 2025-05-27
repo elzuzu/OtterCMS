@@ -26,6 +26,7 @@ Version **2.0 Neo UI** avec thèmes personnalisables et navigation revue.
 - Import CSV/Excel avec attribution en masse
 - Tableau de bord synthétique et audit complet des modifications
 - Interface React moderne avec mode clair/sombre
+- Visualisation graphique de l'historique pour certains champs numériques
 
 ## Prérequis
 

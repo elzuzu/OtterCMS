@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck, Users, CalendarDays, Tag, Info, PlusCircle, Clock } from 'lucide-react';
+import { FileText, Edit3, Trash2, Save, XCircle, History, AlertCircle, UserCheck, Users, CalendarDays, Tag, Info, PlusCircle, Clock, BarChart3 } from 'lucide-react';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
 import { evaluateDynamicField } from '../utils/dynamic';
+import HistoryChartModal from './common/HistoryChartModal';
 
 export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [individu, setIndividu] = useState(null);
@@ -20,6 +21,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   const [saving, setSaving] = useState(false);
   const [champsPromus, setChampsPromus] = useState([]);
   const [allRawCategories, setAllRawCategories] = useState([]);
+  const [chartField, setChartField] = useState(null);
 
   // Fonction utilitaire pour obtenir le libellé du champ à partir de sa clé
   const getChampLabel = useCallback((champKey) => {
@@ -191,6 +193,16 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       }
       return formatted;
     }
+    if (champ.type === 'number-graph') {
+      const display = valeur === null || valeur === undefined || valeur === '' ? (
+        <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>
+      ) : String(valeur);
+      return (
+        <span className="graph-value" onClick={() => openChart(champ)} style={{cursor: 'pointer', textDecoration: 'underline'}}>
+          {display}
+        </span>
+      );
+    }
     if (valeur === null || valeur === undefined || valeur === '') {
       return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
     }
@@ -218,6 +230,15 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
       case 'number':
         return <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
+      case 'number-graph':
+        return (
+          <div className="number-graph-field">
+            <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? 'form-input-readonly' : ''} />
+            <button type="button" className="graph-button" onClick={() => openChart(champ)} aria-label="Voir graphique">
+              <BarChart3 size={18} />
+            </button>
+          </div>
+        );
       case 'date':
         return <input type="date" {...commonProps} className={isReadOnly ? "form-input-readonly" : ""} />;
       case 'list':
@@ -261,6 +282,40 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     }
     return false;
   };
+
+  const computeHistory = (fieldKey) => {
+    const entries = audit
+      .filter(a => a.champ === fieldKey)
+      .map(e => ({ date: new Date(e.date_modif), value: parseFloat(e.nouvelle_valeur) }))
+      .sort((a, b) => a.date - b.date);
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const dataByYear = {};
+    entries.forEach(e => {
+      const y = e.date.getFullYear();
+      const m = e.date.getMonth();
+      if (!dataByYear[y]) dataByYear[y] = Array(12).fill(null);
+      dataByYear[y][m] = e.value;
+    });
+    if (!dataByYear[currentYear]) dataByYear[currentYear] = Array(12).fill(null);
+    const currentVal = valeurs[fieldKey] ?? individu.champs_supplementaires?.[fieldKey] ?? 0;
+    dataByYear[currentYear][currentMonth] = parseFloat(currentVal) || 0;
+    let last = null;
+    Object.keys(dataByYear).sort().forEach(y => {
+      for (let i = 0; i < 12; i++) {
+        if (dataByYear[y][i] !== null) last = dataByYear[y][i];
+        else if (last !== null) dataByYear[y][i] = last;
+      }
+    });
+    return dataByYear;
+  };
+
+  const openChart = (champ) => {
+    const data = computeHistory(champ.key);
+    setChartField({ champ, data });
+  };
+
+  const closeChart = () => setChartField(null);
 
   if (loadingData) {
     return (
@@ -681,6 +736,19 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           cursor: not-allowed;
         }
 
+        .number-graph-field {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .graph-button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--color-primary-500);
+        }
+
         .select-stylish {
           width: 100%;
           border: 1px solid var(--color-neutral-300);
@@ -786,5 +854,8 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
       `}</style>
     </div>
+    {chartField && (
+      <HistoryChartModal label={chartField.champ.label} dataByYear={chartField.data} onClose={closeChart} />
+    )}
   );
 }
