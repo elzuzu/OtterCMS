@@ -233,9 +233,9 @@ body.theme-red {
 /* -------------------------------------------------------------------------- */
 /* 🌓 Application du Thème Sombre                       */
 /* -------------------------------------------------------------------------- */
-/* Lorsque html a l'attribut data-theme="dark", on redéfinit les variables --current-* */
+/* Lorsque l'attribut data-layout="dark" est présent sur html, on redéfinit les variables --current-* */
 
-html[data-theme="dark"] {
+[data-layout="dark"] {
   --current-background-color: var(--dm-background);
   --current-surface-color: var(--dm-surface-dp02); /* Surface par défaut pour les cartes, etc. */
   --current-surface-color-dp01: var(--dm-surface-dp01);

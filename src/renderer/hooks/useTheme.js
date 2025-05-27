@@ -19,11 +19,15 @@ export default function useTheme() {
           const res = await window.api.getTheme();
           const saved = res?.theme || 'dark';
           setMode(saved);
-          document.documentElement.setAttribute('data-theme', saved);
+          document.documentElement.setAttribute('data-layout', saved);
+          document.documentElement.classList.remove('layout-light', 'layout-dark');
+          document.documentElement.classList.add(`layout-${saved}`);
         } else {
           const saved = localStorage.getItem('theme') || 'dark';
           setMode(saved);
-          document.documentElement.setAttribute('data-theme', saved);
+          document.documentElement.setAttribute('data-layout', saved);
+          document.documentElement.classList.remove('layout-light', 'layout-dark');
+          document.documentElement.classList.add(`layout-${saved}`);
         }
       } catch (e) {
         console.error('useTheme: load theme failed', e);
@@ -39,7 +43,9 @@ export default function useTheme() {
   const toggleMode = async () => {
     const newMode = mode === 'light' ? 'dark' : 'light';
     setMode(newMode);
-    document.documentElement.setAttribute('data-theme', newMode);
+    document.documentElement.setAttribute('data-layout', newMode);
+    document.documentElement.classList.remove('layout-light', 'layout-dark');
+    document.documentElement.classList.add(`layout-${newMode}`);
     if (window.api && window.api.setTheme) {
       try { await window.api.setTheme(newMode); } catch (e) { console.error(e); }
     } else {
