@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
+import DattaButton from './common/DattaButton';
 
 export default function UserSettings({ user }) {
   const [loginWin, setLoginWin] = useState('');
@@ -52,9 +53,9 @@ export default function UserSettings({ user }) {
               onChange={e => setLoginWin(e.target.value)}
               size="small"
             />
-            <button className="btn btn-primary" onClick={associerLogin} disabled={loading}>
+            <DattaButton variant="primary" onClick={associerLogin} disabled={loading}>
               {loading ? 'Association...' : 'Associer'}
-            </button>
+            </DattaButton>
           </Box>
           {message && <DattaAlert type={message.includes('succès') ? 'success' : 'error'}>{message}</DattaAlert>}
         </div>

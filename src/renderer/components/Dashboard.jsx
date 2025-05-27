@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
+import DattaButton from './common/DattaButton';
 import { IconFolder, IconUsers, IconUserCheck, IconUserX } from '@tabler/icons-react';
 
 export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToAllIndividus }) {
@@ -68,7 +69,9 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
         <DattaPageTitle title="Tableau de bord" />
         <div className="error-message" style={{ margin: 'var(--spacing-4) 0' }}>
           {error}
-          <button onClick={loadStats} className="btn-secondary" style={{ marginLeft: 'var(--spacing-3)' }}>Réessayer</button>
+          <DattaButton variant="secondary" onClick={loadStats} style={{ marginLeft: 'var(--spacing-3)' }}>
+            Réessayer
+          </DattaButton>
         </div>
       </div>
     );
@@ -80,7 +83,9 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
       {!stats ? (
         <div className="no-data-message" style={{ margin: 'var(--spacing-4) 0' }}>
           Aucune statistique disponible pour le moment.
-          <button onClick={loadStats} className="btn-primary" style={{ marginTop: 'var(--spacing-3)' }}>Recharger</button>
+          <DattaButton variant="primary" onClick={loadStats} style={{ marginTop: 'var(--spacing-3)' }}>
+            Recharger
+          </DattaButton>
         </div>
       ) : (
         <div className="row">

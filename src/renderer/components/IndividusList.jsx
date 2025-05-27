@@ -6,6 +6,7 @@ import { formatDateToDDMMYYYY } from '../utils/date';
 import { EditIcon, SortIcon } from './common/Icons';
 import DattaDataTable from './common/DattaDataTable';
 import DattaPageTitle from './common/DattaPageTitle';
+import DattaButton from './common/DattaButton';
 import { evaluateDynamicField } from '../utils/dynamic';
 
 const ITEMS_PER_PAGE = 20;
@@ -109,14 +110,14 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         sortable: false,
         filterable: false,
         render: ind => (
-          <button
+          <DattaButton
+            variant="secondary"
+            size="sm"
             onClick={() => setSelectedIndividuId(ind.id)}
-            className="btn-tertiary btn-icon"
             title="Éditer l'individu"
-            style={{ padding: '4px 8px' }}
           >
-            <EditIcon />
-          </button>
+            <EditIcon size={16} />
+          </DattaButton>
         ),
       },
       {
@@ -370,7 +371,9 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         <DattaPageTitle title="Gestion des individus" />
         <div className="error-message">
           {error}
-          <button onClick={loadData} className="btn-secondary" style={{ marginTop: '10px' }}>Réessayer de charger</button>
+          <DattaButton variant="secondary" onClick={loadData} style={{ marginTop: '10px' }}>
+            Réessayer de charger
+          </DattaButton>
         </div>
       </div>
     );
@@ -385,8 +388,22 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       </div>
       <div className="actions-bar">
         <div className="view-mode-selector">
-          <button onClick={() => handleViewChange('all')} className={viewMode === 'all' ? 'active-view-button' : ''}>Tous les individus</button>
-          <button onClick={() => handleViewChange('mine')} className={viewMode === 'mine' ? 'active-view-button' : ''}>Mes individus</button>
+          <DattaButton
+            variant="secondary"
+            size="sm"
+            className={viewMode === 'all' ? 'active-view-button' : ''}
+            onClick={() => handleViewChange('all')}
+          >
+            Tous les individus
+          </DattaButton>
+          <DattaButton
+            variant="secondary"
+            size="sm"
+            className={viewMode === 'mine' ? 'active-view-button' : ''}
+            onClick={() => handleViewChange('mine')}
+          >
+            Mes individus
+          </DattaButton>
         </div>
         <div className="search-container" style={{ position: 'relative' }}>
           <span className="search-icon">🔍</span>
@@ -400,8 +417,12 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           />
         </div>
         <div className="buttons-container">
-          <button onClick={handleAddIndividu} className="btn-success add-button">Ajouter un individu</button>
-          <button onClick={handleConfigColonnes} className="btn-secondary columns-button">{showColonnesPicker ? 'Masquer le sélecteur' : 'Configurer les colonnes'}</button>
+          <DattaButton variant="success" size="sm" className="add-button" onClick={handleAddIndividu}>
+            Ajouter un individu
+          </DattaButton>
+          <DattaButton variant="secondary" size="sm" className="columns-button" onClick={handleConfigColonnes}>
+            {showColonnesPicker ? 'Masquer le sélecteur' : 'Configurer les colonnes'}
+          </DattaButton>
         </div>
       </div>
       {showColonnesPicker && (
@@ -425,7 +446,14 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         <div className="no-data-message" style={{marginTop: '20px', textAlign: 'center'}}>
           <p>{filtre || Object.keys(columnFilters).some(k => columnFilters[k]) || viewMode === 'mine' ? "Aucun individu ne correspond à vos critères." : "Aucun individu enregistré."}</p>
           {viewMode === 'mine' && individus.length > 0 && (
-            <div style={{marginTop: '20px'}}><p className="text-color-secondary" style={{marginBottom: '10px'}}>Vous n'avez aucun individu assigné. {individus.length} au total.</p><button className="btn-secondary" onClick={() => handleViewChange('all')}>Voir tous</button></div>
+            <div style={{marginTop: '20px'}}>
+              <p className="text-color-secondary" style={{marginBottom: '10px'}}>
+                Vous n'avez aucun individu assigné. {individus.length} au total.
+              </p>
+              <DattaButton variant="secondary" size="sm" onClick={() => handleViewChange('all')}>
+                Voir tous
+              </DattaButton>
+            </div>
           )}
         </div>
       )}

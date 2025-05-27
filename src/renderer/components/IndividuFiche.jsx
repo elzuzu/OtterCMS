@@ -18,6 +18,7 @@ import {
 } from '@tabler/icons-react';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { PERMISSIONS } from '../constants/permissions';
+import DattaButton from './common/DattaButton';
 import { hasPermission } from '../utils/permissions';
 import { evaluateDynamicField } from '../utils/dynamic';
 import HistoryChartModal from './common/HistoryChartModal';
@@ -415,20 +416,24 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
         <div className="tabs">
           {categories.map(cat => (
-            <button
+            <DattaButton
               key={`tab-${cat.id}`}
+              variant="secondary"
+              size="sm"
               className={`tab-button ${onglet === `cat-${cat.id}` ? 'active' : ''}`}
               onClick={() => setOnglet(`cat-${cat.id}`)}
             >
               <IconInfoCircle size={18} style={{ marginRight: '5px' }} /> {cat.nom}
-            </button>
+            </DattaButton>
           ))}
-          <button
+          <DattaButton
+            variant="secondary"
+            size="sm"
             className={`tab-button ${onglet === 'historique' ? 'active active-historique' : ''}`}
             onClick={() => setOnglet('historique')}
           >
             <IconHistory size={18} style={{ marginRight: '5px' }} /> Historique
-          </button>
+          </DattaButton>
         </div>
 
         <div className="modal-body modal-body-compact">
@@ -559,24 +564,24 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           {onglet !== 'historique' && (
             enEdition ? (
               <>
-                <button onClick={handleEnregistrement} className="button-primary" disabled={saving}>
+                <DattaButton onClick={handleEnregistrement} variant="primary" size="sm" disabled={saving}>
                   <IconDeviceFloppy size={18} style={{ marginRight: '5px' }} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
-                </button>
-                <button onClick={handleCancelEdit} className="button-secondary" disabled={saving}>
+                </DattaButton>
+                <DattaButton onClick={handleCancelEdit} variant="secondary" size="sm" disabled={saving}>
                   <IconCircleX size={18} style={{ marginRight: '5px' }} /> Annuler
-                </button>
+                </DattaButton>
               </>
             ) : (
               userCanEdit() && (
-                <button onClick={() => setEnEdition(true)} className="button-primary">
+                <DattaButton onClick={() => setEnEdition(true)} variant="primary" size="sm">
                   <IconEdit size={18} style={{ marginRight: '5px' }} /> Modifier
-                </button>
+                </DattaButton>
               )
             )
           )}
-          <button onClick={onClose} className="button-secondary" disabled={saving}>
+          <DattaButton onClick={onClose} variant="secondary" size="sm" disabled={saving}>
             <IconCircleX size={18} style={{ marginRight: '5px' }} /> Fermer
-          </button>
+          </DattaButton>
         </div>
       </div>
 
