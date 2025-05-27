@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import DattaCard from './DattaCard';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendUpIcon, TrendDownIcon } from './Icons';
 
 export default function StatCard({ icon, title, value, change, trend = 'up', gradient = 'blue' }) {
   const gradients = {
@@ -32,7 +32,7 @@ export default function StatCard({ icon, title, value, change, trend = 'up', gra
             <div
               className={`d-flex justify-content-center align-items-center ${trend === 'up' ? 'text-success' : 'text-danger'}`}
             >
-              {trend === 'up' ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+              {trend === 'up' ? <TrendUpIcon /> : <TrendDownIcon />}
               <span className="ms-1">{change}</span>
             </div>
           )}
