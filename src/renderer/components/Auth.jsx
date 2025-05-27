@@ -3,6 +3,7 @@ import { getPermissionsForRole } from '../utils/permissions';
 import WindowControls from './common/WindowControls';
 import { IconUser, IconLock } from '@tabler/icons-react';
 import DattaAlert from './common/DattaAlert';
+import DattaButton from './common/DattaButton';
 
 export default function Auth({ setUser }) {
   const [username, setUsername] = useState('');
@@ -129,9 +130,9 @@ export default function Auth({ setUser }) {
 
   if (loading && !isAutoLoginAttempted) {
     return (
-      <div className="auth-wrapper">
+      <div className="auth-wrapper auth-bg">
         <div className="auth-content">
-          <div className="card">
+          <div className="card auth-card">
             <div className="card-body text-center">
               <h6 className="mb-3">Connexion automatique...</h6>
               <p>Tente de se connecter avec votre compte Windows...</p>
@@ -143,10 +144,10 @@ export default function Auth({ setUser }) {
   }
 
   return (
-    <div className="auth-wrapper">
+    <div className="auth-wrapper auth-bg">
       <WindowControls />
       <div className="auth-content">
-        <div className="card">
+        <div className="card auth-card">
           <div className="card-header">
             <h4 className="mb-3 f-w-400">Connexion</h4>
           </div>
@@ -181,21 +182,16 @@ export default function Auth({ setUser }) {
                   required
                 />
               </div>
-              <button className="btn btn-primary btn-block mb-4" type="submit" disabled={loading || isInitializing}>
-                {loading ? 'Connexion...' : 'Se connecter'}
-              </button>
+              <DattaButton variant="primary" className="btn-block mb-4" type="submit" loading={loading || isInitializing}>
+                Se connecter
+              </DattaButton>
               <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                <button type="button" className="btn btn-outline-secondary" onClick={testIPC} disabled={isInitializing}>
+                <DattaButton variant="secondary" onClick={testIPC} disabled={isInitializing}>
                   Test IPC
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-success"
-                  onClick={initDatabase}
-                  disabled={isInitializing || loading}
-                >
+                </DattaButton>
+                <DattaButton variant="success" onClick={initDatabase} loading={isInitializing || loading}>
                   {isInitializing ? 'Initialisation...' : 'Initialiser la DB'}
-                </button>
+                </DattaButton>
               </div>
             </form>
             {error && <DattaAlert type="error">{error}</DattaAlert>}
