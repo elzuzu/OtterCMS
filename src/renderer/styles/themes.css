@@ -10,12 +10,18 @@
   --color-primary-700: #1d4ed8;
 
   /* Semantic colors */
-  --color-success-50: #ecfdf5;
-  --color-success-500: #10b981;
-  --color-success-700: #047857;
-  --color-danger-50: #fef2f2;
-  --color-danger-500: #ef4444;
-  --color-danger-700: #b91c1c;
+  --color-success-50: #f6ffed;
+  --color-success-500: #52c41a;
+  --color-success-700: #237804;
+  --color-warning-50: #fffbe6;
+  --color-warning-500: #faad14;
+  --color-warning-700: #d48806;
+  --color-info-50: #e6fffb;
+  --color-info-500: #13c2c2;
+  --color-info-700: #08979c;
+  --color-danger-50: #fff1f0;
+  --color-danger-500: #ff4d4f;
+  --color-danger-700: #a8071a;
 
   /* Neutral scale */
   --color-neutral-50: #f8f9fa;
@@ -37,9 +43,19 @@
   --current-text-placeholder: #6b7280;
   --current-border-light: var(--color-neutral-200);
   --current-border-medium: var(--color-neutral-300);
-  --current-primary-color: var(--color-primary-500);
-  --current-primary-color-hover: var(--color-primary-600);
-  --current-primary-color-active: var(--color-primary-700);
+  --current-primary-color: var(--datta-primary);
+  --current-primary-color-hover: var(--datta-primary-light);
+  --current-primary-color-active: var(--datta-primary-dark);
+
+  /* Datta palette */
+  --datta-primary: #1890ff;
+  --datta-primary-light: #40a9ff;
+  --datta-primary-dark: #096dd9;
+  --datta-sidebar-bg-light: #ffffff;
+  --datta-sidebar-bg-dark: #001529;
+  --datta-card-bg: #fafafa;
+  --datta-border-radius: 6px;
+  --datta-box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 
   /* Typography */
   --font-family-base: 'Inter', sans-serif;
@@ -86,6 +102,9 @@
   --current-text-placeholder: rgba(255, 255, 255, 0.38);
   --current-border-light: rgba(255, 255, 255, 0.12);
   --current-border-medium: rgba(255, 255, 255, 0.2);
-  --current-primary-color-hover: #8bc3ff;
-  --current-primary-color-active: #4a90e2;
+
+  --datta-card-bg: #001529;
+  --datta-sidebar-bg-dark: #001529;
+  --current-primary-color-hover: var(--datta-primary-light);
+  --current-primary-color-active: var(--datta-primary-dark);
 }

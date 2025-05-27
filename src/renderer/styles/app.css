@@ -11,5 +11,17 @@ body {
   padding: 0;
 }
 
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
 /* Placeholders for other component specific rules still in use */
 

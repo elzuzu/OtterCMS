@@ -14,6 +14,8 @@ export function DattaTextField({ label, error, helperText, ...props }) {
       helperText={error || helperText}
       variant="outlined"
       size="small"
+      inputProps={{ style: { height: 32, padding: '0 8px' } }}
+      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--datta-border-radius)' } }}
       fullWidth
       {...props}
     />
@@ -22,7 +24,7 @@ export function DattaTextField({ label, error, helperText, ...props }) {
 
 export function DattaSelect({ label, options = [], error, helperText, ...props }) {
   return (
-    <FormControl fullWidth size="small" error={!!error}>
+    <FormControl fullWidth size="small" error={!!error} sx={{ '& .MuiOutlinedInput-root': { borderRadius: 'var(--datta-border-radius)' } }}>
       <InputLabel>{label}</InputLabel>
       <Select label={label} {...props}>
         {options.map(opt => (

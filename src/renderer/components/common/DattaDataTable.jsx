@@ -35,7 +35,14 @@ export default function DattaDataTable({
   };
 
   return (
-    <Paper sx={{ width: '100%', overflowX: 'auto' }}>
+    <Paper
+      sx={{
+        width: '100%',
+        overflowX: 'auto',
+        boxShadow: 'var(--datta-box-shadow)',
+        borderRadius: 'var(--datta-border-radius)',
+      }}
+    >
       <TableContainer>
         <Table size="small">
           <TableHead>
@@ -44,7 +51,11 @@ export default function DattaDataTable({
                 <TableCell
                   key={col.key || col.header}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
-                  sx={{ cursor: col.sortable ? 'pointer' : 'default', fontWeight: 600 }}
+                  sx={{
+                    cursor: col.sortable ? 'pointer' : 'default',
+                    fontWeight: 600,
+                    backgroundColor: 'var(--datta-card-bg)',
+                  }}
                 >
                   {col.header}
                   {col.sortable && sortConfig?.key === col.key && (
@@ -65,7 +76,13 @@ export default function DattaDataTable({
                         type="text"
                         value={columnFilters[col.key] || ''}
                         onChange={e => handleFilterChange(col.key, e.target.value)}
-                        style={{ width: '100%' }}
+                        style={{
+                          width: '100%',
+                          height: 32,
+                          border: '1px solid var(--current-border-medium)',
+                          borderRadius: 'var(--datta-border-radius)',
+                          padding: '0 8px',
+                        }}
                       />
                     )}
                   </TableCell>
@@ -75,9 +92,9 @@ export default function DattaDataTable({
           </TableHead>
           <TableBody>
             {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
-              <TableRow key={keyGetter(row, idx)}>
+              <TableRow key={keyGetter(row, idx)} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
                 {columns.map(col => (
-                  <TableCell key={col.key || col.header}> 
+                  <TableCell key={col.key || col.header}>
                     {col.render ? col.render(row) : row[col.accessor]}
                   </TableCell>
                 ))}
@@ -95,6 +112,7 @@ export default function DattaDataTable({
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={e => onRowsPerPageChange && onRowsPerPageChange(parseInt(e.target.value, 10))}
           rowsPerPageOptions={[5, 10, 20, 50]}
+          sx={{ borderTop: '1px solid var(--current-border-light)' }}
         />
       )}
     </Paper>

@@ -9,8 +9,14 @@ import WindowControls from '../common/WindowControls';
 
 export default function DattaHeader({ onToggleSidebar, onLogout, user, title = 'Indi-Suivi' }) {
   return (
-    <AppBar position="static" color="default" elevation={1} className="no-drag">
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: 48 }}>
+    <AppBar
+      position="static"
+      color="default"
+      elevation={1}
+      className="no-drag"
+      sx={{ backgroundColor: '#fff', boxShadow: 'var(--datta-box-shadow)' }}
+    >
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: 64 }}>
         <div style={{ display: 'flex', alignItems: 'center' }} className="no-drag">
           <IconButton edge="start" onClick={onToggleSidebar} size="small" sx={{ mr: 1 }}>
             <IconMenu2 size={20} />

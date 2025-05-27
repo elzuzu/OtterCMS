@@ -28,14 +28,22 @@ export default function LayoutManager({
         activeTab={activeTab}
         onTabChange={onTabChange}
       />
-      <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'margin-left 0.3s',
+        }}
+      >
         <DattaHeader
           onToggleSidebar={handleToggleSidebar}
           onLogout={onLogout}
           user={user}
           title={title}
         />
-        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto' }}>
+        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', padding: 2 }}>
           {children}
         </Box>
       </Box>

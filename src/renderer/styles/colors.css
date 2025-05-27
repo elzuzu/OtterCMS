@@ -31,22 +31,22 @@
   --border-focus-ring-light: rgba(59, 130, 246, 0.5); /* Anneau de focus (souvent bleu) */
 
   /* Couleurs d'accentuation pour le thème clair */
-  --primary-color-light: #007bff; /* Bleu primaire Bootstrap classique */
-  --primary-color-hover-light: #0056b3;
-  --primary-color-active-light: #004085;
+  --primary-color-light: #1890ff;
+  --primary-color-hover-light: #40a9ff;
+  --primary-color-active-light: #096dd9;
+  --success-color-light: #52c41a;
+  --warning-color-light: #faad14;
+  --danger-color-light: #ff4d4f;
+  --info-color-light: #13c2c2;
 
   --secondary-color-light: #6c757d; /* Optionnel, si vous avez une couleur secondaire */
   --secondary-color-hover-light: #545b62;
 
-  --success-color-light: #28a745;
-  --success-color-hover-light: #1e7e34;
-  --danger-color-light: #dc3545;
-  --danger-color-hover-light: #b02a37;
-  --warning-color-light: #ffc107;
+  --success-color-hover-light: #73d13d;
+  --danger-color-hover-light: #ff7875;
   --warning-color-text-light: #212529; /* Texte sur fond warning souvent foncé */
-  --warning-color-hover-light: #d39e00;
-  --info-color-light: #17a2b8;
-  --info-color-hover-light: #117a8b;
+  --warning-color-hover-light: #ffd666;
+  --info-color-hover-light: #36cfc9;
 
   /* Variables spécifiques à neo-ui (si utilisées) pour le thème clair */
   --neo-bg-light: var(--color-neutral-100-light);
@@ -88,22 +88,22 @@
   --dm-border-focus-ring: rgba(130, 177, 255, 0.5); /* Bleu clair pour l'anneau de focus */
 
   /* Couleurs d'accentuation pour le thème sombre (souvent plus claires/désaturées) */
-  --dm-primary-color: #62B0FF; /* Teinte de bleu plus claire que le bleu clair */
-  --dm-primary-color-hover: #8BC3FF;
-  --dm-primary-color-active: #4A90E2;
+  --dm-primary-color: #1890ff;
+  --dm-primary-color-hover: #40a9ff;
+  --dm-primary-color-active: #096dd9;
 
   --dm-secondary-color: #8A9AAB;
   --dm-secondary-color-hover: #A0B0C1;
 
-  --dm-success-color: #4CAF50; /* Vert plus clair */
-  --dm-success-color-hover: #66BB6A;
-  --dm-danger-color: #F47174;  /* Rouge/Rose plus clair */
-  --dm-danger-color-hover: #FF8A8C;
-  --dm-warning-color: #FFCA28; /* Jaune plus clair */
+  --dm-success-color: #52c41a;
+  --dm-success-color-hover: #73d13d;
+  --dm-danger-color: #ff4d4f;
+  --dm-danger-color-hover: #ff7875;
+  --dm-warning-color: #faad14;
   --dm-warning-color-text: #000000; /* Texte sur fond warning souvent noir pour contraste */
-  --dm-warning-color-hover: #FFD54F;
-  --dm-info-color: #29B6F6;    /* Cyan/Bleu clair */
-  --dm-info-color-hover: #4FC3F7;
+  --dm-warning-color-hover: #ffd666;
+  --dm-info-color: #13c2c2;
+  --dm-info-color-hover: #36cfc9;
 
   /* Variables spécifiques à neo-ui pour le thème sombre */
   --dm-neo-bg: var(--dm-surface-dp01);

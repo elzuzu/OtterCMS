@@ -54,21 +54,41 @@ export default function DattaSidebar({ open, onClose, user, activeTab, onTabChan
   }
 
   return (
-    <Drawer variant="persistent" open={open} onClose={onClose} sx={{ width: 240, flexShrink: 0 }}>
+    <Drawer
+      variant="persistent"
+      open={open}
+      onClose={onClose}
+      sx={{
+        width: 260,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: 260,
+          backgroundColor: 'var(--datta-sidebar-bg-dark)',
+          color: '#fff',
+        },
+      }}
+    >
       <PerfectScrollbar options={{ suppressScrollX: true }} style={{ height: '100%' }}>
-        <List sx={{ width: 240 }}>
+        <List sx={{ width: 260 }}>
           {tabs.map((tab) => (
             <ListItemButton
               key={tab.id}
               selected={activeTab === tab.id}
               onClick={() => onTabChange(tab.id)}
+              sx={{
+                '&.Mui-selected': {
+                  color: 'var(--datta-primary)',
+                  borderLeft: '3px solid var(--datta-primary)',
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                },
+              }}
             >
-              <ListItemIcon>{icons[tab.id]}</ListItemIcon>
+              <ListItemIcon sx={{ color: 'inherit' }}>{icons[tab.id]}</ListItemIcon>
               <ListItemText primary={tab.label} />
             </ListItemButton>
           ))}
         </List>
-        <div style={{ padding: 16, marginTop: 'auto' }}>
+        <div style={{ padding: 16, marginTop: 'auto', color: 'rgba(255,255,255,0.65)' }}>
           <div style={{ fontSize: 12 }}>
             {user.windows_login ? `${user.windows_login} (${user.role})` : `${user.username} (${user.role})`}
           </div>

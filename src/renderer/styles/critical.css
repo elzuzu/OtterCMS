@@ -157,7 +157,7 @@ label {
 }
 
 .data-table th {
-  background-color: var(--color-neutral-50);
+  background-color: var(--datta-card-bg);
   font-weight: 600;
   color: var(--current-text-primary);
   text-transform: uppercase;
@@ -169,7 +169,7 @@ label {
 }
 
 .data-table tbody tr:hover {
-  background-color: var(--color-neutral-100);
+  background-color: #f5f5f5;
 }
 
 .data-table .filter-row input {
