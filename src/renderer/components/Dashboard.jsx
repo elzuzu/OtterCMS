@@ -85,50 +85,67 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
       ) : (
         <div className="row">
           {stats.mesIndividus !== undefined && (
-            <div className="col-xl-3 col-md-6 mb-4">
-              <div className="card border-left-primary shadow h-100 py-2">
-                <div className="card-body text-center">
-                  <IconUserCheck size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <div className="h5 mb-2 font-weight-bold text-gray-800">{stats.mesIndividus}</div>
-                  <div className="text-xs font-weight-bold text-primary text-uppercase mb-2">Dossiers en charge</div>
-                  <p className="mb-2 small">Nombre de dossiers relevant de votre responsabilité directe.</p>
-                  <button className="btn btn-primary btn-block btn-sm" onClick={() => typeof onNavigateToMyIndividus === 'function' && onNavigateToMyIndividus()}>Voir mes individus suivis</button>
+            <div className="col-xl-3 col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-shrink-0">
+                      <div className="avtar avtar-s bg-light-primary">
+                        <IconUserCheck size={24} />
+                      </div>
+                    </div>
+                    <div className="flex-grow-1 ms-3">
+                      <h6 className="mb-0">Dossiers en charge</h6>
+                      <p className="mb-0 text-muted">{stats.mesIndividus}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {stats.totalIndividus !== undefined && (
-            <div className="col-xl-3 col-md-6 mb-4">
-              <div className="card border-left-primary shadow h-100 py-2">
-                <div className="card-body text-center">
-                  <IconUsers size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <div className="h5 mb-2 font-weight-bold text-gray-800">{stats.totalIndividus}</div>
-                  <div className="text-xs font-weight-bold text-primary text-uppercase mb-2">Total des individus</div>
-                  <p className="mb-2 small">Nombre total d'individus enregistrés dans le système.</p>
-                  <button className="btn btn-primary btn-block btn-sm" onClick={() => typeof onNavigateToAllIndividus === 'function' && onNavigateToAllIndividus()}>Voir tous les individus</button>
+            <div className="col-xl-3 col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-shrink-0">
+                      <div className="avtar avtar-s bg-light-primary">
+                        <IconUsers size={24} />
+                      </div>
+                    </div>
+                    <div className="flex-grow-1 ms-3">
+                      <h6 className="mb-0">Total Individus</h6>
+                      <p className="mb-0 text-muted">{stats.totalIndividus}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
-            <div className="col-xl-3 col-md-6 mb-4">
-              <div className="card border-left-warning shadow h-100 py-2">
-                <div className="card-body text-center">
-                  <IconUserX size={32} style={{ color: 'var(--color-warning-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <div className="h5 mb-2 font-weight-bold" style={{ color: stats.individusNonAttribues > 0 ? 'var(--color-warning-500)' : 'var(--color-success-500)' }}>
-                    {stats.individusNonAttribues}
+            <div className="col-xl-3 col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-shrink-0">
+                      <div className="avtar avtar-s bg-light-warning">
+                        <IconUserX size={24} />
+                      </div>
+                    </div>
+                    <div className="flex-grow-1 ms-3">
+                      <h6 className="mb-0">Individus non attribués</h6>
+                      <p className="mb-0 text-muted">{stats.individusNonAttribues}</p>
+                    </div>
                   </div>
-                  <div className="text-xs font-weight-bold text-uppercase mb-2">Individus non attribués</div>
-                  <p className="mb-0 small">Individus en attente d'assignation à un responsable.</p>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="col-xl-3 col-md-6 mb-4">
-            <div className="card shadow h-100 py-2">
+          <div className="col-xl-3 col-md-6">
+            <div className="card">
               <div className="card-body">
                 <h6 className="mb-2">Vos Informations</h6>
                 <p className="mb-1">Nom d'utilisateur: <strong>{user.username}</strong></p>
@@ -139,26 +156,40 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
           </div>
 
           {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
-            <div className="col-xl-3 col-md-6 mb-4">
-              <div className="card border-left-primary shadow h-100 py-2">
-                <div className="card-body text-center">
-                  <IconFolder size={32} style={{ color: 'var(--color-primary-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <div className="h5 mb-2 font-weight-bold text-gray-800">{stats.totalUsers}</div>
-                  <div className="text-xs font-weight-bold text-primary text-uppercase mb-2">Total des utilisateurs</div>
-                  <p className="mb-0 small">Nombre total de comptes utilisateurs actifs.</p>
+            <div className="col-xl-3 col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-shrink-0">
+                      <div className="avtar avtar-s bg-light-primary">
+                        <IconFolder size={24} />
+                      </div>
+                    </div>
+                    <div className="flex-grow-1 ms-3">
+                      <h6 className="mb-0">Total Utilisateurs</h6>
+                      <p className="mb-0 text-muted">{stats.totalUsers}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
-            <div className="col-xl-3 col-md-6 mb-4">
-              <div className="card shadow h-100 py-2">
-                <div className="card-body text-center">
-                  <IconFolder size={32} style={{ color: 'var(--color-neutral-500)', marginBottom: 'var(--spacing-2)' }} />
-                  <div className="h5 mb-2 font-weight-bold" style={{ color: 'var(--color-neutral-500)' }}>{stats.categoriesMasquees}</div>
-                  <div className="text-xs font-weight-bold text-uppercase mb-2">Catégories masquées</div>
-                  <p className="mb-0 small">Catégories archivées non disponibles pour de nouvelles saisies.</p>
+            <div className="col-xl-3 col-md-6">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center">
+                    <div className="flex-shrink-0">
+                      <div className="avtar avtar-s bg-light-secondary">
+                        <IconFolder size={24} />
+                      </div>
+                    </div>
+                    <div className="flex-grow-1 ms-3">
+                      <h6 className="mb-0">Catégories masquées</h6>
+                      <p className="mb-0 text-muted">{stats.categoriesMasquees}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

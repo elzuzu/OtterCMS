@@ -23,7 +23,7 @@ const icons = {
   settings: <IconSettings size={18} />,
 };
 
-export default function DattaSidebar({ open, onClose, user, activeTab, onTabChange }) {
+export default function DattaSidebar({ open, onToggle, user, activeTab, onTabChange }) {
   const tabs = [];
   if (hasPermission(user, PERMISSIONS.VIEW_DASHBOARD)) {
     tabs.push({ id: 'dashboard', label: 'Tableau de bord' });
@@ -48,33 +48,29 @@ export default function DattaSidebar({ open, onClose, user, activeTab, onTabChan
   }
 
   return (
-    <nav
-      className={`navbar-nav bg-gradient-primary sidebar sidebar-dark accordion ${open ? '' : 'toggled'}`}
-      style={{ backgroundColor: 'var(--sidebar-bg-dark)', width: 260 }}
-    >
-      <div className="sidebar-brand">
-        <div className="sidebar-brand-icon rotate-n-15">
-          <i className="fas fa-laugh-wink"></i>
+    <nav className={`pc-sidebar ${!open ? 'pc-sidebar-hide' : ''}`}>
+      <div className="navbar-wrapper">
+        <div className="m-header">
+          <a href="#" className="b-brand text-primary" onClick={onToggle}>
+            <i className="ph-duotone ph-buildings f-26"></i>
+            <span className="badge bg-brand-color-3 rounded-pill ms-2">v2.0</span>
+          </a>
         </div>
-        <div className="sidebar-brand-text mx-3">Indi-Suivi</div>
-      </div>
-      <hr className="sidebar-divider my-0" />
-      <ul className="nav flex-column">
-        {tabs.map((tab) => (
-          <li key={tab.id} className="nav-item">
-            <a
-              className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => onTabChange(tab.id)}
-              style={{ cursor: 'pointer' }}
-            >
-              {icons[tab.id]}
-              <span style={{ marginLeft: 8 }}>{tab.label}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      <div style={{ padding: 16, marginTop: 'auto', color: 'rgba(255,255,255,0.65)', fontSize: 12 }}>
-        {user.windows_login ? `${user.windows_login} (${user.role})` : `${user.username} (${user.role})`}
+        <div className="navbar-content">
+          <ul className="pc-navbar">
+            {tabs.map(tab => (
+              <li key={tab.id} className={`pc-item ${activeTab === tab.id ? 'active' : ''}`}>
+                <a href="#" className="pc-link" onClick={() => onTabChange(tab.id)}>
+                  <span className="pc-micon">{icons[tab.id]}</span>
+                  <span className="pc-mtext">{tab.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="sidebar-user text-center mt-auto mb-3 small">
+          {user.windows_login ? `${user.windows_login} (${user.role})` : `${user.username} (${user.role})`}
+        </div>
       </div>
     </nav>
   );
