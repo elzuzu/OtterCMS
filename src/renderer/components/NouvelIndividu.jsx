@@ -3,6 +3,7 @@ import DattaAlert from './common/DattaAlert';
 import { evaluateDynamicField } from '../utils/dynamic';
 import { DattaTextField, DattaSelect } from './common/DattaForm';
 import DattaPageTitle from './common/DattaPageTitle';
+import DattaButton from './common/DattaButton';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Tabs from '@mui/material/Tabs';
@@ -205,13 +206,17 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
         <div className="fiche-header">
           <DattaPageTitle title="Nouvel individu" />
           <div className="fiche-actions">
-            <button type="submit" className="btn-success btn-sauvegarder" disabled={loading}>
+            <DattaButton type="submit" variant="success" size="sm" className="btn-sauvegarder" disabled={loading}>
               {loading ? 'Création...' : 'Enregistrer et Fermer'}
-            </button>
-            <button type="button" onClick={handleSubmitAndNew} className="btn-primary" disabled={loading}>
+            </DattaButton>
+            <DattaButton type="button" variant="primary" size="sm" onClick={handleSubmitAndNew} disabled={loading}>
               {loading ? 'Création...' : 'Enregistrer et Nouveau'}
-            </button>
-            {onClose && <button type="button" onClick={onClose} className="btn-fermer" disabled={loading}>Annuler</button>}
+            </DattaButton>
+            {onClose && (
+              <DattaButton type="button" variant="secondary" size="sm" onClick={onClose} disabled={loading}>
+                Annuler
+              </DattaButton>
+            )}
           </div>
         </div>
         

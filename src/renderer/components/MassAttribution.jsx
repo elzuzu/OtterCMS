@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Stepper, Step, StepLabel } from '@mui/material';
 import DattaAlert from './common/DattaAlert';
+import DattaButton from './common/DattaButton';
 
 export default function MassAttribution({ user }) {
   const [loading, setLoading] = useState(false);
@@ -250,7 +251,16 @@ export default function MassAttribution({ user }) {
               </div>
             )}
           </>)}
-          <button type="button" onClick={handleAddCurrentFilter} className="btn-add-filter" disabled={!selectedFieldKey || (needsValue() && filterValue === '' && field?.type !== 'checkbox')}>Ajouter ce filtre</button>
+          <DattaButton
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleAddCurrentFilter}
+            className="btn-add-filter"
+            disabled={!selectedFieldKey || (needsValue() && filterValue === '' && field?.type !== 'checkbox')}
+          >
+            Ajouter ce filtre
+          </DattaButton>
         </div>
       </div>
     );
@@ -415,7 +425,10 @@ export default function MassAttribution({ user }) {
         {step === 1 && (
           <div className="wizard-panel">
             <div className="filters-panel">
-              <div className="filters-header"><h3>Filtres</h3><button onClick={resetAllFilters} className="btn-reset-filters">Réinitialiser</button></div>
+              <div className="filters-header">
+                <h3>Filtres</h3>
+                <DattaButton variant="secondary" size="sm" onClick={resetAllFilters} className="btn-reset-filters">Réinitialiser</DattaButton>
+              </div>
               <div className="filter-mode-selector"><label>Opérateur de combinaison des filtres de champs:</label><div className="filter-mode-options">
                 <label><input type="radio" name="filterMode" value="all" checked={filterMode === 'all'} onChange={() => { setFilterMode('all'); applyAllFilters(individus); }} />ET</label>
                 <label><input type="radio" name="filterMode" value="any" checked={filterMode === 'any'} onChange={() => { setFilterMode('any'); applyAllFilters(individus); }} />OU</label>
@@ -424,7 +437,15 @@ export default function MassAttribution({ user }) {
               {fieldFilters.length > 0 && <div className="active-field-filters"><h4>Filtres de champs actifs</h4><ul>
                 {fieldFilters.map((filter, index) => <li key={index} className="field-filter-item">
                   <span className="field-filter-info"><strong>{filter.field.label}</strong> {filter.operator === 'equals' ? 'est égal à' : filter.operator === 'notEquals' ? 'n\'est pas égal à' : filter.operator === 'contains' ? 'contient' : filter.operator === 'startsWith' ? 'commence par' : filter.operator === 'endsWith' ? 'se termine par' : filter.operator === 'greaterThan' ? 'est supérieur à' : filter.operator === 'lessThan' ? 'est inférieur à' : filter.operator === 'empty' ? 'est vide' : filter.operator === 'notEmpty' ? 'n\'est pas vide' : filter.operator} {!['empty', 'notEmpty'].includes(filter.operator) && <span className="filter-value">"{filter.value === true ? 'Oui' : filter.value === false ? 'Non' : filter.value}"</span>}</span>
-                  <button onClick={() => removeFieldFilter(index)} className="btn-remove-filter" title="Supprimer">×</button>
+                  <DattaButton
+                    variant="danger"
+                    size="sm"
+                    onClick={() => removeFieldFilter(index)}
+                    className="btn-remove-filter"
+                    title="Supprimer"
+                  >
+                    ×
+                  </DattaButton>
                 </li>)}
               </ul></div>}
             </div>
@@ -438,7 +459,15 @@ export default function MassAttribution({ user }) {
               </div>
               <div className="individus-selection">
                 <div className="table-header"><label className="select-all"><input type="checkbox" checked={selectAll} onChange={toggleSelectAll} disabled={filteredIndividus.length === 0} />Tout sélectionner ({filteredIndividus.length})</label></div>
-                {loading ? <div className="loading">Chargement des individus...</div> : filteredIndividus.length === 0 ? <div className="no-results"><p>Aucun individu ne correspond.</p><button onClick={resetAllFilters} className="btn-reset-filters">Réinitialiser les filtres</button></div> : <div className="individus-table-container table-responsive"><table className="individus-table data-table">
+                {loading ? (
+                  <div className="loading">Chargement des individus...</div>
+                ) : filteredIndividus.length === 0 ? (
+                  <div className="no-results">
+                    <p>Aucun individu ne correspond.</p>
+                    <DattaButton variant="secondary" size="sm" onClick={resetAllFilters} className="btn-reset-filters">Réinitialiser les filtres</DattaButton>
+                  </div>
+                ) : (
+                  <div className="individus-table-container table-responsive"><table className="individus-table data-table">
                   <thead><tr><th style={{ width: '40px' }}></th><th>N° Individu</th><th>En charge</th>{fieldFilters.map((filter, idx) => <th key={idx}>{filter.field.label}</th>)}</tr></thead>
                   <tbody>{filteredIndividus.map(individu => <tr key={individu.id} className={selectedIndividus.includes(individu.id) ? 'selected-row' : ''}>
                     <td><input type="checkbox" checked={selectedIndividus.includes(individu.id)} onChange={() => toggleIndividuSelection(individu.id)} /></td>
@@ -447,7 +476,11 @@ export default function MassAttribution({ user }) {
                   </tr>)}</tbody>
                 </table></div>}
               </div>
-              <div className="wizard-actions"><button onClick={handleProceedToAttribution} className="btn-primary" disabled={selectedIndividus.length === 0}>Continuer ({selectedIndividus.length} sélectionnés)</button></div>
+              <div className="wizard-actions">
+                <DattaButton variant="primary" onClick={handleProceedToAttribution} disabled={selectedIndividus.length === 0}>
+                  Continuer ({selectedIndividus.length} sélectionnés)
+                </DattaButton>
+              </div>
             </div>
           </div>
         )}
@@ -465,7 +498,15 @@ export default function MassAttribution({ user }) {
                     </select>
                     <label htmlFor="percentageForUser" style={{marginTop: '10px'}}>Pourcentage d'activité/capacité :</label>
                     <input id="percentageForUser" type="number" value={currentPercentage} onChange={e => setCurrentPercentage(e.target.value)} placeholder="Ex: 50" min="0" max="100" style={{width: '100px', marginLeft:'10px', marginRight:'10px'}}/> %
-                    <button type="button" onClick={handleAddUserToDistribution} className="btn-secondary" style={{marginLeft: '10px'}}>Ajouter à la distribution</button>
+                    <DattaButton
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleAddUserToDistribution}
+                      style={{ marginLeft: '10px' }}
+                    >
+                      Ajouter à la distribution
+                    </DattaButton>
                 </div>
 
                 {distributionList.length > 0 && (
@@ -494,7 +535,14 @@ export default function MassAttribution({ user }) {
                                             />
                                         </td>
                                         <td>
-                                            <button type="button" onClick={() => handleRemoveUserFromDistribution(item.userId)} className="btn-danger btn-small">Retirer</button>
+                                            <DattaButton
+                                              type="button"
+                                              variant="danger"
+                                              size="sm"
+                                              onClick={() => handleRemoveUserFromDistribution(item.userId)}
+                                            >
+                                              Retirer
+                                            </DattaButton>
                                         </td>
                                     </tr>
                                 ))}
@@ -508,10 +556,14 @@ export default function MassAttribution({ user }) {
                 )}
             </div>
             <div className="wizard-actions">
-              <button onClick={() => setStep(1)} className="btn-secondary">Retour à la sélection</button>
-              <button onClick={executeAttribution} className="btn-primary" disabled={loading || distributionList.length === 0 || distributionList.some(d=> d.percentage === '' || parseFloat(d.percentage) === 0 ) && getTotalPercentage() === 0  }>
+              <DattaButton variant="secondary" onClick={() => setStep(1)}>Retour à la sélection</DattaButton>
+              <DattaButton
+                variant="primary"
+                onClick={executeAttribution}
+                disabled={loading || distributionList.length === 0 || distributionList.some(d=> d.percentage === '' || parseFloat(d.percentage) === 0 ) && getTotalPercentage() === 0  }
+              >
                 {loading ? 'Attribution en cours...' : 'Attribuer les individus'}
-              </button>
+              </DattaButton>
             </div>
           </div>
         )}
@@ -521,7 +573,7 @@ export default function MassAttribution({ user }) {
               <h3>Attribution terminée</h3>
               <DattaAlert type="success">{message}</DattaAlert>
               <div className="confirmation-actions">
-                <button onClick={handleReset} className="btn-primary">Nouvelle attribution de masse</button>
+                <DattaButton variant="primary" onClick={handleReset}>Nouvelle attribution de masse</DattaButton>
               </div>
             </div>
           </div>

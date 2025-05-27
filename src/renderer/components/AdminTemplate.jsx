@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DattaButton from './common/DattaButton';
 
 const THEME_COLORS = [
   { id: 'blue', label: 'Bleu (Défaut)', value: '#0078D4' },
@@ -49,30 +50,28 @@ export default function AdminTemplate() {
       
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
         {THEME_COLORS.map(color => (
-          <button
+          <DattaButton
             key={color.id}
             onClick={() => handleSelectColor(color.id)}
-            className={`btn-base ${selectedColorId === color.id ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ 
-              minWidth: '120px',
-              // Visual cue for the button itself, though the body class handles the actual theme
-              // backgroundColor: selectedColorId === color.id ? `var(--color-primary-500)` : `var(--surface-color)`,
-              // color: selectedColorId === color.id ? `var(--text-color-on-primary)` : `var(--color-primary-600)`,
-              // borderColor: selectedColorId === color.id ? `var(--color-primary-600)` : `var(--color-primary-500)`,
-            }}
+            variant={selectedColorId === color.id ? 'primary' : 'secondary'}
+            size="sm"
+            className="btn-base"
+            style={{ minWidth: '120px' }}
             aria-pressed={selectedColorId === color.id}
           >
-            <span style={{
-              display: 'inline-block',
-              width: '1em',
-              height: '1em',
-              backgroundColor: color.value,
-              borderRadius: '50%',
-              marginRight: '0.5em',
-              border: '1px solid rgba(0,0,0,0.2)'
-            }}></span>
+            <span
+              style={{
+                display: 'inline-block',
+                width: '1em',
+                height: '1em',
+                backgroundColor: color.value,
+                borderRadius: '50%',
+                marginRight: '0.5em',
+                border: '1px solid rgba(0,0,0,0.2)'
+              }}
+            ></span>
             {color.label}
-          </button>
+          </DattaButton>
         ))}
       </div>
 

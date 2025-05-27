@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
+import DattaButton from './common/DattaButton';
 import { Stepper, Step, StepLabel } from '@mui/material';
 
 // Constantes pour les types de champs disponibles
@@ -713,8 +714,10 @@ export default function ImportData({ user }) {
               <p className="help-text">Si coché, les lignes avec un numéro unique non trouvé en base seront créées. Sinon, elles pourraient être ignorées ou mises à jour si le numéro existe.</p>
             </div>
             <div className="form-actions">
-              <button onClick={resetImport} className="btn-secondary">Retour</button>
-              <button onClick={handleNumeroIndividuMapping} className="btn-primary" disabled={!numeroIndividuHeader}>Continuer</button>
+              <DattaButton variant="secondary" onClick={resetImport}>Retour</DattaButton>
+              <DattaButton variant="primary" onClick={handleNumeroIndividuMapping} disabled={!numeroIndividuHeader}>
+                Continuer
+              </DattaButton>
             </div>
           </div>
         );
@@ -742,9 +745,13 @@ export default function ImportData({ user }) {
                     <option value="">-- Sélectionner un template --</option>
                     {templates.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
                   </select>
-                  <button type="button" onClick={() => loadTemplateByName(selectedTemplate)} disabled={!selectedTemplate} className="btn-secondary btn-small">Charger</button>
+                  <DattaButton type="button" variant="secondary" size="sm" onClick={() => loadTemplateByName(selectedTemplate)} disabled={!selectedTemplate}>
+                    Charger
+                  </DattaButton>
                   {selectedTemplate && (
-                     <button type="button" onClick={() => deleteTemplate(selectedTemplate)} className="btn-danger btn-small" title="Supprimer ce template">Supprimer</button>
+                     <DattaButton type="button" variant="danger" size="sm" onClick={() => deleteTemplate(selectedTemplate)} title="Supprimer ce template">
+                       Supprimer
+                     </DattaButton>
                   )}
                 </div>
               </div>
@@ -752,7 +759,9 @@ export default function ImportData({ user }) {
                 <label htmlFor="save-template-input">Enregistrer le mapping actuel comme template:</label>
                 <div style={{display:'flex',gap:'var(--spacing-3)'}}>
                   <input id="save-template-input" type="text" className="stylish-input" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Nom du nouveau template" />
-                  <button type="button" onClick={saveCurrentTemplate} disabled={!templateName.trim()} className="btn-primary btn-small">Sauvegarder</button>
+                  <DattaButton type="button" variant="primary" size="sm" onClick={saveCurrentTemplate} disabled={!templateName.trim()}>
+                    Sauvegarder
+                  </DattaButton>
                 </div>
               </div>
             </div>
@@ -894,10 +903,10 @@ export default function ImportData({ user }) {
               ))}
             </div>
             <div className="form-actions">
-              <button onClick={() => setImportStep(2)} className="btn-secondary" disabled={loading}>Retour</button>
-              <button onClick={handleImport} className="btn-primary" disabled={loading}>
+              <DattaButton variant="secondary" onClick={() => setImportStep(2)} disabled={loading}>Retour</DattaButton>
+              <DattaButton variant="primary" onClick={handleImport} disabled={loading}>
                 {loading ? 'Importation en cours...' : "Lancer l'importation"}
-              </button>
+              </DattaButton>
             </div>
           </div>
         );
@@ -907,7 +916,7 @@ export default function ImportData({ user }) {
           <div className="wizard-panel-content">
             <div className="import-results">
               <h3>Importation Terminée</h3>
-              <button onClick={resetImport} className="btn-primary">Effectuer un nouvel import</button>
+              <DattaButton variant="primary" onClick={resetImport}>Effectuer un nouvel import</DattaButton>
             </div>
           </div>
         );
