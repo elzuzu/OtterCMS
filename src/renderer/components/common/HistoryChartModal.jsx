@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { IconX } from '@tabler/icons-react';
+import DattaModal from './DattaModal';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -35,27 +35,24 @@ export default function HistoryChartModal({ label, dataByYear, onClose }) {
     },
   };
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '600px' }}>
-        <div className="modal-header">
-          <h2 style={{ flex: 1 }}>Historique : {label}</h2>
-          <button onClick={onClose} className="close-button" aria-label="Fermer">
-            <IconX size={24} />
-          </button>
-        </div>
-        <div className="modal-body" style={{ padding: '20px' }}>
-          {years.length > 1 && (
-            <select className="select-stylish" value={year} onChange={(e) => setYear(e.target.value)} style={{ marginBottom: '15px' }}>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          )}
-          <Bar data={data} options={options} />
-        </div>
+    <DattaModal open onClose={onClose} title={`Historique : ${label}`}> 
+      <div style={{ padding: 'var(--spacing-4)' }}>
+        {years.length > 1 && (
+          <select
+            className="select-stylish"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            style={{ marginBottom: 'var(--spacing-4)' }}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        )}
+        <Bar data={data} options={options} />
       </div>
-    </div>
+    </DattaModal>
   );
 }
