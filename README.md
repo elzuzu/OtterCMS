@@ -94,6 +94,22 @@ npm run dist
 Les artefacts sont placés dans `release-builds/`. La configuration d'Electron Builder se trouve dans la section `build` du `package.json` (packaging **NSIS** sous Windows).
 Sous Windows, le script `scripts/build-app.ps1` permet de nettoyer puis de lancer la compilation complète. Il propose également les options `-UseForge` et `-UsePackager` pour essayer d'autres outils si besoin. Pensez à exécuter `scripts/check-icon.ps1` pour valider l'icône `src/assets/app-icon.ico` avant de compiler.
 
+### Optimisation de la taille
+
+L'objectif est de maintenir l'exécutable final sous **60 MB**.
+Plusieurs scripts automatisent la vérification :
+
+```bash
+npm run dist:validate
+```
+
+Ce script compile puis lance `scripts/validate-build.js` qui contrôle la taille des artefacts dans `release-builds/`.
+Vous pouvez aussi analyser les dépendances avec :
+
+```bash
+pwsh scripts/size-analysis.ps1
+```
+
 
 ## Documentation
 

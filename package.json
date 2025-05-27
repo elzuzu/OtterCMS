@@ -22,7 +22,10 @@
     "install-app": "node ./scripts/install.js",
     "clean": "rimraf out dist .vite release-builds build",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "postinstall": "electron-builder install-app-deps && npm run rebuild"
+    "cleanup-deps": "node scripts/cleanup-dependencies.js",
+    "postinstall": "electron-builder install-app-deps && npm run rebuild && npm run cleanup-deps",
+    "dist:validate": "npm run dist && node scripts/validate-build.js",
+    "analyze": "npm run build && npx webpack-bundle-analyzer dist/static/js/*.js"
   },
   "keywords": [
     "electron",
@@ -72,18 +75,29 @@
   "build": {
     "appId": "com.ege.indisuivi",
     "productName": "Indi-Suivi",
-    "asar": false,
-    "compression": "normal",
+    "asar": true,
+    "compression": "maximum",
     "files": [
       "package.json",
       ".vite/build/main.js",
       ".vite/build/preload.js",
       "dist/**/*",
       ".vite/build/utils/**/*",
-      "node_modules/**/*",
-      "!src/renderer/**/*",
-      "!src/*.ts",
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/bcryptjs/**/*",
+      "node_modules/xlsx/**/*",
+      "!node_modules/**/*.{md,txt,LICENSE,CHANGELOG,README}",
+      "!node_modules/**/test/**",
+      "!node_modules/**/tests/**",
+      "!node_modules/**/*.d.ts",
+      "!node_modules/**/docs/**",
+      "!node_modules/better-sqlite3/build/Debug/**",
+      "!node_modules/better-sqlite3/deps/**",
+      "!node_modules/better-sqlite3/src/**",
       "!**/*.map"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/build/Release/*.node"
     ],
     "directories": {
       "buildResources": "src/assets",
@@ -102,7 +116,8 @@
       },
       {
         "from": "db",
-        "to": "db"
+        "to": "db",
+        "filter": ["**/*.sqlite"]
       }
     ],
       "win": {
@@ -121,8 +136,12 @@
           }
         ],
         "icon": "src/assets/app-icon.ico",
-        "requestedExecutionLevel": "asInvoker",
-        "signAndEditExecutable": false
+      "requestedExecutionLevel": "asInvoker",
+        "signAndEditExecutable": false,
+        "files": [
+          "!node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+          "node_modules/better-sqlite3/build/Release/better_sqlite3_win32_x64.node"
+        ]
       },
     "nsis": {
       "oneClick": false,

@@ -23,7 +23,8 @@ export default defineConfig({
     // IMPORTANT: Spécifier le répertoire de sortie pour correspondre à package.json
     outDir: '.vite/build',
     emptyOutDir: true,
-    sourcemap: true,
+    sourcemap: false,
+    minify: 'terser',
     target: 'es2022',
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
@@ -34,15 +35,13 @@ export default defineConfig({
       external: [
         'electron',
         'better-sqlite3',
-        'electron-updater',
-        'electron-squirrel-startup',
+        'bcryptjs',
+        'xlsx',
         ...builtinModules,
         ...builtinModules.map((m) => `node:${m}`),
       ],
       output: {
-        // Force le format CommonJS pour Electron
         format: 'cjs',
-        // Empêche la minification des noms pour debug plus facile
         preserveModules: false,
       }
     },
