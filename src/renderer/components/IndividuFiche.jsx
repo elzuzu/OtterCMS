@@ -251,9 +251,16 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         return (
           <div className="number-graph-field">
             <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? 'form-input-readonly' : ''} />
-            <button type="button" className="graph-button" onClick={() => openChart(champ)} aria-label="Voir graphique">
+            <DattaButton
+              type="button"
+              variant="link"
+              size="sm"
+              className="graph-button"
+              onClick={() => openChart(champ)}
+              aria-label="Voir graphique"
+            >
               <IconChartBar size={18} />
-            </button>
+            </DattaButton>
           </div>
         );
       case 'date':
@@ -351,7 +358,9 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         <div className="modal-content">
           <div className="modal-header">
             <h2>Erreur</h2>
-            <button onClick={onClose} className="close-button"><IconCircleX size={24} /></button>
+            <DattaButton onClick={onClose} variant="link" size="sm" className="close-button">
+              <IconCircleX size={24} />
+            </DattaButton>
           </div>
           <div className="modal-body">
             <p>{message || "Impossible de charger les informations de l'individu."}</p>
@@ -369,7 +378,9 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             <IconFileText size={28} style={{ marginRight: '10px', verticalAlign: 'bottom' }} />
             Fiche de l'individu : {individu.numero_unique || individu.id}
           </h2>
-          <button onClick={onClose} className="close-button" aria-label="Fermer"><IconCircleX size={24} /></button>
+          <DattaButton onClick={onClose} variant="link" size="sm" className="close-button" aria-label="Fermer">
+            <IconCircleX size={24} />
+          </DattaButton>
         </div>
 
         {message && (

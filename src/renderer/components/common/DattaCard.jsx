@@ -1,21 +1,20 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '@mui/material';
 
-export default function DattaCard({ title, actions, children, sx, ...props }) {
+/**
+ * Lightweight card wrapper using DattaAble classes instead of MUI Card.
+ */
+export default function DattaCard({ title, actions, children, className = '', ...props }) {
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        mb: 2,
-        boxShadow: 'var(--datta-box-shadow)',
-        borderRadius: 'var(--datta-border-radius)',
-        backgroundColor: 'var(--datta-card-bg)',
-        ...sx,
-      }}
-      {...props}
-    >
-      {title && <CardHeader title={title} action={actions} sx={{ pb: 0 }} />}
-      <CardContent>{children}</CardContent>
-    </Card>
+    <div className={`card pc-card mb-3 ${className}`} {...props}>
+      {title && (
+        <div className="card-header d-flex justify-content-between align-items-start">
+          <h5 className="mb-0">{title}</h5>
+          {actions && <div className="card-header-right">{actions}</div>}
+        </div>
+      )}
+      <div className="card-body">
+        {children}
+      </div>
+    </div>
   );
 }
