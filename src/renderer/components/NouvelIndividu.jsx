@@ -160,6 +160,8 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
         return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} />;
       case 'number':
         return <input type="number" {...commonProps} placeholder={champ.label} />;
+      case 'number-graph':
+        return <input type="number" {...commonProps} placeholder={champ.label} />;
       case 'date':
         return <input type="date" {...commonProps} />;
       case 'list':
