@@ -1,5 +1,4 @@
 import React from 'react';
-import { IconArrowsSort } from '@tabler/icons-react';
 
 export default function DattaDataTable({
   columns = [],
@@ -9,6 +8,8 @@ export default function DattaDataTable({
   onSort,
   columnFilters = {},
   onColumnFilterChange,
+  title = 'Données',
+  actions,
   page = 0,
   rowsPerPage = 10,
   onPageChange,
@@ -27,26 +28,43 @@ export default function DattaDataTable({
   };
 
   const total = data.length;
+  const totalPages = Math.ceil(total / rowsPerPage);
   const startIndex = page * rowsPerPage + 1;
   const endIndex = Math.min(startIndex + rowsPerPage - 1, total);
+
+  const currentRows = data.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   return (
     <div className="card table-card">
       <div className="card-header">
-        <h5>{'Données'}</h5>
-        <div className="card-header-right"></div>
+        <h5>{title || 'Données'}</h5>
+        <div className="card-header-right">{actions}</div>
       </div>
       <div className="card-body">
         <div className="table-responsive">
-          <table className="table table-hover" width="100%">
+          <table className="table table-hover data-table" width="100%">
             <thead>
               <tr>
                 {columns.map(col => (
                   <th
                     key={col.key || col.header}
                     onClick={col.sortable ? () => handleSort(col.key) : undefined}
-                    className={col.sortable ? (sortConfig?.key === col.key ? (sortConfig.direction === 'descending' ? 'sorting_desc' : 'sorting_asc') : 'sorting') : ''}
-                    style={{ cursor: col.sortable ? 'pointer' : 'default' }}
+                    className={
+                      col.sortable
+                        ? sortConfig?.key === col.key
+                          ? sortConfig.direction === 'descending'
+                            ? 'sorting_desc'
+                            : 'sorting_asc'
+                          : 'sorting'
+                        : ''
+                    }
+                    style={{
+                      cursor: col.sortable ? 'pointer' : 'default',
+                      ...(col.thStyle || {})
+                    }}
                   >
                     {col.header}
                     {col.sortable && (
@@ -58,7 +76,7 @@ export default function DattaDataTable({
               {onColumnFilterChange && (
                 <tr className="filter-row">
                   {columns.map(col => (
-                    <th key={`filter-${col.key || col.header}`}>
+                    <th key={`filter-${col.key || col.header}`} style={col.thStyle}>
                       {col.filterable && (
                         <input
                           type="text"
@@ -73,18 +91,20 @@ export default function DattaDataTable({
               )}
             </thead>
             <tbody>
-              {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
+              {currentRows.map((row, idx) => (
                 <tr key={keyGetter(row, idx)}>
                   {columns.map(col => (
-                    <td key={col.key || col.header}>{col.render ? col.render(row) : row[col.accessor]}</td>
+                    <td key={col.key || col.header} style={col.tdStyle}>
+                      {col.render ? col.render(row) : row[col.accessor]}
+                    </td>
                   ))}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {data.length > rowsPerPage && (
-          <div className="d-flex justify-content-between align-items-center mt-2">
+        {total > rowsPerPage && (
+          <div className="d-flex justify-content-between align-items-center">
             <div className="dataTables_info">
               Affichage de {startIndex} à {endIndex} sur {total} entrées
             </div>
@@ -95,11 +115,17 @@ export default function DattaDataTable({
               >
                 Préc.
               </a>
-              <span className="mx-2">
-                {page + 1} / {Math.ceil(data.length / rowsPerPage)}
-              </span>
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <a
+                  key={i}
+                  className={`paginate_button ${i === page ? 'current' : ''}`}
+                  onClick={() => onPageChange && onPageChange(i)}
+                >
+                  {i + 1}
+                </a>
+              ))}
               <a
-                className={`paginate_button next ${(page + 1) * rowsPerPage >= data.length ? 'disabled' : ''}`}
+                className={`paginate_button next ${page + 1 >= totalPages ? 'disabled' : ''}`}
                 onClick={() => onPageChange && onPageChange(page + 1)}
               >
                 Suiv.
