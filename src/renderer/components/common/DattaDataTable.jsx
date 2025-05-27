@@ -26,28 +26,31 @@ export default function DattaDataTable({
     }
   };
 
+  const total = data.length;
+  const startIndex = page * rowsPerPage + 1;
+  const endIndex = Math.min(startIndex + rowsPerPage - 1, total);
+
   return (
-    <div className="card">
+    <div className="card table-card">
       <div className="card-header">
-        <h6 className="m-0 font-weight-bold text-primary">Données</h6>
+        <h5>{'Données'}</h5>
+        <div className="card-header-right"></div>
       </div>
       <div className="card-body">
         <div className="table-responsive">
-          <table className="table table-bordered" width="100%">
+          <table className="table table-hover" width="100%">
             <thead>
               <tr>
                 {columns.map(col => (
                   <th
                     key={col.key || col.header}
                     onClick={col.sortable ? () => handleSort(col.key) : undefined}
+                    className={col.sortable ? (sortConfig?.key === col.key ? (sortConfig.direction === 'descending' ? 'sorting_desc' : 'sorting_asc') : 'sorting') : ''}
                     style={{ cursor: col.sortable ? 'pointer' : 'default' }}
                   >
                     {col.header}
-                    {col.sortable && sortConfig?.key === col.key && (
-                      <i
-                        className="fas fa-sort"
-                        style={{ marginLeft: 4, transform: sortConfig.direction === 'descending' ? 'rotate(180deg)' : 'none' }}
-                      ></i>
+                    {col.sortable && (
+                      <i className="feather icon-chevron-down ms-1"></i>
                     )}
                   </th>
                 ))}
@@ -82,33 +85,25 @@ export default function DattaDataTable({
         </div>
         {data.length > rowsPerPage && (
           <div className="d-flex justify-content-between align-items-center mt-2">
-            <select
-              className="form-select form-select-sm"
-              value={rowsPerPage}
-              onChange={e => onRowsPerPageChange && onRowsPerPageChange(parseInt(e.target.value, 10))}
-            >
-              {[5, 10, 20, 50].map(n => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-            <div>
-              <button
-                className="btn btn-secondary btn-sm"
+            <div className="dataTables_info">
+              Affichage de {startIndex} à {endIndex} sur {total} entrées
+            </div>
+            <div className="dataTables_paginate paging_simple_numbers">
+              <a
+                className={`paginate_button previous ${page === 0 ? 'disabled' : ''}`}
                 onClick={() => onPageChange && onPageChange(page - 1)}
-                disabled={page === 0}
               >
                 Préc.
-              </button>
+              </a>
               <span className="mx-2">
                 {page + 1} / {Math.ceil(data.length / rowsPerPage)}
               </span>
-              <button
-                className="btn btn-secondary btn-sm"
+              <a
+                className={`paginate_button next ${(page + 1) * rowsPerPage >= data.length ? 'disabled' : ''}`}
                 onClick={() => onPageChange && onPageChange(page + 1)}
-                disabled={(page + 1) * rowsPerPage >= data.length}
               >
                 Suiv.
-              </button>
+              </a>
             </div>
           </div>
         )}
