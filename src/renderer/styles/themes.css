@@ -1,0 +1,63 @@
+/* styles/themes.css - light and dark theme variables for Datta Able migration */
+
+:root {
+  /* Primary palette */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-300: #93c5fd;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+
+  /* Semantic colors */
+  --color-success-50: #ecfdf5;
+  --color-success-500: #10b981;
+  --color-success-700: #047857;
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #ef4444;
+  --color-danger-700: #b91c1c;
+
+  /* Neutral scale */
+  --color-neutral-50: #f8f9fa;
+  --color-neutral-100: #f1f3f5;
+  --color-neutral-200: #e9ecef;
+  --color-neutral-300: #dee2e6;
+  --color-neutral-400: #ced4da;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #6c757d;
+  --color-neutral-700: #495057;
+  --color-neutral-800: #343a40;
+  --color-neutral-900: #212529;
+
+  /* Current theme colors (light by default) */
+  --current-background-color: var(--color-neutral-50);
+  --current-surface-color: #ffffff;
+  --current-text-primary: var(--color-neutral-900);
+  --current-text-secondary: #4b5563;
+  --current-text-placeholder: #6b7280;
+  --current-border-light: var(--color-neutral-200);
+  --current-border-medium: var(--color-neutral-300);
+  --current-primary-color: var(--color-primary-500);
+  --current-primary-color-hover: var(--color-primary-600);
+  --current-primary-color-active: var(--color-primary-700);
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+  --color-neutral-50: #1e1e1e;
+  --color-neutral-100: #1d1d1d;
+  --color-neutral-200: #222222;
+  --color-neutral-300: #333333;
+  --color-neutral-700: #d1d5db;
+  --color-neutral-900: #f3f4f6;
+
+  --current-background-color: var(--color-neutral-50);
+  --current-surface-color: var(--color-neutral-100);
+  --current-text-primary: rgba(255, 255, 255, 0.87);
+  --current-text-secondary: rgba(255, 255, 255, 0.6);
+  --current-text-placeholder: rgba(255, 255, 255, 0.38);
+  --current-border-light: rgba(255, 255, 255, 0.12);
+  --current-border-medium: rgba(255, 255, 255, 0.2);
+  --current-primary-color-hover: #8bc3ff;
+  --current-primary-color-active: #4a90e2;
+}
