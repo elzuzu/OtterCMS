@@ -1,20 +1,32 @@
 import React from 'react';
 
-export default function DattaButton({
+const DattaButton = ({
   variant = 'primary',
-  size = 'medium',
-  loading = false,
-  disabled = false,
-  type = 'button',
+  size = 'md',
   children,
+  icon,
+  loading = false,
   ...props
-}) {
-  const sizeClass = size === 'large' ? 'btn-lg' : size === 'small' ? 'btn-sm' : '';
-  const className = `btn btn-${variant} ${sizeClass}`;
+}) => {
+  const sizeClass = size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '';
+  const variantClass = `btn-${variant}`;
+  const lightVariant = variant !== 'link' ? `btn-light-${variant}` : '';
+
   return (
-    <button className={className} disabled={disabled || loading} type={type} {...props}>
-      {loading ? '...' : children}
+    <button
+      className={`btn ${variantClass} ${lightVariant} ${sizeClass} ${loading ? 'disabled' : ''}`}
+      disabled={loading}
+      {...props}
+    >
+      {loading ? (
+        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+      ) : icon ? (
+        <i className={`${icon} me-2`}></i>
+      ) : null}
+      {children}
     </button>
   );
-}
+};
+
+export default DattaButton;
 
