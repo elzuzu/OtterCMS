@@ -23,7 +23,8 @@
     "clean": "rimraf out dist .vite release-builds build",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
-    "postinstall": "npx electron-builder install-app-deps && npm run rebuild && npm run cleanup-deps",
+    "postinstall": "node scripts/robust-postinstall.js",
+    "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
     "dist:validate": "npm run dist && node scripts/validate-build.js"
   },
   "keywords": [
@@ -64,7 +65,7 @@
     "@electron/rebuild": "^3.7.2",
     "@vitejs/plugin-react": "^4.4.1",
     "concurrently": "^9.1.2",
-    "electron": "^36.2.0",
+    "electron": "36.2.0",
     "electron-builder": "^26.0.12",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
