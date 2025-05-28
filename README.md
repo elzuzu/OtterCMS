@@ -38,7 +38,7 @@ Les principaux ecrans utilisent des wrappers React (`DattaCard`, `DattaDataTable
 ## Installation rapide
 
 ```bash
-npm install        # dépendances
+npm install --include=dev   # dépendances + devDependencies
 npm run install-app
 ```
 

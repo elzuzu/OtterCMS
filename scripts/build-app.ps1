@@ -126,8 +126,8 @@ module.exports = { Logger };
         }
         
         npm cache clean --force | Out-Null
-        Write-ColorText "   📥 npm install..." $Gray
-        npm install
+        Write-ColorText "   📥 npm install (avec dev)..." $Gray
+        npm install --include=dev
         if ($LASTEXITCODE -ne 0) {
             throw "Échec de l'installation des dépendances (code: $LASTEXITCODE)"
         }
