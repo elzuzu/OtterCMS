@@ -10,9 +10,9 @@ Ce document résume la mise en place d'un environnement local pour développer �
 
 ## Installation des dépendances
 
-1. Clonez le dépôt puis installez les modules :
+1. Clonez le dépôt puis installez les modules (y compris les dépendances de développement) :
    ```bash
-   npm install
+   npm install --include=dev
    ```
    Le script `postinstall` télécharge les modules natifs précompilés pour Electron.
 2. Lancez le script d'installation pour créer la configuration et la base SQLite :
