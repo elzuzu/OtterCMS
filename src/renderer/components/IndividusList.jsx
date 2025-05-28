@@ -312,7 +312,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
     } finally {
       setLoading(false);
     }
-  }, [user, currentUserId, viewMode, colonnesAffichees.length]); // Ajout de colonnesAffichees.length pour potentiellement revalider
+  }, [user, currentUserId, viewMode]); // colonnesAffichees.length removed
 
   const loadUsers = useCallback(async () => {
     try {

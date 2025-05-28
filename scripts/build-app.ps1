@@ -46,23 +46,18 @@ try {
     }
     
     # Vérifier l'icône
-    $iconPath = "src\assets\app-icon.ico"
+    $iconPath = Join-Path $projectRoot "src\assets\app-icon.ico"
     if (Test-Path $iconPath) {
         Write-ColorText "   ✓ Icône trouvée: $iconPath" $Green
     } else {
-        Write-ColorText "   ⚠️ Icône manquante, création d'une icône par défaut..." $Yellow
-        # Créer le dossier si nécessaire
-        $assetsDir = "src\assets"
-        if (-not (Test-Path $assetsDir)) {
-            New-Item -ItemType Directory -Path $assetsDir -Force | Out-Null
-        }
-        # Créer une icône basique (vous devrez remplacer par une vraie icône)
-        Write-ColorText "   ⚠️ ATTENTION: Vous devez fournir une vraie icône .ico dans $iconPath" $Yellow
+        Write-ColorText "   ⚠️ Icône manquante: $iconPath" $Red
+        Write-ColorText "   ⚠️ ATTENTION: Le script ne crée PAS d'icône par défaut. Vous DEVEZ fournir une icône .ico valide à l'emplacement spécifié." $Red
+        Write-ColorText "   Poursuite du script, mais le build échouera probablement ou l'application n'aura pas d'icône." $Yellow
     }
     
     # Créer le module utils/logger s'il n'existe pas
-    $utilsDir = "src\utils"
-    $loggerPath = "$utilsDir\logger.js"
+    $utilsDir = Join-Path $projectRoot "src\utils"
+    $loggerPath = Join-Path $utilsDir "logger.js"
     if (-not (Test-Path $loggerPath)) {
         Write-ColorText "   📝 Création du module logger manquant..." $Yellow
         if (-not (Test-Path $utilsDir)) {
@@ -212,9 +207,9 @@ module.exports = { Logger };
             Write-ColorText "   ✓ Utils copiés dans le build" $Green
         }
         Write-ColorText "`n🔧 Rebuild des modules natifs..." $Yellow
-        npx electron-rebuild -f -w better-sqlite3 2>$null
+    npx electron-rebuild -f -w better-sqlite3
         if ($LASTEXITCODE -ne 0) {
-            Write-ColorText "   ⚠️ Rebuild des modules natifs échoué (continuons quand même)" $Yellow
+        Write-ColorText "   ⚠️ Rebuild des modules natifs échoué (code: $LASTEXITCODE). Cela peut causer des problèmes d'exécution." $Yellow
         } else {
             Write-ColorText "   ✓ Modules natifs rebuilt" $Green
         }
@@ -284,13 +279,16 @@ module.exports = { Logger };
             Write-ColorText "`n🧪 Test de l'exécutable..." $Yellow
             try {
                 $process = Start-Process -FilePath $mainExe.FullName -ArgumentList "--version" -PassThru -NoNewWindow -Wait -TimeoutSec 10
-                if ($process.ExitCode -eq 0 -or $process.ExitCode -eq $null) {
-                    Write-ColorText "   ✓ L'exécutable semble fonctionnel" $Green
+                # Commentaire: Un code de sortie de 0 indique généralement le succès.
+                # D'autres codes de sortie peuvent indiquer des problèmes, ou que l'application
+                # ne se ferme pas proprement après l'argument --version, ou qu'elle a atteint le timeout.
+                if ($process.ExitCode -eq 0) {
+                    Write-ColorText "   ✓ L'exécutable semble fonctionnel (code de sortie 0)" $Green
                 } else {
-                    Write-ColorText "   ⚠️ L'exécutable retourne un code d'erreur, mais cela peut être normal" $Yellow
+                    Write-ColorText "   ⚠️ L'exécutable a retourné le code $($process.ExitCode) ou a atteint le timeout. Cela PEUT indiquer un problème." $Yellow
                 }
             } catch {
-                Write-ColorText "   ⚠️ Impossible de tester l'exécutable automatiquement" $Yellow
+                Write-ColorText "   ⚠️ Impossible de tester l'exécutable automatiquement (erreur: $($_.Exception.Message))" $Yellow
             }
         }
     } else {

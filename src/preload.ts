@@ -1,5 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// TODO: Consider defining shared TypeScript interfaces in src/shared/types.ts for IPC payloads to replace 'any' and improve type safety.
+// For example, for createUser, updateUser, addCategorie, updateCategorie, addOrUpdateIndividu, etc.
+
 // Expose l'API complète au renderer
 contextBridge.exposeInMainWorld('api', {
   // Méthodes de fenêtre
