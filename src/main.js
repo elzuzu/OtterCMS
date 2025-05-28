@@ -1548,4 +1548,3 @@ ipcMain.handle('close-window', () => {
   if (win) win.close();
 });
 
-[end of src/main.js]

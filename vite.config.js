@@ -1,17 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
   root: 'src/renderer',
   plugins: [
     react(),
-    visualizer({
-      filename: 'dist-analysis.html',
-      open: false,
-      gzipSize: true,
-    })
   ],
   base: './',
   build: {
@@ -20,7 +14,7 @@ export default defineConfig({
     sourcemap: false,
     assetsDir: 'assets',
     cssCodeSplit: true,
-    minify: 'terser',
+    minify: 'esbuild',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/renderer/index.html'),
@@ -35,17 +29,6 @@ export default defineConfig({
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log'],
-        passes: 2
-      },
-      mangle: {
-        safari10: true
       }
     },
     chunkSizeWarningLimit: 1000

@@ -24,7 +24,7 @@ export default defineConfig({
     outDir: '.vite/build',
     emptyOutDir: true,
     sourcemap: false,
-    minify: 'terser',
+    minify: 'esbuild',
     target: 'es2022',
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
