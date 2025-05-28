@@ -7,7 +7,7 @@ export default defineConfig({
     outDir: '.vite/build',
     emptyOutDir: false, // Ne pas vider car main.js est déjà là
     sourcemap: false,
-    minify: 'terser',
+    minify: 'esbuild',
     target: 'es2022',
     lib: {
       entry: resolve(__dirname, 'src/preload.ts'),
