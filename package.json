@@ -24,8 +24,7 @@
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
     "postinstall": "npx electron-builder install-app-deps && npm run rebuild && npm run cleanup-deps",
-    "dist:validate": "npm run dist && node scripts/validate-build.js",
-    "analyze": "npm run build && npx webpack-bundle-analyzer dist/static/js/*.js"
+    "dist:validate": "npm run dist && node scripts/validate-build.js"
   },
   "keywords": [
     "electron",

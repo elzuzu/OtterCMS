@@ -13,7 +13,7 @@ export default function DattaDataTable({
   page = 0,
   rowsPerPage = 10,
   onPageChange,
-  onRowsPerPageChange,
+  onRowsPerPageChange, // TODO: Implement UI for changing rowsPerPage if needed
 }) {
   const keyGetter = getRowKey || ((row, idx) => row.id || idx);
 

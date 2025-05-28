@@ -35,7 +35,7 @@ module.exports = {
     name: 'Indi-Suivi',
     executableName: 'Indi-Suivi',
     icon: './src/assets/app-icon.ico',
-    asar: false,
+    asar: false, # INFO: asar: true est généralement recommandé pour les builds de production afin de regrouper le code source.
     out: './out',
     overwrite: true,
     platform: 'win32',
@@ -89,8 +89,8 @@ module.exports = {
     }
 
     # Copier les utilitaires dans le dossier de build
-    $utilsSrc = "src\utils"
-    $utilsDest = ".vite\build\utils"
+    $utilsSrc = Join-Path $projectRoot "src\utils"
+    $utilsDest = Join-Path $projectRoot ".vite\build\utils"
     if (Test-Path $utilsSrc) {
         Copy-Item $utilsSrc $utilsDest -Recurse -Force
         Write-Host "   ✓ Utils copiés dans le build" -ForegroundColor Green

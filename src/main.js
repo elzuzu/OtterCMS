@@ -19,7 +19,7 @@ if (!isDev) {
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
-const { log, logError, logIPC } = require('./utils/logger');
+const { log, logError, logIPC, logger } = require('./utils/logger'); // Assuming 'logger' is the instance with setLevel
 const { inferType } = require('./utils/inferType');
 const os = require('os');
 
@@ -118,12 +118,32 @@ function loadConfig() {
         log('Default data directory created:', defaultDataDir);
       } catch (mkdirErr) {
         logError('loadConfig (mkdir defaultDataDir)', mkdirErr);
+        // Even if mkdirSync fails, check existence because it might have failed due to already existing but with wrong permissions
+      }
+      if (!fs.existsSync(defaultDataDir)) {
+        logError('loadConfig (critical defaultDataDir creation failed)', `Directory ${defaultDataDir} could not be created or accessed. Default DB path is unusable.`);
+        throw new Error(`Critical: Default data directory ${defaultDataDir} could not be created or accessed.`);
       }
     }
-  return { dbPath: defaultDbPath, appTitle: "Indi-Suivi (Default Config)" };
+  return { dbPath: defaultDbPath, appTitle: "Indi-Suivi (Default Config)", logLevel: "INFO" }; // Added default logLevel
 }
 
 const config = loadConfig();
+
+// Set logger level from config
+if (config && config.logLevel && logger && typeof logger.setLevel === 'function') {
+  logger.setLevel(String(config.logLevel).toUpperCase()); // Ensure level is uppercase string
+  log(`Logger level set to: ${config.logLevel.toUpperCase()}`); // Log the action using the 'log' function
+} else {
+  // Fallback or default logging if config/logger.setLevel is not available
+  if (logger && typeof logger.setLevel === 'function') {
+    logger.setLevel('INFO'); // Default to INFO if not specified or issues
+    log("Logger level set to INFO (default/fallback).");
+  } else {
+    console.log("Logger or logger.setLevel is not available. Using default console logging.");
+  }
+}
+
 
 function applyPragmas(databaseInstance) {
   log('Applying PRAGMAs...');
@@ -244,7 +264,7 @@ function initializeDatabaseSync() {
     );
     CREATE TABLE IF NOT EXISTS individus (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      numero_unique TEXT, -- Should ideally be UNIQUE if not nullable
+      numero_unique TEXT UNIQUE, -- Ensures uniqueness at DB level, complementing app-level checks.
       en_charge INTEGER REFERENCES users(id) ON DELETE SET NULL,
       categorie_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
       champs_supplementaires TEXT, -- JSON string
@@ -1468,7 +1488,7 @@ function createWindow () {
       preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: false,
+      sandbox: false, // false for convenience as preload script only uses contextBridge/ipcRenderer; true is ideal if preload is fully self-contained (contextIsolation is the primary security boundary here).
       webSecurity: process.env.NODE_ENV !== 'development'
     }
   });
@@ -1527,3 +1547,5 @@ ipcMain.handle('close-window', () => {
   const win = BrowserWindow.getFocusedWindow();
   if (win) win.close();
 });
+
+[end of src/main.js]
