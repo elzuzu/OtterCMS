@@ -371,6 +371,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
   }
 
   return (
+    <>
     <div className="fiche-individu-modal">
       <div className="modal-content modal-content-large">
         <div className="modal-header">
@@ -889,5 +890,6 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     {chartField && (
       <HistoryChartModal label={chartField.champ.label} dataByYear={chartField.data} onClose={closeChart} />
     )}
+    </>
   );
 }
