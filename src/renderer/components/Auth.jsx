@@ -153,7 +153,7 @@ export default function Auth({ setUser }) {
           </div>
           <div className="card-body">
             <form onSubmit={handleLogin}>
-              <div className="form-group mb-3 text-start">
+              <div className="mb-3 text-start">
                 <label className="form-label" htmlFor="username">
                   <IconUser size={18} style={{ marginRight: 4 }} /> Nom d'utilisateur
                 </label>
@@ -168,7 +168,7 @@ export default function Auth({ setUser }) {
                   autoFocus
                 />
               </div>
-              <div className="form-group mb-4 text-start">
+              <div className="mb-4 text-start">
                 <label className="form-label" htmlFor="password">
                   <IconLock size={18} style={{ marginRight: 4 }} /> Mot de passe
                 </label>

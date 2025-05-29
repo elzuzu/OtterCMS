@@ -244,13 +244,13 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
     switch (champ.type) {
       case 'text':
-        return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
+        return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-control" : ""} readOnly={isReadOnly} />;
       case 'number':
-        return <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
+        return <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? "form-control" : ""} readOnly={isReadOnly} />;
       case 'number-graph':
         return (
           <div className="number-graph-field">
-            <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? 'form-input-readonly' : ''} />
+            <input type="number" {...commonProps} placeholder={champ.label} className={isReadOnly ? 'form-control' : ''} readOnly={isReadOnly} />
             <DattaButton
               type="button"
               variant="link"
@@ -264,10 +264,10 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           </div>
         );
       case 'date':
-        return <input type="date" {...commonProps} className={isReadOnly ? "form-input-readonly" : ""} />;
+        return <input type="date" {...commonProps} className={isReadOnly ? "form-control" : ""} readOnly={isReadOnly} />;
       case 'list':
         return (
-          <select className={`select-stylish ${isReadOnly ? "form-input-readonly" : ""}`} {...commonProps}>
+          <select className={`select-stylish ${isReadOnly ? "form-control" : ""}`} {...commonProps} readOnly={isReadOnly}>
             <option value="">Sélectionner...</option>
             {champ.options && champ.options.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
           </select>
@@ -285,7 +285,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           </p>
         );
       default:
-        return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-input-readonly" : ""} />;
+        return <input type="text" {...commonProps} maxLength={champ.maxLength || undefined} size={inputSize} placeholder={champ.label} className={isReadOnly ? "form-control" : ""} readOnly={isReadOnly} />;
     }
   };
 
@@ -462,7 +462,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                     {champsDeCategorie
                       .sort((a, b) => (a.ordre || 0) - (b.ordre || 0))
                       .map(champ => (
-                        <div key={champ.key} className="form-group form-group-compact">
+                        <div key={champ.key} className="mb-3 form-group-compact">
                           <label htmlFor={`champ-${champ.key}`} className="form-label-compact">
                             {champ.label} {enEdition && champ.obligatoire && !champ.readonly && <span className="obligatoire">*</span>}
                           </label>

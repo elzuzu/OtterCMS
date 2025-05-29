@@ -359,7 +359,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
 
   if (loading && individus.length === 0) {
     return (
-      <div className="content-container">
+      <div>
         <DattaPageTitle title="Gestion des individus" />
         <div className="loading-message">Chargement des données initiales...</div>
       </div>
@@ -367,7 +367,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   }
   if (error) {
     return (
-      <div className="content-container">
+      <div>
         <DattaPageTitle title="Gestion des individus" />
         <div className="error-message">
           {error}
@@ -380,7 +380,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   }
 
   return (
-    <div className="content-container" key={`list-container-${renderKey}`}>
+    <div key={`list-container-${renderKey}`}>
       <DattaPageTitle title="Gestion des individus" />
       <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--color-neutral-50)", borderRadius: "4px", fontSize: "0.9em", color: "var(--text-color-secondary)" }}>
         <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} | 
