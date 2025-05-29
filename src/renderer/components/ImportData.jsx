@@ -637,7 +637,7 @@ export default function ImportData({ user }) {
       case 1: 
         return (
           <div className="wizard-panel-content">
-            <div className="form-group">
+            <div className="mb-3">
               <label htmlFor="file-upload-input">Sélectionner un fichier (CSV, XLS, XLSX):</label>
               <input 
                 id="file-upload-input" type="file" accept=".csv,.xls,.xlsx" 
@@ -686,7 +686,7 @@ export default function ImportData({ user }) {
                 </table>
               </div>
             </div>
-            <div className="form-group">
+            <div className="mb-3">
               <label htmlFor="numero-individu-select">Colonne pour le numéro d'individu:</label>
               <select
                 id="numero-individu-select" value={numeroIndividuHeader}
@@ -697,7 +697,7 @@ export default function ImportData({ user }) {
                 {previewData.rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
               </select>
             </div>
-            <div className="form-group">
+            <div className="mb-3">
               <label>
                 <input type="checkbox" checked={createIfMissing} onChange={e => setCreateIfMissing(e.target.checked)} />
                 Créer un individu si le numéro est manquant dans la base de données
@@ -729,7 +729,7 @@ export default function ImportData({ user }) {
             </div>
             <div className="template-section" style={{marginBottom: 'var(--spacing-5)', border: '1px solid var(--border-color-light)', padding: 'var(--spacing-4)', borderRadius: 'var(--border-radius-medium)'}}>
               <h4>Gestion des templates de mapping</h4>
-              <div className="form-group">
+              <div className="mb-3">
                 <label htmlFor="load-template-select">Charger un template:</label>
                 <div style={{display:'flex',gap:'var(--spacing-3)', alignItems: 'center'}}>
                   <select id="load-template-select" className="stylish-input select-stylish" value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)}>
@@ -746,7 +746,7 @@ export default function ImportData({ user }) {
                   )}
                 </div>
               </div>
-              <div className="form-group">
+              <div className="mb-3">
                 <label htmlFor="save-template-input">Enregistrer le mapping actuel comme template:</label>
                 <div style={{display:'flex',gap:'var(--spacing-3)'}}>
                   <input id="save-template-input" type="text" className="stylish-input" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Nom du nouveau template" />
@@ -759,7 +759,7 @@ export default function ImportData({ user }) {
             <div className="mapping-form-container">
               {previewData.rawHeaders.map((csvHeader) => (
                 <div key={csvHeader} className={`mapping-field-row ${csvHeader === numeroIndividuHeader ? 'special-field-row' : ''}`}>
-                  <div className="form-group mapping-source">
+                  <div className="mb-3 mapping-source">
                     <label>Colonne du fichier: <strong>{csvHeader}</strong></label>
                   </div>
                   {csvHeader === numeroIndividuHeader ? (
@@ -790,7 +790,7 @@ export default function ImportData({ user }) {
                       </div>
 
                       {columnActions[csvHeader] === 'map' && (
-                        <div className="form-group">
+                        <div className="mb-3">
                           <label htmlFor={`target-${csvHeader}`}>Champ de destination DB:</label>
                           <select id={`target-${csvHeader}`} className="stylish-input select-stylish"
                                   value={mapping[csvHeader] || ''}
@@ -819,7 +819,7 @@ export default function ImportData({ user }) {
                       {columnActions[csvHeader] === 'create' && nouveauxChamps[csvHeader] && (
                         <div className="nouveau-champ-config">
                           <h5>Configuration du nouveau champ</h5>
-                          <div className="form-group">
+                          <div className="mb-3">
                             <label htmlFor={`cat-${csvHeader}`}>Catégorie:</label>
                             <select id={`cat-${csvHeader}`} className="stylish-input select-stylish"
                                     value={nouveauxChamps[csvHeader].categorie_id || ''}
@@ -835,20 +835,20 @@ export default function ImportData({ user }) {
                                      style={{marginTop: 'var(--spacing-2)'}}/>
                             )}
                           </div>
-                          <div className="form-group">
+                          <div className="mb-3">
                             <label htmlFor={`label-${csvHeader}`}>Libellé:</label>
                             <input id={`label-${csvHeader}`} type="text" className="stylish-input"
                                    value={nouveauxChamps[csvHeader].label || ''}
                                    onChange={e => handleNewFieldConfigChange(csvHeader, 'label', e.target.value)} required />
                           </div>
-                          <div className="form-group">
+                          <div className="mb-3">
                             <label htmlFor={`key-${csvHeader}`}>Clé technique (auto-générée, modifiable):</label>
                             <input id={`key-${csvHeader}`} type="text" className="stylish-input"
                                    value={nouveauxChamps[csvHeader].key || ''}
                                    onChange={e => handleNewFieldConfigChange(csvHeader, 'key', e.target.value.replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase())} 
                                    pattern="[a-zA-Z0-9_]+" title="Lettres, chiffres, underscores" required />
                           </div>
-                          <div className="form-group">
+                          <div className="mb-3">
                             <label htmlFor={`type-${csvHeader}`}>Type:</label>
                             <select id={`type-${csvHeader}`} className="stylish-input select-stylish"
                                     value={nouveauxChamps[csvHeader].type || 'text'}
@@ -857,7 +857,7 @@ export default function ImportData({ user }) {
                             </select>
                           </div>
                           {nouveauxChamps[csvHeader].type === 'text' && (
-                            <div className="form-group">
+                            <div className="mb-3">
                               <label htmlFor={`maxLength-${csvHeader}`}>Longueur Max:</label>
                               <input id={`maxLength-${csvHeader}`} type="number" className="stylish-input"
                                      value={nouveauxChamps[csvHeader].maxLength || ''}
@@ -865,14 +865,14 @@ export default function ImportData({ user }) {
                             </div>
                           )}
                           {nouveauxChamps[csvHeader].type === 'list' && (
-                            <div className="form-group">
+                            <div className="mb-3">
                               <label htmlFor={`options-${csvHeader}`}>Options (séparées par virgule):</label>
                               <input id={`options-${csvHeader}`} type="text" className="stylish-input"
                                      value={(nouveauxChamps[csvHeader].options || []).join(',')}
                                      onChange={e => handleNewFieldOptionsChange(csvHeader, e.target.value)} />
                             </div>
                           )}
-                           <div className="form-group">
+                           <div className="mb-3">
                                 <label htmlFor={`ordre-champ-${csvHeader}`}>Ordre du champ dans sa catégorie:</label>
                                 <input id={`ordre-champ-${csvHeader}`} type="number" className="stylish-input"
                                     value={nouveauxChamps[csvHeader].ordre || 0}

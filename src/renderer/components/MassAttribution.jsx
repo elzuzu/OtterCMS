@@ -488,7 +488,7 @@ export default function MassAttribution({ user }) {
           <div className="wizard-panel" style={{flexDirection: 'column'}}>
             <h3>Définir la distribution pour {selectedIndividus.length} individu(s)</h3>
             <div className="attribution-form-distribution">
-                <div className="form-group add-user-to-distribution-form">
+                <div className="mb-3 add-user-to-distribution-form">
                     <label htmlFor="userToAddToDistribution">Utilisateur à ajouter :</label>
                     <select id="userToAddToDistribution" value={currentUserToAdd} onChange={e => setCurrentUserToAdd(e.target.value)} className="select-stylish">
                         <option value="">-- Sélectionner un utilisateur --</option>

@@ -44,8 +44,10 @@ export default function AdminTemplate() {
   }
 
   return (
-    <div className="admin-panel"> {/* Using a generic panel class for styling */}
-      <h2 className="panel-title">Configuration du Thème</h2>
+    <div className="card">
+      <div className="card-header">
+        <h5 className="mb-0">Configuration du Thème</h5>
+      </div>
       <p>Choisissez la couleur principale de l'application. Ce changement affectera l'ensemble de l'interface utilisateur.</p>
       
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
