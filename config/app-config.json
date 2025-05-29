@@ -1,6 +1,6 @@
 {
   "appTitle": "Indi-Suivi",
-  "dbPath": "./db/indi-suivi.sqlite",
+  "dbPath": "../db/indi-suivi.sqlite",
   "defaultLanguage": "fr",
   "logLevel": "info"
 }
