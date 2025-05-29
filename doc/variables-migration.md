@@ -14,6 +14,6 @@ Ce fichier résume les ajustements effectués pour harmoniser les variables CSS 
 - Remplacement des couleurs en dur dans les composants par les variables Datta (`--current-*`).
 - Utilisation des classes utilitaires (`text-muted`, `bg-primary`, ...).
 - Harmonisation des noms de variables dans l'ensemble des feuilles de styles.
-- Mise à jour de `StatCard.jsx` et `IndividuFiche.jsx` pour n'utiliser que les variables Datta.
+- Mise à jour de `IndividuFiche.jsx` pour n'utiliser que les variables Datta.
 
 Ce document servira de référence pour toute nouvelle variable à introduire.
