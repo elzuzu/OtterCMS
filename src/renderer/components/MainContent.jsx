@@ -1,13 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Dashboard from './Dashboard';
-import IndividusList from './IndividusList';
-import ImportData from './ImportData';
-import MassAttribution from './MassAttribution';
-import AdminCategories from './AdminCategories';
-import AdminUsersSection from './AdminUsersSection';
-import AdminTemplate from './AdminTemplate';
-import UserSettings from './UserSettings';
-import LayoutManager from './layout/LayoutManager';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+// import Dashboard from './Dashboard'; // Removed
+// import IndividusList from './IndividusList'; // Removed
+// import ImportData from './ImportData'; // Removed
+// import MassAttribution from './MassAttribution'; // Removed
+// import AdminCategories from './AdminCategories'; // Removed
+// import AdminUsersSection from './AdminUsersSection'; // Removed
+// import AdminTemplate from './AdminTemplate'; // Removed
+// import UserSettings from './UserSettings'; // Removed
+import * as LazyComponents from './LazyComponents';
+import CircularProgress from './common/CircularProgress'; // Path confirmed to be correct
+import LayoutManager from './layout/LayoutManager'; // Kept
+
+// Composant de loading optimisé
+function ComponentLoader() {
+  return (
+    <div className="pc-content" style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '400px' 
+    }}>
+      <CircularProgress value={50} label="Chargement..." />
+    </div>
+  );
+}
 
 /**
  * Composant MainContent
@@ -101,39 +117,69 @@ export default function MainContent({ user, onLogout }) {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <Dashboard
-            user={user}
-            onNavigateToMyIndividus={handleNavigateToMyIndividus}
-            onNavigateToAllIndividus={handleNavigateToAllIndividus}
-          />
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.Dashboard
+              user={user}
+              onNavigateToMyIndividus={handleNavigateToMyIndividus}
+              onNavigateToAllIndividus={handleNavigateToAllIndividus}
+            />
+          </Suspense>
         );
       case 'individus':
         return (
-          <IndividusList
-            user={user}
-            requestedView={requestedViewForIndividus}
-            onRequestedViewConsumed={handleRequestedViewConsumed}
-          />
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.IndividusList
+              user={user}
+              requestedView={requestedViewForIndividus}
+              onRequestedViewConsumed={handleRequestedViewConsumed}
+            />
+          </Suspense>
         );
       case 'import':
-        return <ImportData user={user} />;
-      case 'attribution':
-        return <MassAttribution user={user} />;
-      case 'categories':
-        return <AdminCategories />;
-      case 'users':
-        return <AdminUsersSection user={user} />;
-      case 'template':
-        return <AdminTemplate />;
-      case 'settings':
-        return <UserSettings user={user} />;
-      default:
         return (
-          <Dashboard
-            user={user}
-            onNavigateToMyIndividus={handleNavigateToMyIndividus}
-            onNavigateToAllIndividus={handleNavigateToAllIndividus}
-          />
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.ImportData user={user} />
+          </Suspense>
+        );
+      case 'attribution':
+        return (
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.MassAttribution user={user} />
+          </Suspense>
+        );
+      case 'categories':
+        return (
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.AdminCategories />
+          </Suspense>
+        );
+      case 'users':
+        return (
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.AdminUsersSection user={user} />
+          </Suspense>
+        );
+      case 'template':
+        return (
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.AdminTemplate />
+          </Suspense>
+        );
+      case 'settings':
+        return (
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.UserSettings user={user} />
+          </Suspense>
+        );
+      default: // Default case should also be lazy-loaded
+        return (
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyComponents.Dashboard
+              user={user}
+              onNavigateToMyIndividus={handleNavigateToMyIndividus}
+              onNavigateToAllIndividus={handleNavigateToAllIndividus}
+            />
+          </Suspense>
         );
     }
   };

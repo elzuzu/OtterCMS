@@ -27,7 +27,13 @@
     "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
     "dist:validate": "npm run dist && node scripts/validate-build.js",
     "verify-build": "node scripts/verify-build.js",
-    "dist:verify": "npm run dist && npm run verify-build"
+    "dist:verify": "npm run dist && npm run verify-build",
+    "optimize-assets": "node scripts/optimize-assets.js",
+    "build:optimized": "npm run build && npm run optimize-assets",
+    "dist:optimized": "npm run build:optimized && npm run dist",
+    "performance-check": "node scripts/performance-check.js",
+    "build-optimized": "node scripts/build-optimized.js",
+    "dist:final": "npm run build-optimized"
   },
   "keywords": [
     "electron",
@@ -79,11 +85,16 @@
     "productName": "Indi-Suivi",
     "asar": true,
     "compression": "maximum",
+    "removePackageScripts": true,
+    "removePackageKeywords": true,
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "publish": null,
     "buildDependenciesFromSource": false,
     "nodeGypRebuild": false,
     "npmRebuild": true,
     "extraMetadata": {
-      "main": ".vite/build/main.js"
+      "main": ".vite/build/main.js",
+      "devDependencies": {}
     },
     "files": [
       "package.json",
@@ -91,18 +102,30 @@
       ".vite/build/preload.js",
       "dist/**/*",
       ".vite/build/utils/**/*",
-      "node_modules/better-sqlite3/**/*",
-      "node_modules/bcryptjs/**/*",
-      "node_modules/xlsx/**/*",
-      "!node_modules/**/*.{md,txt,LICENSE,CHANGELOG,README}",
+      "node_modules/better-sqlite3/build/Release/*.node",
+      "node_modules/better-sqlite3/lib/**/*",
+      "node_modules/better-sqlite3/package.json",
+      "node_modules/bcryptjs/dist/bcrypt.js",
+      "node_modules/bcryptjs/package.json",
+      "node_modules/xlsx/dist/xlsx.full.min.js",
+      "node_modules/xlsx/package.json",
+      "!node_modules/**/*",
       "!node_modules/**/test/**",
       "!node_modules/**/tests/**",
       "!node_modules/**/*.d.ts",
       "!node_modules/**/docs/**",
-      "!node_modules/better-sqlite3/build/Debug/**",
-      "!node_modules/better-sqlite3/deps/**",
-      "!node_modules/better-sqlite3/src/**",
-      "!**/*.map"
+      "!node_modules/**/*.md",
+      "!node_modules/**/*.txt",
+      "!node_modules/**/LICENSE*",
+      "!node_modules/**/CHANGELOG*",
+      "!node_modules/**/README*",
+      "!node_modules/**/.github/**",
+      "!node_modules/**/examples/**",
+      "!node_modules/**/demo/**",
+      "!node_modules/**/samples/**",
+      "!**/*.map",
+      "!**/*.ts",
+      "!**/tsconfig.json"
     ],
     "asarUnpack": [
       "node_modules/better-sqlite3/build/Release/*.node"
@@ -128,25 +151,18 @@
         "filter": ["**/*.sqlite"]
       }
     ],
-      "win": {
-        "target": [
-          {
-            "target": "nsis",
-            "arch": [
-              "x64"
-            ]
-          },
-          {
-            "target": "portable",
-            "arch": [
-              "x64"
-            ]
-          }
-        ],
-        "icon": "src/assets/app-icon.ico",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "src/assets/app-icon.ico",
       "requestedExecutionLevel": "asInvoker",
-        "signAndEditExecutable": false
-      },
+      "signAndEditExecutable": false,
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
     "nsis": {
       "oneClick": false,
       "allowElevation": true,
@@ -157,10 +173,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Indi-Suivi",
-      "include": "installer.nsh"
-    },
-    "portable": {
-      "artifactName": "Indi-Suivi-Portable.exe"
+      "include": "installer.nsh",
+      "installerSidebar": null,
+      "uninstallerSidebar": null,
+      "deleteAppDataOnUninstall": true
     }
   }
 }
