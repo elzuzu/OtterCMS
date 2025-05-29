@@ -57,7 +57,7 @@ body {
   height: 320px;
   top: -160px;
   right: -160px;
-  background: var(--datta-primary-light);
+  background: var(--pc-primary-light);
   animation: rotate 20s linear infinite;
 }
 
@@ -66,7 +66,7 @@ body {
   height: 240px;
   bottom: -120px;
   left: -120px;
-  background: var(--datta-primary-dark);
+  background: var(--pc-primary-dark);
   animation: rotate-reverse 25s linear infinite;
 }
 
@@ -95,9 +95,9 @@ body {
 }
 
 .card {
-  background-color: var(--datta-card-bg);
-  border-radius: var(--datta-border-radius);
-  box-shadow: var(--datta-box-shadow);
+  background-color: var(--pc-card-bg);
+  border-radius: var(--pc-border-radius);
+  box-shadow: var(--box-shadow-base);
   margin: 0 auto;
   max-width: 360px;
 }
@@ -120,7 +120,7 @@ body {
   width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--current-border-medium);
-  border-radius: var(--datta-border-radius);
+  border-radius: var(--pc-border-radius);
   background-color: var(--current-surface-color);
   color: var(--current-text-primary);
 }
@@ -130,7 +130,7 @@ body {
   font-weight: 400;
   border: 1px solid transparent;
   padding: 0.5rem 1rem;
-  border-radius: var(--datta-border-radius);
+  border-radius: var(--pc-border-radius);
   cursor: pointer;
   text-align: center;
   text-decoration: none;
@@ -155,18 +155,18 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--datta-primary);
-  border-color: var(--datta-primary);
+  background-color: var(--pc-primary);
+  border-color: var(--pc-primary);
   color: #fff;
 }
 .btn-primary:hover {
-  background-color: var(--datta-primary-light);
-  border-color: var(--datta-primary-light);
+  background-color: var(--pc-primary-light);
+  border-color: var(--pc-primary-light);
 }
 
 .btn-success {
-  background-color: var(--datta-success);
-  border-color: var(--datta-success);
+  background-color: var(--current-success-color);
+  border-color: var(--current-success-color);
   color: #fff;
 }
 .btn-success:hover {

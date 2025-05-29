@@ -24,7 +24,7 @@ export default function HistoryChartModal({ label, dataByYear, onClose }) {
       {
         label,
         data: dataByYear[year],
-        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+        backgroundColor: 'rgba(var(--theme-color-rgb, 99, 102, 241), 0.6)',
       },
     ],
   };

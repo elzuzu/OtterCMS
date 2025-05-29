@@ -196,7 +196,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       const baseValues = { ...valeurSource, numero_unique: individu.numero_unique, en_charge: individu.en_charge };
       const resultat = evaluateDynamicField(champ.formule, baseValues);
       if (resultat === null || resultat === undefined || resultat === '') {
-        return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+        return <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
       }
       return String(resultat);
     }
@@ -206,13 +206,13 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     if (champ.type === 'date') {
       const formatted = formatDateToDDMMYYYY(valeur);
       if (!formatted) {
-        return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+        return <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
       }
       return formatted;
     }
     if (champ.type === 'number-graph') {
       const display = valeur === null || valeur === undefined || valeur === '' ? (
-        <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>
+        <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>
       ) : String(valeur);
       return (
         <span className="graph-value" onClick={() => openChart(champ)} style={{cursor: 'pointer', textDecoration: 'underline'}}>
@@ -221,7 +221,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       );
     }
     if (valeur === null || valeur === undefined || valeur === '') {
-      return <span style={{color: 'var(--text-color-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+      return <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
     }
     return String(valeur);
   };
@@ -485,7 +485,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             <div className="historique-content">
               <h3 style={{ marginBottom: '15px', fontSize: '1.2em' }}>Historique des modifications</h3>
               {audit.length === 0 ? (
-                <p style={{ textAlign: 'center', color: 'var(--text-color-placeholder)', fontStyle: 'italic' }}>
+                <p style={{ textAlign: 'center', color: 'var(--current-text-placeholder)', fontStyle: 'italic' }}>
                   Aucun historique de modification pour cet individu.
                 </p>
               ) : (
@@ -604,7 +604,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           left: 0;
           right: 0;
           bottom: 0;
-          background-color: rgba(0, 0, 0, 0.7);
+          background-color: var(--pc-overlay-bg);
           display: flex;
           justify-content: center;
           align-items: center;
@@ -667,7 +667,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         .tabs {
-          border-bottom: 2px solid var(--border-color-medium);
+          border-bottom: 2px solid var(--current-border-medium);
           margin: 15px 0 0 0 !important;
           display: flex;
           flex-wrap: wrap;
@@ -690,7 +690,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
         .tab-button.active {
           background: var(--color-primary-500);
-          color: var(--text-color-on-primary);
+          color: var(--current-text-on-primary-color);
         }
 
         .audit-timeline-compact {
@@ -701,7 +701,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         .audit-entry-compact {
           margin-bottom: 12px !important;
           padding: 10px !important;
-          border: 1px solid var(--border-color-medium);
+          border: 1px solid var(--current-border-medium);
           border-radius: 6px;
           background: var(--color-neutral-50);
         }
@@ -715,7 +715,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
         .audit-user-time-compact {
           font-size: 0.8em !important;
-          color: var(--text-color-secondary);
+          color: var(--current-text-secondary);
         }
 
         .audit-body-compact {
@@ -726,7 +726,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         .audit-import-info-compact {
           margin-top: 4px !important;
           font-size: 0.8em !important;
-          color: var(--text-color-tertiary);
+          color: var(--current-text-secondary);
         }
 
         .audit-field-name {
@@ -798,7 +798,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
         .button-primary {
           background: var(--color-primary-500);
-          color: var(--text-color-on-primary);
+          color: var(--current-text-on-primary-color);
           border: 1px solid var(--color-primary-500);
         }
 
@@ -808,7 +808,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
         .button-secondary {
           background: var(--color-neutral-500);
-          color: var(--text-color-on-primary);
+          color: var(--current-text-on-primary-color);
           border: 1px solid var(--color-neutral-500);
         }
 

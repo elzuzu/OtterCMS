@@ -670,7 +670,7 @@ export default function ImportData({ user }) {
                   width: '100%',          
                   maxHeight: 'none',      
                   display: 'block',       
-                  border: '1px solid var(--border-color-light)'
+                  border: '1px solid var(--current-border-light)'
                 }}
               >
                 <table
@@ -720,14 +720,14 @@ export default function ImportData({ user }) {
             <h3>Configuration du mapping des colonnes</h3>
             <div className="preview-container" style={{marginBottom: 'var(--spacing-5)'}}>
               <h4>Aperçu des données (rappel)</h4>
-              <div className="preview-table-container" style={{ overflowX: 'auto', overflowY: 'hidden', width: '100%', maxHeight: 'none', display: 'block', border: '1px solid var(--border-color-light)' }}>
+              <div className="preview-table-container" style={{ overflowX: 'auto', overflowY: 'hidden', width: '100%', maxHeight: 'none', display: 'block', border: '1px solid var(--current-border-light)' }}>
                 <table className="data-table preview-table" style={{ width: 'max-content', minWidth: '100%', whiteSpace: 'nowrap' }}>
                   <thead><tr>{previewData.headers.map((h, i) => <th key={`prev-h-${i}`}>{h}</th>)}</tr></thead>
                   <tbody>{previewData.rows.map((r, i) => <tr key={`prev-r-${i}`}>{r.map((c,ci) => <td key={`prev-c-${i}-${ci}`}>{String(c)}</td>)}</tr>)}</tbody>
                 </table>
               </div>
             </div>
-            <div className="template-section" style={{marginBottom: 'var(--spacing-5)', border: '1px solid var(--border-color-light)', padding: 'var(--spacing-4)', borderRadius: 'var(--border-radius-medium)'}}>
+            <div className="template-section" style={{marginBottom: 'var(--spacing-5)', border: '1px solid var(--current-border-light)', padding: 'var(--spacing-4)', borderRadius: 'var(--border-radius-md)'}}>
               <h4>Gestion des templates de mapping</h4>
               <div className="mb-3">
                 <label htmlFor="load-template-select">Charger un template:</label>
