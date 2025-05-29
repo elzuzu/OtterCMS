@@ -1,13 +1,13 @@
 import React from 'react';
 import MUICircularProgress from '@mui/material/CircularProgress';
-import { Typography, Box } from '@mui/material';
 
 export default function CircularProgress({ value, label, size = 120 }) {
   return (
-    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+    <div className="circular-progress-wrapper" style={{ position: 'relative', display: 'inline-flex' }}>
       <MUICircularProgress variant="determinate" value={value} size={size} />
-      <Box
-        sx={{
+      <div
+        className="circular-progress-labels"
+        style={{
           top: 0,
           left: 0,
           bottom: 0,
@@ -19,15 +19,9 @@ export default function CircularProgress({ value, label, size = 120 }) {
           flexDirection: 'column',
         }}
       >
-        <Typography variant="caption" component="div" color="text.secondary">
-          {`${Math.round(value)}%`}
-        </Typography>
-        {label && (
-          <Typography variant="caption" component="div">
-            {label}
-          </Typography>
-        )}
-      </Box>
-    </Box>
+        <span className="text-muted">{`${Math.round(value)}%`}</span>
+        {label && <span>{label}</span>}
+      </div>
+    </div>
   );
 }

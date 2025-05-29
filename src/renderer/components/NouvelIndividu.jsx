@@ -4,8 +4,7 @@ import { evaluateDynamicField } from '../utils/dynamic';
 import { DattaTextField, DattaSelect } from './common/DattaForm';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import DattaCheckbox from './common/DattaCheckbox';
 import DattaTabs, { Tab } from './common/DattaTabs';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
@@ -175,7 +174,12 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
         );
       case 'checkbox':
         return (
-          <FormControlLabel control={<Checkbox checked={!!valeur} onChange={e => handleValeurChange(champ.key, e.target.checked)} />} label={champ.label} />
+          <DattaCheckbox
+            id={champ.key}
+            label={champ.label}
+            checked={!!valeur}
+            onChange={(e) => handleValeurChange(champ.key, e.target.checked)}
+          />
         );
       case 'dynamic':
         const baseVals = { ...valeursChamps, numero_unique: numeroUnique, en_charge: enChargeId };
