@@ -4,7 +4,7 @@ L'interface utilise le moteur de styles du template **Datta Able** combiné à M
 
 ## Fonctionnement
 
-- `useTheme` lit le thème enregistré (clair ou sombre) et applique la classe correspondante sur `<html>`.
+- `useTheme` applique la classe du thème clair sur `<html>` et charge la couleur principale.
 - Les couleurs de base sont stockées dans `colors.css` et surchargées par `themes.css`.
 - Les composants wrappers (`DattaCard`, `DattaDataTable`, etc.) encapsulent ceux de MUI pour conserver une apparence uniforme.
 

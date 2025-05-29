@@ -39,49 +39,18 @@ const applyColor = (color) => {
 };
 
 export default function useTheme() {
-  const [mode, setMode] = useState('dark');
+  const mode = 'light';
   const [color, setColor] = useState('blue');
 
   useEffect(() => {
-    async function load() {
-      try {
-        if (window.api && window.api.getTheme) {
-          const res = await window.api.getTheme();
-          const saved = res?.theme || 'dark';
-          setMode(saved);
-          document.documentElement.setAttribute('data-layout', saved);
-          document.documentElement.classList.remove('layout-light', 'layout-dark');
-          document.documentElement.classList.add(`layout-${saved}`);
-        } else {
-          const saved = localStorage.getItem('theme') || 'dark';
-          setMode(saved);
-          document.documentElement.setAttribute('data-layout', saved);
-          document.documentElement.classList.remove('layout-light', 'layout-dark');
-          document.documentElement.classList.add(`layout-${saved}`);
-        }
-      } catch (e) {
-        console.error('useTheme: load theme failed', e);
-      }
+    document.documentElement.setAttribute('data-layout', 'light');
+    document.documentElement.classList.add('layout-light');
 
-      const savedColor = localStorage.getItem('themeColor') || 'blue';
-      setColor(savedColor);
-      applyColor(savedColor);
-    }
-    load();
+    const savedColor = localStorage.getItem('themeColor') || 'blue';
+    setColor(savedColor);
+    applyColor(savedColor);
   }, []);
 
-  const toggleMode = async () => {
-    const newMode = mode === 'light' ? 'dark' : 'light';
-    setMode(newMode);
-    document.documentElement.setAttribute('data-layout', newMode);
-    document.documentElement.classList.remove('layout-light', 'layout-dark');
-    document.documentElement.classList.add(`layout-${newMode}`);
-    if (window.api && window.api.setTheme) {
-      try { await window.api.setTheme(newMode); } catch (e) { console.error(e); }
-    } else {
-      localStorage.setItem('theme', newMode);
-    }
-  };
 
   const changeColor = (c) => {
     setColor(c);
@@ -91,7 +60,7 @@ export default function useTheme() {
 
   const theme = useMemo(() => {
     const currentColorValues = COLOR_VALUES[color] || COLOR_VALUES.blue;
-    
+
     return createTheme({
       palette: {
         mode,
@@ -101,17 +70,17 @@ export default function useTheme() {
           dark: currentColorValues.dark,
         },
         background: {
-          default: mode === 'light' ? '#f4f7fa' : '#161c2d', // Default background remains as it's not specified for cards
-          paper: mode === 'light' ? '#fafafa' : '#001529' // Card background from style guide
+          default: '#f4f7fa',
+          paper: '#fafafa'
         },
         text: {
-          primary: mode === 'light' ? '#212529' : 'rgba(255, 255, 255, 0.87)',
-          secondary: mode === 'light' ? '#4b5563' : 'rgba(255, 255, 255, 0.6)'
+          primary: '#212529',
+          secondary: '#4b5563'
         }
       },
       typography: { fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"' }
     });
-  }, [mode, color]);
+  }, [color]);
 
-  return { mode, color, toggleMode, changeColor, theme };
+  return { color, changeColor, theme };
 }

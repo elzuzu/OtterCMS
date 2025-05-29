@@ -9,7 +9,7 @@ Cette application reprend les principes visuels du template **Datta Able**.
 - Danger  : `#ff4d4f`
 - Info    : `#13c2c2`
 
-Les cartes utilisent `#fafafa` en mode clair et `#001529` en mode sombre.
+Les cartes utilisent `#fafafa` pour rester cohérentes avec le thème clair.
 
 ## Variables CSS clés
 ```

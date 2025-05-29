@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ThemeToggle from '../common/ThemeToggle';
 import WindowControls from '../common/WindowControls';
 import {
   IconHome2,
@@ -115,9 +114,6 @@ export default function LayoutManager({
           </div>
           <div className="ms-auto">
             <ul className="list-unstyled">
-              <li className="pc-h-item">
-                <ThemeToggle />
-              </li>
               <li className="dropdown pc-h-item">
                 <a
                   className="pc-head-link dropdown-toggle arrow-none me-0"

@@ -1,10 +1,9 @@
-/* styles/themes.css - light and dark theme variables for Datta Able migration */
+/* styles/themes.css - theme variables for Datta Able migration */
 
 :root {
   /* DattaAble Core Variables */
   --pc-font-family: 'Inter', sans-serif;
   --pc-bg-color: #f4f7fa;
-  --pc-bg-dark-color: #161c2d;
   --pc-sidebar-width: 260px;
   --pc-sidebar-collapsed-width: 70px;
   --pc-header-height: 64px;
@@ -81,7 +80,6 @@
   /* DattaAble base tokens */
   --color-primary-400: #40a9ff;
   --color-primary-700: #096dd9;
-  --sidebar-bg-dark: #001529;
   --card-bg: var(--pc-card-bg);
   --border-radius-base: 6px;
   --box-shadow-base: 0 2px 8px rgba(0,0,0,0.15);
@@ -119,34 +117,4 @@
   --pc-border-muted: rgba(0, 0, 0, 0.2);
 }
 
-/* Dark theme overrides */
-[data-layout="dark"] {
-  --color-neutral-50: #1e1e1e;
-  --color-neutral-100: #1d1d1d;
-  --color-neutral-200: #222222;
-  --color-neutral-300: #333333;
-  --color-neutral-700: #d1d5db;
-  --color-neutral-900: #f3f4f6;
-
-  --current-background-color: var(--color-neutral-50);
-  --current-surface-color: var(--color-neutral-100);
-  --current-text-primary: rgba(255, 255, 255, 0.87);
-  --current-text-secondary: rgba(255, 255, 255, 0.6);
-  --current-text-placeholder: rgba(255, 255, 255, 0.38);
-  --current-border-light: rgba(255, 255, 255, 0.12);
-  --current-border-medium: rgba(255, 255, 255, 0.2);
-
-  --pc-bg-color: #161c2d;
-  --pc-sidebar-bg: #283145;
-  --pc-card-bg: #283145;
-  --pc-text-color: #b8bec9;
-  --pc-border-color: #3f4865;
-
-  --card-bg: var(--pc-card-bg);
-  --sidebar-bg-dark: var(--pc-sidebar-bg);
-  --current-primary-color-hover: var(--color-primary-400);
-  --current-primary-color-active: var(--color-primary-700);
-}
-
 .layout-light { background-color: var(--pc-bg-color); }
-.layout-dark { background-color: var(--pc-bg-dark-color); }

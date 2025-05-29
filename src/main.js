@@ -511,8 +511,7 @@ ipcMain.handle('get-windows-username', async () => {
 
 ipcMain.handle('get-theme', async () => {
   logIPC('get-theme');
-  const settings = loadUserSettings();
-  return { success: true, theme: settings.theme || 'dark' };
+  return { success: true, theme: 'light' };
 });
 
 ipcMain.handle('set-theme', async (event, theme) => {
@@ -1593,8 +1592,8 @@ async function createWindow () {
     height: 768,
     frame: false,
     titleBarStyle: 'hidden',
-    // Utilise un gris sombre pour le fond afin d'eviter le noir pur
-    backgroundColor: '#1e1e1e',
+    // Fond clair par défaut
+    backgroundColor: '#f4f7fa',
     autoHideMenuBar: true,
     title: config.appTitle || 'Indi-Suivi',
     webPreferences: {
