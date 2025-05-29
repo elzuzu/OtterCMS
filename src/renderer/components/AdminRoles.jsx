@@ -57,20 +57,23 @@ export default function AdminRoles({ user }) {
   if (!hasPermission(user, 'manage_roles')) return <div>Accès refusé.</div>;
 
   return (
-    <div className="card role-management-panel">
+    <div className="card">
       <div className="card-header">
         <h5 className="mb-0">Gestion des rôles</h5>
       </div>
       {message && (
-        <div className={message.toLowerCase().includes('erreur') ? 'error' : 'success'}>
+        <div className={`alert ${message.toLowerCase().includes('erreur') ? 'alert-danger' : 'alert-success'}`} role="alert">
           {message}
         </div>
       )}
-      <div className="role-form">
-        <h3>{editingRole ? 'Modifier un rôle' : 'Créer un rôle'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label>Nom du rôle:</label>
+      <div className="card mt-3"> {/* Added card for the form */}
+        <div className="card-header"> {/* Added card-header for the form title */}
+          <h5 className="mb-0">{editingRole ? 'Modifier un rôle' : 'Créer un rôle'}</h5> {/* Changed h3 to h5 and moved here */}
+        </div>
+        <div className="card-body"> {/* Added card-body for the form content */}
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label>Nom du rôle:</label>
             <input
               value={roleName}
               onChange={e => setRoleName(e.target.value)}
@@ -90,7 +93,7 @@ export default function AdminRoles({ user }) {
               </label>
             ))}
           </div>
-          <div className="form-actions">
+          <div className="form-actions mt-3"> {/* Added margin for spacing */}
             <DattaButton type="submit" variant="primary">
               {editingRole ? 'Mettre à jour' : 'Créer'}
             </DattaButton>
@@ -101,11 +104,17 @@ export default function AdminRoles({ user }) {
             )}
           </div>
         </form>
-      </div>
-      <h3>Rôles existants</h3>
-      <DattaDataTable
-        data={roles}
-        getRowKey={r => r.name}
+        </div> {/* End card-body for form */}
+      </div> {/* End card for form */}
+
+      <div className="card mt-3"> {/* Added card for the roles list */}
+        <div className="card-header"> {/* Added card-header for the list title */}
+          <h5 className="mb-0">Rôles existants</h5> {/* Changed h3 to h5 and moved here */}
+        </div>
+        <div className="card-body"> {/* Added card-body for the list content */}
+          <DattaDataTable
+            data={roles}
+            getRowKey={r => r.name}
         columns={[
           { header: 'Nom', accessor: 'name' },
           { header: 'Permissions', render: r => r.permissions.join(', ') },
@@ -137,7 +146,9 @@ export default function AdminRoles({ user }) {
             )
           }
         ]}
-      />
+          />
+        </div> {/* End card-body for list */}
+      </div> {/* End card for list */}
     </div>
   );
 }

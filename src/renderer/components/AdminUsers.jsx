@@ -137,7 +137,7 @@ export default function AdminUsers() {
   );
 
   return (
-    <div className="card user-management-panel">
+    <div className="card">
       <div className="card-header">
         <h5 className="mb-0">Gestion des utilisateurs</h5>
       </div>
@@ -148,7 +148,7 @@ export default function AdminUsers() {
       )}
       <div className="user-form card">
         <div className="card-header">
-          <h3>{editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}</h3>
+          <h5>{editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}</h5>
         </div>
         <div className="card-body">
           <form onSubmit={handleSubmit}>

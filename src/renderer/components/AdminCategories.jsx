@@ -419,7 +419,7 @@ export default function AdminCategories() {
             </div>
           ))}
           <div className="form-actions">
-            <DattaButton type="button" onClick={ajouterChamp} variant="secondary" className="btn-icon-text">
+            <DattaButton type="button" onClick={ajouterChamp} variant="secondary" className="btn">
               <PlusIcon /> Ajouter un champ
             </DattaButton>
             <DattaButton type="submit" variant="primary" disabled={loading}>
