@@ -412,11 +412,20 @@ function initDb() {
     
     applyPragmas(db);
 
-    // Check if tables exist, if not, initialize schema. This is a simple check.
-    const usersTableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
-    if (!usersTableExists) {
-      log('Users table does not exist. Initializing full schema...');
-      db.close(); // Close current empty/corrupt DB if any
+    // Check if ALL required tables exist, not just users
+    const requiredTables = ['users', 'categories', 'roles', 'individus', 'individu_audit'];
+    const missingTables = [];
+    
+    for (const tableName of requiredTables) {
+      const tableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(tableName);
+      if (!tableExists) {
+        missingTables.push(tableName);
+      }
+    }
+    
+    if (missingTables.length > 0) {
+      log(`Missing tables detected: ${missingTables.join(', ')}. Initializing full schema...`);
+      db.close(); // Close current incomplete DB
       db = initializeDatabaseSync(); // Re-initialize and create schema
       log('Database and schema initialized.');
     } else {
@@ -426,6 +435,12 @@ function initDb() {
             const admin_hash = bcrypt.hashSync('admin', 10);
             db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)').run('admin', admin_hash, 'admin');
             log('Admin user was missing, recreated.');
+        }
+        
+        // Ensure default roles exist
+        const insertRoleStmt = db.prepare('INSERT OR IGNORE INTO roles (name, permissions) VALUES (?, ?)');
+        for (const [name, perms] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
+          insertRoleStmt.run(name, JSON.stringify(perms));
         }
     }
     initPreparedStatements();

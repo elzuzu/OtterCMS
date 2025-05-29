@@ -4,6 +4,35 @@ import { createTheme } from '@mui/material/styles';
 
 const COLORS = ['blue', 'green', 'purple', 'orange', 'red'];
 
+// Define actual color values for MUI theme
+const COLOR_VALUES = {
+  blue: {
+    main: '#1890ff',
+    light: '#40a9ff', 
+    dark: '#096dd9'
+  },
+  green: {
+    main: '#52c41a',
+    light: '#73d13d',
+    dark: '#389e0d'
+  },
+  purple: {
+    main: '#8b5cf6',
+    light: '#a78bfa',
+    dark: '#7c3aed'
+  },
+  orange: {
+    main: '#faad14',
+    light: '#ffc53d',
+    dark: '#d48806'
+  },
+  red: {
+    main: '#ff4d4f',
+    light: '#ff7875',
+    dark: '#cf1322'
+  }
+};
+
 const applyColor = (color) => {
   COLORS.forEach((c) => document.body.classList.remove('theme-' + c));
   document.body.classList.add('theme-' + color);
@@ -60,21 +89,29 @@ export default function useTheme() {
     localStorage.setItem('themeColor', c);
   };
 
-  const theme = useMemo(() => createTheme({
-    palette: {
-      mode,
-      primary: { main: 'var(--current-primary-color)' },
-      background: {
-        default: 'var(--current-background-color)',
-        paper: 'var(--current-surface-color)'
+  const theme = useMemo(() => {
+    const currentColorValues = COLOR_VALUES[color] || COLOR_VALUES.blue;
+    
+    return createTheme({
+      palette: {
+        mode,
+        primary: {
+          main: currentColorValues.main,
+          light: currentColorValues.light,
+          dark: currentColorValues.dark,
+        },
+        background: {
+          default: mode === 'light' ? '#f4f7fa' : '#161c2d', // Default background remains as it's not specified for cards
+          paper: mode === 'light' ? '#fafafa' : '#001529' // Card background from style guide
+        },
+        text: {
+          primary: mode === 'light' ? '#212529' : 'rgba(255, 255, 255, 0.87)',
+          secondary: mode === 'light' ? '#4b5563' : 'rgba(255, 255, 255, 0.6)'
+        }
       },
-      text: {
-        primary: 'var(--current-text-primary)',
-        secondary: 'var(--current-text-secondary)'
-      }
-    },
-    typography: { fontFamily: 'var(--font-family-base)' }
-  }), [mode]);
+      typography: { fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"' }
+    });
+  }, [mode, color]);
 
   return { mode, color, toggleMode, changeColor, theme };
 }
