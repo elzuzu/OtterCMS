@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DattaButton from './common/DattaButton';
+import DattaPageTitle from './common/DattaPageTitle';
 
 const THEME_COLORS = [
   { id: 'blue', label: 'Bleu (Défaut)', value: '#0078D4' },
@@ -44,10 +45,10 @@ export default function AdminTemplate() {
   }
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <h5 className="mb-0">Configuration du Thème</h5>
-      </div>
+    <div className="pc-content">
+      <DattaPageTitle title="Configuration du Thème" />
+      <div className="card">
+        <div className="card-body">
       <p>Choisissez la couleur principale de l'application. Ce changement affectera l'ensemble de l'interface utilisateur.</p>
       
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
@@ -82,6 +83,8 @@ export default function AdminTemplate() {
           {message}
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }

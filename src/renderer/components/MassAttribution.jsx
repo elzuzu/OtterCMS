@@ -407,8 +407,12 @@ export default function MassAttribution({ user }) {
   };
 
   return (
-    <div className="mass-attribution-wizard">
-      <h2>Attribution de masse</h2>
+    <div className="pc-content">
+      <div className="page-header">
+        <h2 className="page-title">Attribution de masse</h2>
+      </div>
+      <div className="card mass-attribution-wizard">
+        <div className="card-body">
       {message && (
         <DattaAlert type={message.includes('réussie') || message.includes('succès') ? 'success' : 'error'}>
           {message}
@@ -578,6 +582,8 @@ export default function MassAttribution({ user }) {
             </div>
           </div>
         )}
+      </div>
+        </div>
       </div>
     </div>
   );

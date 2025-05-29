@@ -8,7 +8,6 @@ import AdminUsersSection from './AdminUsersSection';
 import AdminTemplate from './AdminTemplate';
 import UserSettings from './UserSettings';
 import LayoutManager from './layout/LayoutManager';
-import PageWrapper from './layout/PageWrapper';
 
 /**
  * Composant MainContent
@@ -152,7 +151,7 @@ export default function MainContent({ user, onLogout }) {
         }
       }}
     >
-      <PageWrapper>{renderContent()}</PageWrapper>
+      {renderContent()}
     </LayoutManager>
   );
 }

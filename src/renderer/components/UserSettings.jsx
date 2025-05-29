@@ -39,7 +39,7 @@ export default function UserSettings({ user }) {
   };
 
   return (
-    <div className="user-settings">
+    <div className="pc-content user-settings">
       <DattaPageTitle title="Paramètres utilisateur" />
       <div className="card" style={{ padding: 'var(--spacing-2)' }}>
         <div className="mb-3">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import DattaAlert from "./common/DattaAlert";
 import DattaButton from "./common/DattaButton";
+import DattaPageTitle from "./common/DattaPageTitle";
 
 // Icon components (simple SVGs for +/-)
 const PlusIcon = () => (
@@ -306,8 +307,12 @@ export default function AdminCategories() {
   };
   
   return (
-    <div className="admin-categories-container">
-      <div className="category-form-panel">
+    <div className="pc-content">
+      <DattaPageTitle title="Gestion des catégories" />
+      <div className="card">
+        <div className="card-body">
+      <div className="admin-categories-container">
+        <div className="category-form-panel">
         <h3>{editTemplate ? `Modifier la catégorie "${editTemplate.nom}"` : 'Ajouter une nouvelle catégorie'}</h3>
         {message.text && (
           <DattaAlert type={message.type || 'info'}>{message.text}</DattaAlert>
@@ -495,6 +500,9 @@ export default function AdminCategories() {
           )}
           {!afficherMasquees && categoriesMasquees.length === 0 && !loading && <p>Aucune catégorie n'est actuellement masquée.</p>}
           {!afficherMasquees && categoriesMasquees.length > 0 && !loading && <p>{categoriesMasquees.length} catégorie(s) masquée(s). Cliquez sur "Afficher la liste" pour les voir et les gérer.</p>}
+        </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

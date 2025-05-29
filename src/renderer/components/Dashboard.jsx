@@ -40,10 +40,12 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
 
   if (loading) {
     return (
-      <div>
+      <div className="pc-content">
         <DattaPageTitle title="Tableau de bord" />
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <CircularProgress value={50} label="Chargement..." />
+        <div className="card">
+          <div className="card-body" style={{ textAlign: 'center', marginTop: '2rem' }}>
+            <CircularProgress value={50} label="Chargement..." />
+          </div>
         </div>
       </div>
     );
@@ -51,30 +53,40 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
 
   if (error) {
     return (
-      <div>
+      <div className="pc-content">
         <DattaPageTitle title="Tableau de bord" />
-        <div className="error-message" style={{ margin: 'var(--spacing-4) 0' }}>
-          {error}
-          <DattaButton variant="secondary" onClick={loadStats} style={{ marginLeft: 'var(--spacing-3)' }}>
-            Réessayer
-          </DattaButton>
+        <div className="card">
+          <div className="card-body">
+            <div className="error-message" style={{ margin: 'var(--spacing-4) 0' }}>
+              {error}
+              <DattaButton variant="secondary" onClick={loadStats} style={{ marginLeft: 'var(--spacing-3)' }}>
+                Réessayer
+              </DattaButton>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="pc-content">
       <DattaPageTitle title="Tableau de bord" />
       {!stats ? (
-        <div className="no-data-message" style={{ margin: 'var(--spacing-4) 0' }}>
-          Aucune statistique disponible pour le moment.
-          <DattaButton variant="primary" onClick={loadStats} style={{ marginTop: 'var(--spacing-3)' }}>
-            Recharger
-          </DattaButton>
+        <div className="card">
+          <div className="card-body">
+            <div className="no-data-message" style={{ margin: 'var(--spacing-4) 0' }}>
+              Aucune statistique disponible pour le moment.
+              <DattaButton variant="primary" onClick={loadStats} style={{ marginTop: 'var(--spacing-3)' }}>
+                Recharger
+              </DattaButton>
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="row">
+        <div className="card">
+          <div className="card-body">
+            <div className="row">
           {stats.mesIndividus !== undefined && (
             <div className="col-xl-3 col-md-6">
               <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>

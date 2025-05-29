@@ -69,7 +69,7 @@ scripts/install.js Initialisation de la base
 
 - La fonction `useTheme` applique dynamiquement le mode clair ou sombre et la couleur principale.
 - Les styles principaux se trouvent dans `src/renderer/styles/themes.css` et `app.css`.
-- Des wrappers (`DattaCard`, `DattaDataTable`, `PageWrapper`...) simplifient l'utilisation des composants MUI pour rester proches du design Datta Able.
+- Des wrappers (`DattaCard`, `DattaDataTable`...) simplifient l'utilisation des composants MUI pour rester proches du design Datta Able.
 
 Le schéma SQLite est créé lors de l'exécution de `npm run install-app`.
 
