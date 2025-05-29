@@ -917,7 +917,7 @@ Ce journal des modifications définit les changements.
     *   Ajout du widget de focus au survol
     *   Ajout de commentaires d'importation et du titre de la page
     *   Corrections de bugs
-    *   Corrections de bugs en mode sombre
+    *   Corrections diverses
     *   Légende du graphique corrigée en mode RTL
 *   **v18.0.0 - (29-09-2023)**
     *   Mise à niveau du paquet vers React 18

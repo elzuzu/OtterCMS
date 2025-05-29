@@ -27,7 +27,7 @@ Les principaux ecrans utilisent des wrappers React (`DattaCard`, `DattaDataTable
 - Catégories et champs dynamiques entièrement configurables
 - Import CSV/Excel avec attribution en masse
 - Tableau de bord synthétique et audit complet des modifications
-- Interface React moderne avec mode clair/sombre
+- Interface React moderne
 - Visualisation graphique de l'historique pour certains champs numériques
 
 ## Prérequis
@@ -67,7 +67,7 @@ scripts/install.js Initialisation de la base
 
 ## Thèmes et composants Datta
 
-- La fonction `useTheme` applique dynamiquement le mode clair ou sombre et la couleur principale.
+- La fonction `useTheme` applique dynamiquement la couleur principale.
 - Les styles principaux se trouvent dans `src/renderer/styles/themes.css` et `app.css`.
 - Des wrappers (`DattaCard`, `DattaDataTable`...) simplifient l'utilisation des composants MUI pour rester proches du design Datta Able.
 
