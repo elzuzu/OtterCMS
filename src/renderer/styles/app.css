@@ -77,6 +77,8 @@ body {
 
 .auth-card {
   animation: fadeIn var(--pc-transition-base);
+  margin: 0 auto;
+  max-width: 360px;
 }
 
 @keyframes fadeIn {
@@ -93,8 +95,6 @@ body {
   background-color: var(--pc-card-bg);
   border-radius: var(--pc-border-radius);
   box-shadow: var(--box-shadow-base);
-  margin: 0 auto;
-  max-width: 360px;
 }
 
 .card-body {
