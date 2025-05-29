@@ -25,7 +25,9 @@
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
     "postinstall": "node scripts/robust-postinstall.js",
     "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
-    "dist:validate": "npm run dist && node scripts/validate-build.js"
+    "dist:validate": "npm run dist && node scripts/validate-build.js",
+    "verify-build": "node scripts/verify-build.js",
+    "dist:verify": "npm run dist && npm run verify-build"
   },
   "keywords": [
     "electron",
@@ -77,6 +79,12 @@
     "productName": "Indi-Suivi",
     "asar": true,
     "compression": "maximum",
+    "buildDependenciesFromSource": false,
+    "nodeGypRebuild": false,
+    "npmRebuild": true,
+    "extraMetadata": {
+      "main": ".vite/build/main.js"
+    },
     "files": [
       "package.json",
       ".vite/build/main.js",
@@ -137,11 +145,7 @@
         ],
         "icon": "src/assets/app-icon.ico",
       "requestedExecutionLevel": "asInvoker",
-        "signAndEditExecutable": false,
-        "files": [
-          "!node_modules/better-sqlite3/build/Release/better_sqlite3.node",
-          "node_modules/better-sqlite3/build/Release/better_sqlite3_win32_x64.node"
-        ]
+        "signAndEditExecutable": false
       },
     "nsis": {
       "oneClick": false,
