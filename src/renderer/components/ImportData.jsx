@@ -916,8 +916,10 @@ export default function ImportData({ user }) {
   };
 
   return (
-    <div className="import-wizard card">
+    <div className="pc-content">
       <DattaPageTitle title="Importation de données individus" />
+      <div className="card import-wizard">
+        <div className="card-body">
       {message.text && (
         <DattaAlert type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
@@ -941,6 +943,8 @@ export default function ImportData({ user }) {
           </div>
         )}
         {(!loading || importStep === 1 || importStep === 4) && renderContent()}
+      </div>
+        </div>
       </div>
     </div>
   );

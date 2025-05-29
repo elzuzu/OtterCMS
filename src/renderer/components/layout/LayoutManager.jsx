@@ -76,7 +76,7 @@ export default function LayoutManager({
   }, []);
 
   return (
-    <div className="pc-container">
+    <>
       <nav className={`pc-sidebar ${!sidebarOpen ? 'pc-sidebar-hide' : ''}`}>
         <div className="navbar-wrapper">
           <div className="m-header">
@@ -148,7 +148,7 @@ export default function LayoutManager({
           </div>
         </div>
       </header>
-      <div className="pc-content">{children}</div>
-    </div>
+      <div className="pc-container">{children}</div>
+    </>
   );
 }

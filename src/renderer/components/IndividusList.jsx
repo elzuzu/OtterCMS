@@ -359,31 +359,41 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
 
   if (loading && individus.length === 0) {
     return (
-      <div>
+      <div className="pc-content">
         <DattaPageTitle title="Gestion des individus" />
-        <div className="loading-message">Chargement des données initiales...</div>
+        <div className="card">
+          <div className="card-body">
+            <div className="loading-message">Chargement des données initiales...</div>
+          </div>
+        </div>
       </div>
     );
   }
   if (error) {
     return (
-      <div>
+      <div className="pc-content">
         <DattaPageTitle title="Gestion des individus" />
-        <div className="error-message">
-          {error}
-          <DattaButton variant="secondary" onClick={loadData} style={{ marginTop: '10px' }}>
-            Réessayer de charger
-          </DattaButton>
+        <div className="card">
+          <div className="card-body">
+            <div className="error-message">
+              {error}
+              <DattaButton variant="secondary" onClick={loadData} style={{ marginTop: '10px' }}>
+                Réessayer de charger
+              </DattaButton>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div key={`list-container-${renderKey}`}>
+    <div key={`list-container-${renderKey}`} className="pc-content">
       <DattaPageTitle title="Gestion des individus" />
+      <div className="card">
+        <div className="card-body">
       <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--pc-card-bg)", borderRadius: "4px", fontSize: "0.9em", color: "var(--current-text-secondary)" }}>
-        <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} | 
+        <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} |
         <strong> Individus affichés:</strong> {filteredIndividus.length}
       </div>
       <div className="actions-bar">
@@ -482,6 +492,8 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           />
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
