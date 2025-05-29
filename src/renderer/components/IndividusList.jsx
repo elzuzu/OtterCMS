@@ -382,7 +382,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   return (
     <div key={`list-container-${renderKey}`}>
       <DattaPageTitle title="Gestion des individus" />
-      <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--color-neutral-50)", borderRadius: "4px", fontSize: "0.9em", color: "var(--current-text-secondary)" }}>
+      <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--pc-card-bg)", borderRadius: "4px", fontSize: "0.9em", color: "var(--current-text-secondary)" }}>
         <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} | 
         <strong> Individus affichés:</strong> {filteredIndividus.length}
       </div>

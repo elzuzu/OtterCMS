@@ -5,10 +5,10 @@ import { TrendUpIcon, TrendDownIcon } from './Icons';
 
 export default function StatCard({ icon, title, value, change, trend = 'up', gradient = 'blue' }) {
   const gradients = {
-    blue: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
-    green: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
-    purple: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
-    orange: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
+    blue: 'linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-300) 100%)',
+    green: 'linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-50) 100%)',
+    purple: 'linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-300) 100%)',
+    orange: 'linear-gradient(135deg, var(--color-warning-500) 0%, var(--color-warning-50) 100%)',
   };
 
   return (
