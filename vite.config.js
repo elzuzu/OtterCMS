@@ -4,6 +4,9 @@ import { resolve } from 'path';
 
 export default defineConfig({
   root: 'src/renderer',
+  // Assure l'inclusion correcte des fichiers statiques situés
+  // dans le dossier "public" à la racine du projet
+  publicDir: resolve(__dirname, 'public'),
   plugins: [
     react({
       // Configuration Babel sécurisée
