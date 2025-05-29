@@ -1600,6 +1600,8 @@ async function createWindow () {
       preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
+      enableRemoteModule: false,
+      backgroundThrottling: false,
       sandbox: false, // false for convenience as preload script only uses contextBridge/ipcRenderer; true is ideal if preload is fully self-contained (contextIsolation is the primary security boundary here).
       webSecurity: process.env.NODE_ENV !== 'development'
     }
