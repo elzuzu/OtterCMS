@@ -222,11 +222,11 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 </div>
               )}
             </div>
-            {/* Fermeture de div.row */}
+            {/* Fin div.row */}
           </div>
-          {/* Fermeture de div.card-body */}
+          {/* Fin div.card-body */}
         </div>
-        {/* Fermeture de div.card */}
+        {/* Fin div.card */}
       )}
     </div>
   );
