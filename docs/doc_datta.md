@@ -1,7 +1,3 @@
-Voici la documentation nettoyée, formatée et complète au format Markdown pour "Datta Able - React".
-
----
-
 # Documentation Datta Able - React + Vite Admin Template
 
 Cette documentation fournit un guide complet pour utiliser et configurer le template d'administration Datta Able basé sur React et Vite.
