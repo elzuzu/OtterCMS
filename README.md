@@ -49,7 +49,7 @@ Le fichier `config/app-config.json` définit le chemin de la base SQLite et d'au
 ```json
 {
   "appTitle": "Indi-Suivi",
-  "dbPath": "./db/indi-suivi.sqlite",
+  "dbPath": "../db/indi-suivi.sqlite",
   "defaultLanguage": "fr",
   "logLevel": "info"
 }
