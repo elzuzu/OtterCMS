@@ -223,6 +223,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
             </div>
           )}
         </div>
+        </div> {/* This closes the <div className="card"> that wraps the stats */}
       )}
     </div>
   );
