@@ -1,272 +1,91 @@
 /* src/renderer/styles/colors.css */
-
-:root {
-  /* -------------------------------------------------------------------------- */
-  /* 🎨 Thème Clair (Défauts)                         */
-  /* -------------------------------------------------------------------------- */
-  
-  /* Couleurs de base (inspirées de votre existant et de valeurs communes) */
-  --color-neutral-50-light: #f8f9fa; /* Utilisé pour le fond général léger */
-  --color-neutral-100-light: #f1f3f5;
-  --color-neutral-200-light: #e9ecef; /* Utilisé pour les bordures légères */
-  --color-neutral-300-light: #dee2e6; /* Utilisé pour les bordures moyennes */
-  --color-neutral-700-light: #495057;
-  --color-neutral-800-light: #343a40;
-  --color-neutral-900-light: #212529; /* Texte primaire foncé */
-
-  /* Palette sémantique pour le thème clair */
-  --background-color-light: var(--color-neutral-50-light); /* Fond général de l'application */
-  --surface-color-light: #ffffff; /* Fond des cartes, modales, etc. */
-  
-  --text-primary-light: var(--color-neutral-900-light); /* Texte principal (haute emphase) */
-  --text-secondary-light: #4b5563; /* Texte secondaire (moyenne emphase) */
-  --text-placeholder-light: #6b7280; /* Texte pour placeholders, désactivé léger */
-  --text-disabled-light: #adb5bd; /* Texte désactivé plus prononcé */
-  --text-on-primary-color-light: #ffffff; /* Texte sur un fond de couleur primaire */
-  --text-on-accent-light: #ffffff; /* Texte sur fond d'accentuation */
-
-  --border-light-light: var(--color-neutral-200-light); /* Bordure fine/légère */
-  --border-medium-light: var(--color-neutral-300-light); /* Bordure standard */
-  --border-strong-light: var(--color-neutral-700-light); /* Bordure plus marquée */
-  --border-focus-ring-light: rgba(59, 130, 246, 0.5); /* Anneau de focus (souvent bleu) */
-
-  /* Couleurs d'accentuation pour le thème clair */
-  --primary-color-light: #1890ff;
-  --primary-color-hover-light: #40a9ff;
-  --primary-color-active-light: #096dd9;
-  --success-color-light: #52c41a;
-  --warning-color-light: #faad14;
-  --danger-color-light: #ff4d4f;
-  --info-color-light: #13c2c2;
-
-  --secondary-color-light: #6c757d; /* Optionnel, si vous avez une couleur secondaire */
-  --secondary-color-hover-light: #545b62;
-
-  --success-color-hover-light: #73d13d;
-  --danger-color-hover-light: #ff7875;
-  --warning-color-text-light: #212529; /* Texte sur fond warning souvent foncé */
-  --warning-color-hover-light: #ffd666;
-  --info-color-hover-light: #36cfc9;
-
-
-  /* -------------------------------------------------------------------------- */
-  /* 🎨 Thème Sombre (Palette)                        */
-  /* -------------------------------------------------------------------------- */
-  /* Basé sur les recommandations Material Design pour le mode sombre */
-  /* https://material.io/design/color/dark-theme.html */
-
-  /* Fond principal du mode sombre - légèrement éclairci pour éviter le noir pur */
-  --dm-background: #1e1e1e;
-
-  /* Couleurs de surface avec élévation (plus l'élévation est haute, plus la surface est claire) */
-  --dm-surface-dp01: #1D1D1D; /* ex: cartes légèrement surélevées */
-  --dm-surface-dp02: #222222; /* ex: cartes standard */
-  --dm-surface-dp03: #242424;
-  --dm-surface-dp04: #272727; /* ex: menus déroulants */
-  --dm-surface-dp06: #2C2C2C; /* ex: modales, panneaux latéraux */
-  --dm-surface-dp08: #2E2E2E;
-  --dm-surface-dp12: #333333; /* ex: header de tableau */
-  --dm-surface-dp16: #353535;
-  --dm-surface-dp24: #383838;
-
-  /* Textes pour le mode sombre */
-  --dm-text-primary: rgba(255, 255, 255, 0.87); /* Haute emphase (quasi blanc) */
-  --dm-text-secondary: rgba(255, 255, 255, 0.60); /* Moyenne emphase (gris clair) */
-  --dm-text-placeholder: rgba(255, 255, 255, 0.38); /* Basse emphase (gris plus foncé) */
-  --dm-text-disabled: rgba(255, 255, 255, 0.38);
-  --dm-text-on-primary-color: #ffffff; /* Texte sur couleur primaire (souvent blanc) */
-  --dm-text-on-accent: #000000; /* Texte sur accentuation claire (souvent noir pour contraste) ou blanc */
-
-  /* Bordures pour le mode sombre */
-  --dm-border-light: rgba(255, 255, 255, 0.12); /* Bordure subtile */
-  --dm-border-medium: rgba(255, 255, 255, 0.20);
-  --dm-border-strong: rgba(255, 255, 255, 0.30);
-  --dm-border-focus-ring: rgba(130, 177, 255, 0.5); /* Bleu clair pour l'anneau de focus */
-
-  /* Couleurs d'accentuation pour le thème sombre (souvent plus claires/désaturées) */
-  --dm-primary-color: #1890ff;
-  --dm-primary-color-hover: #40a9ff;
-  --dm-primary-color-active: #096dd9;
-
-  --dm-secondary-color: #8A9AAB;
-  --dm-secondary-color-hover: #A0B0C1;
-
-  --dm-success-color: #52c41a;
-  --dm-success-color-hover: #73d13d;
-  --dm-danger-color: #ff4d4f;
-  --dm-danger-color-hover: #ff7875;
-  --dm-warning-color: #faad14;
-  --dm-warning-color-text: #000000; /* Texte sur fond warning souvent noir pour contraste */
-  --dm-warning-color-hover: #ffd666;
-  --dm-info-color: #13c2c2;
-  --dm-info-color-hover: #36cfc9;
-
-
-  /* -------------------------------------------------------------------------- */
-  /* 🔄 Variables Sémantiques (Thème Actuel)                      */
-  /* -------------------------------------------------------------------------- */
-  /* Ces variables changent de valeur en fonction du thème (clair/sombre) */
-  /* Par défaut, elles utilisent les valeurs du thème clair. */
-
-  --current-background-color: var(--background-color-light);
-  --current-surface-color: var(--surface-color-light);
-  --current-surface-color-dp01: var(--surface-color-light); /* Pour le thème clair, dp01 peut être identique à la surface principale ou légèrement différent */
-  --current-surface-color-dp02: var(--surface-color-light);
-  --current-surface-color-dp06: var(--surface-color-light);
-  --current-surface-color-dp12: var(--surface-color-light);
-
-
-  --current-text-primary: var(--text-primary-light);
-  --current-text-secondary: var(--text-secondary-light);
-  --current-text-placeholder: var(--text-placeholder-light);
-  --current-text-disabled: var(--text-disabled-light);
-  --current-text-on-primary-color: var(--text-on-primary-color-light);
-  --current-text-on-accent: var(--text-on-accent-light);
-
-  --current-border-light: var(--border-light-light);
-  --current-border-medium: var(--border-medium-light);
-  --current-border-strong: var(--border-strong-light);
-  --current-border-focus-ring: var(--border-focus-ring-light);
-
-  --current-primary-color: var(--primary-color-light);
-  --current-primary-color-hover: var(--primary-color-hover-light);
-  --current-primary-color-active: var(--primary-color-active-light);
-  
-  --current-secondary-color: var(--secondary-color-light);
-  --current-secondary-color-hover: var(--secondary-color-hover-light);
-
-  --current-success-color: var(--success-color-light);
-  --current-success-color-hover: var(--success-color-hover-light);
-  --current-danger-color: var(--danger-color-light);
-  --current-danger-color-hover: var(--danger-color-hover-light);
-  --current-warning-color: var(--warning-color-light);
-  --current-warning-color-text: var(--warning-color-text-light);
-  --current-warning-color-hover: var(--warning-color-hover-light);
-  --current-info-color: var(--info-color-light);
-  --current-info-color-hover: var(--info-color-hover-light);
-
-}
+/* This file is intended to provide theme variations (e.g., body.theme-blue) */
+/* It should rely on themes.css for base palette and default --current-* variables. */
 
 /* Thèmes de couleur */
-body.theme-blue {
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-300: #93c5fd;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
+/* Each theme redefines the --pc-primary family of variables using the base palette from themes.css */
+/* Assumes themes.css defines:
+    --color-blue-500, --color-blue-600, --color-blue-300, --color-blue-400, --color-blue-700, --color-blue-50 (etc. for each color)
+    AND that themes.css defines default --pc-primary-rgb, --pc-primary-hover etc. or a way to derive them.
+    Since pure CSS cannot derive them easily, each theme explicitly sets them here.
+*/
 
-  --theme-color: var(--color-primary-500);
-  --theme-color-rgb: 59, 130, 246;
-  --theme-color-light: var(--color-primary-300);
-  --theme-color-dark: var(--color-primary-700);
+body.theme-blue {
+  /* Base blue theme from themes.css --color-primary-xxx is already blueish */
+  --pc-primary: var(--color-primary-500); /* Default primary from themes.css is blueish */
+  --pc-primary-rgb: 59, 130, 246; /* RGB for #3b82f6 (example, adjust if themes.css --color-primary-500 changes) */
+  --pc-primary-dark: var(--color-primary-600); 
+  --pc-primary-light: var(--color-primary-300);
+  --pc-primary-hover: var(--color-primary-400); /* Or specific hover shade */
+  --pc-primary-active: var(--color-primary-700); /* Or specific active shade */
+  --pc-primary-bg-subtle: var(--color-primary-50);
+  --pc-primary-text-emphasis: var(--color-primary-600);
+
+  /* Bootstrap variable compatibility */
+  --bs-primary: var(--pc-primary);
+  --bs-primary-rgb: var(--pc-primary-rgb);
 }
 
 body.theme-green {
-  --color-primary-50: #ecfdf5;
-  --color-primary-100: #d1fae5;
-  --color-primary-300: #6ee7b7;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
+  --pc-primary: var(--color-success-500); /* Using success color from themes.css as green base */
+  --pc-primary-rgb: 82, 196, 26; /* RGB for #52c41a */
+  --pc-primary-dark: var(--color-success-700); /* Example: using success-700 as dark shade */
+  --pc-primary-light: var(--color-success-300); /* Example: using a lighter success shade (needs definition in themes.css) */
+  --pc-primary-hover: var(--color-success-400); /* (needs definition in themes.css) */
+  --pc-primary-active: var(--color-success-700);
+  --pc-primary-bg-subtle: var(--color-success-50);
+  --pc-primary-text-emphasis: var(--color-success-700);
 
-  --theme-color: var(--color-primary-500);
-  --theme-color-rgb: 16, 185, 129;
-  --theme-color-light: var(--color-primary-300);
-  --theme-color-dark: var(--color-primary-700);
+  --bs-primary: var(--pc-primary);
+  --bs-primary-rgb: var(--pc-primary-rgb);
 }
 
 body.theme-purple {
-  --color-primary-50: #f5f3ff;
-  --color-primary-100: #ede9fe;
-  --color-primary-300: #c4b5fd;
-  --color-primary-500: #8b5cf6;
-  --color-primary-600: #7c3aed;
-  --color-primary-700: #6d28d9;
+  /* themes.css needs --color-purple-xxx definitions. Assuming they exist: */
+  --pc-primary: var(--color-purple-500, #8b5cf6); /* Fallback if not in themes.css */
+  --pc-primary-rgb: 139, 92, 246; 
+  --pc-primary-dark: var(--color-purple-600, #7c3aed);
+  --pc-primary-light: var(--color-purple-300, #c4b5fd);
+  --pc-primary-hover: var(--color-purple-400, #a78bfa);
+  --pc-primary-active: var(--color-purple-700, #6d28d9);
+  --pc-primary-bg-subtle: var(--color-purple-50, #f5f3ff);
+  --pc-primary-text-emphasis: var(--color-purple-600, #7c3aed);
 
-  --theme-color: var(--color-primary-500);
-  --theme-color-rgb: 139, 92, 246;
-  --theme-color-light: var(--color-primary-300);
-  --theme-color-dark: var(--color-primary-700);
+  --bs-primary: var(--pc-primary);
+  --bs-primary-rgb: var(--pc-primary-rgb);
 }
 
 body.theme-orange {
-  --color-primary-50: #fff7ed;
-  --color-primary-100: #ffedd5;
-  --color-primary-300: #fdba74;
-  --color-primary-500: #f97316;
-  --color-primary-600: #ea580c;
-  --color-primary-700: #c2410c;
+  --pc-primary: var(--color-warning-500); /* Using warning color from themes.css as orange base */
+  --pc-primary-rgb: 250, 173, 20; /* RGB for #faad14 */
+  --pc-primary-dark: var(--color-warning-700);
+  --pc-primary-light: var(--color-warning-300); /* (needs definition in themes.css) */
+  --pc-primary-hover: var(--color-warning-400); /* (needs definition in themes.css) */
+  --pc-primary-active: var(--color-warning-700);
+  --pc-primary-bg-subtle: var(--color-warning-50);
+  --pc-primary-text-emphasis: var(--color-warning-700);
 
-  --theme-color: var(--color-primary-500);
-  --theme-color-rgb: 249, 115, 22;
-  --theme-color-light: var(--color-primary-300);
-  --theme-color-dark: var(--color-primary-700);
+  --bs-primary: var(--pc-primary);
+  --bs-primary-rgb: var(--pc-primary-rgb);
 }
 
 body.theme-red {
-  --color-primary-50: #fef2f2;
-  --color-primary-100: #fee2e2;
-  --color-primary-300: #fca5a5;
-  --color-primary-500: #ef4444;
-  --color-primary-600: #dc2626;
-  --color-primary-700: #b91c1c;
+  --pc-primary: var(--color-danger-500); /* Using danger color from themes.css as red base */
+  --pc-primary-rgb: 255, 77, 79; /* RGB for #ff4d4f */
+  --pc-primary-dark: var(--color-danger-700);
+  --pc-primary-light: var(--color-danger-300); /* (needs definition in themes.css) */
+  --pc-primary-hover: var(--color-danger-400); /* (needs definition in themes.css) */
+  --pc-primary-active: var(--color-danger-700);
+  --pc-primary-bg-subtle: var(--color-danger-50);
+  --pc-primary-text-emphasis: var(--color-danger-700);
 
-  --theme-color: var(--color-primary-500);
-  --theme-color-rgb: 239, 68, 68;
-  --theme-color-light: var(--color-primary-300);
-  --theme-color-dark: var(--color-primary-700);
+  --bs-primary: var(--pc-primary);
+  --bs-primary-rgb: var(--pc-primary-rgb);
 }
 
-/* -------------------------------------------------------------------------- */
-/* 🌓 Application du Thème Sombre                       */
-/* -------------------------------------------------------------------------- */
-/* Lorsque l'attribut data-layout="dark" est présent sur html, on redéfinit les variables --current-* */
-
-[data-layout="dark"] {
-  --current-background-color: var(--dm-background);
-  --current-surface-color: var(--dm-surface-dp02); /* Surface par défaut pour les cartes, etc. */
-  --current-surface-color-dp01: var(--dm-surface-dp01);
-  --current-surface-color-dp02: var(--dm-surface-dp02);
-  --current-surface-color-dp06: var(--dm-surface-dp06);
-  --current-surface-color-dp12: var(--dm-surface-dp12);
-
-  --current-text-primary: var(--dm-text-primary);
-  --current-text-secondary: var(--dm-text-secondary);
-  --current-text-placeholder: var(--dm-text-placeholder);
-  --current-text-disabled: var(--dm-text-disabled);
-  --current-text-on-primary-color: var(--dm-text-on-primary-color);
-  --current-text-on-accent: var(--dm-text-on-accent);
-
-  --current-border-light: var(--dm-border-light);
-  --current-border-medium: var(--dm-border-medium);
-  --current-border-strong: var(--dm-border-strong);
-  --current-border-focus-ring: var(--dm-border-focus-ring);
-
-  --current-primary-color: var(--dm-primary-color);
-  --current-primary-color-hover: var(--dm-primary-color-hover);
-  --current-primary-color-active: var(--dm-primary-color-active);
-
-  --current-secondary-color: var(--dm-secondary-color);
-  --current-secondary-color-hover: var(--dm-secondary-color-hover);
-
-  --current-success-color: var(--dm-success-color);
-  --current-success-color-hover: var(--dm-success-color-hover);
-  --current-danger-color: var(--dm-danger-color);
-  --current-danger-color-hover: var(--dm-danger-color-hover);
-  --current-warning-color: var(--dm-warning-color);
-  --current-warning-color-text: var(--dm-warning-color-text);
-  --current-warning-color-hover: var(--dm-warning-color-hover);
-  --current-info-color: var(--dm-info-color);
-  --current-info-color-hover: var(--dm-info-color-hover);
-
-
-  /* Optionnel: pour améliorer le rendu des polices en mode sombre sur certains OS */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Styles globaux de base utilisant les variables --current-* */
+/* Styles globaux de base utilisant les variables --current-* (sourced from themes.css) */
+/* These styles can remain here or be moved to a more global stylesheet like index.css or app.css */
+/* They are generally fine as they rely on --current-* variables which are now solely defined in themes.css */
 body {
   background-color: var(--current-background-color);
   color: var(--current-text-primary);
