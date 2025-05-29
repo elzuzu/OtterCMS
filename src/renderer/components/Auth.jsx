@@ -130,12 +130,23 @@ export default function Auth({ setUser }) {
 
   if (loading && !isAutoLoginAttempted) {
     return (
-      <div className="auth-wrapper auth-bg auth-bg-animate">
-        <div className="auth-content">
-          <div className="card auth-card">
-            <div className="card-body text-center">
-              <h6 className="mb-3">Connexion automatique...</h6>
-              <p>Tente de se connecter avec votre compte Windows...</p>
+      <div className="auth-main">
+        <div className="auth-wrapper v1">
+          <div className="auth-form">
+            <WindowControls />
+            <div className="auth-position">
+              <div className="auth-bg">
+                <span className="r"></span>
+                <span className="r s"></span>
+                <span className="r s"></span>
+                <span className="r"></span>
+              </div>
+              <div className="card auth-card">
+                <div className="card-body text-center">
+                  <h6 className="mb-3">Connexion automatique...</h6>
+                  <p>Tente de se connecter avec votre compte Windows...</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -144,14 +155,22 @@ export default function Auth({ setUser }) {
   }
 
   return (
-    <div className="auth-wrapper auth-bg auth-bg-animate">
-      <WindowControls />
-      <div className="auth-content">
-        <div className="card auth-card">
-          <div className="card-header">
-            <h4 className="mb-3 f-w-400">Connexion</h4>
-          </div>
-          <div className="card-body">
+    <div className="auth-main">
+      <div className="auth-wrapper v1">
+        <div className="auth-form">
+          <WindowControls />
+          <div className="auth-position">
+            <div className="auth-bg">
+              <span className="r"></span>
+              <span className="r s"></span>
+              <span className="r s"></span>
+              <span className="r"></span>
+            </div>
+            <div className="card auth-card">
+              <div className="card-header">
+                <h4 className="mb-3 f-w-400">Connexion</h4>
+              </div>
+              <div className="card-body">
             <form onSubmit={handleLogin}>
               <div className="mb-3 text-start">
                 <label className="form-label" htmlFor="username">
@@ -207,5 +226,7 @@ export default function Auth({ setUser }) {
         </div>
       </div>
     </div>
+  </div>
+</div>
   );
 }

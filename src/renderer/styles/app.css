@@ -23,47 +23,108 @@ body {
 /* -------------------------------------------------------------------------- */
 /* Datta Able login page styles                                               */
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* Authentication layout (Datta Able style)                                   */
+/* -------------------------------------------------------------------------- */
+
+.auth-main {
+  position: relative;
+  background-size: cover;
+}
+
 .auth-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
+  width: 100%;
   min-height: 100vh;
+}
+
+.auth-wrapper.v1 .auth-form {
+  display: flex;
+  flex-direction: column;
+  background: var(--pc-card-bg);
+  min-height: 100vh;
+  padding: 24px;
   position: relative;
-  overflow: hidden;
+  justify-content: center;
+}
+
+.auth-wrapper.v1 .auth-form .card-body {
+  padding: 40px;
+}
+
+@media (max-width: 575.98px) {
+  .auth-wrapper.v1 .auth-form .card-body {
+    padding: var(--spacing-4);
+  }
+}
+
+.auth-position {
+  position: relative;
+  margin: 3rem 0;
 }
 
 .auth-bg {
-  background: linear-gradient(135deg, var(--pc-primary) 0%, var(--pc-primary-dark) 100%);
-}
-
-/* Animated shapes similar to Datta Able login page */
-.auth-bg-animate::before,
-.auth-bg-animate::after {
-  content: '';
   position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.auth-bg .r {
+  position: absolute;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  opacity: 0.25;
-  filter: blur(60px);
-  pointer-events: none;
 }
 
-.auth-bg-animate::before {
-  width: 320px;
-  height: 320px;
-  top: -160px;
-  right: -160px;
-  background: var(--pc-primary-light);
-  animation: rotate 20s linear infinite;
+.auth-bg .r:first-child {
+  top: -100px;
+  right: -100px;
+  background: linear-gradient(-135deg, #1de9b6 0%, #1dc4e9 100%);
 }
 
-.auth-bg-animate::after {
-  width: 240px;
-  height: 240px;
-  bottom: -120px;
-  left: -120px;
-  background: var(--pc-primary-dark);
-  animation: rotate-reverse 25s linear infinite;
+.auth-bg .r:last-child {
+  left: -100px;
+  bottom: -100px;
+  background: linear-gradient(-135deg, #899fd4 0%, #a389d4 100%);
 }
+
+.auth-bg .r.s {
+  width: 20px;
+  height: 20px;
+}
+
+.auth-bg .r.s:nth-child(2) {
+  top: 150px;
+  right: -150px;
+  background: #04a9f5;
+}
+
+.auth-bg .r.s:nth-child(3) {
+  left: -150px;
+  bottom: 150px;
+  background: #1de9b6;
+}
+
+.auth-bg .r:nth-child(odd) {
+  animation: floating 7s infinite;
+}
+
+.auth-bg .r:nth-child(even) {
+  animation: floating 9s infinite;
+}
+
+@keyframes floating {
+  from {
+    transform: rotate(0deg) translate(-10px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translate(-10px) rotate(-360deg);
+  }
+}
+
 
 @keyframes rotate {
   from { transform: rotate(0deg); }
