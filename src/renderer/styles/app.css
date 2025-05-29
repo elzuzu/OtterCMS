@@ -258,3 +258,18 @@ body {
   font-weight: 400;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Electron draggable regions                                                 */
+/* -------------------------------------------------------------------------- */
+.pc-header, .window-controls {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.window-control,
+.pc-header .pc-head-link,
+.pc-header .dropdown-menu,
+.pc-header button,
+.pc-header input {
+  -webkit-app-region: no-drag;
+}
