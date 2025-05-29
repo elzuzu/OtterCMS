@@ -6,10 +6,11 @@ export default defineConfig({
   root: 'src/renderer',
   plugins: [
     react({
-      // Optimiser React en production
+      // Configuration Babel sécurisée
       babel: {
         plugins: process.env.NODE_ENV === 'production' ? [
-          ['transform-remove-console', { exclude: ['error', 'warn'] }]
+          // Utiliser le nom complet du package
+          ['babel-plugin-transform-remove-console', { exclude: ['error', 'warn'] }]
         ] : []
       }
     }),
