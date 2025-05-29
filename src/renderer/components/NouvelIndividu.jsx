@@ -6,10 +6,7 @@ import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import DattaTabs, { Tab } from './common/DattaTabs';
 
 export default function NouvelIndividu({ user, onClose, onSuccess }) {
   const [allCategories, setAllCategories] = useState([]);
@@ -256,13 +253,13 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
           </div>
         </div>
 
-        <Box className="fiche-tabs">
-          <Tabs value={ongletActif} onChange={(e, v) => setOngletActif(v)} variant="scrollable" allowScrollButtonsMobile>
+        <div className="fiche-tabs">
+          <DattaTabs value={ongletActif} onChange={(e, v) => setOngletActif(v)}>
             {allCategories.map(cat => (
               <Tab key={`tab-${cat.id}`} label={cat.nom} value={`cat-${cat.id}`} />
             ))}
-          </Tabs>
-        </Box>
+          </DattaTabs>
+        </div>
 
         <div className="fiche-content-wrapper">
           {allCategories.map(cat => {
@@ -271,7 +268,7 @@ export default function NouvelIndividu({ user, onClose, onSuccess }) {
             const champsSaisissables = cat.champs ? cat.champs.filter(champ => champ.visible && !champ.readonly) : []; 
             return (
               <div key={`content-${cat.id}`} className="fiche-content">
-                <Typography variant="h6" className="section-title">{cat.nom}</Typography>
+                <h6 className="section-title">{cat.nom}</h6>
                 {champsSaisissables.length > 0 ? (
                     <div className="info-grid">
                       {champsSaisissables

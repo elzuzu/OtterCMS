@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Stepper, Step, StepLabel } from '@mui/material';
+import DattaStepper, { Step, StepLabel } from './common/DattaStepper';
 import DattaAlert from './common/DattaAlert';
 import DattaButton from './common/DattaButton';
 
@@ -414,13 +414,13 @@ export default function MassAttribution({ user }) {
           {message}
         </DattaAlert>
       )}
-      <Stepper activeStep={step - 1} alternativeLabel sx={{ mb: 3 }}>
+      <DattaStepper activeStep={step - 1}>
         {['Sélection des individus', "Définir l'attribution", 'Confirmation'].map((label, idx) => (
           <Step key={idx} disabled={(idx === 1 && step < 2) || (idx === 2 && step < 3)}>
             <StepLabel>{label}</StepLabel>
           </Step>
         ))}
-      </Stepper>
+      </DattaStepper>
       <div className="wizard-content">
         {step === 1 && (
           <div className="wizard-panel">

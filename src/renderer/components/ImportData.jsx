@@ -4,7 +4,7 @@ import { formatDateToDDMMYYYY } from '../utils/date';
 import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
-import { Stepper, Step, StepLabel } from '@mui/material';
+import DattaStepper, { Step, StepLabel } from './common/DattaStepper';
 
 // Constantes pour les types de champs disponibles
 const FIELD_TYPES = [
@@ -916,20 +916,20 @@ export default function ImportData({ user }) {
   };
 
   return (
-    <div className="import-wizard admin-panel">
+    <div className="import-wizard card">
       <DattaPageTitle title="Importation de données individus" />
       {message.text && (
         <DattaAlert type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
         </DattaAlert>
       )}
-      <Stepper activeStep={importStep - 1} alternativeLabel sx={{ mb: 3 }}>
+      <DattaStepper activeStep={importStep - 1}>
         {["Fichier", "N° Individu", "Mapping", "Résultats"].map(label => (
           <Step key={label} disabled={(label === "N° Individu" && !fileContent) || (label === "Mapping" && !numeroIndividuHeader) || (label === "Résultats" && importStep < 4)}>
             <StepLabel>{label}</StepLabel>
           </Step>
         ))}
-      </Stepper>
+      </DattaStepper>
       <div className="wizard-content">
         {loading && importStep > 1 && importStep < 4 && (
           <div className="loading-overlay">

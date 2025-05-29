@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
+import { DattaTextField } from './common/DattaForm';
 import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
@@ -41,35 +39,35 @@ export default function UserSettings({ user }) {
   };
 
   return (
-    <Box className="user-settings">
+    <div className="user-settings">
       <DattaPageTitle title="Paramètres utilisateur" />
-      <Box className="ui-card" sx={{ p: 2 }}>
-        <div className="form-group">
+      <div className="card" style={{ padding: 'var(--spacing-2)' }}>
+        <div className="mb-3">
           <label>Login Windows (nom d'utilisateur uniquement):</label>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
-            <TextField
+          <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', marginTop: '0.25rem' }}>
+            <DattaTextField
               placeholder="Ex: jean (sans domaine)"
               value={loginWin}
               onChange={e => setLoginWin(e.target.value)}
-              size="small"
+              style={{ marginBottom: 0 }}
             />
             <DattaButton variant="primary" onClick={associerLogin} disabled={loading}>
               {loading ? 'Association...' : 'Associer'}
             </DattaButton>
-          </Box>
+          </div>
           {message && <DattaAlert type={message.includes('succès') ? 'success' : 'error'}>{message}</DattaAlert>}
         </div>
-      </Box>
-      <Box className="ui-card" sx={{ mt: 3 }}>
-        <div className="ui-card-header">
-          <Typography variant="h6" className="section-title">Informations utilisateur</Typography>
+      </div>
+      <div className="card" style={{ marginTop: 'var(--spacing-3)' }}>
+        <div className="card-header">
+          <h6 className="section-title mb-0">Informations utilisateur</h6>
         </div>
-        <div className="ui-card-body user-info">
+        <div className="card-body user-info">
           <div>Nom d'utilisateur: <strong>{user.username}</strong></div>
           <div>Rôle actuel: <strong>{user.role}</strong></div>
           <div>ID utilisateur: <strong>{user.id || user.userId}</strong></div>
         </div>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

@@ -57,8 +57,10 @@ export default function AdminRoles({ user }) {
   if (!hasPermission(user, 'manage_roles')) return <div>Accès refusé.</div>;
 
   return (
-    <div className="admin-panel role-management-panel">
-      <h2 className="panel-title">Gestion des rôles</h2>
+    <div className="card role-management-panel">
+      <div className="card-header">
+        <h5 className="mb-0">Gestion des rôles</h5>
+      </div>
       {message && (
         <div className={message.toLowerCase().includes('erreur') ? 'error' : 'success'}>
           {message}
@@ -67,7 +69,7 @@ export default function AdminRoles({ user }) {
       <div className="role-form">
         <h3>{editingRole ? 'Modifier un rôle' : 'Créer un rôle'}</h3>
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="mb-3">
             <label>Nom du rôle:</label>
             <input
               value={roleName}
@@ -117,7 +119,7 @@ export default function AdminRoles({ user }) {
                   onClick={() => startEdit(r)}
                   variant="secondary"
                   size="sm"
-                  className="btn-icon"
+                  className="btn"
                   aria-label="Éditer le rôle"
                 >
                   <EditIcon />
@@ -126,7 +128,7 @@ export default function AdminRoles({ user }) {
                   onClick={() => handleDelete(r.name)}
                   variant="danger"
                   size="sm"
-                  className="btn-icon"
+                  className="btn"
                   aria-label="Supprimer le rôle"
                 >
                   <TrashIcon />

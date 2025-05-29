@@ -137,20 +137,22 @@ export default function AdminUsers() {
   );
 
   return (
-    <div className="admin-panel user-management-panel">
-      <h2 className="panel-title">Gestion des utilisateurs</h2>
+    <div className="card user-management-panel">
+      <div className="card-header">
+        <h5 className="mb-0">Gestion des utilisateurs</h5>
+      </div>
       {message && (
         <div className={message.includes('succès') ? 'success' : 'error'}>
           {message}
         </div>
       )}
-      <div className="user-form ui-card">
-        <div className="ui-card-header">
+      <div className="user-form card">
+        <div className="card-header">
           <h3>{editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}</h3>
         </div>
-        <div className="ui-card-body">
+        <div className="card-body">
           <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="mb-3">
             <label>Nom d'utilisateur:</label>
             <input
               type="text"
@@ -160,7 +162,7 @@ export default function AdminUsers() {
               required
             />
           </div>
-          <div className="form-group">
+          <div className="mb-3">
             <label>Mot de passe {editingUser ? "(laisser vide pour ne pas changer)" : ""}:</label>
             <input
               type="password"
@@ -170,7 +172,7 @@ export default function AdminUsers() {
               required={!editingUser}
             />
           </div>
-          <div className="form-group">
+          <div className="mb-3">
             <label>Rôle:</label>
             <select
               name="role"
@@ -182,7 +184,7 @@ export default function AdminUsers() {
               <option value="admin">Administrateur</option>
             </select>
           </div>
-          <div className="form-group">
+          <div className="mb-3">
             <label>Login Windows (sans domaine):</label>
             <input
               type="text"
@@ -210,8 +212,8 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      <div className="ui-card">
-        <div className="ui-card-body">
+      <div className="card">
+        <div className="card-body">
       <div className="actions-bar">
         <div className="search-container" style={{ position: 'relative' }}>
           <input
@@ -248,7 +250,7 @@ export default function AdminUsers() {
                     onClick={() => startEditing(u)}
                     variant="secondary"
                     size="sm"
-                    className="btn-icon"
+                    className="btn"
                     aria-label="Éditer l'utilisateur"
                   >
                     <EditIcon />
@@ -257,7 +259,7 @@ export default function AdminUsers() {
                     onClick={() => deleteUser(u.id)}
                     variant="danger"
                     size="sm"
-                    className="btn-icon"
+                    className="btn"
                     aria-label="Supprimer l'utilisateur"
                   >
                     <TrashIcon />

@@ -313,7 +313,7 @@ export default function AdminCategories() {
           <DattaAlert type={message.type || 'info'}>{message.text}</DattaAlert>
         )}
         <form onSubmit={handleSaveCategory}>
-          <div className="form-group">
+          <div className="mb-3">
             <label htmlFor="categoryName">Nom de la catégorie <span className="obligatoire">*</span></label>
             <input
               id="categoryName"
@@ -324,7 +324,7 @@ export default function AdminCategories() {
               required
             />
           </div>
-          <div className="form-group">
+          <div className="mb-3">
             <label htmlFor="categoryOrder">Ordre d'affichage de la catégorie</label>
             <input
               id="categoryOrder"
@@ -348,33 +348,33 @@ export default function AdminCategories() {
                     onClick={() => supprimerChamp(i)}
                     variant="danger"
                     size="sm"
-                    className="btn-icon"
+                    className="btn"
                     aria-label="Supprimer ce champ"
                 >
                    <TrashIcon /> Supprimer
                 </DattaButton>
               </div>
               <div className="form-grid">
-                <div className="form-group">
+                <div className="mb-3">
                   <label htmlFor={`champ-label-${i}`}>Label du champ <span className="obligatoire">*</span></label>
                   <input id={`champ-label-${i}`} placeholder="Ex: Nom de famille, Date de naissance" value={champ.label} onChange={e => updateChamp(i, 'label', e.target.value)} required />
                 </div>
-                <div className="form-group">
+                <div className="mb-3">
                   <label htmlFor={`champ-key-${i}`}>Clé du champ (unique, sans espaces/accents) <span className="obligatoire">*</span></label>
                   <input id={`champ-key-${i}`} placeholder="Ex: nom_famille, date_naissance" value={champ.key} onChange={e => updateChamp(i, 'key', e.target.value.replace(/\s+/g, '_').toLowerCase())} required pattern="[a-zA-Z0-9_]+" title="Utilisez uniquement des lettres (non accentuées), chiffres et underscores (_)." />
                 </div>
-                <div className="form-group">
+                <div className="mb-3">
                   <label htmlFor={`champ-type-${i}`}>Type de champ</label>
                   <select id={`champ-type-${i}`} value={champ.type} onChange={e => updateChamp(i, 'type', e.target.value)} className="select-stylish">
                     {champTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
+                <div className="mb-3">
                   <label htmlFor={`champ-ordre-${i}`}>Ordre du champ</label>
                   <input id={`champ-ordre-${i}`} type="number" placeholder="Ordre d'affichage du champ" value={champ.ordre || 0} onChange={e => updateChamp(i, 'ordre', Number(e.target.value))} min="0" />
                 </div>
                  {champ.type === 'text' && (
-                  <div className="form-group">
+                  <div className="mb-3">
                     <label htmlFor={`champ-maxLength-${i}`}>Longueur maximale (pour Texte)</label>
                     <input 
                       id={`champ-maxLength-${i}`} 
@@ -387,7 +387,7 @@ export default function AdminCategories() {
                   </div>
                 )}
                 {champ.type === 'dynamic' && (
-                  <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                  <div className="mb-3" style={{ gridColumn: 'span 2' }}>
                     <label htmlFor={`champ-formule-${i}`}>Formule du champ dynamique</label>
                     <input
                       id={`champ-formule-${i}`}
@@ -400,7 +400,7 @@ export default function AdminCategories() {
                 )}
               </div>
               {champ.type === 'list' && (
-                <div className="form-group">
+                <div className="mb-3">
                   <label htmlFor={`champ-options-${i}`}>Options de la liste (séparées par virgule)</label>
                   <input id={`champ-options-${i}`} placeholder="Ex: Option A, Option B, Option C" value={champ.options ? champ.options.join(',') : ''} onChange={e => updateChampOptions(i, e.target.value)} />
                 </div>
@@ -444,10 +444,10 @@ export default function AdminCategories() {
                   <span className="category-details">(ID: {cat.id}, Ordre: {cat.ordre || 0}, {cat.champs ? cat.champs.length : 0} champs)</span>
                 </div>
                 <div className="category-actions">
-                  <DattaButton onClick={() => handleEditCategory(cat)} variant="secondary" size="sm" className="btn-icon" aria-label="Éditer la catégorie">
+                  <DattaButton onClick={() => handleEditCategory(cat)} variant="secondary" size="sm" className="btn" aria-label="Éditer la catégorie">
                     <EditIcon /> Éditer
                   </DattaButton>
-                  <DattaButton onClick={() => handleHideCategory(cat.id)} variant="danger" size="sm" className="btn-icon" aria-label="Masquer la catégorie">
+                  <DattaButton onClick={() => handleHideCategory(cat.id)} variant="danger" size="sm" className="btn" aria-label="Masquer la catégorie">
                     <HideIcon /> Masquer
                   </DattaButton>
                 </div>
@@ -483,7 +483,7 @@ export default function AdminCategories() {
                         <span className="category-details">(ID: {cat.id}, Ordre: {cat.ordre || 0}, {cat.champs ? cat.champs.length : 0} champs)</span>
                       </div>
                       <div className="category-actions">
-                        <DattaButton onClick={() => handleRestoreCategory(cat.id)} variant="success" size="sm" className="btn-icon" aria-label="Démasquer la catégorie">
+                        <DattaButton onClick={() => handleRestoreCategory(cat.id)} variant="success" size="sm" className="btn" aria-label="Démasquer la catégorie">
                           <UnhideIcon /> Démasquer
                         </DattaButton>
                       </div>
