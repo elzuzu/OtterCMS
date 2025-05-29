@@ -14,14 +14,20 @@ import LayoutManager from './layout/LayoutManager'; // Kept
 // Composant de loading optimisé
 function ComponentLoader() {
   return (
-    <div className="pc-content" style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: '400px' 
-    }}>
-      <CircularProgress value={50} label="Chargement..." />
-    </div>
+    <>
+      <div className="loading-bar"></div>
+      <div
+        className="pc-content"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '400px',
+        }}
+      >
+        <CircularProgress value={50} label="Chargement..." />
+      </div>
+    </>
   );
 }
 
