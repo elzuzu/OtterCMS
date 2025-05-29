@@ -70,6 +70,66 @@ function loadUserSettings() {
   return {};
 }
 
+function canCreateDirectory(dirPath) {
+  try {
+    // Try to create the directory if it doesn't exist.
+    // The { recursive: true } option means it will create parent directories if needed.
+    // If the directory already exists, mkdirSync does nothing and doesn't throw an error.
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      log(`Directory created: ${dirPath}`); // Added log for creation
+    }
+    return true; // Successfully created or already exists
+  } catch (error) {
+    // Log the error but return false as we couldn't ensure the directory exists.
+    logError(`canCreateDirectory: Failed to create or access directory ${dirPath}`, error);
+    return false;
+  }
+}
+
+function resolveDbPath(dbPath, configPath) {
+  if (app.isPackaged) {
+    log('[resolveDbPath] App is packaged.');
+    const appDir = path.dirname(process.execPath);
+    log(`[resolveDbPath] Executable directory (appDir): ${appDir}`);
+
+    // Candidate 1: Relative to appDir (e.g., "./db/file.sqlite" or "db/file.sqlite")
+    // Removes leading './' or '.\' to make path.resolve work correctly from appDir.
+    const directResolvedPath = path.resolve(appDir, dbPath.replace(/^\.[/\]/, ''));
+    log(`[resolveDbPath] Candidate 1 (direct from appDir): ${directResolvedPath}`);
+    const directResolvedDbDir = path.dirname(directResolvedPath);
+    if (fs.existsSync(directResolvedDbDir) || canCreateDirectory(directResolvedDbDir)) {
+      log(`[resolveDbPath] Using Candidate 1. Parent directory exists or can be created: ${directResolvedDbDir}`);
+      return directResolvedPath;
+    }
+    log(`[resolveDbPath] Candidate 1 parent directory (${directResolvedDbDir}) does not exist and cannot be created.`);
+
+    // Candidate 2: Relative to config file's directory (fallback)
+    // This handles cases where dbPath might be like "../db/file.sqlite" relative to config.
+    // In a packaged app, configPath could be inside resources.asar, so path.dirname(configPath) would be like /path/to/app.asar/config
+    const configRelativePath = path.resolve(path.dirname(configPath), dbPath);
+    log(`[resolveDbPath] Candidate 2 (relative to configPath ${configPath}): ${configRelativePath}`);
+    const configRelativeDbDir = path.dirname(configRelativePath);
+    if (fs.existsSync(configRelativeDbDir) || canCreateDirectory(configRelativeDbDir)) {
+      log(`[resolveDbPath] Using Candidate 2. Parent directory exists or can be created: ${configRelativeDbDir}`);
+      return configRelativePath;
+    }
+    log(`[resolveDbPath] Candidate 2 parent directory (${configRelativeDbDir}) does not exist and cannot be created.`);
+    
+    // Default Fallback: If neither directory is good, return the first candidate (directResolvedPath)
+    // This is a last resort. Directory creation for the DB will likely fail later but it's better than crashing here.
+    logError('[resolveDbPath] Warning: Neither candidate path directory seems usable. Defaulting to Candidate 1.', directResolvedPath);
+    return directResolvedPath;
+
+  } else {
+    // Development environment: resolve relative to the config file's directory.
+    // This supports dbPath like "./db/file.sqlite" or "../db/file.sqlite" from config/app-config.json
+    const devPath = path.resolve(path.dirname(configPath), dbPath);
+    log(`[resolveDbPath] App is not packaged (development). Path resolved relative to config: ${devPath}`);
+    return devPath;
+  }
+}
+
 function saveUserSettings(settings) {
   try {
     fs.mkdirSync(path.dirname(userSettingsPath), { recursive: true });
@@ -97,7 +157,8 @@ function loadConfig() {
         log('Configuration loaded from:', configPath);
         const json = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         if (json.dbPath && !path.isAbsolute(json.dbPath)) {
-          json.dbPath = path.resolve(path.dirname(configPath), json.dbPath);
+          json.dbPath = resolveDbPath(json.dbPath, configPath);
+          log('Database path resolved to:', json.dbPath);
         }
         return json;
       }
