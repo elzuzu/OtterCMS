@@ -1,4 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
+// MUI ThemeProvider is kept to leverage its theming system
 import { ThemeProvider } from '@mui/material/styles';
 import useTheme from './hooks/useTheme';
 import DattaButton from './components/common/DattaButton';

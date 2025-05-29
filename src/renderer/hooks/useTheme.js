@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+// createTheme from MUI is used for consistent theme generation
 import { createTheme } from '@mui/material/styles';
 
 const COLORS = ['blue', 'green', 'purple', 'orange', 'red'];
