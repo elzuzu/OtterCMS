@@ -118,6 +118,16 @@ pwsh scripts/size-analysis.ps1
 - [Architecture des themes](docs/themes.md)
 - [Guide de développement](docs/developpement.md)
 
+## État actuel du code
+
+- Base technique : Node.js 20+, Electron 36 et React 19 packagés via **Vite**.
+- Base SQLite gérée avec **better-sqlite3** et initialisée par `scripts/install.js`.
+- Rôles et permissions centralisés dans `src/renderer/constants/permissions.js`.
+- Champs dynamiques évalués par un parseur sécurisé (`src/renderer/utils/safeExpression.js`).
+- Audit complet enregistré dans la table `individu_audit` et utilisé lors de l'attribution en masse.
+- Fonction d'attribution massive présente dans `src/main.js` (`attribuerIndividusEnMasse`).
+- TODO en cours : typer les messages IPC (`src/preload.ts`), préciser le type des données du store (`src/renderer/store.ts`) et ajouter l'UI de pagination dans `DattaDataTable`.
+
 ## Licence
 
 MIT
