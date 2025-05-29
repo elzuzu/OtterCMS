@@ -95,7 +95,7 @@ function resolveDbPath(dbPath, configPath) {
 
     // Candidate 1: Relative to appDir (e.g., "./db/file.sqlite" or "db/file.sqlite")
     // Removes leading './' or '.\' to make path.resolve work correctly from appDir.
-    const directResolvedPath = path.resolve(appDir, dbPath.replace(/^\.[/\]/, ''));
+    const directResolvedPath = path.resolve(appDir, dbPath.replace(/^\.[/\\]/, ''));
     log(`[resolveDbPath] Candidate 1 (direct from appDir): ${directResolvedPath}`);
     const directResolvedDbDir = path.dirname(directResolvedPath);
     if (fs.existsSync(directResolvedDbDir) || canCreateDirectory(directResolvedDbDir)) {

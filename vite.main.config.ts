@@ -27,15 +27,15 @@ function copyUtilsPlugin() {
         console.log('[COPY-UTILS] Utils copied successfully');
 
         if (existsSync(resolve(dest, 'logger.js'))) {
-          console.log('[COPY-UTILS] \u2705 logger.js copied');
+          console.log('[COPY-UTILS] ✅ logger.js copied');
         } else {
-          console.error('[COPY-UTILS] \u274C logger.js NOT copied');
+          console.error('[COPY-UTILS] ❌ logger.js NOT copied');
         }
 
         if (existsSync(resolve(dest, 'inferType.js'))) {
-          console.log('[COPY-UTILS] \u2705 inferType.js copied');
+          console.log('[COPY-UTILS] ✅ inferType.js copied');
         } else {
-          console.error('[COPY-UTILS] \u274C inferType.js NOT copied');
+          console.error('[COPY-UTILS] ❌ inferType.js NOT copied');
         }
 
       } catch (err) {
@@ -56,21 +56,15 @@ function copyUtilsPlugin() {
     }
   } as const;
 }
+
 export default defineConfig({
-  plugins: [copyUtilsPlugin()], // Ensure copyUtilsPlugin is still called here
+  plugins: [copyUtilsPlugin()],
   build: {
     outDir: '.vite/build',
     emptyOutDir: true,
     sourcemap: false,
-    minify: 'terser', // Meilleure compression
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.debug']
-      }
-    },
-    target: 'es2022',
+    minify: false, // Désactiver la minification pour éviter les problèmes de syntaxe
+    target: 'node18', // Changer la cible pour Node.js
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
       formats: ['cjs'],
@@ -82,20 +76,28 @@ export default defineConfig({
         'better-sqlite3',
         'bcryptjs',
         'xlsx',
+        // Ajouter les modules utils locaux
+        './utils/logger',
+        './utils/inferType',
         ...builtinModules,
         ...builtinModules.map((m) => `node:${m}`),
       ],
       output: {
         format: 'cjs',
         preserveModules: false,
-        // Optimiser les noms de variables
-        mangleProps: {
-          regex: /^_/
-        }
+        // Supprimer le mangling qui peut causer des problèmes
+        exports: 'auto'
       }
     },
+    commonjsOptions: {
+      include: [/src\/.*\.js$/, /node_modules/], // Inclure les fichiers JS dans src et node_modules
+      transformMixedEsModules: true, // Gérer les modules mixtes
+    }
   },
-  esbuild: {
-    drop: ['console', 'debugger'],
+  // Laissez esbuild activé par défaut ou configurez-le spécifiquement si nécessaire
+  
+  // Ajouter une configuration pour gérer les fichiers JS
+  optimizeDeps: {
+    exclude: ['electron', 'better-sqlite3', 'bcryptjs']
   }
 });
