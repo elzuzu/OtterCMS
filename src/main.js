@@ -17,7 +17,24 @@ if (!isDev) {
   }
 }
 const bcrypt = require('bcryptjs');
-const Database = require('better-sqlite3');
+// Better-sqlite3 avec gestion d'erreur pour l'app packagée
+let Database;
+try {
+  Database = require('better-sqlite3');
+} catch (error) {
+  console.error('Erreur chargement better-sqlite3:', error.message);
+  // Essayer un chemin alternatif pour l'app packagée
+  try {
+    const sqlitePath = app.isPackaged 
+      ? path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'better-sqlite3')
+      : 'better-sqlite3';
+    Database = require(sqlitePath);
+  } catch (fallbackError) {
+    console.error('Impossible de charger better-sqlite3:', fallbackError.message);
+    dialog.showErrorBox('Erreur critique', 'Impossible de charger la base de données. L\'application ne peut pas fonctionner.');
+    app.quit();
+  }
+}
 const xlsx = require('xlsx');
 const { log, logError, logIPC, logger } = require('./utils/logger'); // Assuming 'logger' is the instance with setLevel
 const { inferType } = require('./utils/inferType');

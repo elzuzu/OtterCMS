@@ -315,11 +315,20 @@ module.exports = { Logger };
         if ($mainExe) {
             Write-ColorText "`n🧪 Test de l'exécutable..." $Yellow
             try {
-                $process = Start-Process -FilePath $mainExe.FullName -ArgumentList "--version" -PassThru -NoNewWindow -Wait -TimeoutSec 10
-                if ($process.ExitCode -eq 0) {
-                    Write-ColorText "   ✓ L'exécutable semble fonctionnel (code de sortie 0)" $Green
+                # Test avec timeout géré manuellement
+                $job = Start-Job -ScriptBlock { 
+                    param($exePath)
+                    & $exePath --version
+                } -ArgumentList $mainExe.FullName
+
+                if (Wait-Job $job -Timeout 10) {
+                    $result = Receive-Job $job
+                    Remove-Job $job
+                    Write-ColorText "   ✓ L'exécutable semble fonctionnel" $Green
                 } else {
-                    Write-ColorText "   ⚠️ L'exécutable a retourné le code $($process.ExitCode) ou a atteint le timeout. Cela PEUT indiquer un problème." $Yellow
+                    Stop-Job $job
+                    Remove-Job $job
+                    Write-ColorText "   ⚠️ Test de l'exécutable: timeout après 10 secondes" $Yellow
                 }
             } catch {
                 Write-ColorText "   ⚠️ Impossible de tester l'exécutable automatiquement (erreur: $($_.Exception.Message))" $Yellow
