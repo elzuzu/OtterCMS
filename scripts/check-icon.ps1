@@ -1,4 +1,4 @@
-﻿# Script pour vérifier que l'icône est valide
+# Script pour vérifier que l'icône est valide
 # Placez dans le dossier scripts/
 
 $iconPath = Join-Path (Split-Path -Parent $PSScriptRoot) "src\assets\app-icon.ico"
