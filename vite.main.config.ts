@@ -1,20 +1,59 @@
 import { defineConfig } from 'vite';
 import { builtinModules } from 'node:module';
-import { cpSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 function copyUtilsPlugin() {
   const src = resolve(__dirname, 'src/utils');
   const dest = resolve(__dirname, '.vite/build/utils');
+
   return {
     name: 'copy-utils-plugin',
     buildStart() {
       try {
-        cpSync(src, dest, { recursive: true });
+        console.log('[COPY-UTILS] Copying utils from:', src);
+        console.log('[COPY-UTILS] Copying utils to:', dest);
+
+        if (!existsSync(src)) {
+          console.error('[COPY-UTILS] Source directory does not exist:', src);
+          return;
+        }
+
+        if (!existsSync(resolve(__dirname, '.vite/build'))) {
+          mkdirSync(resolve(__dirname, '.vite/build'), { recursive: true });
+        }
+
+        cpSync(src, dest, { recursive: true, force: true });
+        console.log('[COPY-UTILS] Utils copied successfully');
+
+        if (existsSync(resolve(dest, 'logger.js'))) {
+          console.log('[COPY-UTILS] \u2705 logger.js copied');
+        } else {
+          console.error('[COPY-UTILS] \u274C logger.js NOT copied');
+        }
+
+        if (existsSync(resolve(dest, 'inferType.js'))) {
+          console.log('[COPY-UTILS] \u2705 inferType.js copied');
+        } else {
+          console.error('[COPY-UTILS] \u274C inferType.js NOT copied');
+        }
+
       } catch (err) {
-        console.error('[vite.main.config.ts] copy utils failed', err);
+        console.error('[COPY-UTILS] Failed to copy utils:', err);
       }
     },
+    generateBundle() {
+      try {
+        const src = resolve(__dirname, 'src/utils');
+        const dest = resolve(__dirname, '.vite/build/utils');
+        if (existsSync(src)) {
+          cpSync(src, dest, { recursive: true, force: true });
+          console.log('[COPY-UTILS] Utils re-copied during generateBundle');
+        }
+      } catch (err) {
+        console.error('[COPY-UTILS] Failed to re-copy utils during generateBundle:', err);
+      }
+    }
   } as const;
 }
 export default defineConfig({
