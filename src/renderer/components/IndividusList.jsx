@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
-import { EditIcon, SortIcon } from './common/Icons';
+import { EditIcon } from './common/Icons';
 import DattaDataTable from './common/DattaDataTable';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';

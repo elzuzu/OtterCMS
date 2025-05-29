@@ -17,11 +17,6 @@ body {
   margin-bottom: 16px;
 }
 
-.card-title {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 16px;
-}
 
 /* Placeholders for other component specific rules still in use */
 
@@ -106,9 +101,6 @@ body {
   padding: var(--spacing-4);
 }
 
-.form-group {
-  margin-bottom: var(--spacing-3);
-}
 
 .form-label {
   display: block;
@@ -154,33 +146,6 @@ body {
   }
 }
 
-.btn-primary {
-  background-color: var(--pc-primary);
-  border-color: var(--pc-primary);
-  color: #fff;
-}
-.btn-primary:hover {
-  background-color: var(--pc-primary-light);
-  border-color: var(--pc-primary-light);
-}
-
-.btn-success {
-  background-color: var(--current-success-color);
-  border-color: var(--current-success-color);
-  color: #fff;
-}
-.btn-success:hover {
-  opacity: 0.9;
-}
-
-.btn-outline-secondary {
-  background-color: transparent;
-  border-color: var(--current-border-medium);
-  color: var(--current-text-primary);
-}
-.btn-outline-secondary:hover {
-  background-color: var(--current-border-light);
-}
 
 .btn-block {
   width: 100%;
