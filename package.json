@@ -33,7 +33,9 @@
     "dist:optimized": "npm run build:optimized && npm run dist",
     "performance-check": "node scripts/performance-check.js",
     "build-optimized": "node scripts/build-optimized.js",
-    "dist:final": "npm run build-optimized"
+    "dist:final": "npm run build-optimized",
+    "build:ultra": "pwsh scripts/build-ultra-optimized.ps1",
+    "analyze:size": "node scripts/analyze-app.js"
   },
   "keywords": [
     "electron",
@@ -107,10 +109,6 @@
       "node_modules/better-sqlite3/build/Release/*.node",
       "node_modules/better-sqlite3/lib/**/*",
       "node_modules/better-sqlite3/package.json",
-      "node_modules/bcryptjs/dist/bcrypt.js",
-      "node_modules/bcryptjs/package.json",
-      "node_modules/xlsx/dist/xlsx.full.min.js",
-      "node_modules/xlsx/package.json",
       "!node_modules/**/*",
       "!node_modules/**/test/**",
       "!node_modules/**/tests/**",
@@ -158,6 +156,14 @@
         {
           "target": "nsis",
           "arch": ["x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
         }
       ],
       "icon": "src/assets/app-icon.ico",
@@ -179,6 +185,9 @@
       "installerSidebar": null,
       "uninstallerSidebar": null,
       "deleteAppDataOnUninstall": true
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
     }
   }
 }
