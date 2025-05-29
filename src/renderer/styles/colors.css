@@ -48,10 +48,6 @@
   --warning-color-hover-light: #ffd666;
   --info-color-hover-light: #36cfc9;
 
-  /* Variables spécifiques à neo-ui (si utilisées) pour le thème clair */
-  --neo-bg-light: var(--color-neutral-100-light);
-  --neo-text-light: var(--text-primary-light);
-  --neo-border-light: var(--border-medium-light);
 
   /* -------------------------------------------------------------------------- */
   /* 🎨 Thème Sombre (Palette)                        */
@@ -105,10 +101,6 @@
   --dm-info-color: #13c2c2;
   --dm-info-color-hover: #36cfc9;
 
-  /* Variables spécifiques à neo-ui pour le thème sombre */
-  --dm-neo-bg: var(--dm-surface-dp01);
-  --dm-neo-text: var(--dm-text-primary);
-  --dm-neo-border: var(--dm-border-medium);
 
   /* -------------------------------------------------------------------------- */
   /* 🔄 Variables Sémantiques (Thème Actuel)                      */
@@ -153,10 +145,6 @@
   --current-info-color: var(--info-color-light);
   --current-info-color-hover: var(--info-color-hover-light);
 
-  /* Variables neo-ui actuelles */
-  --current-neo-bg: var(--neo-bg-light);
-  --current-neo-text: var(--neo-text-light);
-  --current-neo-border: var(--neo-border-light);
 }
 
 /* Thèmes de couleur */
@@ -272,10 +260,6 @@ body.theme-red {
   --current-info-color: var(--dm-info-color);
   --current-info-color-hover: var(--dm-info-color-hover);
 
-  /* Variables neo-ui pour le thème sombre */
-  --current-neo-bg: var(--dm-neo-bg);
-  --current-neo-text: var(--dm-neo-text);
-  --current-neo-border: var(--dm-neo-border);
 
   /* Optionnel: pour améliorer le rendu des polices en mode sombre sur certains OS */
   -webkit-font-smoothing: antialiased;
