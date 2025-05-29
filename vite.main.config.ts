@@ -63,8 +63,8 @@ export default defineConfig({
     outDir: '.vite/build',
     emptyOutDir: true,
     sourcemap: false,
-    minify: false, // Désactiver la minification pour éviter les problèmes de syntaxe
-    target: 'node18', // Changer la cible pour Node.js
+    minify: 'esbuild', // Compression via esbuild
+    target: 'node18',
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
       formats: ['cjs'],
@@ -73,10 +73,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         'electron',
-        'better-sqlite3',
-        'bcryptjs',
-        'xlsx',
-        // Ajouter les modules utils locaux
+        'better-sqlite3', // Module natif
         './utils/logger',
         './utils/inferType',
         ...builtinModules,
@@ -98,6 +95,6 @@ export default defineConfig({
   
   // Ajouter une configuration pour gérer les fichiers JS
   optimizeDeps: {
-    exclude: ['electron', 'better-sqlite3', 'bcryptjs']
+    exclude: ['electron', 'better-sqlite3']
   }
 });

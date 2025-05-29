@@ -108,6 +108,7 @@ Vous pouvez aussi analyser les dépendances avec :
 
 ```bash
 pwsh scripts/size-analysis.ps1
+node scripts/analyze-app.js
 ```
 
 
