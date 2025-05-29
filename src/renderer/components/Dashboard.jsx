@@ -222,11 +222,8 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 </div>
               )}
             </div>
-            {/* Fin div.row */}
           </div>
-          {/* Fin div.card-body */}
         </div>
-        {/* Fin div.card */}
       )}
     </div>
   );
