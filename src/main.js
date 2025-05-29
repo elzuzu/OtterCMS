@@ -23,12 +23,32 @@ try {
   Database = require('better-sqlite3');
 } catch (error) {
   console.error('Erreur chargement better-sqlite3:', error.message);
-  // Essayer un chemin alternatif pour l'app packagée
+  // Essayer plusieurs chemins alternatifs pour l'app packagée
   try {
-    const sqlitePath = app.isPackaged 
-      ? path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'better-sqlite3')
-      : 'better-sqlite3';
-    Database = require(sqlitePath);
+    if (app.isPackaged) {
+      const possiblePaths = [
+        path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'better-sqlite3'),
+        path.join(process.resourcesPath, 'node_modules', 'better-sqlite3'),
+        path.join(__dirname, '..', '..', 'node_modules', 'better-sqlite3')
+      ];
+
+      let loaded = false;
+      for (const sqlitePath of possiblePaths) {
+        try {
+          Database = require(sqlitePath);
+          loaded = true;
+          break;
+        } catch (pathError) {
+          console.warn(`Tentative échouée: ${sqlitePath}`, pathError.message);
+        }
+      }
+
+      if (!loaded) {
+        throw new Error('Aucun chemin valide trouvé pour better-sqlite3');
+      }
+    } else {
+      Database = require('better-sqlite3');
+    }
   } catch (fallbackError) {
     console.error('Impossible de charger better-sqlite3:', fallbackError.message);
     dialog.showErrorBox('Erreur critique', 'Impossible de charger la base de données. L\'application ne peut pas fonctionner.');
@@ -1548,7 +1568,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-function createWindow () {
+async function createWindow () {
   log('Creating main window...');
   const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
   const preloadPath = path.join(__dirname, 'preload.js');
@@ -1583,14 +1603,35 @@ function createWindow () {
     log(`[CONSOLE RENDERER - ${levelStr}] ${message} (source: ${path.basename(sourceId)}:${line})`);
   });
 
-  const indexPath = path.join(__dirname, '..', '..', 'dist', 'index.html');
+  const indexPath = app.isPackaged 
+    ? path.join(__dirname, '..', '..', 'dist', 'index.html')
+    : path.join(__dirname, '..', '..', 'dist', 'index.html');
   log(`Index.html path for window: ${indexPath}`);
 
   if (app.isPackaged) {
-    win.loadFile(indexPath).catch(err => { 
-        logError('createWindow (loadFile prod)', err); 
-        dialog.showErrorBox('App Load Error', `Cannot load application: ${err.message}. Path: ${indexPath}`); 
-    });
+    // Essayer plusieurs chemins possibles
+    const possibleIndexPaths = [
+      path.join(__dirname, '..', '..', 'dist', 'index.html'),
+      path.join(process.resourcesPath, 'app.asar', 'dist', 'index.html'),
+      path.join(process.resourcesPath, 'dist', 'index.html')
+    ];
+
+    let loaded = false;
+    for (const htmlPath of possibleIndexPaths) {
+      try {
+        if (require('fs').existsSync(htmlPath)) {
+          await win.loadFile(htmlPath);
+          loaded = true;
+          break;
+        }
+      } catch (pathError) {
+        console.warn(`Tentative échouée pour: ${htmlPath}`, pathError.message);
+      }
+    }
+
+    if (!loaded) {
+      dialog.showErrorBox('App Load Error', 'Cannot find index.html in any expected location');
+    }
   } else {
     const viteDevServerUrl = process.env.MAIN_WINDOW_VITE_DEV_SERVER_URL || process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
     log(`Attempting to load VITE_DEV_SERVER_URL: ${viteDevServerUrl}`);
