@@ -57,18 +57,24 @@ function copyUtilsPlugin() {
   } as const;
 }
 export default defineConfig({
-  plugins: [copyUtilsPlugin()],
+  plugins: [copyUtilsPlugin()], // Ensure copyUtilsPlugin is still called here
   build: {
-    // IMPORTANT: Spécifier le répertoire de sortie pour correspondre à package.json
     outDir: '.vite/build',
     emptyOutDir: true,
     sourcemap: false,
-    minify: 'esbuild',
+    minify: 'terser', // Meilleure compression
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.debug']
+      }
+    },
     target: 'es2022',
     lib: {
       entry: resolve(__dirname, 'src/main.js'),
       formats: ['cjs'],
-      fileName: () => 'main.js' // Force le nom du fichier de sortie
+      fileName: () => 'main.js'
     },
     rollupOptions: {
       external: [
@@ -82,7 +88,14 @@ export default defineConfig({
       output: {
         format: 'cjs',
         preserveModules: false,
+        // Optimiser les noms de variables
+        mangleProps: {
+          regex: /^_/
+        }
       }
     },
   },
+  esbuild: {
+    drop: ['console', 'debugger'],
+  }
 });
