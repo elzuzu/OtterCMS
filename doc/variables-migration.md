@@ -4,12 +4,14 @@ Ce fichier résume les ajustements effectués pour harmoniser les variables CSS 
 
 ## Nettoyage
 
-- Suppression des doublons présents dans `themes.css` et `colors.css`.
-- Toutes les variables suivent désormais le préfixe `--pc-` ou `--current-`.
+- Suppression des variables d'alias `--datta-*` dans `themes.css`.
+- Ajout des variables `--pc-overlay-bg` et `--pc-border-muted`.
+- Toutes les variables personnalisées respectent le préfixe `--pc-` ou `--current-`.
 
 ## Actions réalisées
 
-- Les couleurs codées en dur dans les composants ont été remplacées par les variables `--current-*` correspondantes.
-- Les anciennes variables génériques (`--spacing-*`, `--border-radius-*`...) ont été alignées sur celles fournies par Datta Able.
+- Remplacement des couleurs en dur dans les composants par les variables Datta (`--current-*`).
+- Utilisation des classes utilitaires (`text-muted`, `bg-primary`, ...).
+- Harmonisation des noms de variables dans l'ensemble des feuilles de styles.
 
 Ce document servira de référence pour toute nouvelle variable à introduire.

@@ -97,7 +97,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
 
   const getUserNameForDisplay = useCallback((userId, ind = null) => {
     if (userId === null || userId === undefined || userId === '') {
-      return <span className="text-color-secondary" style={{ fontStyle: 'italic' }}>Non assigné</span>;
+      return <span className="text-muted" style={{ fontStyle: 'italic' }}>Non assigné</span>;
     }
     return getUserName(userId, ind);
   }, [getUserName]);
@@ -382,7 +382,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   return (
     <div key={`list-container-${renderKey}`}>
       <DattaPageTitle title="Gestion des individus" />
-      <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--color-neutral-50)", borderRadius: "4px", fontSize: "0.9em", color: "var(--text-color-secondary)" }}>
+      <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--color-neutral-50)", borderRadius: "4px", fontSize: "0.9em", color: "var(--current-text-secondary)" }}>
         <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} | 
         <strong> Individus affichés:</strong> {filteredIndividus.length}
       </div>
@@ -433,11 +433,11 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
               <div key={champ.key} className="colonne-option">
                 <label htmlFor={`col-${champ.key}`}>
                   <input type="checkbox" id={`col-${champ.key}`} checked={colonnesAffichees.includes(champ.key)} onChange={() => handleToggleColonne(champ.key)}/>
-                  {champ.label} <span className="text-color-secondary" style={{fontSize: '0.8em'}}>({champ.categorieNom})</span>
+                  {champ.label} <span className="text-muted" style={{fontSize: '0.8em'}}>({champ.categorieNom})</span>
                 </label>
               </div>
             ))}
-            {champsDisponibles.length === 0 && <p className="text-color-secondary" style={{fontStyle: 'italic'}}>Aucun champ supplémentaire configurable n'est défini.</p>}
+            {champsDisponibles.length === 0 && <p className="text-muted" style={{fontStyle: 'italic'}}>Aucun champ supplémentaire configurable n'est défini.</p>}
           </div>
         </div>
       )}
@@ -447,7 +447,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           <p>{filtre || Object.keys(columnFilters).some(k => columnFilters[k]) || viewMode === 'mine' ? "Aucun individu ne correspond à vos critères." : "Aucun individu enregistré."}</p>
           {viewMode === 'mine' && individus.length > 0 && (
             <div style={{marginTop: '20px'}}>
-              <p className="text-color-secondary" style={{marginBottom: '10px'}}>
+              <p className="text-muted" style={{marginBottom: '10px'}}>
                 Vous n'avez aucun individu assigné. {individus.length} au total.
               </p>
               <DattaButton variant="secondary" size="sm" onClick={() => handleViewChange('all')}>

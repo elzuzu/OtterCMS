@@ -87,14 +87,6 @@
   --box-shadow-base: 0 2px 8px rgba(0,0,0,0.15);
 
   /* Legacy aliases for backward compatibility */
-  --datta-primary: var(--pc-primary);
-  --datta-primary-light: var(--pc-primary-light);
-  --datta-primary-dark: var(--pc-primary-dark);
-  --datta-sidebar-bg-light: var(--pc-sidebar-bg);
-  --datta-sidebar-bg-dark: var(--sidebar-bg-dark);
-  --datta-card-bg: var(--pc-card-bg);
-  --datta-border-radius: var(--pc-border-radius);
-  --datta-box-shadow: var(--box-shadow-base);
 
   /* Typography */
   --font-family-base: 'Inter', sans-serif;
@@ -123,6 +115,8 @@
   --border-radius-lg: 0.75rem;
   --border-radius-full: 9999px;
   --transition-duration: 150ms;
+  --pc-overlay-bg: rgba(0, 0, 0, 0.7);
+  --pc-border-muted: rgba(0, 0, 0, 0.2);
 }
 
 /* Dark theme overrides */

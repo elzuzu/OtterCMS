@@ -157,7 +157,7 @@ label {
 }
 
 .data-table th {
-  background-color: var(--datta-card-bg);
+  background-color: var(--pc-card-bg);
   font-weight: 600;
   color: var(--current-text-primary);
   text-transform: uppercase;

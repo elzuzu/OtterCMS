@@ -69,7 +69,7 @@ export default function AdminTemplate() {
                 backgroundColor: color.value,
                 borderRadius: '50%',
                 marginRight: '0.5em',
-                border: '1px solid rgba(0,0,0,0.2)'
+                border: '1px solid var(--pc-border-muted)'
               }}
             ></span>
             {color.label}
