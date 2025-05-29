@@ -1,4 +1,4 @@
-# Script simple de build avec @electron/packager
+﻿# Script simple de build avec @electron/packager
 param(
     [switch]$Clean = $true
 )

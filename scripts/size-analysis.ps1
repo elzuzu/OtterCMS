@@ -1,4 +1,4 @@
-Write-Host "📊 Analyse de taille des dépendances..." -ForegroundColor Cyan
+﻿Write-Host "📊 Analyse de taille des dépendances..." -ForegroundColor Cyan
 
 if (Test-Path "node_modules") {
     $largest = Get-ChildItem "node_modules" -Directory | ForEach-Object {
