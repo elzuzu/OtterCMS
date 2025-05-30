@@ -87,19 +87,8 @@
   "build": {
     "appId": "com.ege.indisuivi",
     "productName": "Indi-Suivi",
-    "asar": false,
-    "compression": "maximum",
-    "removePackageScripts": true,
-    "removePackageKeywords": true,
-    "artifactName": "${productName}-${version}-${arch}.${ext}",
-    "publish": null,
-    "buildDependenciesFromSource": false,
-    "nodeGypRebuild": false,
-    "npmRebuild": true,
-    "extraMetadata": {
-      "main": ".vite/build/main.js",
-      "devDependencies": {}
-    },
+    "asar": true,
+    "compression": "normal",
     "files": [
       "package.json",
       ".vite/build/main.js",
@@ -110,25 +99,14 @@
       "node_modules/better-sqlite3/build/**/*",
       "node_modules/better-sqlite3/package.json",
       "!node_modules/**/*",
-      "!node_modules/**/test/**",
-      "!node_modules/**/tests/**",
-      "!node_modules/**/*.d.ts",
-      "!node_modules/**/docs/**",
-      "!node_modules/**/*.md",
-      "!node_modules/**/*.txt",
-      "!node_modules/**/LICENSE*",
-      "!node_modules/**/CHANGELOG*",
-      "!node_modules/**/README*",
-      "!node_modules/**/.github/**",
-      "!node_modules/**/examples/**",
-      "!node_modules/**/demo/**",
-      "!node_modules/**/samples/**",
       "!**/*.map",
       "!**/*.ts",
       "!**/tsconfig.json"
     ],
     "asarUnpack": [
-      "node_modules/better-sqlite3/**/*"
+      "node_modules/better-sqlite3/**/*",
+      "dist/datta-able-assets/**/*",
+      "dist/images/**/*"
     ],
     "directories": {
       "buildResources": "src/assets",
@@ -138,6 +116,10 @@
       {
         "from": "src/assets",
         "to": "assets"
+      },
+      {
+        "from": "public/datta-able-assets",
+        "to": "datta-able-assets"
       }
     ],
     "extraFiles": [
