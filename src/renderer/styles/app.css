@@ -281,3 +281,58 @@ body {
 .pc-header input {
   -webkit-app-region: no-drag;
 }
+
+/* ===== SECTION ANIMATIONS ET GIFS ===== */
+
+/* Forcer l'affichage et l'animation des GIFs */
+.gif-animation,
+img[src$=".gif"],
+div[style*=".gif"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  animation-play-state: running !important;
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Container pour animations de loading */
+.loading-container {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  position: relative !important;
+  z-index: 9999 !important;
+}
+
+/* Backgrounds animés */
+.animated-background {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: local;
+  animation-play-state: running !important;
+}
+
+/* Loading spinner amélioré */
+.loading-spinner {
+  border: 3px solid var(--current-border-light);
+  border-top: 3px solid var(--current-primary-color);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Spécifique pour éviter les conflits avec Datta Able */
+.datta-content .gif-animation,
+.pc-content .gif-animation,
+.card .gif-animation {
+  animation: none !important;
+  transition: none !important;
+}

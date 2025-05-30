@@ -25,6 +25,7 @@ export default defineConfig({
     sourcemap: false,
     assetsDir: 'assets',
     cssCodeSplit: false,
+    assetsInlineLimit: 0,
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -56,6 +57,9 @@ export default defineConfig({
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.');
           let extType = info[info.length - 1];
+          if (assetInfo.name.includes('datta-able-assets')) {
+            return `datta-able-assets/[name].[ext]`;
+          }
           if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name)) {
             extType = 'media';
           } else if (/\.(png|jpe?g|gif|svg|webp|avif)(\?.*)?$/i.test(assetInfo.name)) {
@@ -71,7 +75,7 @@ export default defineConfig({
         pureExternalModules: true
       }
     },
-    chunkSizeWarningLimit: 300,
+    chunkSizeWarningLimit: 2000,
     reportCompressedSize: true
   },
   optimizeDeps: {
