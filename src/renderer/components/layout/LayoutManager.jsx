@@ -108,12 +108,17 @@ export default function LayoutManager({
           </div>
         </div>
       </nav>
-      <header className="pc-header">
+      <header className="pc-header" style={{ WebkitAppRegion: 'drag' }}>
         <div className="header-wrapper">
           <div className="me-auto pc-mob-drp">
             <ul className="list-unstyled">
               <li className="pc-h-item pc-sidebar-collapse">
-                <a href="#" className="pc-head-link ms-0" onClick={handleToggleSidebar}>
+                <a
+                  href="#"
+                  className="pc-head-link ms-0"
+                  style={{ WebkitAppRegion: 'no-drag' }}
+                  onClick={handleToggleSidebar}
+                >
                   <i className="ph-duotone ph-list"></i>
                 </a>
               </li>
@@ -127,6 +132,7 @@ export default function LayoutManager({
                   data-bs-toggle="dropdown"
                   href="#"
                   role="button"
+                  style={{ WebkitAppRegion: 'no-drag' }}
                 >
                   <i className="ph-duotone ph-user-circle"></i>
                 </a>
@@ -138,7 +144,12 @@ export default function LayoutManager({
                     <span>{user.role}</span>
                   </div>
                   <div className="dropdown-divider"></div>
-                  <a href="#" className="dropdown-item" onClick={onLogout}>
+                  <a
+                    href="#"
+                    className="dropdown-item"
+                    style={{ WebkitAppRegion: 'no-drag' }}
+                    onClick={onLogout}
+                  >
                     <i className="ph-duotone ph-power"></i>
                     <span>Déconnexion</span>
                   </a>

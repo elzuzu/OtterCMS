@@ -3,7 +3,10 @@ import DattaButton from './DattaButton';
 
 export default function WindowControls() {
   return (
-    <div className="d-flex" style={{ WebkitAppRegion: 'drag', userSelect: 'none' }}>
+    <div
+      className="d-flex justify-content-end w-100"
+      style={{ WebkitAppRegion: 'drag', userSelect: 'none' }}
+    >
       <DattaButton
         variant="link"
         size="sm"
