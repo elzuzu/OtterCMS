@@ -111,6 +111,20 @@ module.exports = {
     npx electron-forge make
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n✅ Build Forge terminé avec succès!" -ForegroundColor Green
+        $upxPath = 'D:\\tools\\upx\\upx.exe'
+        if (Test-Path $upxPath) {
+            Write-Host "🗜️ Compression UPX des exécutables..." -ForegroundColor Yellow
+            Get-ChildItem -Path "out" -Recurse -Filter *.exe | ForEach-Object {
+                & $upxPath -9 $_.FullName | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "   ✓ $($_.Name) compressé" -ForegroundColor Green
+                } else {
+                    Write-Host "   ⚠️ Compression échouée pour $($_.Name)" -ForegroundColor Red
+                }
+            }
+        } else {
+            Write-Host "ℹ️ UPX non trouvé à $upxPath - compression ignorée" -ForegroundColor Gray
+        }
         if (Test-Path "out") {
             Write-Host "`n📊 Fichiers générés:" -ForegroundColor Yellow
             Get-ChildItem -Path "out" -Recurse | Where-Object { $_.Extension -in @('.exe', '.zip', '.msi', '.nupkg') } | ForEach-Object {

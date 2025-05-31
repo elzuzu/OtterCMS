@@ -91,6 +91,21 @@ try {
     npx electron-builder --win --publish never
     if ($LASTEXITCODE -ne 0) { throw "Échec electron-builder" }
 
+    $upxPath = 'D:\\tools\\upx\\upx.exe'
+    if (Test-Path $upxPath) {
+        Write-ColorText "🗜️ Compression UPX des exécutables..." $Yellow
+        Get-ChildItem -Path "release-builds" -Recurse -Filter *.exe | ForEach-Object {
+            & $upxPath -9 $_.FullName | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-ColorText "   ✓ $($_.Name) compressé" $Green
+            } else {
+                Write-ColorText "   ⚠️ Compression échouée pour $($_.Name)" $Red
+            }
+        }
+    } else {
+        Write-ColorText "ℹ️ UPX non trouvé à $upxPath - compression ignorée" $Gray
+    }
+
     Write-ColorText "📊 Analyse de la taille finale..." $Green
 
     $buildDir = "release-builds"
