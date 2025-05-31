@@ -58,7 +58,10 @@ export default defineConfig({
           const info = assetInfo.name.split('.');
           let extType = info[info.length - 1];
           if (assetInfo.name.includes('datta-able-assets')) {
-            return `datta-able-assets/[name].[ext]`;
+            // Preserve subfolder structure for Datta Able assets
+            const idx = assetInfo.name.indexOf('datta-able-assets/');
+            const relativePath = assetInfo.name.substring(idx + 'datta-able-assets/'.length);
+            return `datta-able-assets/${relativePath}`;
           }
           if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name)) {
             extType = 'media';
