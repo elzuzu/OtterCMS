@@ -74,6 +74,13 @@ export default function LayoutManager({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Re-apply Feather icons after React renders dynamic elements
+  useEffect(() => {
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    }
+  }, [activeTab]);
+
   return (
     <>
       <nav className={`pc-sidebar ${!sidebarOpen ? 'pc-sidebar-hide' : ''}`}>

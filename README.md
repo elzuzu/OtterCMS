@@ -81,6 +81,8 @@ Lancement avec rechargement automatique :
 npm run dev
 ```
 
+Si l'interface Datta Able ne réagit pas comme prévu, ouvrez la console des outils de développement d'Electron (raccourci `Ctrl+Shift+I`) pour vérifier la présence d'erreurs JavaScript.
+
 La structure détaillée et des conseils supplémentaires se trouvent dans [docs/developpement.md](docs/developpement.md).
 
 ## Construction et distribution
