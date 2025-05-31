@@ -674,7 +674,7 @@ export default function ImportData({ user }) {
                 }}
               >
                 <table
-                  className="data-table preview-table"
+                  className="data-table table table-hover table-sm preview-table"
                   style={{
                     width: 'max-content',  
                     minWidth: '100%',      
@@ -721,7 +721,7 @@ export default function ImportData({ user }) {
             <div className="preview-container" style={{marginBottom: 'var(--spacing-5)'}}>
               <h4>Aperçu des données (rappel)</h4>
               <div className="preview-table-container" style={{ overflowX: 'auto', overflowY: 'hidden', width: '100%', maxHeight: 'none', display: 'block', border: '1px solid var(--current-border-light)' }}>
-                <table className="data-table preview-table" style={{ width: 'max-content', minWidth: '100%', whiteSpace: 'nowrap' }}>
+                <table className="data-table table table-hover table-sm preview-table" style={{ width: 'max-content', minWidth: '100%', whiteSpace: 'nowrap' }}>
                   <thead><tr>{previewData.headers.map((h, i) => <th key={`prev-h-${i}`}>{h}</th>)}</tr></thead>
                   <tbody>{previewData.rows.map((r, i) => <tr key={`prev-r-${i}`}>{r.map((c,ci) => <td key={`prev-c-${i}-${ci}`}>{String(c)}</td>)}</tr>)}</tbody>
                 </table>
