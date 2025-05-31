@@ -78,6 +78,8 @@ Sur Windows, des scripts PowerShell permettent un build plus complet :
 
 - `scripts/build-app.ps1` : nettoyage, build et packaging avec options `-UseForge` ou `-UsePackager` en cas de problème.
 - `scripts/build-ultra-optimized.ps1` : version allégée visant un exécutable < 40 MB.
+- Les scripts détectent automatiquement `D:\tools\upx\upx.exe` pour compresser
+  l'exécutable final avec **UPX** si disponible.
 
 Exemple :
 

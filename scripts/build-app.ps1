@@ -257,6 +257,22 @@ module.exports = { Logger };
             $foundFiles += $files
         }
     }
+
+    $upxPath = 'D:\\tools\\upx\\upx.exe'
+    if (Test-Path $upxPath) {
+        Write-ColorText "`n🗜️ Compression UPX des exécutables..." $Yellow
+        foreach ($exe in $foundFiles | Where-Object { $_.Extension -eq '.exe' }) {
+            & $upxPath -9 $exe.FullName | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-ColorText "   ✓ $($exe.Name) compressé" $Green
+            } else {
+                Write-ColorText "   ⚠️ Compression échouée pour $($exe.Name)" $Red
+            }
+        }
+        $foundFiles = $foundFiles | ForEach-Object { Get-Item $_.FullName }
+    } else {
+        Write-ColorText "`nℹ️ UPX non trouvé à $upxPath - compression ignorée" $Gray
+    }
     if ($foundFiles.Count -gt 0) {
         Write-ColorText "`n📊 Fichiers générés:" $Yellow
         foreach ($file in $foundFiles) {
