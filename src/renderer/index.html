@@ -8,10 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' 'unsafe-inline' data: blob:;
+      content="default-src 'self' data: blob: file:;
+               script-src 'self';
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
                img-src 'self' data: blob: file: https:;
                media-src 'self' data: blob: file:;
-               font-src 'self' data: file: https:;"
+               font-src 'self' data: file: https://fonts.gstatic.com https://fonts.googleapis.com;"
     />
 
     <link

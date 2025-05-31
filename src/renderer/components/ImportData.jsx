@@ -935,9 +935,14 @@ export default function ImportData({ user }) {
       <div className="wizard-content">
         {loading && importStep > 1 && importStep < 4 && (
           <div className="loading-overlay">
-            <div className="spinner"></div>
-            <div className="progress-bar">
-              <div className="progress" style={{ width: `${importProgress}%` }}></div>
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <div className="progress" role="progressbar" aria-valuenow={importProgress} aria-valuemin="0" aria-valuemax="100">
+              <div
+                className="progress-bar progress-bar-striped progress-bar-animated"
+                style={{ width: `${importProgress}%` }}
+              ></div>
             </div>
             <div>{`Traitement... ${importProgress}%`}</div>
           </div>
