@@ -2,9 +2,7 @@
 @import './themes.css';
 @import './critical.css';
 
-* {
-  will-change: auto;
-}
+/* Avoid global will-change which can interfere with CSS animations */
 
 .animated-element {
   transform: translateZ(0);
@@ -120,6 +118,8 @@ body {
   width: 300px;
   height: 300px;
   border-radius: 50%;
+  /* Hint the browser that these elements will animate transforms */
+  will-change: transform;
 }
 .auth-wrapper.v1 .auth-bg .r:first-child {
   top: -100px;
