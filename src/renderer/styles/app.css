@@ -115,47 +115,40 @@ body {
   overflow: hidden;
 }
 
-.auth-bg .r {
+.auth-wrapper.v1 .auth-bg .r {
   position: absolute;
   width: 300px;
   height: 300px;
   border-radius: 50%;
 }
-
-.auth-bg .r:first-child {
+.auth-wrapper.v1 .auth-bg .r:first-child {
   top: -100px;
   right: -100px;
   background: linear-gradient(-135deg, #1de9b6 0%, #1dc4e9 100%);
 }
-
-.auth-bg .r:last-child {
+.auth-wrapper.v1 .auth-bg .r:last-child {
   left: -100px;
   bottom: -100px;
   background: linear-gradient(-135deg, #899fd4 0%, #a389d4 100%);
 }
-
-.auth-bg .r.s {
+.auth-wrapper.v1 .auth-bg .r.s {
   width: 20px;
   height: 20px;
 }
-
-.auth-bg .r.s:nth-child(2) {
+.auth-wrapper.v1 .auth-bg .r.s:nth-child(2) {
   top: 150px;
   right: -150px;
   background: #04a9f5;
 }
-
-.auth-bg .r.s:nth-child(3) {
+.auth-wrapper.v1 .auth-bg .r.s:nth-child(3) {
   left: -150px;
   bottom: 150px;
   background: #1de9b6;
 }
-
-.auth-bg .r:nth-child(odd) {
+.auth-wrapper.v1 .auth-bg .r:nth-child(odd) {
   animation: floating 7s infinite;
 }
-
-.auth-bg .r:nth-child(even) {
+.auth-wrapper.v1 .auth-bg .r:nth-child(even) {
   animation: floating 9s infinite;
 }
 
