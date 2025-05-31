@@ -1,25 +1,33 @@
+# Copies Datta Able images from the included theme repository
+# into the public assets directory used by the application.
+
 $ErrorActionPreference = 'Stop'
 
-$source = "docs/datta-able-bootstrap-dashboard-master/src/assets/images"
-$destination = "public/datta-able-assets/images"
+# Détermine le répertoire du script et la racine du projet
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$projectRoot = Resolve-Path "$scriptDir\.."
 
-if (-not (Test-Path $source)) {
-    Write-Error "Source path not found: $source"
+# Définit les chemins source et destination basés sur la racine du projet
+$destDir = Join-Path $projectRoot 'public/datta-able-assets/images'
+$srcDir = Join-Path $projectRoot 'docs/datta-able-bootstrap-dashboard-master/src/assets/images'
+
+# Vérifie un chemin source alternatif si le premier n'est pas trouvé
+if (-not (Test-Path $srcDir)) {
+    $srcDir = Join-Path $projectRoot 'docs/datta-able-bootstrap-dashboard-master/dist/assets/images'
+}
+
+# Arrête le script si aucun répertoire source n'est trouvé
+if (-not (Test-Path $srcDir)) {
+    Write-Error "Datta Able image source not found in docs directory."
     exit 1
 }
 
-if (-not (Test-Path $destination)) {
-    New-Item -ItemType Directory -Path $destination | Out-Null
+# Crée le répertoire de destination s'il n'existe pas
+if (-not (Test-Path $destDir)) {
+    New-Item -ItemType Directory -Path $destDir -Force | Out-Null
 }
 
-Get-ChildItem $source -Directory | ForEach-Object {
-    $destSub = Join-Path $destination $_.Name
-    if (-not (Test-Path $destSub)) {
-        New-Item -ItemType Directory -Path $destSub | Out-Null
-    }
-    Copy-Item (Join-Path $_.FullName '*') $destSub -Recurse -Force
-}
+# Copie les fichiers et dossiers de manière récursive
+Copy-Item -Path $srcDir\* -Destination $destDir -Recurse -Force
 
-Get-ChildItem $source -File | ForEach-Object {
-    Copy-Item $_.FullName $destination -Force
-}
+Write-Host "Copied Datta Able images from '$srcDir' to '$destDir'."
