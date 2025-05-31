@@ -519,7 +519,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         </DattaModal>
       )}
       {selectedIndividuId && (
-        <DattaModal open onClose={() => setSelectedIndividuId(null)} title="Fiche individu" size="lg" scrollable>
+        <DattaModal open onClose={() => setSelectedIndividuId(null)} title="Fiche individu" size="xl" scrollable>
           <IndividuFicheDetails
             individuId={selectedIndividuId}
             onClose={() => setSelectedIndividuId(null)}
