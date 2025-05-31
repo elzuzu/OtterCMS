@@ -134,8 +134,8 @@ export default function Auth({ setUser }) {
         <div className="auth-wrapper v1">
           <div className="auth-form">
             <WindowControls />
-            <div className="auth-position">
-              <div className="card auth-card">
+          <div className="position-relative my-5">
+            <div className="card mb-0">
                 <div className="card-body text-center">
                   <h6 className="mb-3">Connexion automatique...</h6>
                   <p>Tente de se connecter avec votre compte Windows...</p>
@@ -153,14 +153,14 @@ export default function Auth({ setUser }) {
       <div className="auth-wrapper v1">
         <div className="auth-form">
           <WindowControls />
-          <div className="auth-position">
+          <div className="position-relative my-5">
             <div className="auth-bg">
               <span className="r"></span>
               <span className="r s"></span>
               <span className="r s"></span>
               <span className="r"></span>
             </div>
-            <div className="card auth-card">
+            <div className="card mb-0">
               <div className="card-header">
                 <h4 className="mb-3 f-w-400">Connexion</h4>
               </div>
