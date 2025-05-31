@@ -21,6 +21,19 @@ Push-Location $projectRoot
 $env:NODE_ENV = "production"
 $env:GENERATE_SOURCEMAP = "false"
 
+# Utiliser des executables npm/npx personnalisés s'ils existent pour un build
+# plus petit et optimisé
+$customNpx = "D:\tools\npx\npx.exe"
+if (Test-Path $customNpx) {
+    Write-ColorText "🔍 npx personnalisé détecté: $customNpx" $Yellow
+    Set-Alias npx $customNpx
+    $customNpm = Join-Path (Split-Path $customNpx) 'npm.exe'
+    if (Test-Path $customNpm) {
+        Write-ColorText "🔍 npm personnalisé détecté: $customNpm" $Yellow
+        Set-Alias npm $customNpm
+    }
+}
+
 try {
     Write-ColorText "🚀 Build ultra-optimisé - Objectif < 40MB" $Cyan
 
