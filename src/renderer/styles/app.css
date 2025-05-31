@@ -17,6 +17,8 @@ body {
   font-family: var(--font-family-base);
   margin: 0;
   padding: 0;
+  border: var(--window-border-width) solid var(--window-border-color);
+  box-sizing: border-box;
 }
 
 /* Simple progress bar displayed during page transitions */
