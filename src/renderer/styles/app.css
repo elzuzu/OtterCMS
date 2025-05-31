@@ -17,6 +17,8 @@ body {
   font-family: var(--font-family-base);
   margin: 0;
   padding: 0;
+  border: var(--window-border-width) solid var(--window-border-color);
+  box-sizing: border-box;
 }
 
 /* Simple progress bar displayed during page transitions */
@@ -83,6 +85,13 @@ body {
   padding: 24px;
   position: relative;
   justify-content: center;
+}
+.auth-wrapper.v1 .auth-form .window-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 0.25rem;
 }
 
 .auth-wrapper.v1 .auth-form .card-body {

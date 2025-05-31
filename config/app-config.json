@@ -2,5 +2,9 @@
   "appTitle": "Indi-Suivi",
   "dbPath": "../db/indi-suivi.sqlite",
   "defaultLanguage": "fr",
-  "logLevel": "info"
+  "logLevel": "info",
+  "windowBorder": {
+    "color": "#1890ff",
+    "width": 0
+  }
 }

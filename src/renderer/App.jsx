@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense, useEffect } from 'react';
 // MUI ThemeProvider is kept to leverage its theming system
 import { ThemeProvider } from '@mui/material/styles';
 import useTheme from './hooks/useTheme';
@@ -19,6 +19,23 @@ import './styles/app.css'; // Ensure this is imported for global styles
 export default function App() {
   const [user, setUser] = useState(null);
   const { theme } = useTheme();
+
+  useEffect(() => {
+    async function applyWindowBorder() {
+      let color = localStorage.getItem('windowBorderColor');
+      let width = localStorage.getItem('windowBorderWidth');
+      if ((!color || !width) && window.api && window.api.getConfig) {
+        const result = await window.api.getConfig();
+        if (result.success && result.data && result.data.windowBorder) {
+          color = color || result.data.windowBorder.color;
+          width = width || String(result.data.windowBorder.width);
+        }
+      }
+      if (color) document.body.style.setProperty('--window-border-color', color);
+      if (width) document.body.style.setProperty('--window-border-width', width + 'px');
+    }
+    applyWindowBorder();
+  }, []);
 
   const handleLogout = () => {
     setUser(null);

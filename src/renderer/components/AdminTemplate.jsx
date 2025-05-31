@@ -12,6 +12,8 @@ const THEME_COLORS = [
 
 export default function AdminTemplate() {
   const [selectedColorId, setSelectedColorId] = useState('blue');
+  const [borderColor, setBorderColor] = useState('#000000');
+  const [borderWidth, setBorderWidth] = useState('0');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -23,6 +25,13 @@ export default function AdminTemplate() {
       setSelectedColorId(saved);
       THEME_COLORS.forEach(c => document.body.classList.remove('theme-' + c.id));
       document.body.classList.add('theme-' + saved);
+
+      const savedBorderColor = localStorage.getItem('windowBorderColor') || '#000000';
+      const savedBorderWidth = localStorage.getItem('windowBorderWidth') || '0';
+      setBorderColor(savedBorderColor);
+      setBorderWidth(savedBorderWidth);
+      document.body.style.setProperty('--window-border-color', savedBorderColor);
+      document.body.style.setProperty('--window-border-width', savedBorderWidth + 'px');
       setIsLoading(false);
     }
     fetchCurrentTheme();
@@ -38,6 +47,14 @@ export default function AdminTemplate() {
     applyThemeClassToBody(colorId);
     localStorage.setItem('themeColor', colorId);
     setMessage('Thème appliqué !');
+  };
+
+  const handleApplyBorder = () => {
+    document.body.style.setProperty('--window-border-color', borderColor);
+    document.body.style.setProperty('--window-border-width', borderWidth + 'px');
+    localStorage.setItem('windowBorderColor', borderColor);
+    localStorage.setItem('windowBorderWidth', borderWidth);
+    setMessage('Bordure mise à jour !');
   };
 
   if (isLoading) {
@@ -76,6 +93,23 @@ export default function AdminTemplate() {
             {color.label}
           </DattaButton>
         ))}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+        <label style={{ marginRight: '0.5rem' }}>Couleur de bordure :</label>
+        <input type="color" value={borderColor} onChange={e => setBorderColor(e.target.value)} />
+        <label style={{ marginLeft: '1rem', marginRight: '0.5rem' }}>Épaisseur :</label>
+        <input
+          type="number"
+          min="0"
+          max="20"
+          value={borderWidth}
+          onChange={e => setBorderWidth(e.target.value)}
+          style={{ width: '4rem' }}
+        />
+        <DattaButton variant="secondary" size="sm" onClick={handleApplyBorder} style={{ marginLeft: '1rem' }}>
+          Appliquer
+        </DattaButton>
       </div>
 
       {message && (
