@@ -7,6 +7,7 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
   const [individu, setIndividu] = useState(null);
   const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
+  const [activeCat, setActiveCat] = useState(null);
 
   const loadData = useCallback(async () => {
     const [indRes, catRes, usersRes] = await Promise.all([
@@ -28,6 +29,13 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (categories.length > 0 && activeCat === null) {
+      const firstVisible = categories.find(c => (c.champs || []).some(ch => ch.visible));
+      if (firstVisible) setActiveCat(firstVisible.id);
+    }
+  }, [categories, activeCat]);
 
   const getUserName = (id) => {
     const u = users.find(u => u.id === Number(id));
@@ -72,6 +80,7 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
   const extra = individu.champs_supplementaires || {};
 
   return (
+    <>
     <div className="modal-content modal-content-large">
       <div className="modal-header">
         <h2 className="mb-0">Fiche Individu : {individu.numero_unique || individu.id}</h2>
@@ -88,25 +97,64 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
             </DattaButton>
           }
         >
-          <div className="row">
-            {renderSectionTitle('Informations principales')}
-            {renderField('Numéro Unique', individu.numero_unique || individu.id)}
-            {renderField('Personne en charge', getUserName(individu.en_charge))}
-          </div>
-          {categories.map(cat => {
-            const visible = (cat.champs || []).filter(ch => ch.visible);
-            if (visible.length === 0) return null;
-            return (
-              <div className="row" key={cat.id}>
-                {renderSectionTitle(cat.nom)}
-                {visible.map(ch =>
-                  renderField(getFieldLabel(ch.key), extra[ch.key], false)
-                )}
-              </div>
-            );
-          })}
+        <div className="row">
+          {renderSectionTitle('Informations principales')}
+          {renderField('Numéro Unique', individu.numero_unique || individu.id)}
+          {renderField('Personne en charge', getUserName(individu.en_charge))}
+        </div>
+        {categories.some(c => (c.champs || []).some(ch => ch.visible)) && (
+          <>
+            <ul className="nav nav-tabs mt-4">
+              {categories.map(cat => {
+                const visible = (cat.champs || []).filter(ch => ch.visible);
+                if (visible.length === 0) return null;
+                return (
+                  <li className="nav-item" key={`tab-${cat.id}`}>
+                    <button
+                      type="button"
+                      className={`nav-link ${activeCat === cat.id ? 'active' : ''}`}
+                      onClick={() => setActiveCat(cat.id)}
+                    >
+                      {cat.nom}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="tab-content pt-3">
+              {categories.map(cat => {
+                const visible = (cat.champs || []).filter(ch => ch.visible);
+                if (visible.length === 0) return null;
+                return (
+                  <div
+                    key={`content-${cat.id}`}
+                    className={`tab-pane fade ${activeCat === cat.id ? 'show active' : ''}`}
+                  >
+                    <div className="row">
+                      {visible.map(ch =>
+                        renderField(getFieldLabel(ch.key), extra[ch.key], false)
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
         </DattaCard>
       </div>
     </div>
+    <style jsx>{`
+      .modal-content-large {
+        width: 95% !important;
+        max-width: 1400px !important;
+        height: 90vh !important;
+        max-height: 90vh !important;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+    `}</style>
+    </>
   );
 }
