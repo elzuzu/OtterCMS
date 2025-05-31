@@ -107,7 +107,7 @@ body {
   margin: 3rem 0;
 }
 
-.auth-bg {
+.auth-wrapper.v1 .auth-bg {
   position: absolute;
   inset: 0;
   overflow: hidden;
