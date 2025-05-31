@@ -43,3 +43,7 @@ logs/
 # electron-builder (si jamais réutilisé)
 build/
 release/
+
+# Datta Able images
+public/datta-able-assets/images/*
+!public/datta-able-assets/images/.gitkeep

@@ -40,6 +40,7 @@ Les principaux ecrans utilisent des wrappers React (`DattaCard`, `DattaDataTable
 ```bash
 npm install --include=dev   # dépendances + devDependencies
 npm run install-app
+pwsh scripts/copy-datta-assets.ps1  # copie les images Datta Able
 ```
 
 ## Configuration
@@ -70,6 +71,7 @@ scripts/install.js Initialisation de la base
 - La fonction `useTheme` applique dynamiquement la couleur principale.
 - Les styles principaux se trouvent dans `src/renderer/styles/themes.css` et `app.css`.
 - Des wrappers (`DattaCard`, `DattaDataTable`...) simplifient l'utilisation des composants MUI pour rester proches du design Datta Able.
+- Les images nécessaires au thème sont copiées depuis `docs/datta-able-bootstrap-dashboard-master` en exécutant `pwsh scripts/copy-datta-assets.ps1` après le clonage.
 
 Le schéma SQLite est créé lors de l'exécution de `npm run install-app`.
 
