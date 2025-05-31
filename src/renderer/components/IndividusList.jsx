@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 // Utilisation de la fiche d'individu standard
-import IndividuFiche from './IndividuFiche';
+import IndividuFicheDetails from './IndividuFicheDetails';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { EditIcon, TrashIcon } from './common/Icons';
@@ -520,11 +520,9 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       )}
       {selectedIndividuId && (
         <DattaModal open onClose={() => setSelectedIndividuId(null)} title="Fiche individu" size="lg" scrollable>
-          <IndividuFiche
+          <IndividuFicheDetails
             individuId={selectedIndividuId}
             onClose={() => setSelectedIndividuId(null)}
-            onUpdate={handleEditSuccess}
-            user={user}
           />
         </DattaModal>
       )}
