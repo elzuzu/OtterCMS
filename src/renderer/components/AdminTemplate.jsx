@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DattaButton from './common/DattaButton';
 import DattaPageTitle from './common/DattaPageTitle';
+import useTheme from '../hooks/useTheme';
 
 const THEME_COLORS = [
   { id: 'blue', label: 'Bleu (Défaut)', value: '#04a9f5' },
@@ -11,39 +12,27 @@ const THEME_COLORS = [
 ];
 
 export default function AdminTemplate() {
-  const [selectedColorId, setSelectedColorId] = useState('blue');
+  const { color, changeColor } = useTheme();
+  const [selectedColorId, setSelectedColorId] = useState(color);
   const [borderColor, setBorderColor] = useState('#000000');
   const [borderWidth, setBorderWidth] = useState('0');
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchCurrentTheme() {
-      setIsLoading(true);
-      setMessage('');
-      const saved = localStorage.getItem('themePreset') || 'blue';
-      setSelectedColorId(saved);
-      window.dispatchEvent(new CustomEvent('themePresetChange', { detail: saved }));
+    setMessage('');
+    setSelectedColorId(color);
 
-      const savedBorderColor = localStorage.getItem('windowBorderColor') || '#000000';
-      const savedBorderWidth = localStorage.getItem('windowBorderWidth') || '0';
-      setBorderColor(savedBorderColor);
-      setBorderWidth(savedBorderWidth);
-      document.body.style.setProperty('--window-border-color', savedBorderColor);
-      document.body.style.setProperty('--window-border-width', savedBorderWidth + 'px');
-      setIsLoading(false);
-    }
-    fetchCurrentTheme();
-  }, []);
-
-  const applyThemePreset = (colorId) => {
-    window.dispatchEvent(new CustomEvent('themePresetChange', { detail: colorId }));
-  };
+    const savedBorderColor = localStorage.getItem('windowBorderColor') || '#000000';
+    const savedBorderWidth = localStorage.getItem('windowBorderWidth') || '0';
+    setBorderColor(savedBorderColor);
+    setBorderWidth(savedBorderWidth);
+    document.body.style.setProperty('--window-border-color', savedBorderColor);
+    document.body.style.setProperty('--window-border-width', savedBorderWidth + 'px');
+  }, [color]);
 
   const handleSelectColor = async (colorId) => {
     setSelectedColorId(colorId);
-    applyThemePreset(colorId);
-    localStorage.setItem('themePreset', colorId);
+    changeColor(colorId);
     setMessage('Thème appliqué !');
   };
 
@@ -54,10 +43,6 @@ export default function AdminTemplate() {
     localStorage.setItem('windowBorderWidth', borderWidth);
     setMessage('Bordure mise à jour !');
   };
-
-  if (isLoading) {
-    return <div className="loading-message">Chargement de la configuration du thème...</div>;
-  }
 
   return (
     <div className="pc-content">
