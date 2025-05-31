@@ -64,7 +64,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   const [showAddForm, setShowAddForm] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState(null);
-  const [columnFilters, setColumnFilters] = useState({});
   const [renderKey, setRenderKey] = useState(0);
   
   const currentUserId = useMemo(() => Number(user.id || user.userId), [user.id, user.userId]);
@@ -185,17 +184,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         return Object.values(champsSupp).some(val => String(val || '').toLowerCase().includes(searchTerm));
       });
     }
-    Object.entries(columnFilters).forEach(([key, value]) => {
-      if (value && value.trim() !== '') {
-        const term = value.toLowerCase().trim();
-        result = result.filter(ind => {
-          if (key === 'numero_unique') return String(ind.numero_unique || '').toLowerCase().includes(term);
-          if (key === 'en_charge') return getUserName(ind.en_charge, ind).toLowerCase().includes(term);
-          const champsSupp = ind.champs_supplementaires || {};
-          return String(champsSupp[key] || '').toLowerCase().includes(term);
-        });
-      }
-    });
     if (sortConfig) {
       result.sort((a, b) => {
         let aValue, bValue;
@@ -210,7 +198,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       });
     }
     return result;
-  }, [individus, viewMode, currentUserId, filtre, columnFilters, sortConfig, loading, getUserName]);
+  }, [individus, viewMode, currentUserId, filtre, sortConfig, loading, getUserName]);
   
 
   useEffect(() => {
@@ -486,7 +474,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       {loading && <div className="loading-message mt-2">Mise à jour des données...</div>}
       {!loading && filteredIndividus.length === 0 && (
         <div className="no-data-message mt-4 text-center">
-          <p>{filtre || Object.keys(columnFilters).some(k => columnFilters[k]) || viewMode === 'mine' ? "Aucun individu ne correspond à vos critères." : "Aucun individu enregistré."}</p>
+          <p>{filtre || viewMode === 'mine' ? "Aucun individu ne correspond à vos critères." : "Aucun individu enregistré."}</p>
           {viewMode === 'mine' && individus.length > 0 && (
             <div className="mt-4">
               <p className="text-muted mb-2">
@@ -506,8 +494,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           getRowKey={ind => ind.id || ind.numero_unique}
           sortConfig={sortConfig}
           onSort={handleSort}
-          columnFilters={columnFilters}
-          onColumnFilterChange={setColumnFilters}
           page={currentPage - 1}
           rowsPerPage={ITEMS_PER_PAGE}
           onPageChange={(e, p) => setCurrentPage(p + 1)}

@@ -490,7 +490,7 @@ export default function MassAttribution({ user }) {
                     </DattaButton>
                   </div>
                 ) : (
-                  <div className="individus-table-container table-responsive"><table className="individus-table data-table">
+                  <div className="individus-table-container table-responsive"><table className="individus-table table table-hover table-sm data-table">
                   <thead><tr><th style={{ width: '40px' }}></th><th>N° Individu</th><th>En charge</th>{fieldFilters.map((filter, idx) => <th key={idx}>{filter.field.label}</th>)}</tr></thead>
                   <tbody>{filteredIndividus.map(individu => <tr key={individu.id} className={selectedIndividus.includes(individu.id) ? 'selected-row' : ''}>
                     <td>
@@ -553,7 +553,7 @@ export default function MassAttribution({ user }) {
                     <div className="distribution-list-section">
                         <h4>Utilisateurs pour cette attribution :</h4>
                         <div className="table-responsive">
-                        <table className="simple-table" style={{width: '100%', marginTop:'10px'}}>
+                        <table className="simple-table table table-hover table-sm" style={{width: '100%', marginTop:'10px'}}>
                             <thead>
                                 <tr>
                                     <th>Utilisateur</th>

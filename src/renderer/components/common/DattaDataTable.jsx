@@ -45,7 +45,7 @@ export default function DattaDataTable({
       </div>
       <div className="card-body">
         <div className="table-responsive">
-          <table className="table table-hover data-table" width="100%">
+          <table className="table table-hover table-sm data-table" width="100%">
             <thead>
               <tr>
                 {columns.map(col => (
