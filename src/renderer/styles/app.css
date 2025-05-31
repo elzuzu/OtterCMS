@@ -354,3 +354,11 @@ div[style*=".gif"] {
   animation: none !important;
   transition: none !important;
 }
+
+/* Force progress bar animation even if prefers-reduced-motion is set */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar.progress-bar-striped.progress-bar-animated,
+  .progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite !important;
+  }
+}
