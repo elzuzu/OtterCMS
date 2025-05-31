@@ -504,7 +504,7 @@ export default function MassAttribution({ user }) {
                     <td>{individu.numero_unique || individu.id}</td><td className={!individu.en_charge ? 'unassigned' : ''}>{getUserName(individu.en_charge)}</td>
                     {fieldFilters.map((filter, idx) => { const value = individu.champs_supplementaires?.[filter.field.key]; let displayValue = ''; if (typeof value === 'boolean') { displayValue = value ? 'Oui' : 'Non'; } else { displayValue = value || ''; } return <td key={idx}>{displayValue}</td>; })}
                   </tr>)}</tbody>
-                </table></div>}
+                </table></div>)}
               </div>
               <div className="wizard-actions">
                 <DattaButton variant="primary" onClick={handleProceedToAttribution} disabled={selectedIndividus.length === 0}>
