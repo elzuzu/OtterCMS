@@ -84,7 +84,7 @@ body.theme-red {
 }
 
 /* Styles globaux de base utilisant les variables --current-* (sourced from themes.css) */
-/* These styles can remain here or be moved to a more global stylesheet like index.css or app.css */
+/* These styles can remain here or be moved to a more global stylesheet like index.css */
 /* They are generally fine as they rely on --current-* variables which are now solely defined in themes.css */
 body {
   background-color: var(--current-background-color);

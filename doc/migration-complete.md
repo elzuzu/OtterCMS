@@ -13,7 +13,6 @@ Ce document récapitule la migration complète de l'interface vers le thème **D
 - src/renderer/components/layout/PageWrapper.jsx
 - src/renderer/components/IndividuFiche.jsx
 - src/renderer/components/IndividusList.jsx
-- src/renderer/styles/app.css
 
 ## Composants ajoutés
 - DattaStepper.jsx
@@ -31,7 +30,6 @@ Toutes suivent les préfixes `--pc-*` ou `--current-*`. Les variables héritées
 remplacées par ces variables.
 
 ## Checklist de validation
-- [x] Suppression des classes CSS inutilisées dans `app.css`
 - [x] Retrait des imports React ou icônes non utilisés
 - [x] Build exécuté (`npm run build`) *(échec ici faute de dépendances)*
 - [x] Lancement dev (`npm run dev`) *(échec ici faute de dépendances)*
