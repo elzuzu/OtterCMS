@@ -1,41 +1,43 @@
 import { useState, useEffect, useMemo } from 'react';
-// createTheme from MUI is used for consistent theme generation
 import { createTheme } from '@mui/material/styles';
 
-const COLORS = ['blue', 'green', 'purple', 'orange', 'red'];
-
-// Define actual color values for MUI theme
-const COLOR_VALUES = {
+// Map the simple color ids used in the UI to Datta Able presets and main color
+// value for the MUI theme. The light/dark shades are approximated.
+const PRESET_CONFIG = {
   blue: {
-    main: '#1890ff',
-    light: '#40a9ff', 
-    dark: '#096dd9'
+    preset: 'preset-1',
+    colors: { main: '#04a9f5', light: '#36baf7', dark: '#0387c4' }
   },
   green: {
-    main: '#52c41a',
-    light: '#73d13d',
-    dark: '#389e0d'
+    preset: 'preset-8',
+    colors: { main: '#1de9b6', light: '#4aedc4', dark: '#17ba91' }
   },
   purple: {
-    main: '#8b5cf6',
-    light: '#a78bfa',
-    dark: '#7c3aed'
+    preset: 'preset-2',
+    colors: { main: '#6610f2', light: '#843ff4', dark: '#510cc1' }
   },
   orange: {
-    main: '#faad14',
-    light: '#ffc53d',
-    dark: '#d48806'
+    preset: 'preset-6',
+    colors: { main: '#fd7e14', light: '#fd9743', dark: '#ca6410' }
   },
   red: {
-    main: '#ff4d4f',
-    light: '#ff7875',
-    dark: '#cf1322'
+    preset: 'preset-5',
+    colors: { main: '#f44236', light: '#f6675e', dark: '#c3342b' }
   }
 };
 
-const applyColor = (color) => {
-  COLORS.forEach((c) => document.body.classList.remove('theme-' + c));
-  document.body.classList.add('theme-' + color);
+const applyPreset = (colorKey) => {
+  const cfg = PRESET_CONFIG[colorKey];
+  if (!cfg) return;
+  // Apply Datta Able preset attribute
+  document.documentElement.setAttribute('data-pc-preset', cfg.preset);
+  // Update custom CSS variables used across the app
+  const { main, light, dark } = cfg.colors;
+  const root = document.documentElement;
+  root.style.setProperty('--color-primary-500', main);
+  root.style.setProperty('--color-primary-400', light);
+  root.style.setProperty('--color-primary-300', light);
+  root.style.setProperty('--color-primary-700', dark);
 };
 
 export default function useTheme() {
@@ -46,20 +48,31 @@ export default function useTheme() {
     document.documentElement.setAttribute('data-layout', 'light');
     document.documentElement.classList.add('layout-light');
 
-    const savedColor = localStorage.getItem('themeColor') || 'blue';
+    const savedColor = localStorage.getItem('themePreset') || 'blue';
     setColor(savedColor);
-    applyColor(savedColor);
+    applyPreset(savedColor);
+
+    const handleChange = (e) => {
+      const newColor = e.detail;
+      if (newColor && PRESET_CONFIG[newColor]) {
+        setColor(newColor);
+        applyPreset(newColor);
+      }
+    };
+    window.addEventListener('themePresetChange', handleChange);
+    return () => window.removeEventListener('themePresetChange', handleChange);
   }, []);
 
 
   const changeColor = (c) => {
     setColor(c);
-    applyColor(c);
-    localStorage.setItem('themeColor', c);
+    applyPreset(c);
+    localStorage.setItem('themePreset', c);
+    window.dispatchEvent(new CustomEvent('themePresetChange', { detail: c }));
   };
 
   const theme = useMemo(() => {
-    const currentColorValues = COLOR_VALUES[color] || COLOR_VALUES.blue;
+    const currentColorValues = PRESET_CONFIG[color]?.colors || PRESET_CONFIG.blue.colors;
 
     return createTheme({
       palette: {

@@ -4,11 +4,11 @@ L'interface utilise le moteur de styles du template **Datta Able** combiné à M
 
 ## Fonctionnement
 
-- `useTheme` applique la classe du thème clair sur `<html>` et charge la couleur principale.
+- `useTheme` définit désormais l'attribut `data-pc-preset` sur la balise `<html>` pour activer les préréglages de couleur Datta Able et charge la couleur principale correspondante.
 - Les couleurs de base sont stockées dans `colors.css` et surchargées par `themes.css`.
 - Les composants wrappers (`DattaCard`, `DattaDataTable`, etc.) encapsulent ceux de MUI pour conserver une apparence uniforme.
 
-Vous pouvez ajouter d'autres thèmes en déclarant de nouvelles classes `.theme-xxx` dans `themes.css` et en adaptant `useTheme.js`.
+Vous pouvez ajouter d'autres thèmes en ajoutant de nouveaux presets dans `useTheme.js` et en étendant la liste proposée dans la rubrique Template.
 
 ## Rubrique Template
 
