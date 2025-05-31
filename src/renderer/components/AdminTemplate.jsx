@@ -3,11 +3,11 @@ import DattaButton from './common/DattaButton';
 import DattaPageTitle from './common/DattaPageTitle';
 
 const THEME_COLORS = [
-  { id: 'blue', label: 'Bleu (Défaut)', value: '#0078D4' },
-  { id: 'green', label: 'Vert', value: '#107C10' },
-  { id: 'purple', label: 'Violet', value: '#8B38FF' },
-  { id: 'orange', label: 'Orange', value: '#FF8C00' },
-  { id: 'red', label: 'Rouge', value: '#E81123' }
+  { id: 'blue', label: 'Bleu (Défaut)', value: '#04a9f5' },
+  { id: 'green', label: 'Vert', value: '#1de9b6' },
+  { id: 'purple', label: 'Violet', value: '#6610f2' },
+  { id: 'orange', label: 'Orange', value: '#fd7e14' },
+  { id: 'red', label: 'Rouge', value: '#f44236' }
 ];
 
 export default function AdminTemplate() {
@@ -21,10 +21,9 @@ export default function AdminTemplate() {
     async function fetchCurrentTheme() {
       setIsLoading(true);
       setMessage('');
-      const saved = localStorage.getItem('themeColor') || 'blue';
+      const saved = localStorage.getItem('themePreset') || 'blue';
       setSelectedColorId(saved);
-      THEME_COLORS.forEach(c => document.body.classList.remove('theme-' + c.id));
-      document.body.classList.add('theme-' + saved);
+      window.dispatchEvent(new CustomEvent('themePresetChange', { detail: saved }));
 
       const savedBorderColor = localStorage.getItem('windowBorderColor') || '#000000';
       const savedBorderWidth = localStorage.getItem('windowBorderWidth') || '0';
@@ -37,15 +36,14 @@ export default function AdminTemplate() {
     fetchCurrentTheme();
   }, []);
 
-  const applyThemeClassToBody = (colorId) => {
-    THEME_COLORS.forEach(c => document.body.classList.remove('theme-' + c.id));
-    document.body.classList.add('theme-' + colorId);
+  const applyThemePreset = (colorId) => {
+    window.dispatchEvent(new CustomEvent('themePresetChange', { detail: colorId }));
   };
 
   const handleSelectColor = async (colorId) => {
     setSelectedColorId(colorId);
-    applyThemeClassToBody(colorId);
-    localStorage.setItem('themeColor', colorId);
+    applyThemePreset(colorId);
+    localStorage.setItem('themePreset', colorId);
     setMessage('Thème appliqué !');
   };
 
