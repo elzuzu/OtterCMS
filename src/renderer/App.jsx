@@ -8,13 +8,12 @@ const MainContent = lazy(() => import('./components/MainContent'));
 
 function LoadingFallback() {
   return (
-    <div className="loading-container">
-      <div className="loading-spinner"></div>
-      <p>Chargement...</p>
+    <div className="d-flex flex-column align-items-center justify-content-center" style={{minHeight: '200px'}}>
+      <div className="spinner-border text-primary" role="status"></div>
+      <p className="mt-2">Chargement...</p>
     </div>
   );
 }
-import './styles/app.css'; // Ensure this is imported for global styles
 
 export default function App() {
   const [user, setUser] = useState(null);

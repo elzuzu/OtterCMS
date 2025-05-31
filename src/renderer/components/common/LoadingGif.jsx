@@ -13,11 +13,11 @@ export default function LoadingGif({
   };
 
   return (
-    <div className={`loading-container ${className}`}>
-      <img 
+    <div className={`d-flex align-items-center justify-content-center ${className}`}>
+      <img
         src={src}
         alt={alt}
-        className={`gif-animation ${sizeClasses[size] || sizeClasses.medium}`}
+        className={sizeClasses[size] || sizeClasses.medium}
         style={{
           display: 'block',
           animation: 'none',

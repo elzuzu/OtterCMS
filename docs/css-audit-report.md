@@ -4,7 +4,6 @@ Ce rapport résume l'analyse des trois fichiers CSS existants avant la migration
 
 ## Fichiers analysés
 
-- `app.css` (~4800 lignes)
 - `colors.css` (~330 lignes)
 - `neo-ui.css` (~900 lignes)
 

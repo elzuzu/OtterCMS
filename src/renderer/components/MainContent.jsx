@@ -15,7 +15,9 @@ import LayoutManager from './layout/LayoutManager'; // Kept
 function ComponentLoader() {
   return (
     <>
-      <div className="loading-bar"></div>
+      <div className="progress position-fixed top-0 start-0 w-100" style={{ height: '3px' }}>
+        <div className="progress-bar progress-bar-striped progress-bar-animated" style={{ width: '100%' }}></div>
+      </div>
       <div
         className="pc-content"
         style={{

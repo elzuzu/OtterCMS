@@ -3,11 +3,12 @@ import DattaButton from './DattaButton';
 
 export default function WindowControls() {
   return (
-    <div className="window-controls">
+    <div className="d-flex" style={{ WebkitAppRegion: 'drag', userSelect: 'none' }}>
       <DattaButton
         variant="link"
         size="sm"
-        className="window-control minimize"
+        className="minimize"
+        style={{ WebkitAppRegion: 'no-drag' }}
         onClick={() => window.api.minimizeWindow()}
       >
         <span className="window-control-icon">−</span>
@@ -15,7 +16,8 @@ export default function WindowControls() {
       <DattaButton
         variant="link"
         size="sm"
-        className="window-control maximize"
+        className="maximize"
+        style={{ WebkitAppRegion: 'no-drag' }}
         onClick={() => window.api.maximizeWindow()}
       >
         <span className="window-control-icon">□</span>
@@ -23,7 +25,8 @@ export default function WindowControls() {
       <DattaButton
         variant="link"
         size="sm"
-        className="window-control close"
+        className="close"
+        style={{ WebkitAppRegion: 'no-drag' }}
         onClick={() => window.api.closeWindow()}
       >
         <span className="window-control-icon">×</span>
