@@ -3,10 +3,12 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import IndividuFiche from './IndividuFiche';
 import NouvelIndividu from './NouvelIndividu';
 import { formatDateToDDMMYYYY } from '../utils/date';
-import { EditIcon } from './common/Icons';
+import { EditIcon, TrashIcon } from './common/Icons';
 import DattaDataTable from './common/DattaDataTable';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
+import DattaCard from './common/DattaCard';
+import DattaModal from './common/DattaModal';
 import { evaluateDynamicField } from '../utils/dynamic';
 
 const ITEMS_PER_PAGE = 20;
@@ -97,7 +99,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
 
   const getUserNameForDisplay = useCallback((userId, ind = null) => {
     if (userId === null || userId === undefined || userId === '') {
-      return <span className="text-muted" style={{ fontStyle: 'italic' }}>Non assigné</span>;
+      return <span className="text-muted fst-italic">Non assigné</span>;
     }
     return getUserName(userId, ind);
   }, [getUserName]);
@@ -109,15 +111,26 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         header: 'Actions',
         sortable: false,
         filterable: false,
+        thStyle: { textAlign: 'center', width: columnWidths.actions },
+        tdStyle: { textAlign: 'center', width: columnWidths.actions },
         render: ind => (
-          <DattaButton
-            variant="secondary"
-            size="sm"
-            onClick={() => setSelectedIndividuId(ind.id)}
-            title="Éditer l'individu"
-          >
-            <EditIcon size={16} />
-          </DattaButton>
+          <>
+            <DattaButton
+              variant="light-primary"
+              size="sm"
+              className="me-1"
+              onClick={() => setSelectedIndividuId(ind.id)}
+              title="Modifier"
+              icon="feather icon-edit"
+            />
+            <DattaButton
+              variant="light-danger"
+              size="sm"
+              onClick={() => handleDeleteIndividu(ind.id)}
+              title="Supprimer"
+              icon="feather icon-trash-2"
+            />
+          </>
         ),
       },
       {
@@ -339,6 +352,20 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   const handleAddSuccess = useCallback(() => { loadData(); setShowAddForm(false); }, [loadData]);
   const handleEditSuccess = useCallback(() => { loadData(); setSelectedIndividuId(null); }, [loadData]);
   const handleConfigColonnes = useCallback(() => setShowColonnesPicker(prev => !prev), []);
+
+  const handleDeleteIndividu = useCallback(async (id) => {
+    if (!window.confirm('Supprimer cet individu ?')) return;
+    try {
+      const result = await window.api.deleteIndividu({ id, userId: currentUserId });
+      if (result.success) {
+        loadData();
+      } else {
+        alert(result.error || 'Erreur lors de la suppression');
+      }
+    } catch (err) {
+      alert(err.message);
+    }
+  }, [currentUserId, loadData]);
   
   const handleToggleColonne = useCallback((key) => {
     const newConfig = colonnesAffichees.includes(key)
@@ -377,7 +404,7 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           <div className="card-body">
             <div className="error-message">
               {error}
-              <DattaButton variant="secondary" onClick={loadData} style={{ marginTop: '10px' }}>
+              <DattaButton variant="secondary" onClick={loadData} className="mt-2">
                 Réessayer de charger
               </DattaButton>
             </div>
@@ -390,51 +417,56 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   return (
     <div key={`list-container-${renderKey}`} className="pc-content">
       <DattaPageTitle title="Gestion des individus" />
-      <div className="card">
-        <div className="card-body">
-      <div style={{ marginBottom: "10px", padding: "8px", backgroundColor: "var(--pc-card-bg)", borderRadius: "4px", fontSize: "0.9em", color: "var(--current-text-secondary)" }}>
-        <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} |
-        <strong> Individus affichés:</strong> {filteredIndividus.length}
-      </div>
-      <div className="actions-bar">
-        <div className="view-mode-selector">
-          <DattaButton
-            variant="secondary"
-            size="sm"
-            className={viewMode === 'all' ? 'active-view-button' : ''}
-            onClick={() => handleViewChange('all')}
-          >
-            Tous les individus
-          </DattaButton>
-          <DattaButton
-            variant="secondary"
-            size="sm"
-            className={viewMode === 'mine' ? 'active-view-button' : ''}
-            onClick={() => handleViewChange('mine')}
-          >
-            Mes individus
-          </DattaButton>
-        </div>
-        <div className="search-container" style={{ position: 'relative' }}>
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Rechercher (N°, En charge, Champs...)"
-            value={filtre}
-            onChange={e => setFiltre(e.target.value)}
-            className="search-input"
-            style={{ paddingLeft: 'calc(var(--spacing-3) + 16px + var(--spacing-2))' }}
-          />
-        </div>
-        <div className="buttons-container">
-          <DattaButton variant="success" size="sm" className="add-button" onClick={handleAddIndividu}>
+      <DattaCard
+        title="Liste des individus"
+        actions={
+          <DattaButton variant="primary" size="sm" icon="feather icon-plus" onClick={handleAddIndividu}>
             Ajouter un individu
           </DattaButton>
-          <DattaButton variant="secondary" size="sm" className="columns-button" onClick={handleConfigColonnes}>
-            {showColonnesPicker ? 'Masquer le sélecteur' : 'Configurer les colonnes'}
-          </DattaButton>
+        }
+      >
+        <div className="mb-3 text-muted small">
+          <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} |
+          <strong className="ms-1">Individus affichés:</strong> {filteredIndividus.length}
         </div>
-      </div>
+        <div className="row g-2 align-items-end mb-3">
+          <div className="col-auto">
+            <DattaButton
+              variant={viewMode === 'all' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => handleViewChange('all')}
+              className="me-1"
+            >
+              Tous les individus
+            </DattaButton>
+            <DattaButton
+              variant={viewMode === 'mine' ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={() => handleViewChange('mine')}
+            >
+              Mes individus
+            </DattaButton>
+          </div>
+          <div className="col-md-4 ms-auto">
+            <div className="input-group">
+              <span className="input-group-text">
+                <i className="feather icon-search"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Rechercher..."
+                value={filtre}
+                onChange={e => setFiltre(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="col-auto">
+            <DattaButton variant="secondary" size="sm" onClick={handleConfigColonnes}>
+              {showColonnesPicker ? 'Masquer le sélecteur' : 'Configurer les colonnes'}
+            </DattaButton>
+          </div>
+        </div>
       {showColonnesPicker && (
         <div className="colonnes-picker">
           <h4>Choisir les colonnes de champs supplémentaires à afficher:</h4>
@@ -443,21 +475,21 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
               <div key={champ.key} className="colonne-option">
                 <label htmlFor={`col-${champ.key}`}>
                   <input type="checkbox" id={`col-${champ.key}`} checked={colonnesAffichees.includes(champ.key)} onChange={() => handleToggleColonne(champ.key)}/>
-                  {champ.label} <span className="text-muted" style={{fontSize: '0.8em'}}>({champ.categorieNom})</span>
+                  {champ.label} <small className="text-muted">({champ.categorieNom})</small>
                 </label>
               </div>
             ))}
-            {champsDisponibles.length === 0 && <p className="text-muted" style={{fontStyle: 'italic'}}>Aucun champ supplémentaire configurable n'est défini.</p>}
+            {champsDisponibles.length === 0 && <p className="text-muted fst-italic">Aucun champ supplémentaire configurable n'est défini.</p>}
           </div>
         </div>
       )}
-      {loading && <div className="loading-message" style={{marginTop: '10px'}}>Mise à jour des données...</div>}
+      {loading && <div className="loading-message mt-2">Mise à jour des données...</div>}
       {!loading && filteredIndividus.length === 0 && (
-        <div className="no-data-message" style={{marginTop: '20px', textAlign: 'center'}}>
+        <div className="no-data-message mt-4 text-center">
           <p>{filtre || Object.keys(columnFilters).some(k => columnFilters[k]) || viewMode === 'mine' ? "Aucun individu ne correspond à vos critères." : "Aucun individu enregistré."}</p>
           {viewMode === 'mine' && individus.length > 0 && (
-            <div style={{marginTop: '20px'}}>
-              <p className="text-muted" style={{marginBottom: '10px'}}>
+            <div className="mt-4">
+              <p className="text-muted mb-2">
                 Vous n'avez aucun individu assigné. {individus.length} au total.
               </p>
               <DattaButton variant="secondary" size="sm" onClick={() => handleViewChange('all')}>
@@ -481,19 +513,22 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           onPageChange={(e, p) => setCurrentPage(p + 1)}
         />
       )}
-      {showAddForm && (<div className="modal-overlay"><NouvelIndividu user={user} onClose={() => setShowAddForm(false)} onSuccess={handleAddSuccess} /></div>)}
+      {showAddForm && (
+        <DattaModal open onClose={() => setShowAddForm(false)} title="Nouvel individu" size="lg" scrollable>
+          <NouvelIndividu user={user} onClose={() => setShowAddForm(false)} onSuccess={handleAddSuccess} />
+        </DattaModal>
+      )}
       {selectedIndividuId && (
-        <div className="modal-overlay">
+        <DattaModal open onClose={() => setSelectedIndividuId(null)} title="Fiche individu" size="lg" scrollable>
           <IndividuFiche
             individuId={selectedIndividuId}
             onClose={() => setSelectedIndividuId(null)}
             onUpdate={handleEditSuccess}
             user={user}
           />
-        </div>
+        </DattaModal>
       )}
-        </div>
-      </div>
+      </DattaCard>
     </div>
   );
 }
