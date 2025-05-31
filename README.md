@@ -40,6 +40,7 @@ Les principaux ecrans utilisent des wrappers React (`DattaCard`, `DattaDataTable
 ```bash
 npm install --include=dev   # dépendances + devDependencies
 npm run install-app
+pwsh scripts/copy-datta-assets.ps1   # copie les images Datta Able
 ```
 
 ## Configuration
