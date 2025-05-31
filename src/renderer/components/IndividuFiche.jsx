@@ -192,7 +192,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       const baseValues = { ...valeurSource, numero_unique: individu.numero_unique, en_charge: individu.en_charge };
       const resultat = evaluateDynamicField(champ.formule, baseValues);
       if (resultat === null || resultat === undefined || resultat === '') {
-        return <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+        return <span className="text-muted fst-italic">Non renseigné</span>;
       }
       return String(resultat);
     }
@@ -202,13 +202,13 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
     if (champ.type === 'date') {
       const formatted = formatDateToDDMMYYYY(valeur);
       if (!formatted) {
-        return <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+        return <span className="text-muted fst-italic">Non renseigné</span>;
       }
       return formatted;
     }
     if (champ.type === 'number-graph') {
       const display = valeur === null || valeur === undefined || valeur === '' ? (
-        <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>
+        <span className="text-muted fst-italic">Non renseigné</span>
       ) : String(valeur);
       return (
         <span className="graph-value" onClick={() => openChart(champ)} style={{cursor: 'pointer', textDecoration: 'underline'}}>
@@ -217,7 +217,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       );
     }
     if (valeur === null || valeur === undefined || valeur === '') {
-      return <span style={{color: 'var(--current-text-placeholder)', fontStyle: 'italic'}}>Non renseigné</span>;
+      return <span className="text-muted fst-italic">Non renseigné</span>;
     }
     return String(valeur);
   };
