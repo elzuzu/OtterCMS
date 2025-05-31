@@ -10,8 +10,8 @@ L'interface utilise le moteur de styles du template **Datta Able** combiné à M
 
 Vous pouvez ajouter d'autres thèmes en déclarant de nouvelles classes `.theme-xxx` dans `themes.css` et en adaptant `useTheme.js`.
 
-## Bordure de la fenêtre Electron
+## Rubrique Template
 
-La page **Template** permet désormais de configurer la couleur et l'épaisseur de la bordure externe de la fenêtre sous Windows. Les valeurs choisies sont stockées dans le navigateur (localStorage) et appliquées via les variables CSS `--window-border-color` et `--window-border-width` définies dans `themes.css`.
+La page **Template** s'appuie maintenant sur la palette de couleurs de Datta Able. Celle-ci reprend les couleurs Bootstrap principales (Primary, Secondary, Success, Danger, Warning, Info, Light et Dark) regroupées dans la carte Sass `$theme-colors`. Grâce à ce mécanisme, les classes utilitaires `.text-{color}` et `.bg-{color}` sont générées automatiquement pour personnaliser rapidement l'interface.
 
-Si aucune valeur n'est définie par l'utilisateur, la configuration par défaut est lue dans `config/app-config.json` (clé `windowBorder`).
+Cette même page permet toujours de configurer la bordure externe de la fenêtre Windows. Les couleurs choisies et l'épaisseur sont sauvegardées dans `localStorage` puis appliquées via les variables CSS `--window-border-color` et `--window-border-width` définies dans `themes.css`. À défaut de personnalisation, les valeurs lues dans `config/app-config.json` (clé `windowBorder`) sont utilisées.
