@@ -84,6 +84,13 @@ body {
   position: relative;
   justify-content: center;
 }
+.auth-wrapper.v1 .auth-form .window-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 0.25rem;
+}
 
 .auth-wrapper.v1 .auth-form .card-body {
   padding: 40px;
