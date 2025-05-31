@@ -135,12 +135,6 @@ export default function Auth({ setUser }) {
           <div className="auth-form">
             <WindowControls />
             <div className="auth-position">
-              <div className="auth-bg" key="auth-loading">
-                <span className="r"></span>
-                <span className="r s"></span>
-                <span className="r s"></span>
-                <span className="r"></span>
-              </div>
               <div className="card auth-card">
                 <div className="card-body text-center">
                   <h6 className="mb-3">Connexion automatique...</h6>
@@ -160,7 +154,7 @@ export default function Auth({ setUser }) {
         <div className="auth-form">
           <WindowControls />
           <div className="auth-position">
-            <div className="auth-bg" key={isAutoLoginAttempted ? 'auth-visible' : 'auth-loading'}>
+            <div className="auth-bg">
               <span className="r"></span>
               <span className="r s"></span>
               <span className="r s"></span>
