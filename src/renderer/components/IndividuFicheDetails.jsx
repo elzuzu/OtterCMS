@@ -84,9 +84,6 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
     <div className="modal-content modal-content-large">
       <div className="modal-header">
         <h2 className="mb-0">Fiche Individu : {individu.numero_unique || individu.id}</h2>
-        <DattaButton variant="link" size="sm" onClick={onClose} className="close-button" aria-label="Fermer">
-          <i className="ti ti-x"></i>
-        </DattaButton>
       </div>
       <div className="modal-body" style={{ overflowY: 'auto' }}>
         <DattaCard
