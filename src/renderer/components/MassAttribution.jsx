@@ -459,10 +459,27 @@ export default function MassAttribution({ user }) {
                     Réinitialiser
                   </DattaButton>
                 </div>
-                <div className="filter-mode-selector"><label>Opérateur de combinaison des filtres de champs:</label><div className="filter-mode-options">
-                  <label><input type="radio" name="filterMode" value="all" checked={filterMode === 'all'} onChange={() => { setFilterMode('all'); applyAllFilters(individus); }} />ET</label>
-                  <label><input type="radio" name="filterMode" value="any" checked={filterMode === 'any'} onChange={() => { setFilterMode('any'); applyAllFilters(individus); }} />OU</label>
-                </div></div>
+                <div className="mb-3">
+                  <label className="form-label mb-2">Opérateur de combinaison des filtres de champs:</label>
+                  <ul className="nav nav-pills">
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${filterMode === 'all' ? 'active' : ''}`}
+                        onClick={() => { setFilterMode('all'); applyAllFilters(individus); }}
+                      >
+                        ET
+                      </button>
+                    </li>
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${filterMode === 'any' ? 'active' : ''}`}
+                        onClick={() => { setFilterMode('any'); applyAllFilters(individus); }}
+                      >
+                        OU
+                      </button>
+                    </li>
+                  </ul>
+                </div>
                 <FieldFilterCreator />
                 {fieldFilters.length > 0 && <div className="active-field-filters"><h4>Filtres de champs actifs</h4><ul>
                   {fieldFilters.map((filter, index) => <li key={index} className="field-filter-item">
