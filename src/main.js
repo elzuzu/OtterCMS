@@ -1872,13 +1872,7 @@ async function createWindow () {
   const win = new BrowserWindow({
     width: 1366,
     height: 768,
-    frame: true,
-    titleBarStyle: 'hidden',
-    titleBarOverlay: {
-      color: '#ffffff',
-      symbolColor: '#000000',
-      height: 30
-    },
+    frame: false,
     // Fond clair par défaut
     backgroundColor: '#f4f7fa',
     autoHideMenuBar: true,
