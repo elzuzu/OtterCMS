@@ -3,7 +3,8 @@ import DattaPageTitle from "./common/DattaPageTitle";
 import DattaCard from "./common/DattaCard";
 import DattaAlert from "./common/DattaAlert";
 import DattaButton from "./common/DattaButton";
-import DattaStepper, { Step, StepLabel } from "./common/DattaStepper";
+import DattaCheckbox from "./common/DattaCheckbox";
+import { DattaTextField, DattaSelect } from "./common/DattaForm";
 
 export default function MassAttribution({ user }) {
   const [loading, setLoading] = useState(false);
@@ -430,37 +431,50 @@ export default function MassAttribution({ user }) {
             {message}
           </DattaAlert>
         )}
-        <DattaStepper activeStep={step - 1}>
-          {['Sélection des individus', "Définir l'attribution", 'Confirmation'].map(label => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </DattaStepper>
+        <ul className="nav nav-pills nav-justified wizard-steps mb-4">
+          <li className="nav-item">
+            <span className={`nav-link ${step === 1 ? 'active' : ''}`}>
+              <i className="feather icon-filter me-2"></i>Sélection
+            </span>
+          </li>
+          <li className="nav-item">
+            <span className={`nav-link ${step === 2 ? 'active' : ''}`}>
+              <i className="feather icon-users me-2"></i>Attribution
+            </span>
+          </li>
+          <li className="nav-item">
+            <span className={`nav-link ${step === 3 ? 'active' : ''}`}>
+              <i className="feather icon-check-circle me-2"></i>Confirmation
+            </span>
+          </li>
+        </ul>
         <div className="wizard-content">
         {step === 1 && (
-          <div className="wizard-panel">
-            <div className="filters-panel">
-              <div className="filters-header">
-                <h3>Filtres</h3>
-                <DattaButton variant="secondary" size="sm" onClick={resetAllFilters}>
-                  Réinitialiser
-                </DattaButton>
-              </div>
-              <div className="filter-mode-selector"><label>Opérateur de combinaison des filtres de champs:</label><div className="filter-mode-options">
-                <label><input type="radio" name="filterMode" value="all" checked={filterMode === 'all'} onChange={() => { setFilterMode('all'); applyAllFilters(individus); }} />ET</label>
-                <label><input type="radio" name="filterMode" value="any" checked={filterMode === 'any'} onChange={() => { setFilterMode('any'); applyAllFilters(individus); }} />OU</label>
-              </div></div>
-              <FieldFilterCreator />
-              {fieldFilters.length > 0 && <div className="active-field-filters"><h4>Filtres de champs actifs</h4><ul>
-                {fieldFilters.map((filter, index) => <li key={index} className="field-filter-item">
-                  <span className="field-filter-info"><strong>{filter.field.label}</strong> {filter.operator === 'equals' ? 'est égal à' : filter.operator === 'notEquals' ? 'n\'est pas égal à' : filter.operator === 'contains' ? 'contient' : filter.operator === 'startsWith' ? 'commence par' : filter.operator === 'endsWith' ? 'se termine par' : filter.operator === 'greaterThan' ? 'est supérieur à' : filter.operator === 'lessThan' ? 'est inférieur à' : filter.operator === 'empty' ? 'est vide' : filter.operator === 'notEmpty' ? 'n\'est pas vide' : filter.operator} {!['empty', 'notEmpty'].includes(filter.operator) && <span className="filter-value">"{filter.value === true ? 'Oui' : filter.value === false ? 'Non' : filter.value}"</span>}</span>
-                  <button onClick={() => removeFieldFilter(index)} className="btn-remove-filter" title="Supprimer">×</button>
-                </li>)}
-              </ul></div>}
+          <div className="wizard-panel row">
+            <div className="col-md-4">
+              <DattaCard title="Filtres de sélection">
+                <div className="filters-header d-flex justify-content-between">
+                  <h3 className="mb-0">Filtres</h3>
+                  <DattaButton variant="secondary" size="sm" onClick={resetAllFilters}>
+                    Réinitialiser
+                  </DattaButton>
+                </div>
+                <div className="filter-mode-selector"><label>Opérateur de combinaison des filtres de champs:</label><div className="filter-mode-options">
+                  <label><input type="radio" name="filterMode" value="all" checked={filterMode === 'all'} onChange={() => { setFilterMode('all'); applyAllFilters(individus); }} />ET</label>
+                  <label><input type="radio" name="filterMode" value="any" checked={filterMode === 'any'} onChange={() => { setFilterMode('any'); applyAllFilters(individus); }} />OU</label>
+                </div></div>
+                <FieldFilterCreator />
+                {fieldFilters.length > 0 && <div className="active-field-filters"><h4>Filtres de champs actifs</h4><ul>
+                  {fieldFilters.map((filter, index) => <li key={index} className="field-filter-item">
+                    <span className="field-filter-info"><strong>{filter.field.label}</strong> {filter.operator === 'equals' ? 'est égal à' : filter.operator === 'notEquals' ? 'n\'est pas égal à' : filter.operator === 'contains' ? 'contient' : filter.operator === 'startsWith' ? 'commence par' : filter.operator === 'endsWith' ? 'se termine par' : filter.operator === 'greaterThan' ? 'est supérieur à' : filter.operator === 'lessThan' ? 'est inférieur à' : filter.operator === 'empty' ? 'est vide' : filter.operator === 'notEmpty' ? 'n\'est pas vide' : filter.operator} {!['empty', 'notEmpty'].includes(filter.operator) && <span className="filter-value">"{filter.value === true ? 'Oui' : filter.value === false ? 'Non' : filter.value}"</span>}</span>
+                    <button onClick={() => removeFieldFilter(index)} className="btn-remove-filter" title="Supprimer">×</button>
+                  </li>)}
+                </ul></div>}
+              </DattaCard>
             </div>
-            <div className="selection-panel">
-              <div className="stats-panel">
+            <div className="col-md-8">
+              <DattaCard title="Individus disponibles">
+                <div className="stats-panel">
                 <div className="stats-item"><span className="stats-label">Total:</span><span className="stats-value">{stats.total}</span></div>
                 <div className="stats-item"><span className="stats-label">Non assignés:</span><span className="stats-value">{stats.nonAssignes}</span></div>
                 <div className="stats-item"><span className="stats-label">Assignés:</span><span className="stats-value">{stats.assignes}</span></div>
@@ -469,16 +483,14 @@ export default function MassAttribution({ user }) {
               </div>
               <div className="individus-selection">
                 <div className="table-header">
-                  <label className="select-all">
-                    <input
-                      type="checkbox"
-                      className="form-check-input me-2"
-                      checked={selectAll}
-                      onChange={toggleSelectAll}
-                      disabled={filteredIndividus.length === 0}
-                    />
-                    Tout sélectionner ({filteredIndividus.length})
-                  </label>
+                  <DattaCheckbox
+                    id="selectAll"
+                    label={`Tout sélectionner (${filteredIndividus.length})`}
+                    className="select-all"
+                    checked={selectAll}
+                    onChange={toggleSelectAll}
+                    disabled={filteredIndividus.length === 0}
+                  />
                 </div>
                 {loading ? (
                   <div className="loading">Chargement des individus...</div>
@@ -494,9 +506,8 @@ export default function MassAttribution({ user }) {
                   <thead><tr><th style={{ width: '40px' }}></th><th>N° Individu</th><th>En charge</th>{fieldFilters.map((filter, idx) => <th key={idx}>{filter.field.label}</th>)}</tr></thead>
                   <tbody>{filteredIndividus.map(individu => <tr key={individu.id} className={selectedIndividus.includes(individu.id) ? 'selected-row' : ''}>
                     <td>
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
+                      <DattaCheckbox
+                        id={`sel-${individu.id}`}
                         checked={selectedIndividus.includes(individu.id)}
                         onChange={() => toggleIndividuSelection(individu.id)}
                       />
@@ -511,42 +522,40 @@ export default function MassAttribution({ user }) {
                   Continuer ({selectedIndividus.length} sélectionnés)
                 </DattaButton>
               </div>
+              </DattaCard>
             </div>
           </div>
         )}
         {step === 2 && (
           <div className="wizard-panel" style={{flexDirection: 'column'}}>
-            <h3>Définir la distribution pour {selectedIndividus.length} individu(s)</h3>
-            <div className="attribution-form-distribution">
+            <DattaCard title={`Définir la distribution pour ${selectedIndividus.length} individu(s)`}>
+              <div className="attribution-form-distribution">
                 <div className="mb-3 add-user-to-distribution-form">
-                    <label htmlFor="userToAddToDistribution">Utilisateur à ajouter :</label>
-                    <select
-                      id="userToAddToDistribution"
-                      value={currentUserToAdd}
-                      onChange={e => setCurrentUserToAdd(e.target.value)}
-                      className="form-select"
-                    >
-                        <option value="">-- Sélectionner un utilisateur --</option>
-                        {allUsers.filter(u => !distributionList.find(d => d.userId === String(u.id))).map(u => (
-                            <option key={u.id} value={String(u.id)}>{u.username}</option>
-                        ))}
-                    </select>
-                    <label htmlFor="percentageForUser" className="ms-2" style={{marginTop: '10px'}}>Pourcentage d'activité/capacité :</label>
-                    <input
-                      id="percentageForUser"
-                      type="number"
-                      value={currentPercentage}
-                      onChange={e => setCurrentPercentage(e.target.value)}
-                      placeholder="Ex:50"
-                      min="0"
-                      max="100"
-                      className="form-control d-inline-block ms-2 me-2"
-                      style={{ width: '100px' }}
-                    />
-                    %
-                    <DattaButton variant="secondary" className="ms-2" type="button" onClick={handleAddUserToDistribution}>
-                      Ajouter à la distribution
-                    </DattaButton>
+                  <DattaSelect
+                    id="userToAddToDistribution"
+                    label="Utilisateur à ajouter"
+                    value={currentUserToAdd}
+                    onChange={e => setCurrentUserToAdd(e.target.value)}
+                    options={[
+                      { value: '', label: '-- Sélectionner un utilisateur --' },
+                      ...allUsers
+                        .filter(u => !distributionList.find(d => d.userId === String(u.id)))
+                        .map(u => ({ value: String(u.id), label: u.username }))
+                    ]}
+                  />
+                  <DattaTextField
+                    id="percentageForUser"
+                    label="Pourcentage d'activité/capacité"
+                    type="number"
+                    value={currentPercentage}
+                    onChange={e => setCurrentPercentage(e.target.value)}
+                    placeholder="Ex:50"
+                    min="0"
+                    max="100"
+                  />
+                  <DattaButton variant="secondary" type="button" onClick={handleAddUserToDistribution}>
+                    Ajouter à la distribution
+                  </DattaButton>
                 </div>
 
                 {distributionList.length > 0 && (
@@ -611,6 +620,7 @@ export default function MassAttribution({ user }) {
                 {loading ? 'Attribution en cours...' : 'Attribuer les individus'}
               </DattaButton>
             </div>
+          </DattaCard>
           </div>
         )}
         {step === 3 && (
