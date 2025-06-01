@@ -219,6 +219,8 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                         </div>
                       </div>
                     )}
+                </div>
+              )}
             </div>
           </div>
         </div>
