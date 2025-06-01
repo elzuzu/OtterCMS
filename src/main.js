@@ -520,6 +520,17 @@ ipcMain.handle('init-database', async (event) => {
     }
     db = initializeDatabaseSync();
     initPreparedStatements();
+    configService = new ConfigService(db);
+    if (configService) {
+      configService.on('border-template-changed', (tpl) => {
+        applyBorderTemplateToAllWindows(tpl);
+        BrowserWindow.getAllWindows().forEach(win => {
+          if (win && !win.isDestroyed()) {
+            win.webContents.send('border-template-changed', tpl);
+          }
+        });
+      });
+    }
     return { success: true, message: 'Database initialized successfully' };
   } catch (error) {
     logError('init-database IPC', error);
