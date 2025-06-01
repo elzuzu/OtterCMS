@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { PERMISSIONS } from '../constants/permissions';
 import DattaButton from './common/DattaButton';
+import DattaModal from './common/DattaModal';
 import { hasPermission } from '../utils/permissions';
 import { evaluateDynamicField } from '../utils/dynamic';
 import HistoryChartModal from './common/HistoryChartModal';
@@ -327,47 +328,59 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
 
   if (loadingData) {
     return (
-      <div className="fiche-individu-modal">
-        <div className="modal-content modal-content-centered">
-          <div className="loader"></div>
-          <p>Chargement des données de l'individu...</p>
+      <DattaModal open onClose={onClose} title="Chargement">
+        <div className="text-center py-4">
+          <div className="loader mb-2"></div>
+          Chargement des données de l'individu...
         </div>
-      </div>
+      </DattaModal>
     );
   }
 
   if (!individu) {
     return (
-      <div className="fiche-individu-modal">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h2>Erreur</h2>
-            <DattaButton onClick={onClose} variant="link" size="sm" className="close-button">
-              <i className="feather icon-x-circle" />
-            </DattaButton>
-          </div>
-          <div className="modal-body">
-            <p>{message || "Impossible de charger les informations de l'individu."}</p>
-          </div>
-        </div>
-      </div>
+      <DattaModal open onClose={onClose} title="Erreur">
+        <p>{message || "Impossible de charger les informations de l'individu."}</p>
+      </DattaModal>
     );
   }
 
+  const footerContent = (
+    <>
+      {onglet !== 'historique' && (
+        enEdition ? (
+          <>
+            <DattaButton onClick={handleEnregistrement} variant="primary" size="sm" disabled={saving}>
+              <i className="feather icon-save me-1" /> {saving ? 'Enregistrement...' : 'Enregistrer'}
+            </DattaButton>
+            <DattaButton onClick={handleCancelEdit} variant="secondary" size="sm" disabled={saving}>
+              <i className="feather icon-x-circle me-1" /> Annuler
+            </DattaButton>
+          </>
+        ) : (
+          userCanEdit() && (
+            <DattaButton onClick={() => setEnEdition(true)} variant="primary" size="sm">
+              <i className="feather icon-edit me-1" /> Modifier
+            </DattaButton>
+          )
+        )
+      )}
+      <DattaButton onClick={onClose} variant="secondary" size="sm" disabled={saving}>
+        <i className="feather icon-x-circle me-1" /> Fermer
+      </DattaButton>
+    </>
+  );
+
   return (
     <>
-    <div className="fiche-individu-modal">
-      <div className="modal-content modal-content-large">
-        <div className="modal-header">
-          <h2>
-            <i className="feather icon-file-text me-2" />
-            Fiche de l'individu : {individu.numero_unique || individu.id}
-          </h2>
-          <DattaButton onClick={onClose} variant="link" size="sm" className="close-button" aria-label="Fermer">
-            <i className="feather icon-x-circle" />
-          </DattaButton>
-        </div>
-
+      <DattaModal
+        open
+        onClose={onClose}
+        title={`Fiche de l'individu : ${individu.numero_unique || individu.id}`}
+        size="xl"
+        scrollable
+        footer={footerContent}
+      >
         {message && (
           <div className={`form-message message-${messageType}`}>
             {messageType === 'error' && <i className="feather icon-alert-circle me-2" />}
@@ -559,56 +572,12 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             </div>
           )}
         </div>
-
-        <div className="modal-footer">
-          {onglet !== 'historique' && (
-            enEdition ? (
-              <>
-                <DattaButton onClick={handleEnregistrement} variant="primary" size="sm" disabled={saving}>
-                  <i className="feather icon-save me-1" /> {saving ? 'Enregistrement...' : 'Enregistrer'}
-                </DattaButton>
-                <DattaButton onClick={handleCancelEdit} variant="secondary" size="sm" disabled={saving}>
-                  <i className="feather icon-x-circle me-1" /> Annuler
-                </DattaButton>
-              </>
-            ) : (
-              userCanEdit() && (
-                <DattaButton onClick={() => setEnEdition(true)} variant="primary" size="sm">
-                  <i className="feather icon-edit me-1" /> Modifier
-                </DattaButton>
-              )
-            )
-          )}
-          <DattaButton onClick={onClose} variant="secondary" size="sm" disabled={saving}>
-            <i className="feather icon-x-circle me-1" /> Fermer
-          </DattaButton>
-        </div>
-      </div>
+      </DattaModal>
+      {chartField && (
+        <HistoryChartModal label={chartField.champ.label} dataByYear={chartField.data} onClose={closeChart} />
+      )}
 
       <style jsx>{`
-        .fiche-individu-modal {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: var(--pc-overlay-bg);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-          padding: 10px;
-        }
-
-        .modal-content-large {
-          width: 95% !important;
-          max-width: 1400px !important;
-          height: 90vh !important;
-          max-height: 90vh !important;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
 
         .info-grid-compact {
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
@@ -776,45 +745,6 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           border-radius: 4px;
         }
 
-        .button-primary, .button-secondary {
-          padding: 8px 16px !important;
-          font-size: 0.9em !important;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .button-primary {
-          background: var(--current-primary-color);
-          color: var(--current-text-on-primary-color);
-          border: 1px solid var(--current-primary-color);
-        }
-
-        .button-primary:hover:not(:disabled) {
-          background: var(--current-primary-color-hover);
-        }
-
-        .button-secondary {
-          background: var(--current-secondary-color);
-          color: var(--current-text-on-primary-color);
-          border: 1px solid var(--current-secondary-color);
-        }
-
-        .button-secondary:hover:not(:disabled) {
-          background: var(--current-secondary-color-hover);
-        }
-
-        .close-button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: var(--current-text-secondary);
-          transition: color 0.2s ease;
-        }
-
-        .close-button:hover {
-          color: var(--current-danger-color);
-        }
 
         .form-message {
           padding: 8px 12px;
@@ -852,11 +782,6 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
         }
 
         @media (max-width: 768px) {
-          .modal-content-large {
-            width: 98% !important;
-            height: 95vh !important;
-          }
-          
           .info-grid-compact {
             grid-template-columns: 1fr !important;
           }
@@ -874,7 +799,6 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           }
         }
       `}</style>
-    </div>
     {chartField && (
       <HistoryChartModal label={chartField.champ.label} dataByYear={chartField.data} onClose={closeChart} />
     )}
