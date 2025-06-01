@@ -144,7 +144,17 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
         header: 'En charge',
         sortable: true,
         filterable: true,
-        render: ind => getUserNameForDisplay(ind.en_charge, ind),
+        render: ind => ind.en_charge ? (
+          <span className="badge bg-success">
+            <i className="feather icon-user me-1"></i>
+            {getUserName(ind.en_charge, ind)}
+          </span>
+        ) : (
+          <span className="badge bg-warning">
+            <i className="feather icon-user-x me-1"></i>
+            Non assigné
+          </span>
+        ),
       },
     ];
     colonnesAffichees.forEach(key => {
@@ -413,6 +423,19 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           </DattaButton>
         }
       >
+        <div className="row mb-4">
+          <div className="col-md-3">
+            <div className="d-flex align-items-center p-3 bg-light-primary rounded">
+              <div className="avtar avtar-s bg-primary me-3">
+                <i className="feather icon-database"></i>
+              </div>
+              <div>
+                <h6 className="mb-0">Total</h6>
+                <p className="mb-0 text-primary fw-bold">{individus.length}</p>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="mb-3 text-muted small">
           <strong>Mode d'affichage:</strong> {viewMode === 'mine' ? 'Mes individus' : 'Tous les individus'} |
           <strong className="ms-1">Individus affichés:</strong> {filteredIndividus.length}

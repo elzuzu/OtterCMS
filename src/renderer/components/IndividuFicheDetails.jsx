@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import DattaPageTitle from './common/DattaPageTitle';
 import DattaCard from './common/DattaCard';
 import DattaButton from './common/DattaButton';
+import { formatDateToDDMMYYYY } from '../utils/date';
 
 export default function IndividuFicheDetails({ individuId, onClose }) {
   const [individu, setIndividu] = useState(null);
@@ -50,18 +50,50 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
     return key;
   };
 
-  const renderField = (label, value, full = false) => (
-    <div className={`col-md-${full ? '12' : '6'} mb-3`}>
-      <strong className="form-label">{label} :</strong>
-      <p className="text-muted ms-1 mb-0">
-        {value !== undefined && value !== null && value !== '' ? (
-          String(value)
-        ) : (
-          <span className="fst-italic">Non renseigné</span>
-        )}
-      </p>
-    </div>
-  );
+  const renderField = (label, value, type = 'text', full = false) => {
+    let display;
+    if (type === 'boolean') {
+      display = value ? (
+        <span className="badge bg-success">
+          <i className="feather icon-check me-1"></i>Oui
+        </span>
+      ) : (
+        <span className="badge bg-danger">
+          <i className="feather icon-x me-1"></i>Non
+        </span>
+      );
+    } else if (type === 'date') {
+      const formatted = formatDateToDDMMYYYY(value);
+      display = formatted ? (
+        <span className="text-info">
+          <i className="feather icon-calendar me-1"></i>
+          {formatted}
+        </span>
+      ) : (
+        <span className="fst-italic text-muted">Non renseigné</span>
+      );
+    } else {
+      display = value !== undefined && value !== null && value !== '' ? (
+        String(value)
+      ) : (
+        <span className="fst-italic text-muted">Non renseigné</span>
+      );
+    }
+
+    return (
+      <div className={`col-md-${full ? '12' : '6'} mb-3`}>
+        <div className="d-flex align-items-center p-3 border rounded">
+          <div className="avtar avtar-s bg-light-primary me-3">
+            <i className="feather icon-hash"></i>
+          </div>
+          <div>
+            <h6 className="mb-0">{label}</h6>
+            <p className="mb-0">{display}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderSectionTitle = (title) => (
     <div className="col-12 mt-4 mb-2">
@@ -81,11 +113,11 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
 
   return (
     <>
-    <div className="modal-content modal-content-large">
+    <div className="modal-content">
       <div className="modal-header">
         <h2 className="mb-0">Fiche Individu : {individu.numero_unique || individu.id}</h2>
       </div>
-      <div className="modal-body" style={{ overflowY: 'auto' }}>
+      <div className="modal-body">
         <DattaCard
           className="mb-0"
           actions={
@@ -112,7 +144,7 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
                       className={`nav-link ${activeCat === cat.id ? 'active' : ''}`}
                       onClick={() => setActiveCat(cat.id)}
                     >
-                      {cat.nom}
+                      <i className="feather icon-folder me-2"></i>{cat.nom}
                     </button>
                   </li>
                 );
@@ -129,7 +161,12 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
                   >
                     <div className="row">
                       {visible.map(ch =>
-                        renderField(getFieldLabel(ch.key), extra[ch.key], false)
+                        renderField(
+                          getFieldLabel(ch.key),
+                          extra[ch.key],
+                          ch.type,
+                          false
+                        )
                       )}
                     </div>
                   </div>
@@ -141,17 +178,6 @@ export default function IndividuFicheDetails({ individuId, onClose }) {
         </DattaCard>
       </div>
     </div>
-    <style jsx>{`
-      .modal-content-large {
-        width: 95% !important;
-        max-width: 1400px !important;
-        height: 90vh !important;
-        max-height: 90vh !important;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-      }
-    `}</style>
     </>
   );
 }
