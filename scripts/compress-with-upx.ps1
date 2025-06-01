@@ -1,8 +1,8 @@
-﻿# Script simple de build avec @electron/packager
 param(
-    [switch]$Clean = $true,
-    [switch]$SkipUPX = $false,
-    [int]$UPXLevel = 9
+    [string]$BuildPath = "release-builds",
+    [int]$CompressionLevel = 9,
+    [switch]$Verbose = $false,
+    [switch]$Backup = $false
 )
 
 $Red = [System.ConsoleColor]::Red
@@ -44,7 +44,7 @@ function Invoke-UPXCompression {
     $compressed = 0
     $totalSavings = 0
 
-    $searchPaths = @($BuildPath, "out", "dist")
+    $searchPaths = @($BuildPath)
 
     foreach ($searchPath in $searchPaths) {
         if (Test-Path $searchPath) {
@@ -56,6 +56,11 @@ function Invoke-UPXCompression {
                           }
 
             foreach ($exe in $executables) {
+                if ($Backup) {
+                    $backupPath = $exe.FullName + '.pre-upx-backup'
+                    Copy-Item $exe.FullName $backupPath -Force
+                }
+
                 $originalSize = $exe.Length
                 $originalSizeMB = [math]::Round($originalSize / 1MB, 2)
 
@@ -65,7 +70,6 @@ function Invoke-UPXCompression {
                 }
 
                 Write-ColorText "   🗜️ Compression de $($exe.Name) ($originalSizeMB MB)..." $Cyan
-
                 try {
                     $upxArgs = @(
                         "-$CompressionLevel",
@@ -74,16 +78,14 @@ function Invoke-UPXCompression {
                         "--strip-relocs=0",
                         $exe.FullName
                     )
-
+                    if (-not $Verbose) { $upxArgs += "--quiet" }
                     & $upxPath @upxArgs 2>&1 | Out-Null
-
                     if ($LASTEXITCODE -eq 0) {
                         $newSize = (Get-Item $exe.FullName).Length
                         $newSizeMB = [math]::Round($newSize / 1MB, 2)
                         $reduction = [math]::Round((1 - $newSize / $originalSize) * 100, 1)
                         $totalSavings += $originalSize - $newSize
                         $compressed++
-
                         Write-ColorText "   ✅ $($exe.Name): $originalSizeMB MB → $newSizeMB MB (-$reduction%)" $Green
                     } else {
                         Write-ColorText "   ⚠️ Compression échouée pour $($exe.Name)" $Red
@@ -105,44 +107,6 @@ function Invoke-UPXCompression {
     }
 }
 
-$projectRoot = Split-Path -Parent $PSScriptRoot
-Write-Host "🚀 Build simple - Projet: $projectRoot" -ForegroundColor Cyan
-
-Push-Location $projectRoot
-
-try {
-    if ($Clean) {
-        Write-Host "`n🧹 Nettoyage rapide..." -ForegroundColor Yellow
-        Get-Process node*, electron* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-        @("release-builds") | ForEach-Object { if (Test-Path $_) { Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue } }
-    }
-    if (-not (Test-Path "node_modules/@electron/packager")) {
-        npm install --save-dev @electron/packager
-        if ($LASTEXITCODE -ne 0) { throw "Installation de @electron/packager echouée" }
-    }
-    npx electron-packager . "Indi-Suivi" --platform=win32 --arch=x64 --out=release-builds --overwrite --icon="src/assets/app-icon.ico"
-    if ($LASTEXITCODE -eq 0) {
-        Write-ColorText "`n✅ Build simple terminé" $Green
-        # Compression UPX améliorée
-        if (-not $SkipUPX) {
-            Write-ColorText "🗜️ Compression UPX des exécutables..." $Yellow
-            $upxSuccess = Invoke-UPXCompression -BuildPath "release-builds" -CompressionLevel $UPXLevel
-            if ($upxSuccess) {
-                Write-ColorText "✅ Compression UPX terminée avec succès" $Green
-            } else {
-                Write-ColorText "⚠️ Compression UPX ignorée ou échouée" $Yellow
-            }
-        } else {
-            Write-ColorText "⏭️ Compression UPX ignorée (paramètre -SkipUPX)" $Gray
-        }
-    } else {
-        throw "Le build simple a échoué"
-    }
-}
-catch {
-    Write-Host "`n❌ Erreur: $_" -ForegroundColor Red
-    exit 1
-}
-finally {
-    Pop-Location
-}
+Push-Location (Split-Path -Parent $PSScriptRoot)
+Invoke-UPXCompression -BuildPath $BuildPath -CompressionLevel $CompressionLevel -Verbose:$Verbose
+Pop-Location

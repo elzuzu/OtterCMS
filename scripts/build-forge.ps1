@@ -1,11 +1,115 @@
 ﻿# Script alternatif avec Electron Forge
 param(
     [switch]$Clean = $true,
-    [switch]$Verbose = $false
+    [switch]$Verbose = $false,
+    [switch]$SkipUPX = $false,
+[int]$UPXLevel = 9
 )
 
+$Red = [System.ConsoleColor]::Red
+$Green = [System.ConsoleColor]::Green
+$Yellow = [System.ConsoleColor]::Yellow
+$Cyan = [System.ConsoleColor]::Cyan
+$Gray = [System.ConsoleColor]::Gray
+
+function Write-ColorText($Text, $Color) {
+    $currentColor = $Host.UI.RawUI.ForegroundColor
+    $Host.UI.RawUI.ForegroundColor = $Color
+    Write-Host $Text
+    $Host.UI.RawUI.ForegroundColor = $currentColor
+}
+
+# Fonction UPX améliorée
+function Invoke-UPXCompression {
+    param(
+        [string]$BuildPath = "release-builds",
+        [int]$CompressionLevel = 9,
+        [switch]$Verbose = $false
+    )
+
+    $upxPath = 'D:\tools\upx\upx.exe'
+
+    if (-not (Test-Path $upxPath)) {
+        Write-ColorText "ℹ️ UPX non trouvé à $upxPath - compression ignorée" $Gray
+        return $false
+    }
+
+    try {
+        $upxVersion = & $upxPath --version 2>&1 | Select-Object -First 1
+        Write-ColorText "🗜️ Compression UPX ($upxVersion)..." $Yellow
+    } catch {
+        Write-ColorText "⚠️ UPX non fonctionnel - compression ignorée" $Yellow
+        return $false
+    }
+
+    $compressed = 0
+    $totalSavings = 0
+
+    $searchPaths = @($BuildPath, "out", "dist")
+
+    foreach ($searchPath in $searchPaths) {
+        if (Test-Path $searchPath) {
+            $executables = Get-ChildItem -Path $searchPath -Recurse -Filter "*.exe" |
+                          Where-Object {
+                              $_.Name -like "*Indi-Suivi*" -or
+                              $_.Name -like "*indi-suivi*" -or
+                              ($_.Directory.Name -eq "win-unpacked" -and $_.Name -eq "Indi-Suivi.exe")
+                          }
+
+            foreach ($exe in $executables) {
+                $originalSize = $exe.Length
+                $originalSizeMB = [math]::Round($originalSize / 1MB, 2)
+
+                if ($originalSizeMB -lt 1 -or $originalSizeMB -gt 150) {
+                    Write-ColorText "   ⏭️ $($exe.Name) ignoré (taille: $originalSizeMB MB)" $Gray
+                    continue
+                }
+
+                Write-ColorText "   🗜️ Compression de $($exe.Name) ($originalSizeMB MB)..." $Cyan
+
+                try {
+                    $upxArgs = @(
+                        "-$CompressionLevel",
+                        "--best",
+                        "--compress-icons=0",
+                        "--strip-relocs=0",
+                        $exe.FullName
+                    )
+
+                    if (-not $Verbose) { $upxArgs += "--quiet" }
+
+                    & $upxPath @upxArgs 2>&1 | Out-Null
+
+                    if ($LASTEXITCODE -eq 0) {
+                        $newSize = (Get-Item $exe.FullName).Length
+                        $newSizeMB = [math]::Round($newSize / 1MB, 2)
+                        $reduction = [math]::Round((1 - $newSize / $originalSize) * 100, 1)
+                        $totalSavings += $originalSize - $newSize
+                        $compressed++
+
+                        Write-ColorText "   ✅ $($exe.Name): $originalSizeMB MB → $newSizeMB MB (-$reduction%)" $Green
+                    } else {
+                        Write-ColorText "   ⚠️ Compression échouée pour $($exe.Name)" $Red
+                    }
+                } catch {
+                    Write-ColorText "   ❌ Erreur compression $($exe.Name): $($_.Exception.Message)" $Red
+                }
+            }
+        }
+    }
+
+    if ($compressed -gt 0) {
+        $totalSavingsMB = [math]::Round($totalSavings / 1MB, 2)
+        Write-ColorText "📊 Compression UPX terminée: $compressed fichier(s), économie: $totalSavingsMB MB" $Green
+        return $true
+    } else {
+        Write-ColorText "ℹ️ Aucun fichier compressé" $Gray
+        return $false
+    }
+}
+
 $projectRoot = Split-Path -Parent $PSScriptRoot
-Write-Host "🚀 Build avec Electron Forge - Projet: $projectRoot" -ForegroundColor Cyan
+Write-ColorText "🚀 Build avec Electron Forge - Projet: $projectRoot" $Cyan
 
 Push-Location $projectRoot
 
@@ -111,19 +215,17 @@ module.exports = {
     npx electron-forge make
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n✅ Build Forge terminé avec succès!" -ForegroundColor Green
-        $upxPath = 'D:\\tools\\upx\\upx.exe'
-        if (Test-Path $upxPath) {
-            Write-Host "🗜️ Compression UPX des exécutables..." -ForegroundColor Yellow
-            Get-ChildItem -Path "out" -Recurse -Filter *.exe | ForEach-Object {
-                & $upxPath -9 $_.FullName | Out-Null
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "   ✓ $($_.Name) compressé" -ForegroundColor Green
-                } else {
-                    Write-Host "   ⚠️ Compression échouée pour $($_.Name)" -ForegroundColor Red
-                }
+        # Compression UPX améliorée
+        if (-not $SkipUPX) {
+            Write-ColorText "🗜️ Compression UPX des exécutables..." $Yellow
+            $upxSuccess = Invoke-UPXCompression -BuildPath "out" -CompressionLevel $UPXLevel -Verbose:$Verbose
+            if ($upxSuccess) {
+                Write-ColorText "✅ Compression UPX terminée avec succès" $Green
+            } else {
+                Write-ColorText "⚠️ Compression UPX ignorée ou échouée" $Yellow
             }
         } else {
-            Write-Host "ℹ️ UPX non trouvé à $upxPath - compression ignorée" -ForegroundColor Gray
+            Write-ColorText "⏭️ Compression UPX ignorée (paramètre -SkipUPX)" $Gray
         }
         if (Test-Path "out") {
             Write-Host "`n📊 Fichiers générés:" -ForegroundColor Yellow

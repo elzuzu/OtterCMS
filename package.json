@@ -35,6 +35,12 @@
     "build-optimized": "node scripts/build-optimized.js",
     "dist:final": "npm run build-optimized",
     "build:ultra": "pwsh scripts/build-ultra-optimized.ps1",
+    "compress": "powershell -ExecutionPolicy Bypass -File scripts/compress-with-upx.ps1",
+    "compress-max": "powershell -ExecutionPolicy Bypass -File scripts/compress-with-upx.ps1 -CompressionLevel 9 -Backup",
+    "compress-safe": "powershell -ExecutionPolicy Bypass -File scripts/compress-with-upx.ps1 -CompressionLevel 6",
+    "build-compressed": "npm run build && npm run compress",
+    "dist-compressed": "npm run dist && npm run compress",
+    "build-ultra-small": "powershell -ExecutionPolicy Bypass -File scripts/build-ultra-optimized.ps1",
     "analyze:size": "node scripts/analyze-app.js"
   },
   "keywords": [
