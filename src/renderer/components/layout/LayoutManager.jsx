@@ -87,7 +87,30 @@ export default function LayoutManager({
         <div className="navbar-wrapper">
           <div className="m-header">
             <a href="#" className="b-brand text-primary" onClick={handleToggleSidebar}>
-              <i className="ph-duotone ph-buildings f-26"></i>
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 64 64"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="me-2"
+                style={{ flexShrink: 0 }}
+              >
+                <circle cx="32" cy="20" r="9" />
+                <circle cx="25" cy="12" r="3" />
+                <circle cx="39" cy="12" r="3" />
+                <circle cx="28" cy="18" r="1.5" fill="currentColor" />
+                <circle cx="36" cy="18" r="1.5" fill="currentColor" />
+                <path d="M30 24 Q32 25 34 24" />
+                <path d="M20 32 Q16 48 32 54 Q48 48 44 32" />
+                <path d="M26 36 Q32 33 38 36" />
+              </svg>
+              <span className="b-brand-text d-sm-block fw-medium">
+                {title || 'Indi-Suivi'}
+              </span>
               <span className="badge bg-brand-color-3 rounded-pill ms-2">v2.0</span>
             </a>
           </div>
