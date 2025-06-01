@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DattaDataTable from './common/DattaDataTable';
 import DattaButton from './common/DattaButton';
+import DattaCard from './common/DattaCard';
+import DattaAlert from './common/DattaAlert';
 import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminUsers() {
@@ -137,21 +139,19 @@ export default function AdminUsers() {
   );
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <h5 className="mb-0">Gestion des utilisateurs</h5>
-      </div>
+    <>
       {message && (
-        <div className={message.includes('succès') ? 'success' : 'error'}>
+        <DattaAlert
+          type={message.includes('succès') ? 'success' : 'danger'}
+          className="mb-3"
+        >
           {message}
-        </div>
+        </DattaAlert>
       )}
-      <div className="user-form card">
-        <div className="card-header">
-          <h5>{editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}</h5>
-        </div>
-        <div className="card-body">
-          <form onSubmit={handleSubmit}>
+      <div className="row">
+        <div className="col-xl-4 col-md-12">
+          <DattaCard title={editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}>
+            <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label>Nom d'utilisateur:</label>
             <input
@@ -208,70 +208,77 @@ export default function AdminUsers() {
               </DattaButton>
             )}
           </div>
-        </form>
+            </form>
+          </DattaCard>
+        </div>
+        <div className="col-xl-8 col-md-12">
+          <DattaCard
+            title={`Liste des utilisateurs (${filteredUsers.length})`}
+            actions={(
+              <input
+                type="text"
+                placeholder="🔍 Rechercher..."
+                value={filter}
+                onChange={e => setFilter(e.target.value)}
+                className="form-control form-control-sm"
+              />
+            )}
+          >
+            {loading && <div className="loading">Chargement...</div>}
+            {!loading && filteredUsers.length === 0 ? (
+              <div className="text-muted">Aucun utilisateur trouvé.</div>
+            ) : (
+              <DattaDataTable
+                data={filteredUsers}
+                getRowKey={u => u.id}
+                columns={[
+                  { header: 'Utilisateur', accessor: 'username' },
+                  {
+                    header: 'Rôle',
+                    render: u => (
+                      <span className={`badge bg-${u.role === 'admin' ? 'danger' : 'primary'}`}>{u.role}</span>
+                    )
+                  },
+                  {
+                    header: 'Statut',
+                    render: u =>
+                      u.windows_login ? (
+                        <span className="badge bg-success">Windows</span>
+                      ) : (
+                        <span className="badge bg-secondary">Local</span>
+                      )
+                  },
+                  {
+                    header: 'Actions',
+                    thStyle: { textAlign: 'center', width: '80px' },
+                    tdStyle: { textAlign: 'center', width: '80px' },
+                    render: u => (
+                      <>
+                        <DattaButton
+                          onClick={() => startEditing(u)}
+                          variant="light-primary"
+                          size="sm"
+                          title="Modifier"
+                        >
+                          <i className="feather icon-edit"></i>
+                        </DattaButton>
+                        <DattaButton
+                          onClick={() => deleteUser(u.id)}
+                          variant="light-danger"
+                          size="sm"
+                          title="Supprimer"
+                        >
+                          <i className="feather icon-trash-2"></i>
+                        </DattaButton>
+                      </>
+                    )
+                  }
+                ]}
+              />
+            )}
+          </DattaCard>
         </div>
       </div>
-
-      <div className="card">
-        <div className="card-body">
-      <div className="actions-bar">
-        <div className="search-container" style={{ position: 'relative' }}>
-          <input
-            type="text"
-            placeholder="🔍 Rechercher un utilisateur..."
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            className="search-input"
-            style={{ paddingLeft: 'var(--spacing-3)' }}
-          />
-        </div>
-      </div>
-
-      <h3>Liste des utilisateurs ({filteredUsers.length})</h3>
-      {loading && <div className="loading">Chargement...</div>}
-      {!loading && filteredUsers.length === 0 ? (
-        <div className="no-data-message">Aucun utilisateur trouvé.</div>
-      ) : (
-        <DattaDataTable
-          data={filteredUsers}
-          getRowKey={u => u.id}
-          columns={[
-            { header: 'ID', accessor: 'id' },
-            { header: "Nom d'utilisateur", accessor: 'username' },
-            { header: 'Rôle', accessor: 'role' },
-            { header: 'Login Windows', accessor: 'windows_login', render: u => u.windows_login || '-' },
-            {
-              header: 'Actions',
-              thStyle: { textAlign: 'center', width: '80px' },
-              tdStyle: { textAlign: 'center', width: '80px' },
-              render: u => (
-                <>
-                  <DattaButton
-                    onClick={() => startEditing(u)}
-                    variant="secondary"
-                    size="sm"
-                    className="btn"
-                    aria-label="Éditer l'utilisateur"
-                  >
-                    <EditIcon />
-                  </DattaButton>
-                  <DattaButton
-                    onClick={() => deleteUser(u.id)}
-                    variant="danger"
-                    size="sm"
-                    className="btn"
-                    aria-label="Supprimer l'utilisateur"
-                  >
-                    <TrashIcon />
-                  </DattaButton>
-                </>
-              )
-            }
-          ]}
-        />
-      )}
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
