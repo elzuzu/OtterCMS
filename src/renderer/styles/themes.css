@@ -136,12 +136,6 @@
 .layout-light { background-color: var(--pc-bg-color); }
 
 /* === Application border styles === */
-body {
-  border: var(--app-border-width) var(--app-border-style) var(--app-border-color);
-  box-shadow: var(--app-border-glow);
-  transition: var(--app-border-transition);
-}
-
 .pc-container {
   transition: var(--app-border-transition);
 }

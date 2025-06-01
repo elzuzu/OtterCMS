@@ -17,6 +17,20 @@ if (!isDev) {
   }
 }
 const bcrypt = require('bcryptjs');
+// Chargement de ffi-napi pour la gestion des bordures natives Windows
+let ffi, ref, dwmapi;
+if (process.platform === 'win32') {
+  try {
+    ffi = require('ffi-napi');
+    ref = require('ref-napi');
+    dwmapi = ffi.Library('dwmapi', {
+      DwmSetWindowAttribute: ['long', ['long', 'uint32', 'pointer', 'uint32']]
+    });
+  } catch (err) {
+    console.error('Erreur chargement ffi/ref ou dwmapi:', err.message);
+    dwmapi = null;
+  }
+}
 // Better-sqlite3 avec gestion d'erreur pour l'app packagée
 let Database;
 try {
@@ -99,12 +113,36 @@ const preparedStatements = {};
 // Global configuration service
 let configService;
 
+// Applique une bordure native sous Windows via DWM
+function applyWindowsBorder(win, template) {
+  if (process.platform !== 'win32' || !dwmapi || !win || win.isDestroyed()) return;
+  try {
+    const hwnd = win.getNativeWindowHandle().readInt32LE();
+    let colorValue = 0;
+    if (template && template.color && template.color !== 'transparent') {
+      const hex = template.color.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      colorValue = (b << 16) | (g << 8) | r; // format BGR
+    }
+    const colorBuffer = ref.alloc('uint32', colorValue);
+    dwmapi.DwmSetWindowAttribute(hwnd, 35, colorBuffer, 4);
+    console.log(`Bordure Windows appliquée: ${template.color} -> ${colorValue}`);
+  } catch (err) {
+    logError('applyWindowsBorder', err);
+  }
+}
+
 function applyBorderTemplateToWindow(win, template) {
   if (!win || win.isDestroyed()) return;
   try {
     const color = template && template.color ? template.color : '#ffffff';
     const bgColor = color === 'transparent' ? '#00000000' : color;
     win.setBackgroundColor(bgColor);
+    if (process.platform === 'win32') {
+      applyWindowsBorder(win, template);
+    }
     if (process.platform === 'darwin') {
       try { win.setVibrancy('appearance-based'); } catch (_) {}
     }
@@ -119,6 +157,39 @@ function applyBorderTemplateToAllWindows(template) {
       applyBorderTemplateToWindow(win, template);
     }
   });
+}
+
+function debugWindowsBorder(win, template) {
+  if (process.platform !== 'win32') {
+    console.log('\u274c Pas sur Windows, bordure native non disponible');
+    return;
+  }
+  if (!dwmapi) {
+    console.log('\u274c API DWM non disponible (ffi-napi manquant?)');
+    return;
+  }
+  if (!win || win.isDestroyed()) {
+    console.log('\u274c Fenetre invalide');
+    return;
+  }
+  console.log('\u2705 Conditions OK pour bordure Windows');
+  console.log('Template:', template);
+  console.log('Couleur:', template?.color);
+  console.log('Frame activé:', !win.frameless);
+}
+
+function testBorderTemplate() {
+  const testTemplate = {
+    name: 'Test',
+    color: '#00ff00',
+    width: '2px'
+  };
+
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    debugWindowsBorder(win, testTemplate);
+    applyBorderTemplateToWindow(win, testTemplate);
+  }
 }
 
 // Path and helpers for per-user settings
@@ -1801,8 +1872,13 @@ async function createWindow () {
   const win = new BrowserWindow({
     width: 1366,
     height: 768,
-    frame: false,
+    frame: true,
     titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#ffffff',
+      symbolColor: '#000000',
+      height: 30
+    },
     // Fond clair par défaut
     backgroundColor: '#f4f7fa',
     autoHideMenuBar: true,
@@ -1917,5 +1993,10 @@ ipcMain.handle('apply-border-template', async (_event, templateData) => {
     logError('apply-border-template', err);
     return { success: false, error: err.message };
   }
+});
+
+ipcMain.handle('debug-border', () => {
+  testBorderTemplate();
+  return 'Border debug executed';
 });
 
