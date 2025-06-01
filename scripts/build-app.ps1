@@ -222,6 +222,11 @@ module.exports = { Logger };
         if ($LASTEXITCODE -ne 0) {
             throw "Échec de l'installation des dépendances (code: $LASTEXITCODE)"
         }
+        Write-ColorText "   🔧 Configuration des dépendances natives..." $Yellow
+        npm run setup-native-deps
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   ⚠️ Setup des dépendances natives échoué, mais on continue..." $Yellow
+        }
         Write-ColorText "✅ Dépendances installées" $Green
     }
     
