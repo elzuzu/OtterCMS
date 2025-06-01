@@ -149,11 +149,9 @@ try {
         throw "Node.js n'est pas installé ou n'est pas dans le PATH"
     }
 
-    # Vérifier Visual Studio Build Tools pour les modules natifs
+    # Vérifier Visual Studio Build Tools (optionnel)
     if (-not (Test-VSBuildTools)) {
-        Write-ColorText "   ❌ Visual Studio Build Tools (Desktop development with C++) est requis" $Red
-        Write-ColorText "   Téléchargez-les depuis https://aka.ms/vsbuildtools" $Red
-        throw "Outils Visual Studio manquants"
+        Write-ColorText "   ⚠️ Visual Studio Build Tools non détectés - certains modules natifs pourraient ne pas se compiler" $Yellow
     } else {
         Write-ColorText "   ✓ Outils Visual Studio détectés" $Green
     }
