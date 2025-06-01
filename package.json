@@ -61,7 +61,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^11.10.0",
-    "win32-api": "^1.5.0",
+    "win32-api": "26.1.2",
     "chart.js": "^4.4.9",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2",
