@@ -99,11 +99,6 @@ class BorderTemplateService {
   applyTemplate(template) {
     if (!template) template = this.getDefaultTemplate();
     if (document.body) document.body.classList.add('border-changing');
-    const root = document.documentElement;
-    root.style.setProperty('--app-border-width', template.width || '0px');
-    root.style.setProperty('--app-border-color', template.color || 'transparent');
-    root.style.setProperty('--app-border-style', 'solid');
-    root.style.setProperty('--app-border-glow', template.glow || 'none');
     if (window.api && window.api.applyBorderTemplate) {
       try { window.api.applyBorderTemplate(template); } catch (e) { console.error('apply border template ipc', e); }
     }
