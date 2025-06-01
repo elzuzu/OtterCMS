@@ -34,8 +34,9 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 
 ## Prérequis
 
-- **Node.js 20** ou version ultérieure
-- **npm** ou équivalent (pnpm, Yarn)
+ - **Node.js 20** ou version ultérieure
+ - **Python 3** installé et accessible via `python` pour la compilation node-gyp
+ - **npm** ou équivalent (pnpm, Yarn)
 - Sous **Windows**, les *Visual Studio Build Tools* avec le composant
   « Desktop development with C++ » sont recommandés pour compiler les modules
   natifs (node-gyp), mais le script peut fonctionner sans.
