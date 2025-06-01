@@ -729,7 +729,10 @@ ipcMain.handle('getConfig', async () => {
 
 ipcMain.handle('get-windows-username', async () => {
   try {
-    const username = os.userInfo().username;
+    let username = os.userInfo().username;
+    if (username && username.includes('\\')) {
+      username = username.split('\\').pop();
+    }
     log(`Windows user detected: ${username}`);
     return { success: true, username };
   } catch (error) {
@@ -827,7 +830,11 @@ ipcMain.handle('auth-login', async (event, { username, password }) => {
 
 function findUserByWindowsLoginSync(windowsUsername) {
   if (!db || !preparedStatements.getUserByWindowsLogin) throw new Error('DB not ready for findUserByWindowsLoginSync');
-  const cleanUsername = windowsUsername ? windowsUsername.trim().toLowerCase() : null;
+  let cleanUsername = windowsUsername ? windowsUsername.trim() : null;
+  if (cleanUsername && cleanUsername.includes('\\')) {
+    cleanUsername = cleanUsername.split('\\').pop();
+  }
+  cleanUsername = cleanUsername ? cleanUsername.toLowerCase() : null;
   if (!cleanUsername) return null;
   return preparedStatements.getUserByWindowsLogin.get(cleanUsername);
 }
@@ -860,7 +867,11 @@ ipcMain.handle('auto-login-windows', async (event, windowsUsername) => {
     if (!windowsUsername) {
       return { success: false, error: 'Windows username not provided' };
     }
-    const user = findUserByWindowsLoginSync(windowsUsername);
+    let cleanLogin = windowsUsername;
+    if (cleanLogin.includes('\\')) {
+      cleanLogin = cleanLogin.split('\\').pop();
+    }
+    const user = findUserByWindowsLoginSync(cleanLogin);
     if (!user) {
       return { success: false, error: 'No user associated with this Windows account' };
     }
