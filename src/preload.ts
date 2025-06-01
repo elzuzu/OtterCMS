@@ -64,6 +64,16 @@ contextBridge.exposeInMainWorld('api', {
   saveOracleConfig: (cfg: any, userId: number) => ipcRenderer.invoke('save-oracle-config', cfg, userId),
   deleteOracleConfig: (id: number, userId: number) => ipcRenderer.invoke('delete-oracle-config', id, userId),
   testOracleConfig: (id: number) => ipcRenderer.invoke('test-oracle-config', id),
+  saveOracleImportPreset: (presetData: any, userId: number) =>
+    ipcRenderer.invoke('save-oracle-import-preset', presetData, userId),
+  getOracleImportPresets: (userId: number) =>
+    ipcRenderer.invoke('get-oracle-import-presets', userId),
+  getOracleImportPreset: (presetId: number, userId: number) =>
+    ipcRenderer.invoke('get-oracle-import-preset', presetId, userId),
+  deleteOracleImportPreset: (presetId: number, userId: number) =>
+    ipcRenderer.invoke('delete-oracle-import-preset', presetId, userId),
+  executeOraclePreset: (presetId: number, userId: number) =>
+    ipcRenderer.invoke('execute-oracle-preset', presetId, userId),
 
   // Attribution en masse
   attribuerIndividusEnMasse: (params: any) =>

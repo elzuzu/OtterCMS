@@ -126,9 +126,17 @@ export default function ImportData({ user }) {
     query: ''
   });
   const [oracleConnected, setOracleConnected] = useState(false);
+  const [availableConfigs, setAvailableConfigs] = useState([]);
+  const [selectedConfigId, setSelectedConfigId] = useState('');
 
   const [numeroIndividuHeader, setNumeroIndividuHeader] = useState('');
   const [createIfMissing, setCreateIfMissing] = useState(false);
+  const [importMode, setImportMode] = useState('manual');
+  const [importPresets, setImportPresets] = useState([]);
+  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [showSavePresetModal, setShowSavePresetModal] = useState(false);
+  const [presetName, setPresetName] = useState('');
+  const [presetDescription, setPresetDescription] = useState('');
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
@@ -171,6 +179,14 @@ export default function ImportData({ user }) {
         });
       } finally {
         setLoading(false);
+      }
+      try {
+        const cfgRes = await window.api.getOracleConfigs();
+        if (cfgRes.success) {
+          setAvailableConfigs(cfgRes.data);
+        }
+      } catch (e) {
+        console.error('Erreur chargement configs Oracle:', e);
       }
       try {
         const storedTemplates = JSON.parse(localStorage.getItem('importMappingTemplates') || '[]');
@@ -399,6 +415,110 @@ export default function ImportData({ user }) {
         setSelectedTemplate('');
     }
     setTimedMessage({ text: `Template "${nameToDelete}" supprimé.`, type: 'success' });
+  };
+
+  const loadImportPresets = async () => {
+    try {
+      const result = await window.api.getOracleImportPresets(user.id);
+      if (result.success) {
+        setImportPresets(result.data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement presets:', error);
+    }
+  };
+
+  const saveCurrentAsPreset = async () => {
+    if (!presetName.trim()) {
+      setTimedMessage({ text: 'Veuillez donner un nom au preset.', type: 'error' });
+      return;
+    }
+
+    const presetData = {
+      name: presetName.trim(),
+      description: presetDescription.trim(),
+      configId: selectedConfigId,
+      query: oracleConfig.query,
+      mapping: mapping,
+      columnActions: columnActions,
+      nouveauxChamps: nouveauxChamps,
+      numeroIndividuHeader: numeroIndividuHeader,
+      createIfMissing: createIfMissing
+    };
+
+    try {
+      const result = await window.api.saveOracleImportPreset(presetData, user.id);
+      if (result.success) {
+        setTimedMessage({ text: `Preset "${presetName}" sauvegardé !`, type: 'success' });
+        setShowSavePresetModal(false);
+        setPresetName('');
+        setPresetDescription('');
+        loadImportPresets();
+      } else {
+        setTimedMessage({ text: result.error, type: 'error' });
+      }
+    } catch (error) {
+      setTimedMessage({ text: error.message, type: 'error' });
+    }
+  };
+
+  const loadPreset = async (presetId) => {
+    try {
+      const result = await window.api.getOracleImportPreset(presetId, user.id);
+      if (result.success) {
+        const preset = result.data;
+        setSelectedConfigId(preset.configId);
+        setOracleConfig(prev => ({ ...prev, query: preset.query }));
+        setMapping(preset.mapping);
+        setColumnActions(preset.columnActions);
+        setNouveauxChamps(preset.nouveauxChamps);
+        setNumeroIndividuHeader(preset.numeroIndividuHeader);
+        setCreateIfMissing(preset.createIfMissing);
+        setSelectedPreset(preset);
+        setTimedMessage({ text: `Preset "${preset.name}" chargé !`, type: 'success' });
+      }
+    } catch (error) {
+      setTimedMessage({ text: error.message, type: 'error' });
+    }
+  };
+
+  const executePreset = async (presetId) => {
+    setLoading(true);
+    setImportProgress(0);
+
+    try {
+      const result = await window.api.executeOraclePreset(presetId, user.id);
+
+      if (result.success) {
+        let successMsg = `Import preset exécuté avec succès !`;
+        if (result.insertedCount) successMsg += ` ${result.insertedCount} individu(s) inséré(s).`;
+        if (result.updatedCount) successMsg += ` ${result.updatedCount} individu(s) mis à jour.`;
+
+        setTimedMessage({ text: successMsg, type: 'success' });
+        setImportStep(4);
+      } else {
+        setTimedMessage({ text: result.error, type: 'error' });
+      }
+    } catch (error) {
+      setTimedMessage({ text: error.message, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deletePreset = async (presetId) => {
+    if (!confirm('Supprimer ce preset ?')) return;
+    try {
+      const result = await window.api.deleteOracleImportPreset(presetId, user.id);
+      if (result.success) {
+        setTimedMessage({ text: 'Preset supprimé.', type: 'success' });
+        loadImportPresets();
+      } else {
+        setTimedMessage({ text: result.error, type: 'error' });
+      }
+    } catch (error) {
+      setTimedMessage({ text: error.message, type: 'error' });
+    }
   };
 
   // --- DÉBUT DE LA FONCTION handleImport MODIFIÉE ---
@@ -819,9 +939,189 @@ export default function ImportData({ user }) {
     );
   };
 
+  const renderModeSelection = () => {
+    return (
+      <div className="import-mode-selection mb-4">
+        <div className="btn-group" role="group">
+          <button
+            type="button"
+            className={`btn ${importMode === 'manual' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => setImportMode('manual')}
+          >
+            <i className="feather icon-edit me-2"></i>
+            Import manuel
+          </button>
+          <button
+            type="button"
+            className={`btn ${importMode === 'preset' ? 'btn-primary' : 'btn-outline-primary'}`}
+            onClick={() => {
+              setImportMode('preset');
+              loadImportPresets();
+            }}
+          >
+            <i className="feather icon-zap me-2"></i>
+            Import rapide
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPresetMode = () => {
+    return (
+      <div className="preset-mode">
+        <h4>Imports rapides</h4>
+        <p className="text-muted">Exécutez des imports préconfigurés ou modifiez-les avant exécution.</p>
+        {importPresets.length === 0 ? (
+          <div className="text-center py-4">
+            <i className="feather icon-inbox mb-3" style={{ fontSize: '3rem', opacity: 0.5 }}></i>
+            <h5>Aucun preset disponible</h5>
+            <p>Créez votre premier preset en configurant un import manuel.</p>
+          </div>
+        ) : (
+          <div className="presets-grid">
+            {importPresets.map(preset => (
+              <div key={preset.id} className="preset-card">
+                <div className="preset-header">
+                  <h6>{preset.name}</h6>
+                  <span className="badge bg-info">{preset.configName}</span>
+                </div>
+                {preset.description && (
+                  <p className="preset-description">{preset.description}</p>
+                )}
+                <div className="preset-info">
+                  <small className="text-muted">
+                    <i className="feather icon-database me-1"></i>
+                    {preset.configInfo}
+                  </small>
+                </div>
+                <div className="preset-query">
+                  <small>
+                    <code>{preset.query.substring(0, 100)}...</code>
+                  </small>
+                </div>
+                <div className="preset-actions mt-3">
+                  <DattaButton
+                    variant="primary"
+                    size="sm"
+                    onClick={() => executePreset(preset.id)}
+                    disabled={loading}
+                  >
+                    <i className="feather icon-play me-1"></i>
+                    Exécuter
+                  </DattaButton>
+                  <DattaButton
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => {
+                      loadPreset(preset.id);
+                      setImportMode('manual');
+                      setImportStep(2);
+                    }}
+                  >
+                    <i className="feather icon-edit me-1"></i>
+                    Modifier
+                  </DattaButton>
+                  <DattaButton
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={() => deletePreset(preset.id)}
+                  >
+                    <i className="feather icon-trash-2"></i>
+                  </DattaButton>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderSavePresetButton = () => {
+    if (sourceType !== 'oracle' || importStep !== 3) return null;
+
+    return (
+      <div className="save-preset-section mt-3">
+        <DattaButton
+          variant="outline-success"
+          onClick={() => setShowSavePresetModal(true)}
+          disabled={!selectedConfigId || !oracleConfig.query || !numeroIndividuHeader}
+        >
+          <i className="feather icon-save me-2"></i>
+          Sauvegarder comme preset
+        </DattaButton>
+      </div>
+    );
+  };
+
+  const renderSavePresetModal = () => {
+    return (
+      <DattaModal
+        open={showSavePresetModal}
+        onClose={() => setShowSavePresetModal(false)}
+        title="Sauvegarder comme preset"
+        size="md"
+      >
+        <form onSubmit={(e) => { e.preventDefault(); saveCurrentAsPreset(); }}>
+          <div className="mb-3">
+            <DattaTextField
+              label="Nom du preset *"
+              value={presetName}
+              onChange={e => setPresetName(e.target.value)}
+              required
+              placeholder="Ex: Import mensuel RH"
+            />
+          </div>
+          <div className="mb-3">
+            <DattaTextField
+              label="Description"
+              value={presetDescription}
+              onChange={e => setPresetDescription(e.target.value)}
+              placeholder="Description optionnelle"
+              multiline
+              rows={3}
+            />
+          </div>
+          <div className="preset-summary">
+            <h6>Résumé de la configuration :</h6>
+            <ul>
+              <li><strong>Configuration :</strong> {availableConfigs.find(c => c.id === parseInt(selectedConfigId))?.name}</li>
+              <li><strong>Colonnes mappées :</strong> {Object.keys(mapping).filter(k => mapping[k]).length}</li>
+              <li><strong>Nouveaux champs :</strong> {Object.keys(columnActions).filter(k => columnActions[k] === 'create').length}</li>
+            </ul>
+          </div>
+          <div className="d-flex justify-content-end gap-2">
+            <DattaButton type="button" variant="secondary" onClick={() => setShowSavePresetModal(false)}>
+              Annuler
+            </DattaButton>
+            <DattaButton type="submit" variant="primary">Sauvegarder</DattaButton>
+          </DattaButton>
+        </div>
+        </form>
+      </DattaModal>
+    );
+  };
+
   const renderOracleStepContent = () => {
-    if (importStep === 1) return renderOracleConnectionStep();
+    if (importStep === 1) {
+      return (
+        <div className="wizard-panel-content">
+          {renderModeSelection()}
+          {importMode === 'preset' ? renderPresetMode() : renderOracleConnectionStep()}
+        </div>
+      );
+    }
     if (importStep === 2) return renderOracleQueryStep();
+    if (importStep === 3) {
+      return (
+        <div className="wizard-panel-content">
+          {renderFileStepContent()}
+          {renderSavePresetButton()}
+          {renderSavePresetModal()}
+        </div>
+      );
+    }
     return renderFileStepContent();
   };
 
