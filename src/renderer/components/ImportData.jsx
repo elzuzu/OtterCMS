@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import useTimedMessage from '../hooks/useTimedMessage';
 import * as XLSX from 'xlsx';
 import { formatDateToDDMMYYYY } from '../utils/date';
 import DattaAlert from './common/DattaAlert';
@@ -106,7 +107,7 @@ export default function ImportData({ user }) {
   const [columnActions, setColumnActions] = useState({});
   const [nouveauxChamps, setNouveauxChamps] = useState({});
   
-  const [message, setMessage] = useState({ text: '', type: 'info' });
+  const { message, setTimedMessage, clearMessage } = useTimedMessage({ text: '', type: 'info' });
   const [importStep, setImportStep] = useState(1);
   const [previewData, setPreviewData] = useState(null);
   const [fileContent, setFileContent] = useState(null);
@@ -116,18 +117,6 @@ export default function ImportData({ user }) {
 
   const [numeroIndividuHeader, setNumeroIndividuHeader] = useState('');
   const [createIfMissing, setCreateIfMissing] = useState(false);
-  const messageTimeoutIdRef = useRef(null);
-
-  const setAndClearMessage = useCallback((newMessage, duration = 7000) => {
-    setMessage(newMessage);
-    if (messageTimeoutIdRef.current) {
-      clearTimeout(messageTimeoutIdRef.current);
-    }
-    messageTimeoutIdRef.current = setTimeout(() => {
-      setMessage({ text: '', type: '' });
-    }, duration);
-  }, []);
-
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
@@ -154,17 +143,17 @@ export default function ImportData({ user }) {
           setExistingFields(fields); // existingFields est maintenant disponible pour cleanRowData
           
           if (activeCategories.length === 0) {
-             setAndClearMessage({ text: 'Aucune catégorie active trouvée. La création de nouveaux champs nécessitera une catégorie.', type: 'warning' });
+             setTimedMessage({ text: 'Aucune catégorie active trouvée. La création de nouveaux champs nécessitera une catégorie.', type: 'warning' });
           }
         } else {
-          setAndClearMessage({
+          setTimedMessage({
             text: `Impossible de charger les catégories: ${catResult.error || 'Réponse invalide du serveur'}.`,
             type: 'error'
           });
         }
       } catch (error) {
         console.error("Erreur lors du chargement des catégories:", error);
-        setAndClearMessage({
+        setTimedMessage({
           text: `Erreur critique lors du chargement des catégories: ${error.message}`,
           type: 'error'
         });
@@ -180,13 +169,7 @@ export default function ImportData({ user }) {
       }
     };
     loadInitialData();
-    
-    return () => {
-        if (messageTimeoutIdRef.current) {
-            clearTimeout(messageTimeoutIdRef.current);
-        }
-    };
-  }, [setAndClearMessage]);
+  }, [setTimedMessage]);
 
   useEffect(() => {
     const listener = (_event, data) => {
@@ -207,12 +190,12 @@ export default function ImportData({ user }) {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) {
-      setAndClearMessage({ text: 'Aucun fichier sélectionné.', type: 'error' });
+      setTimedMessage({ text: 'Aucun fichier sélectionné.', type: 'error' });
       return;
     }
     
     setFileName(file.name);
-    setAndClearMessage({ text: `Fichier "${file.name}" sélectionné.`, type: 'info' });
+    setTimedMessage({ text: `Fichier "${file.name}" sélectionné.`, type: 'info' });
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -242,7 +225,7 @@ export default function ImportData({ user }) {
         }
 
         if (rawHeaders.length === 0) {
-          setAndClearMessage({ text: 'Impossible de lire les en-têtes du fichier. Vérifiez le format.', type: 'error' });
+          setTimedMessage({ text: 'Impossible de lire les en-têtes du fichier. Vérifiez le format.', type: 'error' });
           setPreviewData(null);
           return;
         }
@@ -285,13 +268,13 @@ export default function ImportData({ user }) {
         setImportStep(2); 
       } catch (error) {
         console.error("Erreur lors de la lecture du fichier:", error);
-        setAndClearMessage({ text: `Erreur lors de la lecture du fichier: ${error.message}. Assurez-vous que c'est un format CSV ou Excel valide.`, type: 'error' });
+        setTimedMessage({ text: `Erreur lors de la lecture du fichier: ${error.message}. Assurez-vous que c'est un format CSV ou Excel valide.`, type: 'error' });
         setPreviewData(null); setFileContent(null); setFileName('');
         if(fileRef.current) fileRef.current.value = '';
       }
     };
     reader.onerror = () => {
-        setAndClearMessage({ text: 'Erreur lors de la lecture du fichier.', type: 'error' });
+        setTimedMessage({ text: 'Erreur lors de la lecture du fichier.', type: 'error' });
         setFileContent(null); setFileName('');
         if(fileRef.current) fileRef.current.value = '';
     };
@@ -300,7 +283,7 @@ export default function ImportData({ user }) {
 
   const handleNumeroIndividuMapping = () => {
     if (!numeroIndividuHeader) {
-      setAndClearMessage({ text: 'La sélection du champ pour le numéro d\'individu est obligatoire.', type: 'error' });
+      setTimedMessage({ text: 'La sélection du champ pour le numéro d\'individu est obligatoire.', type: 'error' });
       return;
     }
 
@@ -345,20 +328,20 @@ export default function ImportData({ user }) {
   const loadTemplateByName = (name) => {
     const t = templates.find(tmp => tmp.name === name);
     if (!t) {
-        setAndClearMessage({text: `Template "${name}" non trouvé.`, type: 'error'});
+        setTimedMessage({text: `Template "${name}" non trouvé.`, type: 'error'});
         return;
     }
     setColumnActions(t.columnActions || {});
     setMapping(t.mapping || {});
     setNouveauxChamps(t.nouveauxChamps || {});
     setSelectedTemplate(name);
-    setAndClearMessage({text: `Template "${name}" chargé.`, type: 'success'});
+    setTimedMessage({text: `Template "${name}" chargé.`, type: 'success'});
   };
 
   const saveCurrentTemplate = () => {
     const trimmedName = templateName.trim();
     if (!trimmedName) {
-        setAndClearMessage({text: "Veuillez donner un nom au template.", type: 'error'});
+        setTimedMessage({text: "Veuillez donner un nom au template.", type: 'error'});
         return;
     }
     const newTemplate = { name: trimmedName, mapping, columnActions, nouveauxChamps };
@@ -367,7 +350,7 @@ export default function ImportData({ user }) {
     localStorage.setItem('importMappingTemplates', JSON.stringify(updatedTemplates));
     setTemplateName('');
     setSelectedTemplate(trimmedName);
-    setAndClearMessage({ text: `Template "${trimmedName}" enregistré.`, type: 'success' });
+    setTimedMessage({ text: `Template "${trimmedName}" enregistré.`, type: 'success' });
   };
 
   const deleteTemplate = (nameToDelete) => {
@@ -379,26 +362,26 @@ export default function ImportData({ user }) {
     if (selectedTemplate === nameToDelete) {
         setSelectedTemplate('');
     }
-    setAndClearMessage({ text: `Template "${nameToDelete}" supprimé.`, type: 'success' });
+    setTimedMessage({ text: `Template "${nameToDelete}" supprimé.`, type: 'success' });
   };
 
   // --- DÉBUT DE LA FONCTION handleImport MODIFIÉE ---
   const handleImport = async () => {
     // Validations initiales (existantes)
     if (!fileContent) {
-      setAndClearMessage({ text: 'Veuillez sélectionner un fichier.', type: 'error' }); return;
+      setTimedMessage({ text: 'Veuillez sélectionner un fichier.', type: 'error' }); return;
     }
     if (!numeroIndividuHeader || mapping[numeroIndividuHeader] !== 'numero_unique') {
-      setAndClearMessage({ text: 'Le numéro d\'individu doit être identifié et mappé à "numero_unique".', type: 'error' }); return;
+      setTimedMessage({ text: 'Le numéro d\'individu doit être identifié et mappé à "numero_unique".', type: 'error' }); return;
     }
     if (!previewData || !previewData.rawHeaders || !Array.isArray(previewData.rawHeaders)) {
-      setAndClearMessage({ text: 'Données d\'aperçu invalides. Veuillez recharger le fichier.', type: 'error' }); return;
+      setTimedMessage({ text: 'Données d\'aperçu invalides. Veuillez recharger le fichier.', type: 'error' }); return;
     }
     if (!columnActions || typeof columnActions !== 'object') {
-      setAndClearMessage({ text: 'Actions des colonnes non définies. Veuillez reconfigurer le mapping.', type: 'error' }); return;
+      setTimedMessage({ text: 'Actions des colonnes non définies. Veuillez reconfigurer le mapping.', type: 'error' }); return;
     }
     if (!mapping || typeof mapping !== 'object') {
-      setAndClearMessage({ text: 'Mapping des colonnes non défini. Veuillez reconfigurer le mapping.', type: 'error' }); return;
+      setTimedMessage({ text: 'Mapping des colonnes non défini. Veuillez reconfigurer le mapping.', type: 'error' }); return;
     }
 
     // Construction de finalColumnsConfig et newCategoriesArray (existant)
@@ -409,7 +392,7 @@ export default function ImportData({ user }) {
     const newCategoriesMap = new Map();
 
     if (previewData.rawHeaders.length === 0) {
-      setAndClearMessage({ text: 'Aucune colonne trouvée dans le fichier.', type: 'error' }); return;
+      setTimedMessage({ text: 'Aucune colonne trouvée dans le fichier.', type: 'error' }); return;
     }
 
     previewData.rawHeaders.forEach(csvHeader => {
@@ -485,7 +468,7 @@ export default function ImportData({ user }) {
     });
   
     if (validationErrors.length > 0) {
-      setAndClearMessage({ text: "Erreurs de validation:\n- " + validationErrors.join("\n- "), type: 'error' }, 15000);
+      setTimedMessage({ text: "Erreurs de validation:\n- " + validationErrors.join("\n- "), type: 'error' }, 15000);
       return;
     }
     const newCategoriesArray = Array.from(newCategoriesMap.values());
@@ -500,12 +483,12 @@ export default function ImportData({ user }) {
     }
     // ... (reste du code de summaryMsg existant)
     if (summaryMsg) {
-      setAndClearMessage({ text: "Préparation de l'import...\n" + summaryMsg.substring(0, 300) + (summaryMsg.length > 300 ? "..." : ""), type: 'info' }, 10000);
+      setTimedMessage({ text: "Préparation de l'import...\n" + summaryMsg.substring(0, 300) + (summaryMsg.length > 300 ? "..." : ""), type: 'info' }, 10000);
     }
 
     setLoading(true);
     setImportProgress(0);
-    setAndClearMessage({ text: 'Importation en cours...', type: 'info' });
+    setTimedMessage({ text: 'Importation en cours...', type: 'info' });
 
     // NOUVEAU : Envelopper le nettoyage et l'appel API dans un try-catch global
     try {
@@ -574,14 +557,14 @@ export default function ImportData({ user }) {
           const errorDetails = (res.errors || []).join("\n- ");
           successMsg += `\n${res.errorCount || (res.errors || []).length} erreur(s) lors du traitement des lignes/champs:\n- ${errorDetails}`;
           console.warn("Erreurs d'importation (backend):", res.errors);
-          setAndClearMessage({ text: successMsg, type: 'warning' }, 20000);
+          setTimedMessage({ text: successMsg, type: 'warning' }, 20000);
         } else {
-          setAndClearMessage({ text: successMsg, type: 'success' }, 10000);
+          setTimedMessage({ text: successMsg, type: 'success' }, 10000);
         }
         setImportStep(4);
       } else { // res.success est false
         const errorDetails = (res.errors && res.errors.length > 0) ? "\nDétails:\n- " + res.errors.join("\n- ") : "";
-        setAndClearMessage({ text: `Erreur lors de l'import (réponse API): ${res.error || 'Problème inconnu'}${errorDetails}`, type: 'error' }, 20000);
+        setTimedMessage({ text: `Erreur lors de l'import (réponse API): ${res.error || 'Problème inconnu'}${errorDetails}`, type: 'error' }, 20000);
       }
       setLoading(false); // S'assurer que setLoading est false après le traitement réussi
       
@@ -591,7 +574,7 @@ export default function ImportData({ user }) {
       let displayErrorMessage = `Erreur lors de l'importation: ${error.message}`;
       // Vous pouvez ajouter une logique pour rendre le message plus spécifique si nécessaire
       // par exemple, en vérifiant si l'erreur provient d'une étape particulière.
-      setAndClearMessage({ 
+      setTimedMessage({ 
         text: displayErrorMessage, 
         type: 'error' 
       }, 15000);
@@ -628,7 +611,7 @@ export default function ImportData({ user }) {
     setNumeroIndividuHeader('');
     setCreateIfMissing(false);
     if (fileRef.current) fileRef.current.value = '';
-    setAndClearMessage({ text: '', type: 'info' }); setLoading(false); setImportProgress(0);
+    setTimedMessage({ text: '', type: 'info' }); setLoading(false); setImportProgress(0);
     setSelectedTemplate('');
   };
 

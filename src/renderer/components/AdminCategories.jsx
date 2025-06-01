@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import useTimedMessage from '../hooks/useTimedMessage';
 import DattaAlert from "./common/DattaAlert";
 import DattaButton from "./common/DattaButton";
 import DattaPageTitle from "./common/DattaPageTitle";
@@ -58,22 +59,11 @@ export default function AdminCategories() {
   const [champs, setChamps] = useState([]);
   const [editTemplate, setEditTemplate] = useState(null);
   
-  const [message, setMessage] = useState({ text: '', type: '' });
+  const { message, setTimedMessage, clearMessage } = useTimedMessage();
   const [loading, setLoading] = useState(true); // Mis à true initialement
   const [afficherMasquees, setAfficherMasquees] = useState(false);
-  
-  const messageTimeoutIdRef = useRef(null);
-  const initialLoadRef = useRef(true);
 
-  const setAndClearMessage = useCallback((newMessage) => {
-    setMessage(newMessage);
-    if (messageTimeoutIdRef.current) {
-      clearTimeout(messageTimeoutIdRef.current);
-    }
-    messageTimeoutIdRef.current = setTimeout(() => {
-      setMessage({ text: '', type: '' });
-    }, 7000);
-  }, []);
+  const initialLoadRef = useRef(true);
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -100,31 +90,26 @@ export default function AdminCategories() {
         
         // Afficher un message informatif seulement si aucune catégorie n'existe et que ce n'est pas le chargement initial
         if (allCategories.length === 0 && !initialLoadRef.current) { 
-            setAndClearMessage({ text: 'Aucune catégorie trouvée. Commencez par en créer une.', type: 'info' });
+            setTimedMessage({ text: 'Aucune catégorie trouvée. Commencez par en créer une.', type: 'info' });
         }
         initialLoadRef.current = false;
       } else {
         const errorMsg = result && result.error ? result.error : 'Format de réponse invalide ou échec du chargement.';
-        setAndClearMessage({ text: `Erreur chargement catégories: ${errorMsg}`, type: 'error' });
+        setTimedMessage({ text: `Erreur chargement catégories: ${errorMsg}`, type: 'error' });
         setCategories([]);
         setCategoriesMasquees([]);
       }
     } catch (error) {
-      setAndClearMessage({ text: `Erreur critique lors du chargement: ${error.message}`, type: 'error' });
+      setTimedMessage({ text: `Erreur critique lors du chargement: ${error.message}`, type: 'error' });
       setCategories([]);
       setCategoriesMasquees([]);
     } finally {
       setLoading(false);
     }
-  }, [setAndClearMessage]); // Retrait de loading des dépendances pour éviter les boucles infinies
+  }, [setTimedMessage]); // Retrait de loading des dépendances pour éviter les boucles infinies
 
   useEffect(() => {
     loadCategories();
-    return () => {
-      if (messageTimeoutIdRef.current) {
-        clearTimeout(messageTimeoutIdRef.current);
-      }
-    };
   }, [loadCategories]); // loadCategories est maintenant stable grâce au useCallback corrigé
 
   const resetForm = () => {
@@ -134,7 +119,7 @@ export default function AdminCategories() {
     setOrdreCategorie(maxOrder + 10);
     setChamps([]);
     setEditTemplate(null);
-    setMessage({text: '', type: ''}); // Effacer les messages lors du reset
+    clearMessage(); // Effacer les messages lors du reset
   };
 
   const ajouterChamp = () => {
@@ -181,31 +166,31 @@ export default function AdminCategories() {
   const handleSaveCategory = async (event) => {
     event.preventDefault();
     if (!nom.trim()) {
-      setAndClearMessage({ text: 'Le nom de la catégorie est obligatoire.', type: 'error' });
+      setTimedMessage({ text: 'Le nom de la catégorie est obligatoire.', type: 'error' });
       return;
     }
     const champKeys = new Set();
     for (const champ of champs) {
       if (!champ.label.trim() || !champ.key.trim()) {
-        setAndClearMessage({ text: 'Chaque champ doit avoir un label et une clé non vides.', type: 'error' });
+        setTimedMessage({ text: 'Chaque champ doit avoir un label et une clé non vides.', type: 'error' });
         return;
       }
       if (!/^[a-zA-Z0-9_]+$/.test(champ.key.trim())) {
-        setAndClearMessage({ text: `La clé de champ "${champ.key}" est invalide. Utilisez uniquement des lettres, chiffres et underscores.`, type: 'error'});
+        setTimedMessage({ text: `La clé de champ "${champ.key}" est invalide. Utilisez uniquement des lettres, chiffres et underscores.`, type: 'error'});
         return;
       }
       if (champKeys.has(champ.key.trim())) {
-        setAndClearMessage({ text: `La clé de champ "${champ.key}" est dupliquée. Les clés doivent être uniques au sein d'une catégorie.`, type: 'error' });
+        setTimedMessage({ text: `La clé de champ "${champ.key}" est dupliquée. Les clés doivent être uniques au sein d'une catégorie.`, type: 'error' });
         return;
       }
       champKeys.add(champ.key.trim());
 
       if (champ.type === 'text' && champ.maxLength !== null && (isNaN(parseInt(champ.maxLength, 10)) || parseInt(champ.maxLength, 10) <= 0)) {
-        setAndClearMessage({ text: `La longueur maximale pour le champ texte "${champ.label}" doit être un nombre entier positif.`, type: 'error' });
+        setTimedMessage({ text: `La longueur maximale pour le champ texte "${champ.label}" doit être un nombre entier positif.`, type: 'error' });
         return;
       }
       if (champ.type === 'dynamic' && (!champ.formule || champ.formule.trim() === '')) {
-        setAndClearMessage({ text: `La formule du champ dynamique "${champ.label}" ne peut pas être vide.`, type: 'error' });
+        setTimedMessage({ text: `La formule du champ dynamique "${champ.label}" ne peut pas être vide.`, type: 'error' });
         return;
       }
     }
@@ -232,14 +217,14 @@ export default function AdminCategories() {
         ? await window.api.updateCategorie(categoryData)
         : await window.api.addCategorie(categoryData);
       if (result.success) {
-        setAndClearMessage({ text: `Catégorie ${editTemplate ? 'mise à jour' : 'ajoutée'} avec succès!`, type: 'success' });
+        setTimedMessage({ text: `Catégorie ${editTemplate ? 'mise à jour' : 'ajoutée'} avec succès!`, type: 'success' });
         resetForm();
         await loadCategories();
       } else {
-        setAndClearMessage({ text: `Erreur sauvegarde: ${result.error || 'Problème inconnu'}`, type: 'error' });
+        setTimedMessage({ text: `Erreur sauvegarde: ${result.error || 'Problème inconnu'}`, type: 'error' });
       }
     } catch (error) {
-      setAndClearMessage({ text: `Erreur lors de la sauvegarde: ${error.message}`, type: 'error' });
+      setTimedMessage({ text: `Erreur lors de la sauvegarde: ${error.message}`, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -257,7 +242,7 @@ export default function AdminCategories() {
         options: Array.isArray(c.options) ? c.options : [], // Assurer que options est un tableau
         formule: c.formule || ''
     })).sort((a, b) => (a.ordre || 0) - (b.ordre || 0)));
-    setMessage({ text: '', type: '' }); // Effacer les messages précédents
+    clearMessage(); // Effacer les messages précédents
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -267,16 +252,16 @@ export default function AdminCategories() {
     try {
       const result = await window.api.deleteCategorie(id); 
       if (result.success) {
-        setAndClearMessage({ text: 'Catégorie masquée avec succès.', type: 'success' });
+        setTimedMessage({ text: 'Catégorie masquée avec succès.', type: 'success' });
         await loadCategories();
         if (editTemplate && editTemplate.id === id) {
             resetForm();
         }
       } else {
-        setAndClearMessage({ text: `Erreur masquage: ${result.error || 'Problème inconnu'}`, type: 'error' });
+        setTimedMessage({ text: `Erreur masquage: ${result.error || 'Problème inconnu'}`, type: 'error' });
       }
     } catch (error) {
-      setAndClearMessage({ text: `Erreur: ${error.message}`, type: 'error' });
+      setTimedMessage({ text: `Erreur: ${error.message}`, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -288,7 +273,7 @@ export default function AdminCategories() {
     try {
       const categoryToRestore = categoriesMasquees.find(cat => cat.id === id);
       if (!categoryToRestore) {
-          setAndClearMessage({ text: 'Catégorie à démasquer non trouvée.', type: 'error' });
+          setTimedMessage({ text: 'Catégorie à démasquer non trouvée.', type: 'error' });
           setLoading(false);
           return;
       }
@@ -296,13 +281,13 @@ export default function AdminCategories() {
       delete updatedCategory.isMasque; 
       const result = await window.api.updateCategorie(updatedCategory); 
       if (result.success) {
-        setAndClearMessage({ text: 'Catégorie démasquée avec succès!', type: 'success' });
+        setTimedMessage({ text: 'Catégorie démasquée avec succès!', type: 'success' });
         await loadCategories();
       } else {
-        setAndClearMessage({ text: `Erreur démasquage: ${result.error || 'Vérifiez que l\'API supporte le démasquage.'}`, type: 'error' });
+        setTimedMessage({ text: `Erreur démasquage: ${result.error || 'Vérifiez que l\'API supporte le démasquage.'}`, type: 'error' });
       }
     } catch (error) {
-      setAndClearMessage({ text: `Erreur: ${error.message}`, type: 'error' });
+      setTimedMessage({ text: `Erreur: ${error.message}`, type: 'error' });
     } finally {
       setLoading(false);
     }
