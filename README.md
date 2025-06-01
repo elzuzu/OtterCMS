@@ -22,7 +22,7 @@ Application Electron et React pour le suivi d'individus avec champs dynamiques e
 ## Nouveautés
 
 Version **2.0** avec thèmes personnalisables, navigation revue et intégration de graphiques ApexCharts.
-- Utilisation de **electron-edge-js** pour la gestion de l'API DWM sans compilation.
+- Fonctionnalité de bordure Windows actuellement désactivée en attendant une solution native.
 - Connexion automatique possible via le login Windows local (sans domaine) détecté avec `os.userInfo().username`.
 
 ## Fonctionnalités

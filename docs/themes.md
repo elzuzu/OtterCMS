@@ -14,11 +14,11 @@ Vous pouvez ajouter d'autres thèmes en ajoutant de nouveaux presets dans `useTh
 
 La page **Template** regroupe les préréglages issus de Datta Able pour personnaliser rapidement l'interface. Les principales couleurs Bootstrap (Primary, Secondary, Success, Danger, Warning, Info, Light et Dark) sont exposées et génèrent automatiquement les classes `.text-{color}` et `.bg-{color}`.
 
-Sous Windows, cette rubrique permet également d'ajuster la bordure native de la fenêtre. L'appel à `DwmSetWindowAttribute` est désormais géré via **electron-edge-js**, qui exécute du code .NET pour contacter l'API DWM sans compilation additionnelle. Les paramètres choisis (couleur et épaisseur) sont mémorisés dans `localStorage` et appliqués via les variables CSS `--window-border-color` et `--window-border-width`. Si aucune préférence n'est définie, les valeurs du fichier `config/app-config.json` (clé `windowBorder`) sont utilisées.
+Sous Windows, cette rubrique devait initialement ajuster la bordure native de la fenêtre via `DwmSetWindowAttribute`. Cette intégration .NET a été retirée. La fonctionnalité reste donc inactive pour le moment et les paramètres sélectionnés sont simplement stockés dans `localStorage` en attendant une solution native.
 
 ### Changer la couleur de bordure depuis la console
 
-La fonction `setWindowBorderColor`, placée dans le **processus principal**, s'appuie désormais sur `electron-edge-js` pour contacter l'API DWM. Elle peut être déclenchée depuis l'interface grâce à l'API IPC :
+La fonction `setWindowBorderColor` côté **processus principal** n'est plus opérationnelle. Un appel IPC est toujours exposé mais ne fait qu'enregistrer la demande :
 
 ```javascript
 // Console du renderer (DevTools)

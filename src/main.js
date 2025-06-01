@@ -17,48 +17,12 @@ if (!isDev) {
   }
 }
 const bcrypt = require('bcryptjs');
-const edge = require('electron-edge-js');
+
 
 let mainWindow;
 
-const setWindowBorderColor = edge.func(`
-    using System;
-    using System.Runtime.InteropServices;
-    using System.Threading.Tasks;
-
-    public class Startup
-    {
-        [DllImport("dwmapi.dll")]
-        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
-
-        public async Task<object> Invoke(object input)
-        {
-            try
-            {
-                dynamic data = input;
-                IntPtr hwnd = new IntPtr((long)data.hwnd);
-                int rgb = (int)data.rgb;
-                int r = (rgb >> 16) & 0xFF;
-                int g = (rgb >> 8) & 0xFF;
-                int b = rgb & 0xFF;
-                int colorref = (b << 16) | (g << 8) | r;
-                int result = DwmSetWindowAttribute(hwnd, 34, ref colorref, sizeof(int));
-                return new {
-                    success = result == 0,
-                    hresult = result,
-                    error = result != 0 ? $"HRESULT: 0x{result:X}" : null
-                };
-            }
-            catch (Exception ex)
-            {
-                return new {
-                    success = false,
-                    error = ex.Message
-                };
-            }
-        }
-    }
-`);
+// Placeholder for the previous native border implementation.
+// The feature is temporarily disabled until a suitable replacement is found.
 
 /**
  * Fixe la couleur de bordure Windows (DWM) pour une BrowserWindow Electron.
@@ -80,37 +44,9 @@ function getWindowsVersion() {
 
 
 
-async function setWindowBorderColorEdge(win, rgbColor) {
-  const info = getWindowsVersion();
-  console.log('Windows version:', info.isWindows11 ? 'Windows 11' : 'Windows 10');
-  console.log('Build:', info.build);
-
-  // Récupérer le handle natif de la fenêtre Electron
-  const hwndBuf = win.getNativeWindowHandle();
-  if (!hwndBuf || hwndBuf.length < 4) {
-    console.error('\u274C Handle de fenêtre invalide');
-    return false;
-  }
-
-  let hwndValue;
-  if (hwndBuf.length === 8) {
-    hwndValue = hwndBuf.readBigUInt64LE(0);
-  } else {
-    hwndValue = hwndBuf.readUInt32LE(0);
-  }
-
-  try {
-    const result = await setWindowBorderColor({ hwnd: Number(hwndValue), rgb: rgbColor });
-    if (result.success) {
-      console.log('✅ Bordure appliquée via edge.js');
-      return true;
-    }
-    console.warn('⚠️ Échec:', result.error);
-    return false;
-  } catch (err) {
-    console.error('❌ Erreur edge.js:', err);
-    return false;
-  }
+async function setWindowBorderColorEdge() {
+  console.warn('Bordure native désactivée en attendant une nouvelle solution.');
+  return false;
 }
 function applyBorderTemplate(win, template) {
   if (!win || win.isDestroyed()) {
@@ -119,15 +55,9 @@ function applyBorderTemplate(win, template) {
   }
   const info = getWindowsVersion();
   const hex = template && template.color ? template.color : "#ffffff";
-  const rgb = parseInt(hex.replace("#", ""), 16);
   console.log(`🎨 Application bordure ${hex} sur ${info.isWindows11 ? "Windows 11" : "Windows 10"} (build ${info.build})`);
-  try {
-    console.log("📍 Méthode: Bordures DWM via electron-edge-js");
-    return setWindowBorderColorEdge(win, rgb);
-  } catch (error) {
-    console.error("❌ Erreur dans applyBorderTemplate:", error);
-    return false;
-  }
+  console.warn('Fonctionnalité de bordure désactivée pour le moment.');
+  return setWindowBorderColorEdge();
 }
 
 // Better-sqlite3 avec gestion d'erreur pour l'app packagée
