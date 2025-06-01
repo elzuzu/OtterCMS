@@ -3,6 +3,7 @@ import DattaAlert from "./common/DattaAlert";
 import DattaButton from "./common/DattaButton";
 import DattaPageTitle from "./common/DattaPageTitle";
 import DattaEmptyState from "./common/DattaEmptyState";
+import DattaCard from "./common/DattaCard";
 
 // Icon components (simple SVGs for +/-)
 const PlusIcon = () => (
