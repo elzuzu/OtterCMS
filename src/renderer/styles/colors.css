@@ -7,8 +7,8 @@
 /* These styles can remain here or be moved to a more global stylesheet like index.css */
 /* They are generally fine as they rely on --current-* variables which are now solely defined in themes.css */
 body {
-  background-color: var(--current-background-color);
-  color: var(--current-text-primary);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
   font-family: var(--font-family-sans, "Inter", sans-serif); /* Assurez-vous que --font-family-sans est défini */
   margin: 0;
   padding: 0;
@@ -17,11 +17,11 @@ body {
 
 /* Styles pour les liens */
 a {
-  color: var(--current-primary-color);
+  color: var(--bs-primary);
   text-decoration: none;
 }
 a:hover {
-  color: var(--current-primary-color-hover);
+  color: var(--color-primary-400);
   text-decoration: underline;
 }
 

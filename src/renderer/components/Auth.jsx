@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPermissionsForRole } from '../utils/permissions';
 import WindowControls from './common/WindowControls';
-import { IconUser, IconLock } from '@tabler/icons-react';
+// Utilisation des icônes Feather de Datta Able
 import DattaAlert from './common/DattaAlert';
 import DattaButton from './common/DattaButton';
 
@@ -174,7 +174,7 @@ export default function Auth({ setUser }) {
             <form onSubmit={handleLogin}>
               <div className="mb-3 text-start">
                 <label className="form-label" htmlFor="username">
-                  <IconUser size={18} style={{ marginRight: 4 }} /> Nom d'utilisateur
+                  <i className="feather icon-user me-1" /> Nom d'utilisateur
                 </label>
                 <input
                   type="text"
@@ -189,7 +189,7 @@ export default function Auth({ setUser }) {
               </div>
               <div className="mb-4 text-start">
                 <label className="form-label" htmlFor="password">
-                  <IconLock size={18} style={{ marginRight: 4 }} /> Mot de passe
+                  <i className="feather icon-lock me-1" /> Mot de passe
                 </label>
                 <input
                   type="password"

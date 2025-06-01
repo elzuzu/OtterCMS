@@ -2,7 +2,7 @@ import React from 'react';
 
 export function DattaTextField({ label, error, helperText, id, ...props }) {
   return (
-    <div className="mb-3">
+    <div className="form-group mb-3">
       <label className="form-label" htmlFor={id}>{label}</label>
       <input
         type="text"
@@ -19,7 +19,7 @@ export function DattaTextField({ label, error, helperText, id, ...props }) {
 
 export function DattaSelect({ label, options = [], error, helperText, id, ...props }) {
   return (
-    <div className="mb-3">
+    <div className="form-group mb-3">
       <label className="form-label" htmlFor={id}>{label}</label>
       <select
         id={id}

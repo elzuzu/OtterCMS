@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import WindowControls from '../common/WindowControls';
-import {
-  IconHome2,
-  IconList,
-  IconUpload,
-  IconUsers,
-  IconSettings,
-  IconTag,
-  IconUser,
-  IconPalette,
-} from '@tabler/icons-react';
 import { PERMISSIONS } from '../../constants/permissions';
 import { hasPermission } from '../../utils/permissions';
 
@@ -28,14 +18,14 @@ export default function LayoutManager({
   };
 
   const icons = {
-    dashboard: <IconHome2 size={18} />,
-    individus: <IconList size={18} />,
-    import: <IconUpload size={18} />,
-    attribution: <IconUsers size={18} />,
-    categories: <IconTag size={18} />,
-    users: <IconUser size={18} />,
-    template: <IconPalette size={18} />,
-    settings: <IconSettings size={18} />,
+    dashboard: <i className="feather icon-home"></i>,
+    individus: <i className="feather icon-list"></i>,
+    import: <i className="feather icon-upload"></i>,
+    attribution: <i className="feather icon-users"></i>,
+    categories: <i className="feather icon-tag"></i>,
+    users: <i className="feather icon-user"></i>,
+    template: <i className="feather icon-feather"></i>,
+    settings: <i className="feather icon-settings"></i>,
   };
 
   const tabs = [];
@@ -116,11 +106,16 @@ export default function LayoutManager({
           </div>
           <div className="navbar-content">
             <ul className="pc-navbar">
+              <li className="pc-item pc-caption">
+                <label>Navigation</label>
+              </li>
               {tabs.map(tab => (
                 <li key={tab.id} className={`pc-item ${activeTab === tab.id ? 'active' : ''}`}>
                   <a href="#" className="pc-link" onClick={() => onTabChange(tab.id)}>
                     <span className="pc-micon">{icons[tab.id]}</span>
                     <span className="pc-mtext">{tab.label}</span>
+                    <span className="pc-arrow"><i className="feather icon-chevron-right"></i></span>
+                    {tab.badge && <span className="pc-badge">{tab.badge}</span>}
                   </a>
                 </li>
               ))}
