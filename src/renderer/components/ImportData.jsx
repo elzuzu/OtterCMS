@@ -6,6 +6,7 @@ import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
 import DattaStepper, { Step, StepLabel } from './common/DattaStepper';
+import DattaTabs, { Tab } from './common/DattaTabs';
 
 // Constantes pour les types de champs disponibles
 const FIELD_TYPES = [
@@ -108,12 +109,23 @@ export default function ImportData({ user }) {
   const [nouveauxChamps, setNouveauxChamps] = useState({});
   
   const { message, setTimedMessage, clearMessage } = useTimedMessage({ text: '', type: 'info' });
+  const [sourceType, setSourceType] = useState('file');
   const [importStep, setImportStep] = useState(1);
   const [previewData, setPreviewData] = useState(null);
   const [fileContent, setFileContent] = useState(null);
   const [fileName, setFileName] = useState('');
   const [loading, setLoading] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
+
+  const [oracleConfig, setOracleConfig] = useState({
+    host: '',
+    port: 1521,
+    serviceName: '',
+    username: '',
+    password: '',
+    query: ''
+  });
+  const [oracleConnected, setOracleConnected] = useState(false);
 
   const [numeroIndividuHeader, setNumeroIndividuHeader] = useState('');
   const [createIfMissing, setCreateIfMissing] = useState(false);
@@ -186,6 +198,15 @@ export default function ImportData({ user }) {
       }
     };
   }, []);
+
+  const handleSourceTypeChange = (value) => {
+    setSourceType(value);
+    setImportStep(1);
+    setPreviewData(null);
+    setFileContent(null);
+    setFileName('');
+    setOracleConnected(false);
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -344,7 +365,22 @@ export default function ImportData({ user }) {
         setTimedMessage({text: "Veuillez donner un nom au template.", type: 'error'});
         return;
     }
-    const newTemplate = { name: trimmedName, mapping, columnActions, nouveauxChamps };
+    const newTemplate = {
+      name: trimmedName,
+      source: sourceType,
+      mapping,
+      columnActions,
+      nouveauxChamps,
+      ...(sourceType === 'oracle' && {
+        oracleConfig: {
+          host: oracleConfig.host,
+          port: oracleConfig.port,
+          serviceName: oracleConfig.serviceName,
+          username: oracleConfig.username,
+        },
+        query: oracleConfig.query
+      })
+    };
     const updatedTemplates = templates.filter(t => t.name !== trimmedName).concat(newTemplate);
     setTemplates(updatedTemplates);
     localStorage.setItem('importMappingTemplates', JSON.stringify(updatedTemplates));
@@ -368,8 +404,14 @@ export default function ImportData({ user }) {
   // --- DÉBUT DE LA FONCTION handleImport MODIFIÉE ---
   const handleImport = async () => {
     // Validations initiales (existantes)
-    if (!fileContent) {
-      setTimedMessage({ text: 'Veuillez sélectionner un fichier.', type: 'error' }); return;
+    if (sourceType === 'file') {
+      if (!fileContent) {
+        setTimedMessage({ text: 'Veuillez sélectionner un fichier.', type: 'error' }); return;
+      }
+    } else {
+      if (!oracleConfig.query) {
+        setTimedMessage({ text: 'Aucune requête Oracle fournie.', type: 'error' }); return;
+      }
     }
     if (!numeroIndividuHeader || mapping[numeroIndividuHeader] !== 'numero_unique') {
       setTimedMessage({ text: 'Le numéro d\'individu doit être identifié et mappé à "numero_unique".', type: 'error' }); return;
@@ -493,11 +535,28 @@ export default function ImportData({ user }) {
     // NOUVEAU : Envelopper le nettoyage et l'appel API dans un try-catch global
     try {
       // --- DÉBUT DE LA SECTION DE NETTOYAGE DES DONNÉES ---
-      const workbook = XLSX.read(fileContent, { 
-        type: 'binary', 
+      let binaryContent = fileContent;
+      if (sourceType === 'oracle') {
+        const queryRes = await window.api.executeOracleQuery({ config: oracleConfig, query: oracleConfig.query, maxRows: 50000 });
+        if (!queryRes.success) {
+          setTimedMessage({ text: queryRes.error || 'Erreur exécution requête', type: 'error' });
+          setLoading(false);
+          return;
+        }
+        const headers = queryRes.data.metaData.map(c => c.name);
+        const rows = queryRes.data.rows;
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+        const wbTmp = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wbTmp, ws, 'Sheet1');
+        binaryContent = XLSX.write(wbTmp, { type: 'binary', bookType: 'xlsx' });
+        setFileName('oracle.xlsx');
+      }
+
+      const workbook = XLSX.read(binaryContent, {
+        type: 'binary',
         cellDates: true, // Important pour que SheetJS essaie de convertir les dates Excel en objets Date JS
         cellStyles: true,
-        cellFormulas: false 
+        cellFormulas: false
       });
       
       const sheetName = workbook.SheetNames[0];
@@ -530,7 +589,8 @@ export default function ImportData({ user }) {
       
       // Préparer les paramètres pour l'appel API, incluant les données nettoyées
       const params = {
-        fileContent, // Garder le contenu original pour le backend (comme dans votre snippet)
+        source: sourceType,
+        fileContent: binaryContent, // Contenu du fichier ou g\u00e9n\u00e9r\u00e9 depuis Oracle
         fileName,
         numeroIndividuHeader, 
         columns: finalColumnsConfig, 
@@ -586,7 +646,7 @@ export default function ImportData({ user }) {
   
   const resetImport = () => {
     setImportStep(1); setFileContent(null); setFileName(''); setPreviewData(null);
-    setMapping({}); setColumnActions({}); 
+    setMapping({}); setColumnActions({});
     const defaultNouveauxChamps = {};
     if (previewData && previewData.rawHeaders) { // S'assurer que previewData existe
         previewData.rawHeaders.forEach(header => {
@@ -613,9 +673,159 @@ export default function ImportData({ user }) {
     if (fileRef.current) fileRef.current.value = '';
     setTimedMessage({ text: '', type: 'info' }); setLoading(false); setImportProgress(0);
     setSelectedTemplate('');
+    setOracleConnected(false);
+    setOracleConfig({ host:'', port:1521, serviceName:'', username:'', password:'', query:'' });
   };
 
-  const renderContent = () => {
+  const handleTestConnection = async () => {
+    setLoading(true);
+    try {
+      const res = await window.api.testOracleConnection(oracleConfig);
+      if (res.success) {
+        setTimedMessage({ text: res.message || 'Connexion r\u00e9ussie', type: 'success' });
+        setOracleConnected(true);
+      } else {
+        setTimedMessage({ text: res.error || 'Erreur de connexion', type: 'error' });
+        setOracleConnected(false);
+      }
+    } catch (error) {
+      setTimedMessage({ text: error.message, type: 'error' });
+      setOracleConnected(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const validateOracleQuery = (query) => {
+    const upper = query.toUpperCase().trim();
+    if (!upper.startsWith('SELECT')) {
+      return { valid: false, error: 'Seules les requêtes SELECT sont autorisées' };
+    }
+    const dangerous = ['DROP','DELETE','INSERT','UPDATE','CREATE','ALTER','TRUNCATE'];
+    if (dangerous.some(k => upper.includes(k))) {
+      return { valid: false, error: 'Requête potentiellement dangereuse détectée' };
+    }
+    return { valid: true };
+  };
+
+  const normalizeOracleData = (oracleResult) => {
+    return {
+      source: 'oracle',
+      headers: oracleResult.metaData.map(col => col.name),
+      rows: oracleResult.rows.slice(0, 5),
+      rawHeaders: oracleResult.metaData.map(col => col.name),
+      totalRows: oracleResult.rows.length,
+      oracleMetadata: oracleResult.metaData
+    };
+  };
+
+  const handleExecuteQuery = async () => {
+    const valid = validateOracleQuery(oracleConfig.query);
+    if (!valid.valid) {
+      setTimedMessage({ text: valid.error, type: 'error' });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await window.api.executeOracleQuery({ config: oracleConfig, query: oracleConfig.query, maxRows: 1000 });
+      if (res.success) {
+        const normalized = normalizeOracleData(res.data);
+        setPreviewData(normalized);
+        initializeMappingStates(normalized.rawHeaders);
+        setImportStep(3);
+      } else {
+        setTimedMessage({ text: res.error || 'Erreur ex\u00e9cution requ\u00eate', type: 'error' });
+      }
+    } catch (error) {
+      setTimedMessage({ text: error.message, type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initializeMappingStates = (headers) => {
+    const initialColumnActions = {};
+    const initialNouveauxChamps = {};
+    const initialMapping = {};
+    headers.forEach(h => {
+      initialColumnActions[h] = 'map';
+      initialMapping[h] = '';
+      initialNouveauxChamps[h] = {
+        categorie_id: categories.length > 0 ? categories[0].id.toString() : '',
+        newCategorieNom: '',
+        label: h,
+        key: h.toLowerCase().replace(/[^a-z0-9_]/g, '_').substring(0, 50) || `champ_${Date.now()}`,
+        type: 'text',
+        obligatoire: false,
+        visible: true,
+        readonly: false,
+        afficherEnTete: false,
+        options: [],
+        maxLength: null,
+        ordre: 0
+      };
+    });
+    setColumnActions(initialColumnActions);
+    setNouveauxChamps(initialNouveauxChamps);
+    setMapping(initialMapping);
+    setNumeroIndividuHeader('');
+  };
+
+  const renderOracleConnectionStep = () => {
+    return (
+      <div className="wizard-panel-content">
+        <div className="mb-3">
+          <label>Serveur</label>
+          <input type="text" className="stylish-input" value={oracleConfig.host} onChange={e => setOracleConfig(prev => ({ ...prev, host: e.target.value }))} required />
+        </div>
+        <div className="mb-3">
+          <label>Port</label>
+          <input type="number" className="stylish-input" value={oracleConfig.port} onChange={e => setOracleConfig(prev => ({ ...prev, port: parseInt(e.target.value, 10) }))} />
+        </div>
+        <div className="mb-3">
+          <label>Service Name / SID</label>
+          <input type="text" className="stylish-input" value={oracleConfig.serviceName} onChange={e => setOracleConfig(prev => ({ ...prev, serviceName: e.target.value }))} required />
+        </div>
+        <div className="mb-3">
+          <label>Nom d'utilisateur</label>
+          <input type="text" className="stylish-input" value={oracleConfig.username} onChange={e => setOracleConfig(prev => ({ ...prev, username: e.target.value }))} required />
+        </div>
+        <div className="mb-3">
+          <label>Mot de passe</label>
+          <input type="password" className="stylish-input" value={oracleConfig.password} onChange={e => setOracleConfig(prev => ({ ...prev, password: e.target.value }))} required />
+        </div>
+        <div className="form-actions">
+          <DattaButton variant="primary" onClick={handleTestConnection} disabled={loading}>{loading ? 'Test en cours...' : 'Tester la connexion'}</DattaButton>
+          {oracleConnected && (
+            <DattaButton variant="success" onClick={() => setImportStep(2)}>Continuer</DattaButton>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderOracleQueryStep = () => {
+    return (
+      <div className="wizard-panel-content">
+        <div className="mb-3">
+          <label>Requ\u00eate SQL Oracle</label>
+          <textarea className="form-control" rows="10" value={oracleConfig.query} onChange={e => setOracleConfig(prev => ({ ...prev, query: e.target.value }))}></textarea>
+        </div>
+        <div className="form-actions">
+          <DattaButton variant="secondary" onClick={() => setImportStep(1)}>Retour</DattaButton>
+          <DattaButton variant="primary" onClick={handleExecuteQuery} disabled={!oracleConfig.query.trim() || loading}>{loading ? 'Ex\u00e9cution...' : 'Ex\u00e9cuter et pr\u00e9visualiser'}</DattaButton>
+        </div>
+      </div>
+    );
+  };
+
+  const renderOracleStepContent = () => {
+    if (importStep === 1) return renderOracleConnectionStep();
+    if (importStep === 2) return renderOracleQueryStep();
+    return renderFileStepContent();
+  };
+
+  const renderFileStepContent = () => {
     switch(importStep) {
       case 1: 
         return (
@@ -908,13 +1118,27 @@ export default function ImportData({ user }) {
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
         </DattaAlert>
       )}
-      <DattaStepper activeStep={importStep - 1}>
-        {["Fichier", "N° Individu", "Mapping", "Résultats"].map(label => (
-          <Step key={label} disabled={(label === "N° Individu" && !fileContent) || (label === "Mapping" && !numeroIndividuHeader) || (label === "Résultats" && importStep < 4)}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </DattaStepper>
+      <DattaTabs value={sourceType} onChange={(e,v) => handleSourceTypeChange(v)}>
+        <Tab label="Depuis un fichier" value="file" />
+        <Tab label="Depuis Oracle" value="oracle" />
+      </DattaTabs>
+      {sourceType === 'file' ? (
+        <DattaStepper activeStep={importStep - 1}>
+          {["Fichier", "N° Individu", "Mapping", "Résultats"].map(label => (
+            <Step key={label} disabled={(label === "N° Individu" && !fileContent) || (label === "Mapping" && !numeroIndividuHeader) || (label === "Résultats" && importStep < 4)}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </DattaStepper>
+      ) : (
+        <DattaStepper activeStep={importStep - 1}>
+          {["Configuration", "Requête", "Mapping", "Résultats"].map(label => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </DattaStepper>
+      )}
       <div className="wizard-content">
         {loading && importStep > 1 && importStep < 4 && (
           <div className="position-fixed top-0 bottom-0 start-0 end-0 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75">
@@ -930,7 +1154,7 @@ export default function ImportData({ user }) {
             <div>{`Traitement... ${importProgress}%`}</div>
           </div>
         )}
-        {(!loading || importStep === 1 || importStep === 4) && renderContent()}
+        {(!loading || importStep === 1 || importStep === 4) && (sourceType === 'file' ? renderFileStepContent() : renderOracleStepContent())}
       </div>
         </div>
       </div>

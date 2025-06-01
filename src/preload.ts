@@ -57,6 +57,13 @@ contextBridge.exposeInMainWorld('api', {
 
   // Import/Export
   importCSV: (params: any) => ipcRenderer.invoke('importCSV', params),
+  importData: (params: any) => ipcRenderer.invoke('import-data', params),
+  testOracleConnection: (config: any) => ipcRenderer.invoke('test-oracle-connection', config),
+  executeOracleQuery: (params: any) => ipcRenderer.invoke('execute-oracle-query', params),
+  getOracleConfigs: () => ipcRenderer.invoke('get-oracle-configs'),
+  saveOracleConfig: (cfg: any, userId: number) => ipcRenderer.invoke('save-oracle-config', cfg, userId),
+  deleteOracleConfig: (id: number, userId: number) => ipcRenderer.invoke('delete-oracle-config', id, userId),
+  testOracleConfig: (id: number) => ipcRenderer.invoke('test-oracle-config', id),
 
   // Attribution en masse
   attribuerIndividusEnMasse: (params: any) =>

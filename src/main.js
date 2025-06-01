@@ -60,6 +60,8 @@ const { log, logError, logIPC, logger } = require('./utils/logger'); // Assuming
 const { inferType } = require('./utils/inferType');
 const os = require('os');
 const ConfigService = require('./main/services/configService');
+const oracleService = require('./main/services/oracleService');
+const oracleConfigService = require('./main/services/oracleConfigService');
 
 const DEFAULT_ROLE_PERMISSIONS = {
   admin: [
@@ -523,6 +525,32 @@ ipcMain.handle('init-database', async (event) => {
     logError('init-database IPC', error);
     return { success: false, error: error.message };
   }
+}
+
+ipcMain.handle('test-oracle-connection', async (event, config) => {
+  return oracleService.testConnection(config);
+});
+
+ipcMain.handle('execute-oracle-query', async (event, params) => {
+  return oracleService.executeQuery(params.config, params.query, { maxRows: params.maxRows || 1000 });
+});
+
+ipcMain.handle('get-oracle-configs', async () => {
+  return oracleConfigService.getConfigs();
+});
+
+ipcMain.handle('save-oracle-config', async (event, cfg, userId) => {
+  return oracleConfigService.saveConfig(cfg, userId);
+});
+
+ipcMain.handle('delete-oracle-config', async (event, id, userId) => {
+  return oracleConfigService.deleteConfig(id, userId);
+});
+
+ipcMain.handle('test-oracle-config', async (event, id) => {
+  const cfg = oracleConfigService.getConfigForConnection(id);
+  if (!cfg.success) return cfg;
+  return oracleService.testConnection(cfg.data);
 });
 
 ipcMain.handle('getConfig', async () => {
@@ -1073,7 +1101,7 @@ function ensureFieldInCategorySync(categoryId, fieldConfig) {
     }
     return fieldActuallyAddedOrChanged;
 }
-ipcMain.handle('importCSV', async (event, importParams) => {
+async function handleCsvImport(event, importParams) {
   // Vérifications de sécurité initiales
   if (!importParams) {
     return { success: false, error: 'Paramètres d\'import manquants.', insertedCount: 0, updatedCount: 0, errorCount: 0, errors: ['Paramètres manquants.'] };
@@ -1399,7 +1427,47 @@ ipcMain.handle('importCSV', async (event, importParams) => {
     try { event.sender.send('import-progress', { current: processedCount, total: totalRowsToProcess, percent: 100 }); } catch (_) {}
     return { success: false, error: `Erreur critique: ${e.message}`, insertedCount, updatedCount, errorCount: remainingErrorCount, errors: errorsDetailed, newCategoriesCreatedCount, newFieldsAddedCount };
   }
+}
+
+async function handleOracleImport(event, params) {
+  try {
+    let config = params.oracleConfig;
+    if (params.configId) {
+      const cfg = oracleConfigService.getConfigForConnection(params.configId);
+      if (!cfg.success) return cfg;
+      config = cfg.data;
+    }
+    const qres = await oracleService.executeQuery(config, params.query, { maxRows: 50000 });
+    if (!qres.success) return { success: false, error: qres.error };
+    const headers = qres.data.metaData.map(c => c.name);
+    const rows = qres.data.rows;
+    const ws = xlsx.utils.aoa_to_sheet([headers, ...rows]);
+    const wb = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(wb, ws, 'Sheet1');
+    const binary = xlsx.write(wb, { type: 'binary', bookType: 'xlsx' });
+    const fileParams = {
+      fileContent: binary,
+      fileName: 'oracle.xlsx',
+      numeroIndividuHeader: params.numeroIndividuHeader,
+      columns: params.columns,
+      newCategories: params.newCategories,
+      userId: params.userId,
+      createIfMissing: params.createIfMissing
+    };
+    return await handleCsvImport(event, fileParams);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+ipcMain.handle('importCSV', handleCsvImport);
+ipcMain.handle('import-data', async (event, params) => {
+  if (params.source === 'oracle') {
+    return await handleOracleImport(event, params);
+  }
+  return await handleCsvImport(event, params);
 });
+
 ipcMain.handle('addOrUpdateIndividu', async (event, params) => {
   logIPC('addOrUpdateIndividu', {individuId: params.individu?.id, userId: params.userId, isImport: params.isImport, importFile: params.importFile});
   try {
