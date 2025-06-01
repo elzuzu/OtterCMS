@@ -97,6 +97,28 @@ const preparedStatements = {};
 // Global configuration service
 let configService;
 
+function applyBorderTemplateToWindow(win, template) {
+  if (!win || win.isDestroyed()) return;
+  try {
+    const color = template && template.color ? template.color : '#ffffff';
+    const bgColor = color === 'transparent' ? '#00000000' : color;
+    win.setBackgroundColor(bgColor);
+    if (process.platform === 'darwin') {
+      try { win.setVibrancy('appearance-based'); } catch (_) {}
+    }
+  } catch (err) {
+    logError('applyBorderTemplateToWindow', err);
+  }
+}
+
+function applyBorderTemplateToAllWindows(template) {
+  BrowserWindow.getAllWindows().forEach(win => {
+    if (win && !win.isDestroyed()) {
+      applyBorderTemplateToWindow(win, template);
+    }
+  });
+}
+
 // Path and helpers for per-user settings
 const userSettingsPath = path.join(app.getPath('userData'), 'user-settings.json');
 
@@ -451,6 +473,7 @@ function initDb() {
     configService = new ConfigService(db);
     if (configService) {
       configService.on('border-template-changed', (tpl) => {
+        applyBorderTemplateToAllWindows(tpl);
         BrowserWindow.getAllWindows().forEach(win => {
           if (win && !win.isDestroyed()) {
             win.webContents.send('border-template-changed', tpl);
@@ -1678,6 +1701,17 @@ async function createWindow () {
     log(`[CONSOLE RENDERER - ${levelStr}] ${message} (source: ${path.basename(sourceId)}:${line})`);
   });
 
+  if (configService) {
+    try {
+      const res = await configService.getBorderTemplate();
+      if (res.success && res.data) {
+        applyBorderTemplateToWindow(win, res.data);
+      }
+    } catch (err) {
+      logError('createWindow apply border', err);
+    }
+  }
+
   const indexPath = app.isPackaged 
     ? path.join(__dirname, '..', '..', 'dist', 'index.html')
     : path.join(__dirname, '..', '..', 'dist', 'index.html');
@@ -1740,5 +1774,19 @@ ipcMain.handle('maximize-window', () => {
 ipcMain.handle('close-window', () => {
   const win = BrowserWindow.getFocusedWindow();
   if (win) win.close();
+});
+
+ipcMain.handle('apply-border-template', async (_event, templateData) => {
+  try {
+    BrowserWindow.getAllWindows().forEach(win => {
+      if (win && !win.isDestroyed()) {
+        applyBorderTemplateToWindow(win, templateData);
+      }
+    });
+    return { success: true };
+  } catch (err) {
+    logError('apply-border-template', err);
+    return { success: false, error: err.message };
+  }
 });
 
