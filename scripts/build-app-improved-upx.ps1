@@ -1,4 +1,4 @@
-﻿# Script de build ultra-robuste pour Indi-Suivi - Version améliorée
+# Script de build ultra-robuste pour Indi-Suivi - Version améliorée avec UPX optimisé
 param(
     [switch]$Clean = $true,
     [switch]$InstallDeps = $false,
