@@ -104,6 +104,7 @@
       "node_modules/better-sqlite3/lib/**/*",
       "node_modules/better-sqlite3/build/**/*",
       "node_modules/better-sqlite3/package.json",
+      "node_modules/koffi/**/*",
       "!node_modules/**/*",
       "!**/*.map",
       "!**/*.ts",
@@ -111,6 +112,7 @@
     ],
     "asarUnpack": [
       "node_modules/better-sqlite3/**/*",
+      "node_modules/koffi/**/*",
       "dist/datta-able-assets/**/*",
       "dist/images/**/*"
     ],
