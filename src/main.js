@@ -17,25 +17,17 @@ if (!isDev) {
   }
 }
 const bcrypt = require('bcryptjs');
-const { loadLibrary, type } = require('koffi');
+const { Dll } = require('win32-api');
 
 let dwmapi = null;
 let mainWindow;
 if (process.platform === 'win32') {
   try {
-    dwmapi = loadLibrary('dwmapi.dll');
-    dwmapi.buildProxy(
-      'DwmSetWindowAttribute',
-      type('int32'),
-      [
-        type('pointer'),
-        type('uint32'),
-        type('pointer'),
-        type('uint32')
-      ]
-    );
+    dwmapi = Dll.load('dwmapi', {
+      DwmSetWindowAttribute: ['int32', ['pointer', 'uint32', 'pointer', 'uint32']]
+    });
   } catch (err) {
-    console.error('Erreur chargement de koffi / dwmapi.dll :', err);
+    console.error('Erreur chargement dwmapi.dll :', err);
     dwmapi = null;
   }
 }
@@ -45,11 +37,6 @@ if (process.platform === 'win32') {
  * @param {BrowserWindow} win - instance de BrowserWindow.
  * @param {number} rgbColor - couleur au format 0xRRGGBB.
  */
-function isWindows11OrLater() {
-  const release = require('os').release().split('.');
-  const build = parseInt(release[2], 10);
-  return build >= 22000;
-}
 function getWindowsVersion() {
   const release= require("os").release();
   const version = release.split(".");
@@ -57,35 +44,33 @@ function getWindowsVersion() {
   return {
     isWindows10: build >= 10240 && build < 22000,
     isWindows11: build >= 22000,
-    supportsColoredBorders: build >= 22621,
-    build: build,
-    release: release
+    supportsColoredBorders: build >= 10240,
+    build,
+    release
   };
 }
 
 
 function setWindowBorderColorDWM(win, rgbColor) {
   console.log('\uD83D\uDD0D === DEBUG BORDER COLOR ===');
+  const info = getWindowsVersion();
   console.log('dwmapi loaded:', !!dwmapi);
-  console.log('Windows 11+:', isWindows11OrLater());
-  console.log('OS Release:', require('os').release());
+  console.log('Windows version:', info.isWindows11 ? 'Windows 11' : 'Windows 10');
+  console.log('Build:', info.build);
+  console.log('OS Release:', info.release);
 
   if (!dwmapi) {
     console.error('\u274C dwmapi non charg\u00e9');
     return;
   }
 
-  if (!isWindows11OrLater()) {
-    console.warn('\u274C Windows 11 22H2+ requis');
-    return;
-  }
 
   const hwndBuf = win.getNativeWindowHandle();
   console.log('HWND buffer length:', hwndBuf ? hwndBuf.length : 'null');
 
-  if (!hwndBuf || hwndBuf.length === 0) {
-    console.error('\u274C Handle de fen\u00eatre invalide');
-    return;
+  if (!hwndBuf || hwndBuf.length < 4) {
+    console.error('\u274C Handle de fen\u00eatre invalide', { buffer: hwndBuf, length: hwndBuf?.length });
+    return false;
   }
 
   console.log('Fen\u00eatre frame:', !win.frameless);
@@ -104,38 +89,36 @@ function setWindowBorderColorDWM(win, rgbColor) {
   console.log('Buffer:', Array.from(colorBuf).map(x => `0x${x.toString(16).padStart(2, '0')}`));
 
   const DWMWA_BORDER_COLOR = 34;
-  const hr = dwmapi.DwmSetWindowAttribute(
-    hwndBuf,
-    DWMWA_BORDER_COLOR,
-    colorBuf,
-    colorBuf.length
-  );
-
-  console.log(`HRESULT: 0x${hr.toString(16)} (${hr === 0 ? 'SUCCESS' : 'FAILED'})`);
-
-  if (hr !== 0) {
-    const errors = {
-      0x80070057: 'E_INVALIDARG - Param\u00e8tre invalide',
-      0x80070006: 'E_HANDLE - Handle invalide',
-      0x80004001: 'E_NOTIMPL - Non impl\u00e9ment\u00e9 sur cette version',
-      0x80004005: 'E_FAIL - Erreur g\u00e9n\u00e9rale'
-    };
-    console.error(`\u274C ${errors[hr] || 'Erreur inconnue'}`);
-  } else {
-    console.log('\u2705 Bordure appliqu\u00e9e avec succ\u00e8s!');
-  }
-}
-function setWindowBorderColorCSS(win, hexColor) {
-  console.log('🔍 === BORDURE CSS OVERLAY ===');
-  console.log('Couleur CSS:', hexColor);
   try {
-    const jsCode = `\n      (() => {\n        const existing = document.getElementById('windows-border-overlay');\n        if (existing) { existing.remove(); }\n        const overlay = document.createElement('div');\n        overlay.id = 'windows-border-overlay';\n        overlay.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid ${hexColor}; pointer-events: none; z-index: 999999; box-sizing: border-box; border-radius: 8px; transition: border-color 0.3s ease;";\n        document.body.appendChild(overlay);\n        console.log('✅ Bordure CSS overlay appliquée:', '${hexColor}');\n        return true;\n      })();\n    `;
-    return win.webContents.executeJavaScript(jsCode).then(() => true).catch(err => {
-      console.error('❌ Erreur injection CSS:', err);
+    const hr = dwmapi.func.DwmSetWindowAttribute(
+      hwndBuf,
+      DWMWA_BORDER_COLOR,
+      colorBuf,
+      colorBuf.length
+    );
+
+    console.log(`HRESULT: 0x${hr.toString(16)} (${hr === 0 ? 'SUCCESS' : 'FAILED'})`);
+
+    if (hr !== 0) {
+      const errors = {
+        0x80070057: 'E_INVALIDARG - Param\u00e8tre invalide',
+        0x80070006: 'E_HANDLE - Handle invalide',
+        0x80004001: 'E_NOTIMPL - Non impl\u00e9ment\u00e9 sur cette version',
+        0x80004005: 'E_FAIL - Erreur g\u00e9n\e9rale'
+      };
+
+      const errorMsg = errors[hr] || 'Erreur inconnue';
+      console.warn(`⚠️ ${errorMsg} (build ${info.build})`);
+      if (hr === 0x80004001) {
+        console.log('ℹ️ Bordures colorées non disponibles sur cette version Windows');
+      }
       return false;
-    });
-  } catch (error) {
-    console.error('❌ Erreur injection CSS:', error);
+    } else {
+      console.log('✅ Bordure appliquée avec succès!');
+      return true;
+    }
+  } catch (err) {
+    console.error('❌ Erreur lors de l\'appel DWM:', err);
     return false;
   }
 }
@@ -150,13 +133,8 @@ function applyBorderTemplate(win, template) {
   const rgb = parseInt(hex.replace("#", ""), 16);
   console.log(`🎨 Application bordure ${hex} sur ${info.isWindows11 ? "Windows 11" : "Windows 10"} (build ${info.build})`);
   try {
-    if (info.supportsColoredBorders) {
-      console.log("📍 Méthode: Bordures DWM natives");
-      return setWindowBorderColorDWM(win, rgb);
-    } else {
-      console.log("📍 Méthode: CSS overlay");
-      return setWindowBorderColorCSS(win, hex);
-    }
+    console.log("📍 Méthode: Bordures DWM natives (tentative)");
+    return setWindowBorderColorDWM(win, rgb);
   } catch (error) {
     console.error("❌ Erreur dans applyBorderTemplate:", error);
     return false;
@@ -289,7 +267,7 @@ function debugWindowsBorder(win, template) {
     return;
   }
   if (!dwmapi) {
-    console.log('\u274c API DWM non disponible (koffi/dwmapi manquant?)');
+    console.log('\u274c API DWM non disponible (win32-api/dwmapi manquant?)');
     return;
   }
   if (!win || win.isDestroyed()) {
