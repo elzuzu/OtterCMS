@@ -22,8 +22,8 @@ Application Electron et React pour le suivi d'individus avec champs dynamiques e
 ## Nouveautés
 
 Version **2.0** avec thèmes personnalisables, navigation revue et intégration de graphiques ApexCharts.
-- Migration vers **koffi 2.11.0** pour la gestion de l'API DWM.
-- Connexion automatique possible via le login Windows local (sans domaine).
+- Utilisation de **win32-api** pour la gestion de l'API DWM.
+- Connexion automatique possible via le login Windows local (sans domaine) détecté avec `os.userInfo().username`.
 
 ## Fonctionnalités
 

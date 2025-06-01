@@ -74,7 +74,7 @@ export default defineConfig({
       external: [
         'electron',
         'better-sqlite3', // Module natif
-        'koffi', // Module natif (bibliothèque FFI)
+        'win32-api', // Module natif (bibliothèque FFI)
         './utils/logger',
         './utils/inferType',
         ...builtinModules,
@@ -96,6 +96,6 @@ export default defineConfig({
   
   // Ajouter une configuration pour gérer les fichiers JS
   optimizeDeps: {
-    exclude: ['electron', 'better-sqlite3', 'koffi']
+    exclude: ['electron', 'better-sqlite3', 'win32-api']
   }
 });

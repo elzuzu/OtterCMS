@@ -12,24 +12,24 @@ Vous pouvez ajouter d'autres thèmes en ajoutant de nouveaux presets dans `useTh
 
 ## Rubrique Template
 
-La page **Template** s'appuie maintenant sur la palette de couleurs de Datta Able. Celle-ci reprend les couleurs Bootstrap principales (Primary, Secondary, Success, Danger, Warning, Info, Light et Dark) regroupées dans la carte Sass `$theme-colors`. Grâce à ce mécanisme, les classes utilitaires `.text-{color}` et `.bg-{color}` sont générées automatiquement pour personnaliser rapidement l'interface.
+La page **Template** regroupe les préréglages issus de Datta Able pour personnaliser rapidement l'interface. Les principales couleurs Bootstrap (Primary, Secondary, Success, Danger, Warning, Info, Light et Dark) sont exposées et génèrent automatiquement les classes `.text-{color}` et `.bg-{color}`.
 
-Cette même page permet toujours de configurer la bordure externe de la fenêtre Windows. Les couleurs choisies et l'épaisseur sont sauvegardées dans `localStorage` puis appliquées via les variables CSS `--window-border-color` et `--window-border-width` définies dans `themes.css`. À défaut de personnalisation, les valeurs lues dans `config/app-config.json` (clé `windowBorder`) sont utilisées.
+Sous Windows, cette rubrique permet également d'ajuster la bordure native de la fenêtre. L'appel à `DwmSetWindowAttribute` est réalisé grâce au module **win32-api**. Les paramètres choisis (couleur et épaisseur) sont mémorisés dans `localStorage` et appliqués via les variables CSS `--window-border-color` et `--window-border-width`. Si aucune préférence n'est définie, les valeurs du fichier `config/app-config.json` (clé `windowBorder`) sont utilisées.
 
 ### Changer la couleur de bordure depuis la console
 
-La fonction native `setWindowBorderColor` se situe dans le **processus principal** d'Electron. Pour modifier la bordure depuis l'interface, utilisez l'API IPC exposée par le preload :
+La fonction `setWindowBorderColor`, placée dans le **processus principal**, s'appuie sur `win32-api` pour contacter l'API DWM. Elle peut être déclenchée depuis l'interface grâce à l'API IPC :
 
 ```javascript
 // Console du renderer (DevTools)
 window.api.applyBorderTemplate({ color: '#ff0000' });
 ```
 
-Vous pouvez également instancier `BorderTemplateService` pour bénéficier des validations et de l'historique :
+Vous pouvez aussi créer une instance de `BorderTemplateService` afin de profiter des vérifications intégrées :
 
 ```javascript
 const borderService = new BorderTemplateService();
 borderService.applyTemplate({ color: '#00ff00' });
 ```
 
-Un exemple de test automatique est disponible dans `src/main.js` via la fonction `testBorderColors()`.
+Un exemple de test est disponible dans `src/main.js` via la fonction `testBorderColors()`.
