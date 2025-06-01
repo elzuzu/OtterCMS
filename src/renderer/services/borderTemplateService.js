@@ -104,6 +104,9 @@ class BorderTemplateService {
     root.style.setProperty('--app-border-color', template.color || 'transparent');
     root.style.setProperty('--app-border-style', 'solid');
     root.style.setProperty('--app-border-glow', template.glow || 'none');
+    if (window.api && window.api.applyBorderTemplate) {
+      try { window.api.applyBorderTemplate(template); } catch (e) { console.error('apply border template ipc', e); }
+    }
     setTimeout(() => {
       if (document.body) document.body.classList.remove('border-changing');
     }, 1000);
@@ -121,7 +124,7 @@ class BorderTemplateService {
     const result = await window.api.setBorderTemplate(data);
     if (result.success) {
       this.currentTemplate = data;
-      if (this.isDegradedMode) this.applyTemplate(data);
+      this.applyTemplate(data);
     }
     return result;
   }

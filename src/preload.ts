@@ -70,6 +70,7 @@ contextBridge.exposeInMainWorld('api', {
   setBorderTemplate: (data: any) => ipcRenderer.invoke('set-border-template', data),
   getBorderTemplateHistory: (limit: number) => ipcRenderer.invoke('get-border-template-history', limit),
   repairBorderConfig: () => ipcRenderer.invoke('repair-border-config'),
+  applyBorderTemplate: (data: any) => ipcRenderer.invoke('apply-border-template', data),
   onBorderTemplateChanged: (callback: (event: any, data: any) => void) => {
     const handler = (_event: any, data: any) => {
       if (typeof callback === 'function') callback(data);
