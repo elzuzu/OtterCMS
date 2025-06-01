@@ -525,7 +525,7 @@ ipcMain.handle('init-database', async (event) => {
     logError('init-database IPC', error);
     return { success: false, error: error.message };
   }
-}
+});
 
 ipcMain.handle('test-oracle-connection', async (event, config) => {
   return oracleService.testConnection(config);
