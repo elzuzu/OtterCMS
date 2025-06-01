@@ -462,9 +462,8 @@ export default function AdminCategories() {
               </div>
             ))}
           </div>
-        </div>
-          </DattaCard>
-          <DattaCard title={`Catégories Masquées (${categoriesMasquees.length})`} className="mt-4">
+        </DattaCard>
+        <DattaCard title={`Catégories Masquées (${categoriesMasquees.length})`} className="mt-4">
             {(categoriesMasquees.length > 0 || afficherMasquees || (loading && categoriesMasquees.length === 0)) && (
               <DattaButton
                 onClick={() => setAfficherMasquees(!afficherMasquees)}
