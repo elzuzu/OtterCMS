@@ -1,25 +1,27 @@
 # Indi-Suivi
 
-Application Electron et React permettant le suivi d'individus avec champs dynamiques et interface moderne.
+![Node.js >=20](https://img.shields.io/badge/node-%3E=20.0-brightgreen)
+![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+
+Application Electron et React pour le suivi d'individus avec champs dynamiques et interface moderne.
 
 ## Sommaire
 
-- [Nouveautés](#nouveaut%C3%A9s)
-- [Fonctionnalités](#fonctionnalit%C3%A9s)
-- [Prérequis](#pr%C3%A9requis)
+- [Nouveautés](#nouveautés)
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
 - [Installation rapide](#installation-rapide)
 - [Configuration](#configuration)
 - [Architecture](#architecture)
-- [Développement](#d%C3%A9veloppement)
+- [Développement](#développement)
 - [Construction et distribution](#construction-et-distribution)
 - [Documentation](#documentation)
+- [Graph de navigation](#graph-de-navigation)
 - [Licence](#licence)
 
 ## Nouveautés
 
-Version **2.0** avec thèmes personnalisables et navigation revue.
-
-L'interface repose désormais sur le template **Datta Able** adapté à Electron. Les principaux écrans utilisent des wrappers React (`DattaCard`, `DattaDataTable`...) pour harmoniser le rendu.
+Version **2.0** avec thèmes personnalisables, navigation revue et intégration de graphiques ApexCharts.
 
 ## Fonctionnalités
 
@@ -27,40 +29,40 @@ L'interface repose désormais sur le template **Datta Able** adapté à Electron
 - Catégories et champs dynamiques entièrement configurables
 - Import CSV/Excel avec attribution en masse
 - Tableau de bord synthétique et audit complet des modifications
-- Interface React moderne
-- Visualisation graphique de l'historique pour certains champs numériques
+- Visualisation graphique de l'historique de certains champs numériques
+- Interface React moderne basée sur le template Datta Able
 
 ## Prérequis
 
-- Node.js 20.19.2 ou plus récent
-- npm (ou un gestionnaire compatible)
+- **Node.js 20** ou version ultérieure
+- **npm** ou équivalent (pnpm, Yarn)
 
 ## Installation rapide
 
 ```bash
-npm install --include=dev   # dépendances + devDependencies
+npm install --include=dev   # installe les dépendances et devDependencies
 npm run install-app         # crée la configuration et la base SQLite
 ```
 
 ## Configuration
 
-Le fichier `config/app-config.json` contient le chemin de la base de données et d'autres options (langue, titre...). Modifiez-le après l'installation si nécessaire.
+Le fichier `config/app-config.json` définit notamment le chemin de la base de données et la langue de l'application. Modifiez-le après l'installation si nécessaire.
 
 ## Architecture
 
 ```
 src/
   main.js        Processus principal Electron
-  preload.ts     Passerelle sécurisée
+  preload.ts     Passerelle sécurisée vers l'API
   renderer/      Application React
-  shared/        Types TypeScript
+  shared/        Types et constantes TypeScript
 scripts/         Outils d'installation et de build
 config/          Fichiers de configuration
 ```
 
 ## Développement
 
-Lancez l'application en mode développement avec rechargement automatique :
+Démarrage en mode développement avec rechargement automatique :
 
 ```bash
 npm run dev
@@ -68,30 +70,59 @@ npm run dev
 
 ## Construction et distribution
 
-Pour générer un installateur via **electron-builder** :
+Génération d'un installateur via **electron-builder** :
 
 ```bash
 npm run dist
 ```
 
-Sur Windows, des scripts PowerShell permettent un build plus complet :
+Des scripts PowerShell complètent le build sous Windows, par exemple `scripts/build-app.ps1` ou `scripts/build-ultra-optimized.ps1` pour une version allégée.
 
-- `scripts/build-app.ps1` : nettoyage, build et packaging avec options `-UseForge` ou `-UsePackager` en cas de problème.
-- `scripts/build-ultra-optimized.ps1` : version allégée visant un exécutable < 40 MB.
-- Les scripts détectent automatiquement `D:\tools\upx\upx.exe` pour compresser
-  l'exécutable final avec **UPX** si disponible.
-
-Exemple :
-
-```powershell
-pwsh scripts/build-app.ps1 -Clean
-```
-
-Les exécutables sont placés dans `release-builds/`.
+Les exécutables sont déposés dans le dossier `release-builds/`.
 
 ## Documentation
 
-Les guides détaillés se trouvent dans le dossier [`docs`](docs). Consultez notamment `developpement.md` et `guide-utilisation.md`.
+Les guides détaillés se trouvent dans le dossier [`docs`](docs). Consultez en particulier `developpement.md` et `guide-utilisation.md`.
+
+## Graph de navigation
+
+La navigation principale est décrite par le GraphML ci‑dessous. Le fichier d’origine reste disponible dans [`docs/navigation.graphml`](docs/navigation.graphml).
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <graph id="IndiSuiviNavigation" edgedefault="directed">
+    <node id="Auth"/>
+    <node id="MainContent"/>
+    <node id="Dashboard"/>
+    <node id="IndividusList"/>
+    <node id="ImportData"/>
+    <node id="MassAttribution"/>
+    <node id="AdminCategories"/>
+    <node id="AdminUsersSection"/>
+    <node id="AdminTemplate"/>
+    <node id="UserSettings"/>
+    <edge source="Auth" target="MainContent"/>
+    <edge source="MainContent" target="Dashboard"/>
+    <edge source="MainContent" target="IndividusList"/>
+    <edge source="MainContent" target="ImportData"/>
+    <edge source="MainContent" target="MassAttribution"/>
+    <edge source="MainContent" target="AdminCategories"/>
+    <edge source="MainContent" target="AdminUsersSection"/>
+    <edge source="MainContent" target="AdminTemplate"/>
+    <edge source="MainContent" target="UserSettings"/>
+    <edge source="Dashboard" target="IndividusList"/>
+    <edge source="IndividusList" target="IndividuFicheDetails"/>
+    <edge source="IndividusList" target="NouvelIndividu"/>
+    <node id="IndividuFicheDetails"/>
+    <node id="NouvelIndividu"/>
+    <edge source="IndividuFicheDetails" target="IndividusList"/>
+    <edge source="NouvelIndividu" target="IndividusList"/>
+  </graph>
+</graphml>
+```
 
 ## Licence
 
