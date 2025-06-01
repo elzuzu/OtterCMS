@@ -84,8 +84,15 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
           <div className="card-body">
             <div className="row">
               {stats.mesIndividus !== undefined && (
-                <div className="col-xl-3 col-md-6">
-                  <div className="card">
+                <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+                  <div
+                    className="card h-100 card-hover shadow-hover"
+                    onClick={onNavigateToMyIndividus}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && onNavigateToMyIndividus()}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="card-body">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
@@ -94,7 +101,13 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
-                          <h6 className="mb-0">Dossiers en charge</h6>
+                          <h6 className="mb-0">
+                            Dossiers en charge
+                            <i
+                              className="feather icon-external-link ms-2 text-muted"
+                              style={{ fontSize: '0.8rem' }}
+                            ></i>
+                          </h6>
                           <p className="mb-0 text-muted">{stats.mesIndividus}</p>
                           {stats.totalIndividus > 0 && (
                             <small className="text-success">
@@ -109,8 +122,15 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
               )}
 
               {stats.totalIndividus !== undefined && (
-                <div className="col-xl-3 col-md-6">
-                  <div className="card">
+                <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+                  <div
+                    className="card h-100 card-hover shadow-hover"
+                    onClick={onNavigateToAllIndividus}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && onNavigateToAllIndividus()}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="card-body">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
@@ -119,7 +139,13 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
-                          <h6 className="mb-0">Total Individus</h6>
+                          <h6 className="mb-0">
+                            Total Individus
+                            <i
+                              className="feather icon-external-link ms-2 text-muted"
+                              style={{ fontSize: '0.8rem' }}
+                            ></i>
+                          </h6>
                           <p className="mb-0 text-muted">{stats.totalIndividus}</p>
                         </div>
                       </div>
@@ -129,8 +155,8 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
               )}
 
               {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
-                <div className="col-xl-3 col-md-6">
-                  <div className="card">
+                <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+                  <div className="card h-100">
                     <div className="card-body">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
@@ -159,16 +185,20 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 </div>
               )}
 
-              <div className="col-xl-3 col-md-6">
-                <div className="card bg-light-info">
+              <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
+                <div className="card bg-light-info h-100">
                   <div className="card-body">
                     <div className="d-flex align-items-center">
-                      <div className="avtar avtar-lg bg-info me-3">
-                        <i className="feather icon-user"></i>
+                      <div className="flex-shrink-0">
+                        <div className="avtar avtar-s bg-info">
+                          <i className="feather icon-user"></i>
+                        </div>
                       </div>
-                      <div>
-                        <h6 className="mb-1">Connecté en tant que</h6>
-                        <p className="mb-1"><strong>{user.username}</strong></p>
+                      <div className="flex-grow-1 ms-3">
+                        <h6 className="mb-0">Connecté en tant que</h6>
+                        <p className="mb-0">
+                          <strong>{user.username}</strong>
+                        </p>
                         <span className="badge bg-info">{user.role}</span>
                       </div>
                     </div>
@@ -176,11 +206,12 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 </div>
               </div>
 
+
               {(user.role === 'admin' || user.role === 'manager') && (
                 <div className="row mt-4">
                   {stats.totalUsers !== undefined && (
-                    <div className="col-xl-4 col-md-6">
-                      <div className="card">
+                    <div className="col-lg-4 col-md-6 col-sm-12 mb-4">
+                      <div className="card h-100">
                         <div className="card-body">
                           <div className="d-flex align-items-center">
                             <div className="flex-shrink-0">
@@ -200,8 +231,8 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                   {user.role === 'admin' &&
                     stats.categoriesMasquees !== undefined &&
                     stats.categoriesMasquees > 0 && (
-                      <div className="col-xl-4 col-md-6">
-                        <div className="card">
+                      <div className="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div className="card h-100">
                           <div className="card-body">
                             <div className="d-flex align-items-center">
                               <div className="flex-shrink-0">
