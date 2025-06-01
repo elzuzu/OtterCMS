@@ -359,3 +359,37 @@ label {
   padding-left: 1.5rem;
 }
 
+/* ========== ApexCharts Integration ========== */
+.apexcharts-canvas {
+  font-family: var(--pc-font-family) !important;
+}
+
+.apexcharts-title-text {
+  fill: var(--current-text-primary) !important;
+}
+
+.apexcharts-legend-text {
+  color: var(--current-text-secondary) !important;
+}
+
+.apexcharts-xaxis-label,
+.apexcharts-yaxis-label {
+  fill: var(--current-text-secondary) !important;
+}
+
+.apexcharts-gridline {
+  stroke: var(--current-border-light) !important;
+}
+
+.apexcharts-tooltip {
+  background: var(--current-surface-color) !important;
+  border: 1px solid var(--current-border-medium) !important;
+  box-shadow: var(--pc-shadow-2) !important;
+}
+
+.apexcharts-tooltip-title {
+  background: var(--current-primary-color) !important;
+  color: white !important;
+  border: none !important;
+}
+
