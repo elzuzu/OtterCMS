@@ -20,6 +20,7 @@ const bcrypt = require('bcryptjs');
 const { loadLibrary, type } = require('koffi');
 
 let dwmapi = null;
+let mainWindow;
 if (process.platform === 'win32') {
   try {
     dwmapi = loadLibrary('dwmapi.dll');
@@ -237,6 +238,24 @@ function testBorderTemplate() {
     debugWindowsBorder(win, testTemplate);
     applyBorderTemplateToWindow(win, testTemplate);
   }
+}
+
+function testBorderColors() {
+  if (!mainWindow) return;
+  setTimeout(() => {
+    console.log('\uD83D\uDD34 Test bordure rouge');
+    setWindowBorderColor(mainWindow, 0xff0000);
+  }, 2000);
+
+  setTimeout(() => {
+    console.log('\uD83D\uDD35 Test bordure bleue');
+    setWindowBorderColor(mainWindow, 0x0066cc);
+  }, 4000);
+
+  setTimeout(() => {
+    console.log('\uD83D\uDFE2 Test bordure verte');
+    setWindowBorderColor(mainWindow, 0x00ff00);
+  }, 6000);
 }
 
 // Path and helpers for per-user settings
@@ -1896,7 +1915,7 @@ ipcMain.handle('getDashboardStats', async (event, { userId, role }) => {
 });
 
 // --- Electron App Lifecycle ---
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   log('Application ready.');
   try {
     const startupUser = os.userInfo().username;
@@ -1908,8 +1927,9 @@ app.whenReady().then(() => {
     const url = request.url.substring(6);
     callback({ path: path.join(__dirname, '..', '..', 'dist', url) });
   });
-  initDb(); 
-  createWindow();
+  initDb();
+  await createWindow();
+  testBorderColors();
   if (autoUpdater) {
     autoUpdater.checkForUpdatesAndNotify();
   }
@@ -1946,6 +1966,7 @@ async function createWindow () {
       webSecurity: process.env.NODE_ENV !== 'development'
     }
   });
+  mainWindow = win;
 
   if (process.env.NODE_ENV === 'development' || !app.isPackaged) { 
     // win.webContents.openDevTools(); // Uncomment to open DevTools on start

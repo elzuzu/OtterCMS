@@ -15,3 +15,21 @@ Vous pouvez ajouter d'autres thèmes en ajoutant de nouveaux presets dans `useTh
 La page **Template** s'appuie maintenant sur la palette de couleurs de Datta Able. Celle-ci reprend les couleurs Bootstrap principales (Primary, Secondary, Success, Danger, Warning, Info, Light et Dark) regroupées dans la carte Sass `$theme-colors`. Grâce à ce mécanisme, les classes utilitaires `.text-{color}` et `.bg-{color}` sont générées automatiquement pour personnaliser rapidement l'interface.
 
 Cette même page permet toujours de configurer la bordure externe de la fenêtre Windows. Les couleurs choisies et l'épaisseur sont sauvegardées dans `localStorage` puis appliquées via les variables CSS `--window-border-color` et `--window-border-width` définies dans `themes.css`. À défaut de personnalisation, les valeurs lues dans `config/app-config.json` (clé `windowBorder`) sont utilisées.
+
+### Changer la couleur de bordure depuis la console
+
+La fonction native `setWindowBorderColor` se situe dans le **processus principal** d'Electron. Pour modifier la bordure depuis l'interface, utilisez l'API IPC exposée par le preload :
+
+```javascript
+// Console du renderer (DevTools)
+window.api.applyBorderTemplate({ color: '#ff0000' });
+```
+
+Vous pouvez également instancier `BorderTemplateService` pour bénéficier des validations et de l'historique :
+
+```javascript
+const borderService = new BorderTemplateService();
+borderService.applyTemplate({ color: '#00ff00' });
+```
+
+Un exemple de test automatique est disponible dans `src/main.js` via la fonction `testBorderColors()`.
