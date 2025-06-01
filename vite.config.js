@@ -48,9 +48,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
-          'vendor-mui': ['@mui/material', '@emotion/react', '@emotion/styled'],
           'vendor-data': ['xlsx', 'zustand'],
-          'vendor-ui': ['@tabler/icons-react', 'framer-motion']
+          'vendor-ui': ['framer-motion']
         },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',

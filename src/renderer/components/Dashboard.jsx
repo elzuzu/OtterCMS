@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
 import DattaButton from './common/DattaButton';
+import DattaEmptyState from './common/DattaEmptyState';
 
 export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToAllIndividus }) {
   const [stats, setStats] = useState(null);
@@ -41,7 +42,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
         <DattaPageTitle title="Tableau de bord" />
         <div className="card">
           <div className="card-body" style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <CircularProgress value={50} label="Chargement..." />
+            <CircularProgress />
           </div>
         </div>
       </div>
@@ -71,13 +72,11 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
       <DattaPageTitle title="Tableau de bord" />
       {!stats ? (
         <div className="card">
-          <div className="card-body">
-            <div className="no-data-message" style={{ margin: 'var(--spacing-4) 0' }}>
-              Aucune statistique disponible pour le moment.
-              <DattaButton variant="primary" onClick={loadStats} style={{ marginTop: 'var(--spacing-3)' }}>
-                Recharger
-              </DattaButton>
-            </div>
+          <div className="card-body text-center">
+            <DattaEmptyState message="Aucune statistique disponible pour le moment." />
+            <DattaButton variant="primary" onClick={loadStats} style={{ marginTop: 'var(--spacing-3)' }}>
+              Recharger
+            </DattaButton>
           </div>
         </div>
       ) : (

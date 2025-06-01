@@ -3,6 +3,7 @@ import DattaPageTitle from './common/DattaPageTitle';
 import DattaCard from './common/DattaCard';
 import DattaButton from './common/DattaButton';
 import DattaModal from './common/DattaModal';
+import DattaEmptyState from './common/DattaEmptyState';
 
 const AdminCategoriesDatta = () => {
   const [categories, setCategories] = useState([]);
@@ -51,7 +52,7 @@ const AdminCategoriesDatta = () => {
         <div className="col-lg-8 col-md-12">
           <DattaCard title={`Catégories Existantes (${categories.length})`}>
             {categories.length === 0 ? (
-              <p className="text-muted">Aucune catégorie</p>
+              <DattaEmptyState message="Aucune catégorie" />
             ) : (
               <ul className="list-group list-group-flush">
                 {categories.map(cat => (

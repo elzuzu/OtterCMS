@@ -1,17 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  IconFileText,
-  IconEdit,
-  IconDeviceFloppy,
-  IconCircleX,
-  IconHistory,
-  IconAlertCircle,
-  IconUserCheck,
-  IconInfoCircle,
-  IconCirclePlus,
-  IconClock,
-  IconChartBar,
-} from '@tabler/icons-react';
+// Icônes Feather/Phosphor de Datta Able
 import { formatDateToDDMMYYYY } from '../utils/date';
 import { PERMISSIONS } from '../constants/permissions';
 import DattaButton from './common/DattaButton';
@@ -255,7 +243,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
               onClick={() => openChart(champ)}
               aria-label="Voir graphique"
             >
-              <IconChartBar size={18} />
+            <i className="feather icon-bar-chart-2"></i>
             </DattaButton>
           </div>
         );
@@ -355,7 +343,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
           <div className="modal-header">
             <h2>Erreur</h2>
             <DattaButton onClick={onClose} variant="link" size="sm" className="close-button">
-              <IconCircleX size={24} />
+              <i className="feather icon-x-circle" />
             </DattaButton>
           </div>
           <div className="modal-body">
@@ -372,18 +360,18 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
       <div className="modal-content modal-content-large">
         <div className="modal-header">
           <h2>
-            <IconFileText size={28} style={{ marginRight: '10px', verticalAlign: 'bottom' }} />
+            <i className="feather icon-file-text me-2" />
             Fiche de l'individu : {individu.numero_unique || individu.id}
           </h2>
           <DattaButton onClick={onClose} variant="link" size="sm" className="close-button" aria-label="Fermer">
-            <IconCircleX size={24} />
+            <i className="feather icon-x-circle" />
           </DattaButton>
         </div>
 
         {message && (
           <div className={`form-message message-${messageType}`}>
-            {messageType === 'error' && <IconAlertCircle size={20} style={{ marginRight: '10px' }} />}
-            {messageType === 'success' && <IconUserCheck size={20} style={{ marginRight: '10px' }} />}
+            {messageType === 'error' && <i className="feather icon-alert-circle me-2" />}
+            {messageType === 'success' && <i className="feather icon-check-circle me-2" />}
             {message}
           </div>
         )}
@@ -431,7 +419,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
               className={`tab-button ${onglet === `cat-${cat.id}` ? 'active' : ''}`}
               onClick={() => setOnglet(`cat-${cat.id}`)}
             >
-              <IconInfoCircle size={18} style={{ marginRight: '5px' }} /> {cat.nom}
+              <i className="feather icon-info me-1" /> {cat.nom}
             </DattaButton>
           ))}
           <DattaButton
@@ -440,7 +428,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             className={`tab-button ${onglet === 'historique' ? 'active active-historique' : ''}`}
             onClick={() => setOnglet('historique')}
           >
-            <IconHistory size={18} style={{ marginRight: '5px' }} /> Historique
+            <i className="feather icon-clock me-1" /> Historique
           </DattaButton>
         </div>
 
@@ -514,7 +502,11 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                     return (
                       <div key={a.id} className="audit-entry audit-entry-compact">
                         <div className="audit-icon-type">
-                          {a.action === 'create' ? <IconCirclePlus size={16} /> : <IconEdit size={16} />}
+                          {a.action === 'create' ? (
+                            <i className="feather icon-plus-circle"></i>
+                          ) : (
+                            <i className="feather icon-edit"></i>
+                          )}
                         </div>
                         <div className="audit-details">
                           <div className="audit-header audit-header-compact">
@@ -524,7 +516,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                             <span className="audit-user-time audit-user-time-compact">
                               Par <span className="audit-user">{utilisateurAuteur}</span>
                               <span className="audit-date">
-                                <IconClock size={11} style={{marginRight: '3px', marginLeft: '6px'}} />
+                                <i className="feather icon-clock me-1 ms-2" />
                                 {dateModif}
                               </span>
                             </span>
@@ -553,7 +545,7 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
                             )}
                             {a.fichier_import && (
                               <div className="audit-import-info audit-import-info-compact">
-                                <IconFileText size={12} style={{ marginRight: '3px', verticalAlign: 'middle' }} />
+                                <i className="feather icon-file-text me-1" />
                                 Via import : {a.fichier_import}
                               </div>
                             )}
@@ -573,22 +565,22 @@ export default function IndividuFiche({ individuId, onClose, onUpdate, user }) {
             enEdition ? (
               <>
                 <DattaButton onClick={handleEnregistrement} variant="primary" size="sm" disabled={saving}>
-                  <IconDeviceFloppy size={18} style={{ marginRight: '5px' }} /> {saving ? 'Enregistrement...' : 'Enregistrer'}
+                  <i className="feather icon-save me-1" /> {saving ? 'Enregistrement...' : 'Enregistrer'}
                 </DattaButton>
                 <DattaButton onClick={handleCancelEdit} variant="secondary" size="sm" disabled={saving}>
-                  <IconCircleX size={18} style={{ marginRight: '5px' }} /> Annuler
+                  <i className="feather icon-x-circle me-1" /> Annuler
                 </DattaButton>
               </>
             ) : (
               userCanEdit() && (
                 <DattaButton onClick={() => setEnEdition(true)} variant="primary" size="sm">
-                  <IconEdit size={18} style={{ marginRight: '5px' }} /> Modifier
+                  <i className="feather icon-edit me-1" /> Modifier
                 </DattaButton>
               )
             )
           )}
           <DattaButton onClick={onClose} variant="secondary" size="sm" disabled={saving}>
-            <IconCircleX size={18} style={{ marginRight: '5px' }} /> Fermer
+            <i className="feather icon-x-circle me-1" /> Fermer
           </DattaButton>
         </div>
       </div>

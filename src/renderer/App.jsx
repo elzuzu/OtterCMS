@@ -1,6 +1,4 @@
 import React, { useState, lazy, Suspense, useEffect } from 'react';
-// MUI ThemeProvider is kept to leverage its theming system
-import { ThemeProvider } from '@mui/material/styles';
 import useTheme from './hooks/useTheme';
 import DattaButton from './components/common/DattaButton';
 import borderTemplateService from './services/borderTemplateService';
@@ -20,7 +18,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState(null);
-  const { theme } = useTheme();
+  useTheme();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -105,10 +103,8 @@ export default function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Suspense fallback={<LoadingFallback />}>
-        <MainContent user={normalizedUser} onLogout={handleLogout} />
-      </Suspense>
-    </ThemeProvider>
+    <Suspense fallback={<LoadingFallback />}>
+      <MainContent user={normalizedUser} onLogout={handleLogout} />
+    </Suspense>
   );
 }

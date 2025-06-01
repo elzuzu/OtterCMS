@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import DattaAlert from "./common/DattaAlert";
 import DattaButton from "./common/DattaButton";
 import DattaPageTitle from "./common/DattaPageTitle";
+import DattaEmptyState from "./common/DattaEmptyState";
 
 // Icon components (simple SVGs for +/-)
 const PlusIcon = () => (
@@ -439,7 +440,7 @@ export default function AdminCategories() {
             <div className="loading-message">Chargement des catégories...</div>
           )}
           {!loading && categories.length === 0 && !(message.text && message.type === 'info') && (
-            <p>Aucune catégorie active pour le moment.</p>
+            <DattaEmptyState message="Aucune catégorie active pour le moment." />
           )}
           <div className="list-group list-group-flush">
             {categories.map(cat => (
@@ -480,7 +481,9 @@ export default function AdminCategories() {
                 {loading && categoriesMasquees.length === 0 && (
                   <div className="loading-message">Chargement des catégories masquées...</div>
                 )}
-                {!loading && categoriesMasquees.length === 0 && <p>Aucune catégorie masquée actuellement.</p>}
+                {!loading && categoriesMasquees.length === 0 && (
+                  <DattaEmptyState message="Aucune catégorie masquée actuellement." />
+                )}
                 {categoriesMasquees.length > 0 && (
                   <div className="list-group list-group-flush">
                     {categoriesMasquees.map(cat => (
@@ -504,7 +507,7 @@ export default function AdminCategories() {
               </>
             )}
             {!afficherMasquees && categoriesMasquees.length === 0 && !loading && (
-              <p>Aucune catégorie n'est actuellement masquée.</p>
+              <DattaEmptyState message="Aucune catégorie n'est actuellement masquée." />
             )}
             {!afficherMasquees && categoriesMasquees.length > 0 && !loading && (
               <p>

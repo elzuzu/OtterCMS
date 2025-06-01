@@ -27,7 +27,7 @@ function ComponentLoader() {
           minHeight: '400px',
         }}
       >
-        <CircularProgress value={50} label="Chargement..." />
+        <CircularProgress />
       </div>
     </>
   );

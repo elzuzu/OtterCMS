@@ -69,15 +69,20 @@
   --color-neutral-800: #343a40;
   --color-neutral-900: #212529;
 
-  /* Current theme colors (light by default) */
-  --current-background-color: var(--color-neutral-50);
+  /* Bootstrap variable mapping */
+  --bs-body-bg: var(--color-neutral-50);
+  --bs-body-color: var(--color-neutral-900);
+  --bs-primary: var(--color-primary-500);
+
+  /* Legacy aliases for backward compatibility */
+  --current-background-color: var(--bs-body-bg);
   --current-surface-color: #ffffff;
-  --current-text-primary: var(--color-neutral-900);
+  --current-text-primary: var(--bs-body-color);
   --current-text-secondary: #4b5563;
   --current-text-placeholder: #6b7280;
   --current-border-light: var(--color-neutral-200);
   --current-border-medium: var(--color-neutral-300);
-  --current-primary-color: var(--color-primary-500);
+  --current-primary-color: var(--bs-primary);
   --current-primary-color-hover: var(--color-primary-400);
   --current-primary-color-active: var(--color-primary-700);
 
