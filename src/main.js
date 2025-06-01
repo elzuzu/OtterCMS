@@ -553,6 +553,56 @@ ipcMain.handle('test-oracle-config', async (event, id) => {
   return oracleService.testConnection(cfg.data);
 });
 
+ipcMain.handle('save-oracle-import-preset', async (event, presetData, userId) => {
+  return await oracleConfigService.saveImportPreset(presetData, userId);
+});
+
+ipcMain.handle('get-oracle-import-presets', async (event, userId) => {
+  return await oracleConfigService.getImportPresets(userId);
+});
+
+ipcMain.handle('get-oracle-import-preset', async (event, presetId, userId) => {
+  return await oracleConfigService.getImportPreset(presetId, userId);
+});
+
+ipcMain.handle('delete-oracle-import-preset', async (event, presetId, userId) => {
+  return await oracleConfigService.deleteImportPreset(presetId, userId);
+});
+
+ipcMain.handle('execute-oracle-preset', async (event, presetId, userId) => {
+  try {
+    const presetResult = await oracleConfigService.getImportPreset(presetId, userId);
+    if (!presetResult.success) return presetResult;
+
+    const preset = presetResult.data;
+    const importParams = {
+      source: 'oracle',
+      configId: preset.configId,
+      query: preset.query,
+      numeroIndividuHeader: preset.numeroIndividuHeader,
+      columns: preset.mapping,
+      newCategories: [],
+      userId: userId,
+      createIfMissing: preset.createIfMissing
+    };
+
+    const result = await handleOracleImport(event, importParams);
+    const rowsProcessed = (result.insertedCount || 0) + (result.updatedCount || 0);
+    oracleConfigService.logPresetExecution(
+      presetId,
+      userId,
+      rowsProcessed,
+      result.success,
+      result.error
+    );
+
+    return result;
+  } catch (error) {
+    oracleConfigService.logPresetExecution(presetId, userId, 0, false, error.message);
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('getConfig', async () => {
   logIPC('getConfig');
   try {
