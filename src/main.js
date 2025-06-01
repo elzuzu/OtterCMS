@@ -25,7 +25,7 @@ if (process.platform === 'win32') {
     dwmapi = loadLibrary('dwmapi.dll');
     dwmapi.buildProxy(
       'DwmSetWindowAttribute',
-      type('long'),
+      type('int32'),
       [
         type('pointer'),
         type('uint32'),
@@ -44,18 +44,31 @@ if (process.platform === 'win32') {
  * @param {BrowserWindow} win - instance de BrowserWindow.
  * @param {number} rgbColor - couleur au format 0xRRGGBB.
  */
+function isWindows11OrLater() {
+  const release = require('os').release().split('.');
+  const build = parseInt(release[2], 10);
+  return build >= 22000;
+}
+
 function setWindowBorderColor(win, rgbColor) {
   if (!dwmapi) return;
+  if (!isWindows11OrLater()) {
+    console.warn('DwmSetWindowAttribute border color n\u00e9cessite Windows 11 22H2+');
+    return;
+  }
 
   const hwndBuf = win.getNativeWindowHandle();
+  if (!hwndBuf || hwndBuf.length === 0) {
+    console.error('Handle de fen\u00eatre invalide');
+    return;
+  }
+
   const colorBuf = Buffer.alloc(4);
   const r = (rgbColor >> 16) & 0xff;
   const g = (rgbColor >> 8) & 0xff;
   const b = rgbColor & 0xff;
-  colorBuf.writeUInt8(b, 0);
-  colorBuf.writeUInt8(g, 1);
-  colorBuf.writeUInt8(r, 2);
-  colorBuf.writeUInt8(0x00, 3);
+  const colorValue = b | (g << 8) | (r << 16);
+  colorBuf.writeUInt32LE(colorValue, 0);
 
   const DWMWA_BORDER_COLOR = 34;
   const hr = dwmapi.DwmSetWindowAttribute(
@@ -66,7 +79,9 @@ function setWindowBorderColor(win, rgbColor) {
   );
 
   if (hr !== 0) {
-    console.warn('DwmSetWindowAttribute a \u00e9chou\u00e9 (HRESULT):', hr);
+    console.error(`DwmSetWindowAttribute failed with HRESULT: 0x${hr.toString(16)}`);
+  } else {
+    console.log(`Border color applied successfully: #${rgbColor.toString(16).padStart(6, '0')}`);
   }
 }
 // Better-sqlite3 avec gestion d'erreur pour l'app packagée
