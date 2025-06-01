@@ -71,6 +71,8 @@ function main() {
         'Installation des dépendances d\'application'
     );
 
+    runCommand('npx node-gyp rebuild', 'Compilation avec node-gyp');
+
     if (!appDepsSuccess) {
         console.log('⚠️ [Postinstall] electron-builder install-app-deps a échoué, essai de méthode alternative...');
         const directRebuildSuccess = runCommand(

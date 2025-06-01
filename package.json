@@ -89,7 +89,8 @@
     "terser": "^5.30.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
-    "wait-on": "^8.0.3"
+    "wait-on": "^8.0.3",
+    "node-gyp": "^3.8.0"
   },
   "build": {
     "appId": "com.ege.indisuivi",

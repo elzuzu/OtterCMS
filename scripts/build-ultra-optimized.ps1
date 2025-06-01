@@ -171,6 +171,7 @@ try {
     }
 
     Write-ColorText "🔧 Rebuild modules natifs..." $Yellow
+    npx node-gyp rebuild
     npx electron-rebuild -f -w better-sqlite3 -w ffi-napi
     if ($LASTEXITCODE -ne 0) {
         Write-ColorText "   ⚠️ Rebuild natifs échoué mais on continue..." $Yellow
