@@ -50,26 +50,58 @@ function isWindows11OrLater() {
   const build = parseInt(release[2], 10);
   return build >= 22000;
 }
+function getWindowsVersion() {
+  const release= require("os").release();
+  const version = release.split(".");
+  const build = parseInt(version[2], 10);
+  return {
+    isWindows10: build >= 10240 && build < 22000,
+    isWindows11: build >= 22000,
+    supportsColoredBorders: build >= 22621,
+    build: build,
+    release: release
+  };
+}
 
-function setWindowBorderColor(win, rgbColor) {
-  if (!dwmapi) return;
+
+function setWindowBorderColorDWM(win, rgbColor) {
+  console.log('\uD83D\uDD0D === DEBUG BORDER COLOR ===');
+  console.log('dwmapi loaded:', !!dwmapi);
+  console.log('Windows 11+:', isWindows11OrLater());
+  console.log('OS Release:', require('os').release());
+
+  if (!dwmapi) {
+    console.error('\u274C dwmapi non charg\u00e9');
+    return;
+  }
+
   if (!isWindows11OrLater()) {
-    console.warn('DwmSetWindowAttribute border color n\u00e9cessite Windows 11 22H2+');
+    console.warn('\u274C Windows 11 22H2+ requis');
     return;
   }
 
   const hwndBuf = win.getNativeWindowHandle();
+  console.log('HWND buffer length:', hwndBuf ? hwndBuf.length : 'null');
+
   if (!hwndBuf || hwndBuf.length === 0) {
-    console.error('Handle de fen\u00eatre invalide');
+    console.error('\u274C Handle de fen\u00eatre invalide');
     return;
   }
+
+  console.log('Fen\u00eatre frame:', !win.frameless);
+  console.log('Fen\u00eetre visible:', win.isVisible());
+  console.log('Fen\u00eetre minimized:', win.isMinimized());
 
   const colorBuf = Buffer.alloc(4);
   const r = (rgbColor >> 16) & 0xff;
   const g = (rgbColor >> 8) & 0xff;
   const b = rgbColor & 0xff;
+
   const colorValue = b | (g << 8) | (r << 16);
   colorBuf.writeUInt32LE(colorValue, 0);
+
+  console.log(`Couleur RGB: ${r},${g},${b} -> COLORREF: 0x${colorValue.toString(16)}`);
+  console.log('Buffer:', Array.from(colorBuf).map(x => `0x${x.toString(16).padStart(2, '0')}`));
 
   const DWMWA_BORDER_COLOR = 34;
   const hr = dwmapi.DwmSetWindowAttribute(
@@ -79,12 +111,58 @@ function setWindowBorderColor(win, rgbColor) {
     colorBuf.length
   );
 
+  console.log(`HRESULT: 0x${hr.toString(16)} (${hr === 0 ? 'SUCCESS' : 'FAILED'})`);
+
   if (hr !== 0) {
-    console.error(`DwmSetWindowAttribute failed with HRESULT: 0x${hr.toString(16)}`);
+    const errors = {
+      0x80070057: 'E_INVALIDARG - Param\u00e8tre invalide',
+      0x80070006: 'E_HANDLE - Handle invalide',
+      0x80004001: 'E_NOTIMPL - Non impl\u00e9ment\u00e9 sur cette version',
+      0x80004005: 'E_FAIL - Erreur g\u00e9n\u00e9rale'
+    };
+    console.error(`\u274C ${errors[hr] || 'Erreur inconnue'}`);
   } else {
-    console.log(`Border color applied successfully: #${rgbColor.toString(16).padStart(6, '0')}`);
+    console.log('\u2705 Bordure appliqu\u00e9e avec succ\u00e8s!');
   }
 }
+function setWindowBorderColorCSS(win, hexColor) {
+  console.log('🔍 === BORDURE CSS OVERLAY ===');
+  console.log('Couleur CSS:', hexColor);
+  try {
+    const jsCode = `\n      (() => {\n        const existing = document.getElementById('windows-border-overlay');\n        if (existing) { existing.remove(); }\n        const overlay = document.createElement('div');\n        overlay.id = 'windows-border-overlay';\n        overlay.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; border: 2px solid ${hexColor}; pointer-events: none; z-index: 999999; box-sizing: border-box; border-radius: 8px; transition: border-color 0.3s ease;";\n        document.body.appendChild(overlay);\n        console.log('✅ Bordure CSS overlay appliquée:', '${hexColor}');\n        return true;\n      })();\n    `;
+    return win.webContents.executeJavaScript(jsCode).then(() => true).catch(err => {
+      console.error('❌ Erreur injection CSS:', err);
+      return false;
+    });
+  } catch (error) {
+    console.error('❌ Erreur injection CSS:', error);
+    return false;
+  }
+}
+
+function applyBorderTemplate(win, template) {
+  if (!win || win.isDestroyed()) {
+    console.error("❌ Fenêtre invalide ou détruite");
+    return false;
+  }
+  const info = getWindowsVersion();
+  const hex = template && template.color ? template.color : "#ffffff";
+  const rgb = parseInt(hex.replace("#", ""), 16);
+  console.log(`🎨 Application bordure ${hex} sur ${info.isWindows11 ? "Windows 11" : "Windows 10"} (build ${info.build})`);
+  try {
+    if (info.supportsColoredBorders) {
+      console.log("📍 Méthode: Bordures DWM natives");
+      return setWindowBorderColorDWM(win, rgb);
+    } else {
+      console.log("📍 Méthode: CSS overlay");
+      return setWindowBorderColorCSS(win, hex);
+    }
+  } catch (error) {
+    console.error("❌ Erreur dans applyBorderTemplate:", error);
+    return false;
+  }
+}
+
 // Better-sqlite3 avec gestion d'erreur pour l'app packagée
 let Database;
 try {
@@ -169,16 +247,14 @@ let configService;
 
 // Applique une bordure native sous Windows via DWM
 function applyWindowsBorder(win, template) {
-  if (process.platform !== 'win32' || !win || win.isDestroyed()) return;
+  if (process.platform !== 'win32' || !win || win.isDestroyed()) return false;
   try {
-    let rgbColor = 0;
-    if (template && template.color && template.color !== 'transparent') {
-      rgbColor = parseInt(template.color.replace('#', ''), 16);
-    }
-    setWindowBorderColor(win, rgbColor);
-    console.log(`Bordure Windows appliquée: ${template.color} -> ${rgbColor}`);
+    const success = applyBorderTemplate(win, template);
+    console.log(`Bordure Windows appliquée: ${template?.color} -> ${success ? 'SUCCESS' : 'FAILED'}`);
+    return success;
   } catch (err) {
     logError('applyWindowsBorder', err);
+    return false;
   }
 }
 
@@ -189,7 +265,7 @@ function applyBorderTemplateToWindow(win, template) {
     const bgColor = color === 'transparent' ? '#00000000' : color;
     win.setBackgroundColor(bgColor);
     if (process.platform === 'win32') {
-      applyWindowsBorder(win, template);
+      applyBorderTemplate(win, template);
     }
     if (process.platform === 'darwin') {
       try { win.setVibrancy('appearance-based'); } catch (_) {}
@@ -242,20 +318,33 @@ function testBorderTemplate() {
 
 function testBorderColors() {
   if (!mainWindow) return;
-  setTimeout(() => {
-    console.log('\uD83D\uDD34 Test bordure rouge');
-    setWindowBorderColor(mainWindow, 0xff0000);
-  }, 2000);
 
-  setTimeout(() => {
-    console.log('\uD83D\uDD35 Test bordure bleue');
-    setWindowBorderColor(mainWindow, 0x0066cc);
-  }, 4000);
+  const colors = [
+    { name: 'Rouge', hex: '#ff0000' },
+    { name: 'Bleu', hex: '#0066cc' },
+    { name: 'Vert', hex: '#00ff00' },
+    { name: 'Orange', hex: '#ffa500' },
+    { name: 'Violet', hex: '#9932cc' }
+  ];
 
-  setTimeout(() => {
-    console.log('\uD83D\uDFE2 Test bordure verte');
-    setWindowBorderColor(mainWindow, 0x00ff00);
-  }, 6000);
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index >= colors.length) {
+      clearInterval(interval);
+      console.log('🏁 Test terminé');
+      return;
+    }
+
+    const { name, hex } = colors[index];
+    console.log(`🎨 Test ${name} (${hex})`);
+    const success = applyBorderTemplate(mainWindow, { color: hex });
+    if (success) {
+      console.log(`✅ ${name} appliqué`);
+    } else {
+      console.log(`❌ ${name} échoué`);
+    }
+    index++;
+  }, 3000);
 }
 
 // Path and helpers for per-user settings
@@ -1993,7 +2082,7 @@ async function createWindow () {
 
   win.once('ready-to-show', () => {
     if (process.platform === 'win32') {
-      setWindowBorderColor(win, 0xFF0000);
+      applyBorderTemplate(win, { color: '#FF0000' });
     }
     win.show();
   });
@@ -2081,3 +2170,37 @@ ipcMain.handle('debug-border', () => {
   return 'Border debug executed';
 });
 
+
+// === Global debug helpers ===
+global.testBorder = (colorHex) => {
+  if (mainWindow) {
+    return applyBorderTemplate(mainWindow, { color: colorHex });
+  }
+  console.error('❌ mainWindow non disponible');
+  return false;
+};
+
+global.testAllBorders = () => {
+  if (mainWindow) {
+    testBorderColors();
+  } else {
+    console.error('❌ mainWindow non disponible');
+  }
+};
+
+global.getWindowsInfo = () => {
+  return getWindowsVersion();
+};
+
+global.debugBorder = () => {
+  if (mainWindow) {
+    const info = getWindowsVersion();
+    console.log('🔍 === DEBUG INFO ===');
+    console.log('Windows version:', info);
+    console.log('Frame activé:', !mainWindow.frameless);
+    console.log('Fenêtre visible:', mainWindow.isVisible());
+    console.log('DWM API disponible:', !!dwmapi);
+    return info;
+  }
+  return null;
+};
