@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DattaButton from './common/DattaButton';
 import DattaPageTitle from './common/DattaPageTitle';
+import BorderTemplateAdmin from './common/BorderTemplateAdmin';
 import useTheme from '../hooks/useTheme';
 
 const THEME_COLORS = [
@@ -11,23 +12,14 @@ const THEME_COLORS = [
   { id: 'red', label: 'Rouge', value: '#f44236' }
 ];
 
-export default function AdminTemplate() {
+export default function AdminTemplate({ user }) {
   const { color, changeColor } = useTheme();
   const [selectedColorId, setSelectedColorId] = useState(color);
-  const [borderColor, setBorderColor] = useState('#000000');
-  const [borderWidth, setBorderWidth] = useState('0');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     setMessage('');
     setSelectedColorId(color);
-
-    const savedBorderColor = localStorage.getItem('windowBorderColor') || '#000000';
-    const savedBorderWidth = localStorage.getItem('windowBorderWidth') || '0';
-    setBorderColor(savedBorderColor);
-    setBorderWidth(savedBorderWidth);
-    document.body.style.setProperty('--window-border-color', savedBorderColor);
-    document.body.style.setProperty('--window-border-width', savedBorderWidth + 'px');
   }, [color]);
 
   const handleSelectColor = async (colorId) => {
@@ -36,72 +28,31 @@ export default function AdminTemplate() {
     setMessage('Thème appliqué !');
   };
 
-  const handleApplyBorder = () => {
-    document.body.style.setProperty('--window-border-color', borderColor);
-    document.body.style.setProperty('--window-border-width', borderWidth + 'px');
-    localStorage.setItem('windowBorderColor', borderColor);
-    localStorage.setItem('windowBorderWidth', borderWidth);
-    setMessage('Bordure mise à jour !');
-  };
-
   return (
     <div className="pc-content">
-      <DattaPageTitle title="Configuration du Thème" />
-      <div className="card">
+      <DattaPageTitle title="Configuration des Templates" />
+      <div className="card mb-4">
+        <div className="card-header">
+          <h5 className="mb-0">Thème de Couleur</h5>
+        </div>
         <div className="card-body">
-      <p>Choisissez la couleur principale de l'application. Ce changement affectera l'ensemble de l'interface utilisateur.</p>
-      
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-        {THEME_COLORS.map(color => (
-          <DattaButton
-            key={color.id}
-            onClick={() => handleSelectColor(color.id)}
-            variant={selectedColorId === color.id ? 'primary' : 'secondary'}
-            size="sm"
-            className="btn-base"
-            style={{ minWidth: '120px' }}
-            aria-pressed={selectedColorId === color.id}
-          >
-            <span
-              style={{
-                display: 'inline-block',
-                width: '1em',
-                height: '1em',
-                backgroundColor: color.value,
-                borderRadius: '50%',
-                marginRight: '0.5em',
-                border: '1px solid var(--pc-border-muted)'
-              }}
-            ></span>
-            {color.label}
-          </DattaButton>
-        ))}
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        <label style={{ marginRight: '0.5rem' }}>Couleur de bordure :</label>
-        <input type="color" value={borderColor} onChange={e => setBorderColor(e.target.value)} />
-        <label style={{ marginLeft: '1rem', marginRight: '0.5rem' }}>Épaisseur :</label>
-        <input
-          type="number"
-          min="0"
-          max="20"
-          value={borderWidth}
-          onChange={e => setBorderWidth(e.target.value)}
-          style={{ width: '4rem' }}
-        />
-        <DattaButton variant="secondary" size="sm" onClick={handleApplyBorder} style={{ marginLeft: '1rem' }}>
-          Appliquer
-        </DattaButton>
-      </div>
-
-      {message && (
-        <div className={`message-base-style ${message.includes('Erreur') || message.includes('non disponible') ? 'error-message' : 'info-message'}`} style={{ marginTop: '1rem' }}>
-          {message}
-        </div>
-      )}
+          <p>Choisissez la couleur principale de l'application. Ce changement affecte l'ensemble de l'interface utilisateur.</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+            {THEME_COLORS.map(c => (
+              <DattaButton key={c.id} onClick={() => handleSelectColor(c.id)} variant={selectedColorId === c.id ? 'primary' : 'secondary'} size="sm" className="btn-base" style={{ minWidth: '120px' }} aria-pressed={selectedColorId === c.id}>
+                <span style={{ display: 'inline-block', width: '1em', height: '1em', backgroundColor: c.value, borderRadius: '50%', marginRight: '0.5em', border: '1px solid var(--pc-border-muted)' }}></span>
+                {c.label}
+              </DattaButton>
+            ))}
+          </div>
+          {message && (
+            <div className={`message-base-style ${message.includes('Erreur') ? 'error-message' : 'info-message'}`} style={{ marginTop: '1rem' }}>
+              {message}
+            </div>
+          )}
         </div>
       </div>
+      <BorderTemplateAdmin user={user} />
     </div>
   );
 }
