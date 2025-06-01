@@ -347,6 +347,7 @@ module.exports = { Logger };
         # Rebuild des modules natifs (si pas ignoré)
         if (-not $SkipNativeDeps) {
             Write-ColorText "`n🔧 Rebuild des modules natifs..." $Yellow
+            npx node-gyp rebuild
             npx electron-rebuild -f -w better-sqlite3 -w ffi-napi
             if ($LASTEXITCODE -ne 0) {
                 Write-ColorText "   ⚠️ Rebuild des modules natifs échoué (code: $LASTEXITCODE). Cela peut causer des problèmes d'exécution." $Yellow
