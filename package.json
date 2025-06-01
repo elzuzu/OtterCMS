@@ -73,7 +73,7 @@
     "react-perfect-scrollbar": "^1.5.8",
     "oracledb": "^6.3.0",
     "react-apexcharts": "^1.4.0",
-    "apexcharts": "^3.54.1"
+    "apexcharts": "^4.0.0"
   },
   "devDependencies": {
     "@electron/packager": "^18.3.6",
