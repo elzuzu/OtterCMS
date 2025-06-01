@@ -17,20 +17,48 @@ if (!isDev) {
   }
 }
 const bcrypt = require('bcryptjs');
-const { Dll } = require('win32-api');
+const edge = require('electron-edge-js');
 
-let dwmapi = null;
 let mainWindow;
-if (process.platform === 'win32') {
-  try {
-    dwmapi = Dll.load('dwmapi', {
-      DwmSetWindowAttribute: ['int32', ['pointer', 'uint32', 'pointer', 'uint32']]
-    });
-  } catch (err) {
-    console.error('Erreur chargement dwmapi.dll :', err);
-    dwmapi = null;
-  }
-}
+
+const setWindowBorderColor = edge.func(`
+    using System;
+    using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
+
+    public class Startup
+    {
+        [DllImport("dwmapi.dll")]
+        public static extern int DwmSetWindowAttribute(IntPtr hwnd, int dwAttribute, ref int pvAttribute, int cbAttribute);
+
+        public async Task<object> Invoke(object input)
+        {
+            try
+            {
+                dynamic data = input;
+                IntPtr hwnd = new IntPtr((long)data.hwnd);
+                int rgb = (int)data.rgb;
+                int r = (rgb >> 16) & 0xFF;
+                int g = (rgb >> 8) & 0xFF;
+                int b = rgb & 0xFF;
+                int colorref = (b << 16) | (g << 8) | r;
+                int result = DwmSetWindowAttribute(hwnd, 34, ref colorref, sizeof(int));
+                return new {
+                    success = result == 0,
+                    hresult = result,
+                    error = result != 0 ? $"HRESULT: 0x{result:X}" : null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new {
+                    success = false,
+                    error = ex.Message
+                };
+            }
+        }
+    }
+`);
 
 /**
  * Fixe la couleur de bordure Windows (DWM) pour une BrowserWindow Electron.
@@ -51,78 +79,39 @@ function getWindowsVersion() {
 }
 
 
-function setWindowBorderColorDWM(win, rgbColor) {
-  console.log('\uD83D\uDD0D === DEBUG BORDER COLOR ===');
+
+async function setWindowBorderColorEdge(win, rgbColor) {
   const info = getWindowsVersion();
-  console.log('dwmapi loaded:', !!dwmapi);
   console.log('Windows version:', info.isWindows11 ? 'Windows 11' : 'Windows 10');
   console.log('Build:', info.build);
-  console.log('OS Release:', info.release);
 
-  if (!dwmapi) {
-    console.error('\u274C dwmapi non charg\u00e9');
-    return;
-  }
-
-
+  // Récupérer le handle natif de la fenêtre Electron
   const hwndBuf = win.getNativeWindowHandle();
-  console.log('HWND buffer length:', hwndBuf ? hwndBuf.length : 'null');
-
   if (!hwndBuf || hwndBuf.length < 4) {
-    console.error('\u274C Handle de fen\u00eatre invalide', { buffer: hwndBuf, length: hwndBuf?.length });
+    console.error('\u274C Handle de fenêtre invalide');
     return false;
   }
 
-  console.log('Fen\u00eatre frame:', !win.frameless);
-  console.log('Fen\u00eetre visible:', win.isVisible());
-  console.log('Fen\u00eetre minimized:', win.isMinimized());
+  let hwndValue;
+  if (hwndBuf.length === 8) {
+    hwndValue = hwndBuf.readBigUInt64LE(0);
+  } else {
+    hwndValue = hwndBuf.readUInt32LE(0);
+  }
 
-  const colorBuf = Buffer.alloc(4);
-  const r = (rgbColor >> 16) & 0xff;
-  const g = (rgbColor >> 8) & 0xff;
-  const b = rgbColor & 0xff;
-
-  const colorValue = b | (g << 8) | (r << 16);
-  colorBuf.writeUInt32LE(colorValue, 0);
-
-  console.log(`Couleur RGB: ${r},${g},${b} -> COLORREF: 0x${colorValue.toString(16)}`);
-  console.log('Buffer:', Array.from(colorBuf).map(x => `0x${x.toString(16).padStart(2, '0')}`));
-
-  const DWMWA_BORDER_COLOR = 34;
   try {
-    const hr = dwmapi.func.DwmSetWindowAttribute(
-      hwndBuf,
-      DWMWA_BORDER_COLOR,
-      colorBuf,
-      colorBuf.length
-    );
-
-    console.log(`HRESULT: 0x${hr.toString(16)} (${hr === 0 ? 'SUCCESS' : 'FAILED'})`);
-
-    if (hr !== 0) {
-      const errors = {
-        0x80070057: 'E_INVALIDARG - Param\u00e8tre invalide',
-        0x80070006: 'E_HANDLE - Handle invalide',
-        0x80004001: 'E_NOTIMPL - Non impl\u00e9ment\u00e9 sur cette version',
-        0x80004005: 'E_FAIL - Erreur g\u00e9n\e9rale'
-      };
-
-      const errorMsg = errors[hr] || 'Erreur inconnue';
-      console.warn(`⚠️ ${errorMsg} (build ${info.build})`);
-      if (hr === 0x80004001) {
-        console.log('ℹ️ Bordures colorées non disponibles sur cette version Windows');
-      }
-      return false;
-    } else {
-      console.log('✅ Bordure appliquée avec succès!');
+    const result = await setWindowBorderColor({ hwnd: Number(hwndValue), rgb: rgbColor });
+    if (result.success) {
+      console.log('✅ Bordure appliquée via edge.js');
       return true;
     }
+    console.warn('⚠️ Échec:', result.error);
+    return false;
   } catch (err) {
-    console.error('❌ Erreur lors de l\'appel DWM:', err);
+    console.error('❌ Erreur edge.js:', err);
     return false;
   }
 }
-
 function applyBorderTemplate(win, template) {
   if (!win || win.isDestroyed()) {
     console.error("❌ Fenêtre invalide ou détruite");
@@ -133,8 +122,8 @@ function applyBorderTemplate(win, template) {
   const rgb = parseInt(hex.replace("#", ""), 16);
   console.log(`🎨 Application bordure ${hex} sur ${info.isWindows11 ? "Windows 11" : "Windows 10"} (build ${info.build})`);
   try {
-    console.log("📍 Méthode: Bordures DWM natives (tentative)");
-    return setWindowBorderColorDWM(win, rgb);
+    console.log("📍 Méthode: Bordures DWM via electron-edge-js");
+    return setWindowBorderColorEdge(win, rgb);
   } catch (error) {
     console.error("❌ Erreur dans applyBorderTemplate:", error);
     return false;
@@ -264,10 +253,6 @@ function applyBorderTemplateToAllWindows(template) {
 function debugWindowsBorder(win, template) {
   if (process.platform !== 'win32') {
     console.log('\u274c Pas sur Windows, bordure native non disponible');
-    return;
-  }
-  if (!dwmapi) {
-    console.log('\u274c API DWM non disponible (win32-api/dwmapi manquant?)');
     return;
   }
   if (!win || win.isDestroyed()) {
@@ -2177,7 +2162,6 @@ global.debugBorder = () => {
     console.log('Windows version:', info);
     console.log('Frame activé:', !mainWindow.frameless);
     console.log('Fenêtre visible:', mainWindow.isVisible());
-    console.log('DWM API disponible:', !!dwmapi);
     return info;
   }
   return null;
