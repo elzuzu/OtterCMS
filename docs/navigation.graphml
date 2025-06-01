@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <graph id="IndiSuiviNavigation" edgedefault="directed">
+    <node id="Auth"/>
+    <node id="MainContent"/>
+    <node id="Dashboard"/>
+    <node id="IndividusList"/>
+    <node id="ImportData"/>
+    <node id="MassAttribution"/>
+    <node id="AdminCategories"/>
+    <node id="AdminUsersSection"/>
+    <node id="AdminTemplate"/>
+    <node id="UserSettings"/>
+    <edge source="Auth" target="MainContent"/>
+    <edge source="MainContent" target="Dashboard"/>
+    <edge source="MainContent" target="IndividusList"/>
+    <edge source="MainContent" target="ImportData"/>
+    <edge source="MainContent" target="MassAttribution"/>
+    <edge source="MainContent" target="AdminCategories"/>
+    <edge source="MainContent" target="AdminUsersSection"/>
+    <edge source="MainContent" target="AdminTemplate"/>
+    <edge source="MainContent" target="UserSettings"/>
+    <edge source="Dashboard" target="IndividusList"/>
+    <edge source="IndividusList" target="IndividuFicheDetails"/>
+    <edge source="IndividusList" target="NouvelIndividu"/>
+    <node id="IndividuFicheDetails"/>
+    <node id="NouvelIndividu"/>
+    <edge source="IndividuFicheDetails" target="IndividusList"/>
+    <edge source="NouvelIndividu" target="IndividusList"/>
+  </graph>
+</graphml>
