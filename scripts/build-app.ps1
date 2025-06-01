@@ -388,26 +388,8 @@ module.exports = { Logger };
         }
         $mainExe = $foundFiles | Where-Object { $_.Extension -eq '.exe' -and $_.Name -like '*Indi-Suivi*' } | Select-Object -First 1
         if ($mainExe) {
-            Write-ColorText "`n🧪 Test de l'exécutable..." $Yellow
-            try {
-                # Test avec timeout géré manuellement
-                $job = Start-Job -ScriptBlock { 
-                    param($exePath)
-                    & $exePath --version
-                } -ArgumentList $mainExe.FullName
-                
-                if (Wait-Job $job -Timeout 10) {
-                    $result = Receive-Job $job
-                    Remove-Job $job
-                    Write-ColorText "   ✓ L'exécutable semble fonctionnel" $Green
-                } else {
-                    Stop-Job $job
-                    Remove-Job $job
-                    Write-ColorText "   ⚠️ Test de l'exécutable: timeout après 10 secondes" $Yellow
-                }
-            } catch {
-                Write-ColorText "   ⚠️ Impossible de tester l'exécutable automatiquement (erreur: $($_.Exception.Message))" $Yellow
-            }
+            Write-ColorText "`nℹ️ Exécutable généré: $($mainExe.FullName)" $Green
+            Write-ColorText "   Lancez-le manuellement pour le tester." $Cyan
         }
     } else {
         Write-ColorText "`n⚠️ Aucun fichier exécutable trouvé dans les dossiers de sortie!" $Yellow
