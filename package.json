@@ -70,7 +70,8 @@
     "react-router-dom": "^7.6.0",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.4",
-    "react-perfect-scrollbar": "^1.5.8"
+    "react-perfect-scrollbar": "^1.5.8",
+    "oracledb": "^6.3.0"
   },
   "devDependencies": {
     "@electron/packager": "^18.3.6",

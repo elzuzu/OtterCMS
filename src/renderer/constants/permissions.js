@@ -9,7 +9,9 @@ export const PERMISSIONS = {
   MANAGE_COLUMNS: 'manage_columns',
   EDIT_ASSIGNED: 'edit_assigned',
   EDIT_ALL: 'edit_all',
-  EDIT_READONLY_FIELDS: 'edit_readonly_fields'
+  EDIT_READONLY_FIELDS: 'edit_readonly_fields',
+  MANAGE_ORACLE_CONFIGS: 'manage_oracle_configs',
+  USE_ORACLE_IMPORT: 'use_oracle_import'
 };
 
 export const ALL_PERMISSIONS = Object.values(PERMISSIONS);
