@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
 import DattaButton from './common/DattaButton';
-import { IconFolder, IconUsers, IconUserCheck, IconUserX } from '@tabler/icons-react';
 
 export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToAllIndividus }) {
   const [stats, setStats] = useState(null);
@@ -88,62 +86,57 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
             <div className="row">
               {stats.mesIndividus !== undefined && (
                 <div className="col-xl-3 col-md-6">
-                  <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
+                  <div className="card">
                     <div className="card-body">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
                           <div className="avtar avtar-s bg-light-success">
-                            <IconUserCheck size={24} />
+                            <i className="feather icon-user-check"></i>
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
                           <h6 className="mb-0">Dossiers en charge</h6>
                           <p className="mb-0 text-muted">{stats.mesIndividus}</p>
-                        </div>
-                        <div className="flex-shrink-0 ms-3">
-                          <div className="badge bg-light-success text-success">
-                            <i className="ph-duotone ph-trend-up"></i> 12%
-                          </div>
+                          {stats.totalIndividus > 0 && (
+                            <small className="text-success">
+                              {((stats.mesIndividus / stats.totalIndividus) * 100).toFixed(0)}% du total
+                            </small>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               )}
 
               {stats.totalIndividus !== undefined && (
                 <div className="col-xl-3 col-md-6">
-                  <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
+                  <div className="card">
                     <div className="card-body">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
                           <div className="avtar avtar-s bg-light-primary">
-                            <IconUsers size={24} />
+                            <i className="feather icon-users"></i>
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
                           <h6 className="mb-0">Total Individus</h6>
                           <p className="mb-0 text-muted">{stats.totalIndividus}</p>
                         </div>
-                        <div className="flex-shrink-0 ms-3">
-                          <div className="badge bg-light-primary text-primary">
-                            <i className="ph-duotone ph-trend-up"></i> 12%
-                          </div>
-                        </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               )}
 
               {(user.role === 'admin' || user.role === 'manager') && stats.individusNonAttribues !== undefined && (
                 <div className="col-xl-3 col-md-6">
-                  <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
+                  <div className="card">
                     <div className="card-body">
                       <div className="d-flex align-items-center">
                         <div className="flex-shrink-0">
                           <div className="avtar avtar-s bg-light-warning">
-                            <IconUserX size={24} />
+                            <i className="feather icon-user-x"></i>
                           </div>
                         </div>
                         <div className="flex-grow-1 ms-3">
@@ -151,76 +144,81 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                           <p className="mb-0 text-muted">{stats.individusNonAttribues}</p>
                         </div>
                         <div className="flex-shrink-0 ms-3">
-                          <div className="badge bg-light-warning text-warning">
-                            <i className="ph-duotone ph-trend-up"></i> 12%
-                          </div>
+                          {stats.individusNonAttribues > 0 ? (
+                            <div className="badge bg-light-warning text-warning">
+                              <i className="feather icon-alert-triangle"></i> {stats.individusNonAttribues}
+                            </div>
+                          ) : (
+                            <div className="badge bg-light-success text-success">
+                              <i className="feather icon-check"></i> Tous attribués
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               )}
 
               <div className="col-xl-3 col-md-6">
-                <div className="card">
+                <div className="card bg-light-info">
                   <div className="card-body">
-                    <h6 className="mb-2">Vos Informations</h6>
-                    <p className="mb-1">Nom d'utilisateur: <strong>{user.username}</strong></p>
-                    <p className="mb-1">Rôle: <strong>{user.role}</strong></p>
-                    <p className="mb-0">ID Utilisateur: <strong>{user.id || user.userId}</strong></p>
+                    <div className="d-flex align-items-center">
+                      <div className="avtar avtar-lg bg-info me-3">
+                        <i className="feather icon-user"></i>
+                      </div>
+                      <div>
+                        <h6 className="mb-1">Connecté en tant que</h6>
+                        <p className="mb-1"><strong>{user.username}</strong></p>
+                        <span className="badge bg-info">{user.role}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {(user.role === 'admin' || user.role === 'manager') && stats.totalUsers !== undefined && (
-                <div className="col-xl-3 col-md-6">
-                  <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-                    <div className="card-body">
-                      <div className="d-flex align-items-center">
-                        <div className="flex-shrink-0">
-                          <div className="avtar avtar-s bg-light-primary">
-                            <IconFolder size={24} />
-                          </div>
-                        </div>
-                        <div className="flex-grow-1 ms-3">
-                          <h6 className="mb-0">Total Utilisateurs</h6>
-                          <p className="mb-0 text-muted">{stats.totalUsers}</p>
-                        </div>
-                        <div className="flex-shrink-0 ms-3">
-                          <div className="badge bg-light-primary text-primary">
-                            <i className="ph-duotone ph-trend-up"></i> 12%
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              )}
-
-              {user.role === 'admin' && stats.categoriesMasquees !== undefined && stats.categoriesMasquees > 0 && (
-                <div className="col-xl-3 col-md-6">
-                  <motion.div className="card" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
-                    <div className="card-body">
-                      <div className="d-flex align-items-center">
-                        <div className="flex-shrink-0">
-                          <div className="avtar avtar-s bg-light-danger">
-                            <IconFolder size={24} />
-                          </div>
-                        </div>
-                        <div className="flex-grow-1 ms-3">
-                          <h6 className="mb-0">Catégories masquées</h6>
-                          <p className="mb-0 text-muted">{stats.categoriesMasquees}</p>
-                        </div>
-                        <div className="flex-shrink-0 ms-3">
-                          <div className="badge bg-light-danger text-danger">
-                            <i className="ph-duotone ph-trend-up"></i> 12%
+              {(user.role === 'admin' || user.role === 'manager') && (
+                <div className="row mt-4">
+                  {stats.totalUsers !== undefined && (
+                    <div className="col-xl-4 col-md-6">
+                      <div className="card">
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <div className="flex-shrink-0">
+                              <div className="avtar avtar-s bg-light-secondary">
+                                <i className="feather icon-folder"></i>
+                              </div>
+                            </div>
+                            <div className="flex-grow-1 ms-3">
+                              <h6 className="mb-0">Total Utilisateurs</h6>
+                              <p className="mb-0 text-muted">{stats.totalUsers}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </motion.div>
-                </div>
-              )}
+                  )}
+                  {user.role === 'admin' &&
+                    stats.categoriesMasquees !== undefined &&
+                    stats.categoriesMasquees > 0 && (
+                      <div className="col-xl-4 col-md-6">
+                        <div className="card">
+                          <div className="card-body">
+                            <div className="d-flex align-items-center">
+                              <div className="flex-shrink-0">
+                                <div className="avtar avtar-s bg-light-danger">
+                                  <i className="feather icon-folder"></i>
+                                </div>
+                              </div>
+                              <div className="flex-grow-1 ms-3">
+                                <h6 className="mb-0">Catégories masquées</h6>
+                                <p className="mb-0 text-muted">{stats.categoriesMasquees}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
             </div>
           </div>
         </div>
