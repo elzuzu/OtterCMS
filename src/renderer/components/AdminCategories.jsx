@@ -309,15 +309,13 @@ export default function AdminCategories() {
   return (
     <div className="pc-content">
       <DattaPageTitle title="Gestion des catégories" />
-      <div className="card">
-        <div className="card-body">
-      <div className="admin-categories-container">
-        <div className="category-form-panel">
-        <h3>{editTemplate ? `Modifier la catégorie "${editTemplate.nom}"` : 'Ajouter une nouvelle catégorie'}</h3>
-        {message.text && (
-          <DattaAlert type={message.type || 'info'}>{message.text}</DattaAlert>
-        )}
-        <form onSubmit={handleSaveCategory}>
+      {message.text && (
+        <DattaAlert type={message.type || 'info'}>{message.text}</DattaAlert>
+      )}
+      <div className="row">
+        <div className="col-lg-4 col-md-12">
+          <DattaCard title={editTemplate ? `Modifier la catégorie "${editTemplate.nom}"` : 'Ajouter une nouvelle catégorie'}>
+            <form onSubmit={handleSaveCategory}>
           <div className="mb-3">
             <label htmlFor="categoryName">Nom de la catégorie <span className="obligatoire">*</span></label>
             <input
@@ -432,77 +430,89 @@ export default function AdminCategories() {
             )}
           </div>
         </form>
-      </div>
-
-      <div className="category-list-panel">
-        <div className="category-section">
-          <div className="category-section-header">
-            <h3>Catégories Actives ({categories.length})</h3>
-          </div>
-          {loading && categories.length === 0 && <div className="loading-message">Chargement des catégories...</div>}
-          {!loading && categories.length === 0 && !(message.text && message.type === 'info') && <p>Aucune catégorie active pour le moment.</p>}
-          <ul className="categories-list">
-            {categories.map(cat => (
-              <li key={cat.id} className="category-item">
-                <div className="category-info">
-                  <span className="category-name">{cat.nom}</span>
-                  <span className="category-details">(ID: {cat.id}, Ordre: {cat.ordre || 0}, {cat.champs ? cat.champs.length : 0} champs)</span>
-                </div>
-                <div className="category-actions">
-                  <DattaButton onClick={() => handleEditCategory(cat)} variant="secondary" size="sm" className="btn" aria-label="Éditer la catégorie">
-                    <EditIcon /> Éditer
-                  </DattaButton>
-                  <DattaButton onClick={() => handleHideCategory(cat.id)} variant="danger" size="sm" className="btn" aria-label="Masquer la catégorie">
-                    <HideIcon /> Masquer
-                  </DattaButton>
-                </div>
-              </li>
-            ))}
-          </ul>
+          </DattaCard>
         </div>
 
-        <div className="category-section">
-          <div className="category-section-header">
-            <h3>Catégories Masquées ({categoriesMasquees.length})</h3>
-            {(categoriesMasquees.length > 0 || afficherMasquees || (loading && categoriesMasquees.length === 0)) && (
-                <DattaButton
-                    onClick={() => setAfficherMasquees(!afficherMasquees)}
-                    variant="tertiary"
-                    size="sm"
-                    aria-expanded={afficherMasquees}
-                >
-                    {afficherMasquees ? 'Cacher la liste' : 'Afficher la liste'}
-                </DattaButton>
-            )}
-          </div>
-          {afficherMasquees && (
-            <>
-              {loading && categoriesMasquees.length === 0 && <div className="loading-message">Chargement des catégories masquées...</div>}
-              {!loading && categoriesMasquees.length === 0 && <p>Aucune catégorie masquée actuellement.</p>}
-              {categoriesMasquees.length > 0 && (
-                <ul className="categories-list categories-list-masquees">
-                  {categoriesMasquees.map(cat => (
-                    <li key={cat.id} className="category-item category-item-masked">
-                      <div className="category-info">
-                        <span className="category-name">{cat.nom}</span>
-                        <span className="category-details">(ID: {cat.id}, Ordre: {cat.ordre || 0}, {cat.champs ? cat.champs.length : 0} champs)</span>
-                      </div>
-                      <div className="category-actions">
-                        <DattaButton onClick={() => handleRestoreCategory(cat.id)} variant="success" size="sm" className="btn" aria-label="Démasquer la catégorie">
-                          <UnhideIcon /> Démasquer
-                        </DattaButton>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
+        <div className="col-lg-8 col-md-12">
+          <DattaCard title={`Catégories Actives (${categories.length})`}>
+          {loading && categories.length === 0 && (
+            <div className="loading-message">Chargement des catégories...</div>
           )}
-          {!afficherMasquees && categoriesMasquees.length === 0 && !loading && <p>Aucune catégorie n'est actuellement masquée.</p>}
-          {!afficherMasquees && categoriesMasquees.length > 0 && !loading && <p>{categoriesMasquees.length} catégorie(s) masquée(s). Cliquez sur "Afficher la liste" pour les voir et les gérer.</p>}
+          {!loading && categories.length === 0 && !(message.text && message.type === 'info') && (
+            <p>Aucune catégorie active pour le moment.</p>
+          )}
+          <div className="list-group list-group-flush">
+            {categories.map(cat => (
+              <div key={cat.id} className="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 className="mb-1">{cat.nom}</h6>
+                  <div>
+                    <span className="badge bg-success me-2">{cat.champs ? `${cat.champs.length} champs` : '0 champ'}</span>
+                    <span className="badge bg-secondary">Ordre: {cat.ordre || 0}</span>
+                  </div>
+                </div>
+                <div className="btn-group">
+                  <DattaButton variant="light-primary" size="sm" icon="feather icon-edit" onClick={() => handleEditCategory(cat)}>
+                    Éditer
+                  </DattaButton>
+                  <DattaButton variant="light-danger" size="sm" icon="feather icon-eye-off" onClick={() => handleHideCategory(cat.id)}>
+                    Masquer
+                  </DattaButton>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        </div>
-      </div>
+          </DattaCard>
+          <DattaCard title={`Catégories Masquées (${categoriesMasquees.length})`} className="mt-4">
+            {(categoriesMasquees.length > 0 || afficherMasquees || (loading && categoriesMasquees.length === 0)) && (
+              <DattaButton
+                onClick={() => setAfficherMasquees(!afficherMasquees)}
+                variant="tertiary"
+                size="sm"
+                aria-expanded={afficherMasquees}
+                className="mb-3"
+              >
+                {afficherMasquees ? 'Cacher la liste' : 'Afficher la liste'}
+              </DattaButton>
+            )}
+            {afficherMasquees && (
+              <>
+                {loading && categoriesMasquees.length === 0 && (
+                  <div className="loading-message">Chargement des catégories masquées...</div>
+                )}
+                {!loading && categoriesMasquees.length === 0 && <p>Aucune catégorie masquée actuellement.</p>}
+                {categoriesMasquees.length > 0 && (
+                  <div className="list-group list-group-flush">
+                    {categoriesMasquees.map(cat => (
+                      <div key={cat.id} className="list-group-item d-flex justify-content-between align-items-start">
+                        <div>
+                          <h6 className="mb-1">{cat.nom}</h6>
+                          <div>
+                            <span className="badge bg-success me-2">{cat.champs ? `${cat.champs.length} champs` : '0 champ'}</span>
+                            <span className="badge bg-secondary">Ordre: {cat.ordre || 0}</span>
+                          </div>
+                        </div>
+                        <div className="btn-group">
+                          <DattaButton variant="light-success" size="sm" icon="feather icon-eye" onClick={() => handleRestoreCategory(cat.id)}>
+                            Démasquer
+                          </DattaButton>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+            {!afficherMasquees && categoriesMasquees.length === 0 && !loading && (
+              <p>Aucune catégorie n'est actuellement masquée.</p>
+            )}
+            {!afficherMasquees && categoriesMasquees.length > 0 && !loading && (
+              <p>
+                {categoriesMasquees.length} catégorie(s) masquée(s). Cliquez sur "Afficher la liste" pour les voir et les gérer.
+              </p>
+            )}
+          </DattaCard>
         </div>
       </div>
     </div>
