@@ -158,7 +158,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                 <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
                   <div className="card h-100">
                     <div className="card-body">
-                      <div className="d-flex align-items-center">
+                      <div className="d-flex align-items-start">
                         <div className="flex-shrink-0">
                           <div className="avtar avtar-s bg-light-warning">
                             <i className="feather icon-user-x"></i>
@@ -167,17 +167,17 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
                         <div className="flex-grow-1 ms-3">
                           <h6 className="mb-0">Individus non attribués</h6>
                           <p className="mb-0 text-muted">{stats.individusNonAttribues}</p>
-                        </div>
-                        <div className="flex-shrink-0 ms-3">
-                          {stats.individusNonAttribues > 0 ? (
-                            <div className="badge bg-light-warning text-warning">
-                              <i className="feather icon-alert-triangle"></i> {stats.individusNonAttribues}
-                            </div>
-                          ) : (
-                            <div className="badge bg-light-success text-success">
-                              <i className="feather icon-check"></i> Tous attribués
-                            </div>
-                          )}
+                          <div className="mt-2">
+                            {stats.individusNonAttribues > 0 ? (
+                              <div className="badge bg-light-warning text-warning">
+                                <i className="feather icon-alert-triangle"></i> {stats.individusNonAttribues}
+                              </div>
+                            ) : (
+                              <div className="badge bg-light-success text-success">
+                                <i className="feather icon-check"></i> Tous attribués
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
