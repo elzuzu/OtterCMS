@@ -120,6 +120,11 @@ try {
         npm install --save-dev @electron/packager
         if ($LASTEXITCODE -ne 0) { throw "Installation de @electron/packager echouée" }
     }
+    Write-ColorText "   🔧 Configuration des dépendances natives..." $Yellow
+    npm run setup-native-deps
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorText "   ⚠️ Setup des dépendances natives échoué, mais on continue..." $Yellow
+    }
     npx electron-packager . "Indi-Suivi" --platform=win32 --arch=x64 --out=release-builds --overwrite --icon="src/assets/app-icon.ico"
     if ($LASTEXITCODE -eq 0) {
         Write-ColorText "`n✅ Build simple terminé" $Green

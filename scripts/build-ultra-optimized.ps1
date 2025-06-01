@@ -148,6 +148,12 @@ try {
         Write-ColorText "   ✓ node_modules nettoyé" $Green
     }
 
+    Write-ColorText "   🔧 Configuration des dépendances natives..." $Yellow
+    npm run setup-native-deps
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorText "   ⚠️ Setup des dépendances natives échoué, mais on continue..." $Yellow
+    }
+
     Write-ColorText "🏗️ Build avec optimisations maximales..." $Yellow
 
     Write-ColorText "   📝 Build main.js optimisé..." $Cyan

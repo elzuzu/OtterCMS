@@ -16,6 +16,12 @@ Ce document résume la mise en place d'un environnement local pour développer �
    npm install --include=dev
    ```
    Le script `postinstall` télécharge les modules natifs précompilés pour Electron.
+   Si un message d'erreur apparaît lors de la compilation de `ffi-napi` ou d'autres modules,
+   exécutez :
+   ```bash
+   npm run setup-native-deps
+   ```
+   Cela tentera d'utiliser les binaires précompilés fournis par `electron-builder`.
 2. Lancez le script d'installation pour créer la configuration et la base SQLite :
    ```bash
    npm run install-app

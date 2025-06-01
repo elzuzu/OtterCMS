@@ -175,6 +175,11 @@ module.exports = {
             throw "Échec de l'installation d'Electron Forge"
         }
     }
+    Write-ColorText "   🔧 Configuration des dépendances natives..." $Yellow
+    npm run setup-native-deps
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorText "   ⚠️ Setup des dépendances natives échoué, mais on continue..." $Yellow
+    }
     
     # Build des composants Vite d'abord
     Write-Host "`n🛠️ Build des composants..." -ForegroundColor Yellow

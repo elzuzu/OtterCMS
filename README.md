@@ -80,6 +80,13 @@ Génération d'un installateur via **electron-builder** :
 npm run dist
 ```
 
+Si la compilation des dépendances natives échoue, lancez :
+
+```bash
+npm run setup-native-deps
+```
+pour récupérer automatiquement les binaires précompilés.
+
 Des scripts PowerShell complètent le build sous Windows, par exemple `scripts/build-app.ps1` ou `scripts/build-ultra-optimized.ps1` pour une version allégée.
 
 Les exécutables sont déposés dans le dossier `release-builds/`.
