@@ -78,10 +78,10 @@ function main() {
             'Rebuild direct des modules natifs'
         );
         if (!directRebuildSuccess) {
-            console.log('⚠️ [Postinstall] Rebuild direct échoué, essai avec better-sqlite3 seulement...');
+            console.log('⚠️ [Postinstall] Rebuild direct échoué, essai avec better-sqlite3 et ffi-napi seulement...');
             const sqlite3RebuildSuccess = runCommand(
-                'npx electron-rebuild --force --only better-sqlite3',
-                'Rebuild de better-sqlite3 uniquement'
+                'npx electron-rebuild --force --only better-sqlite3,ffi-napi',
+                'Rebuild de better-sqlite3 et ffi-napi'
             );
             if (!sqlite3RebuildSuccess) {
                 console.error('❌ [Postinstall] ATTENTION: Toutes les tentatives de rebuild ont échoué. L\'application pourrait ne pas fonctionner correctement.');

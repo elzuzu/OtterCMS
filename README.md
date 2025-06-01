@@ -36,6 +36,9 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 
 - **Node.js 20** ou version ultérieure
 - **npm** ou équivalent (pnpm, Yarn)
+- Sous **Windows**, installez les *Visual Studio Build Tools* avec le composant
+  « Desktop development with C++ » pour permettre la compilation des modules
+  natifs (node-gyp).
 
 ## Installation rapide
 

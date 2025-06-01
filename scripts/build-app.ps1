@@ -298,7 +298,7 @@ module.exports = { Logger };
             Write-ColorText "   ✓ Utils copiés dans le build" $Green
         }
         Write-ColorText "`n🔧 Rebuild des modules natifs..." $Yellow
-    npx electron-rebuild -f -w better-sqlite3
+    npx electron-rebuild -f -w better-sqlite3 -w ffi-napi
         if ($LASTEXITCODE -ne 0) {
         Write-ColorText "   ⚠️ Rebuild des modules natifs échoué (code: $LASTEXITCODE). Cela peut causer des problèmes d'exécution." $Yellow
         } else {

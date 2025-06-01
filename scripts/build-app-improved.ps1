@@ -24,6 +24,18 @@ function Write-ColorText($Text, $Color) {
     $Host.UI.RawUI.ForegroundColor = $currentColor
 }
 
+# Vérifie la présence des outils de build Visual Studio nécessaires à node-gyp
+function Test-VSBuildTools {
+    $vswhere = Join-Path "${env:ProgramFiles(x86)}" "Microsoft Visual Studio\\Installer\\vswhere.exe"
+    if (-not (Test-Path $vswhere)) { return $false }
+    try {
+        $path = & $vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath 2>$null
+        return -not [string]::IsNullOrWhiteSpace($path)
+    } catch {
+        return $false
+    }
+}
+
 # Fonction UPX améliorée
 function Invoke-UPXCompression {
     param(
@@ -135,6 +147,15 @@ try {
         Write-ColorText "   ✓ Node.js: $nodeVersion" $Green
     } catch {
         throw "Node.js n'est pas installé ou n'est pas dans le PATH"
+    }
+
+    # Vérifier Visual Studio Build Tools pour les modules natifs
+    if (-not (Test-VSBuildTools)) {
+        Write-ColorText "   ❌ Visual Studio Build Tools (Desktop development with C++) est requis" $Red
+        Write-ColorText "   Téléchargez-les depuis https://aka.ms/vsbuildtools" $Red
+        throw "Outils Visual Studio manquants"
+    } else {
+        Write-ColorText "   ✓ Outils Visual Studio détectés" $Green
     }
     
     # Vérifier l'icône
@@ -328,7 +349,7 @@ module.exports = { Logger };
         # Rebuild des modules natifs (si pas ignoré)
         if (-not $SkipNativeDeps) {
             Write-ColorText "`n🔧 Rebuild des modules natifs..." $Yellow
-            npx electron-rebuild -f -w better-sqlite3
+            npx electron-rebuild -f -w better-sqlite3 -w ffi-napi
             if ($LASTEXITCODE -ne 0) {
                 Write-ColorText "   ⚠️ Rebuild des modules natifs échoué (code: $LASTEXITCODE). Cela peut causer des problèmes d'exécution." $Yellow
             } else {
