@@ -170,7 +170,7 @@ export default function MainContent({ user, onLogout }) {
       case 'template':
         return (
           <Suspense fallback={<ComponentLoader />}>
-            <LazyComponents.AdminTemplate />
+            <LazyComponents.AdminTemplate user={user} />
           </Suspense>
         );
       case 'settings':

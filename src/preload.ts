@@ -59,11 +59,24 @@ contextBridge.exposeInMainWorld('api', {
   importCSV: (params: any) => ipcRenderer.invoke('importCSV', params),
 
   // Attribution en masse
-  attribuerIndividusEnMasse: (params: any) => 
+  attribuerIndividusEnMasse: (params: any) =>
     ipcRenderer.invoke('attribuerIndividusEnMasse', params),
 
   // Statistiques
   getDashboardStats: (params: any) => ipcRenderer.invoke('getDashboardStats', params),
+
+  // === Configuration de bordure globale ===
+  getBorderTemplate: () => ipcRenderer.invoke('get-border-template'),
+  setBorderTemplate: (data: any) => ipcRenderer.invoke('set-border-template', data),
+  getBorderTemplateHistory: (limit: number) => ipcRenderer.invoke('get-border-template-history', limit),
+  repairBorderConfig: () => ipcRenderer.invoke('repair-border-config'),
+  onBorderTemplateChanged: (callback: (event: any, data: any) => void) => {
+    const handler = (_event: any, data: any) => {
+      if (typeof callback === 'function') callback(data);
+    };
+    ipcRenderer.on('border-template-changed', handler);
+    return () => ipcRenderer.removeListener('border-template-changed', handler);
+  },
 
   // Événements
   onImportProgress: (callback: (event: any, data: any) => void) => {

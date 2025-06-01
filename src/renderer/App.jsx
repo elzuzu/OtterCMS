@@ -3,6 +3,7 @@ import React, { useState, lazy, Suspense, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import useTheme from './hooks/useTheme';
 import DattaButton from './components/common/DattaButton';
+import borderTemplateService from './services/borderTemplateService';
 const Auth = lazy(() => import('./components/Auth'));
 const MainContent = lazy(() => import('./components/MainContent'));
 
@@ -17,23 +18,25 @@ function LoadingFallback() {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [initError, setInitError] = useState(null);
   const { theme } = useTheme();
 
   useEffect(() => {
-    async function applyWindowBorder() {
-      let color = localStorage.getItem('windowBorderColor');
-      let width = localStorage.getItem('windowBorderWidth');
-      if ((!color || !width) && window.api && window.api.getConfig) {
-        const result = await window.api.getConfig();
-        if (result.success && result.data && result.data.windowBorder) {
-          color = color || result.data.windowBorder.color;
-          width = width || String(result.data.windowBorder.width);
-        }
+    const initializeApp = async () => {
+      try {
+        await borderTemplateService.initialize();
+        setIsInitialized(true);
+      } catch (e) {
+        console.warn('Erreur initialisation service de bordure:', e);
+        setInitError(e.message);
+        setIsInitialized(true);
       }
-      if (color) document.body.style.setProperty('--window-border-color', color);
-      if (width) document.body.style.setProperty('--window-border-width', width + 'px');
-    }
-    applyWindowBorder();
+    };
+    initializeApp();
+    return () => {
+      try { borderTemplateService.destroy(); } catch (e) { console.error('cleanup', e); }
+    };
   }, []);
 
   const handleLogout = () => {
@@ -41,6 +44,36 @@ export default function App() {
     // Optionally, clear any persisted user session data here
   };
 
+
+  if (!isInitialized) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="text-center">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Chargement...</span>
+          </div>
+          <p>Initialisation de l'application...</p>
+          <small className="text-muted">Configuration des services en cours...</small>
+        </div>
+      </div>
+    );
+  }
+
+  if (initError) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="text-center">
+          <div className="alert alert-warning mb-3">
+            <i className="feather icon-alert-triangle mb-2" style={{ fontSize: '2rem' }}></i>
+            <h5>Initialisation incomplète</h5>
+            <p>L'application fonctionne en mode dégradé :</p>
+            <small>{initError}</small>
+          </div>
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Réessayer</button>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

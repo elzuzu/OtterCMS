@@ -59,6 +59,7 @@ const xlsx = require('xlsx');
 const { log, logError, logIPC, logger } = require('./utils/logger'); // Assuming 'logger' is the instance with setLevel
 const { inferType } = require('./utils/inferType');
 const os = require('os');
+const ConfigService = require('./main/services/configService');
 
 const DEFAULT_ROLE_PERMISSIONS = {
   admin: [
@@ -92,6 +93,9 @@ let db;
 
 // Object to store prepared statements
 const preparedStatements = {};
+
+// Global configuration service
+let configService;
 
 // Path and helpers for per-user settings
 const userSettingsPath = path.join(app.getPath('userData'), 'user-settings.json');
@@ -444,6 +448,16 @@ function initDb() {
         }
     }
     initPreparedStatements();
+    configService = new ConfigService(db);
+    if (configService) {
+      configService.on('border-template-changed', (tpl) => {
+        BrowserWindow.getAllWindows().forEach(win => {
+          if (win && !win.isDestroyed()) {
+            win.webContents.send('border-template-changed', tpl);
+          }
+        });
+      });
+    }
   } catch (error) {
     logError('initDb', error);
     if (error.code === 'SQLITE_CANTOPEN' || (error.message && (error.message.includes("no such table") || error.message.includes("file is not a database"))) ) {
@@ -520,6 +534,51 @@ ipcMain.handle('set-theme', async (event, theme) => {
   settings.theme = theme;
   const ok = saveUserSettings(settings);
   return { success: ok };
+});
+
+// === Global border template handlers ===
+ipcMain.handle('get-border-template', async () => {
+  try {
+    if (!configService) return { success: true, data: { template: 'default', color: 'transparent', width: '0px', name: 'Standard', environment: 'production' }, degradedMode: true };
+    return await configService.getBorderTemplate();
+  } catch (err) {
+    logError('get-border-template', err);
+    return { success: true, data: { template: 'default', color: 'transparent', width: '0px', name: 'Standard', environment: 'production' }, degradedMode: true, error: err.message };
+  }
+});
+
+ipcMain.handle('set-border-template', async (event, templateData) => {
+  try {
+    if (!configService) return { success: false, error: 'Service de configuration non disponible' };
+    // Dummy current user retrieval, to be replaced with real auth
+    const currentUser = { id: 1, role: 'admin' };
+    if (!currentUser || currentUser.role !== 'admin') return { success: false, error: 'Permissions insuffisantes' };
+    const result = await configService.setBorderTemplate(templateData, currentUser.id);
+    return result;
+  } catch (err) {
+    logError('set-border-template', err);
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('get-border-template-history', async (event, limit) => {
+  try {
+    if (!configService) return { success: true, data: [], degradedMode: true };
+    return await configService.getConfigHistory(limit);
+  } catch (err) {
+    logError('get-border-template-history', err);
+    return { success: true, data: [], error: err.message };
+  }
+});
+
+ipcMain.handle('repair-border-config', async () => {
+  try {
+    if (!configService) return { success: false, error: 'Service de configuration non disponible' };
+    return await configService.checkAndRepairConfig();
+  } catch (err) {
+    logError('repair-border-config', err);
+    return { success: false, error: err.message };
+  }
 });
 
 ipcMain.handle('auth-login', async (event, { username, password }) => {
