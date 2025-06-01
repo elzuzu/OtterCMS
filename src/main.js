@@ -17,18 +17,56 @@ if (!isDev) {
   }
 }
 const bcrypt = require('bcryptjs');
-// Chargement de ffi-napi pour la gestion des bordures natives Windows
-let ffi, ref, dwmapi;
+const { loadLibrary, type } = require('koffi');
+
+let dwmapi = null;
 if (process.platform === 'win32') {
   try {
-    ffi = require('ffi-napi');
-    ref = require('ref-napi');
-    dwmapi = ffi.Library('dwmapi', {
-      DwmSetWindowAttribute: ['long', ['long', 'uint32', 'pointer', 'uint32']]
-    });
+    dwmapi = loadLibrary('dwmapi.dll');
+    dwmapi.buildProxy(
+      'DwmSetWindowAttribute',
+      type('long'),
+      [
+        type('pointer'),
+        type('uint32'),
+        type('pointer'),
+        type('uint32')
+      ]
+    );
   } catch (err) {
-    console.error('Erreur chargement ffi/ref ou dwmapi:', err.message);
+    console.error('Erreur chargement de koffi / dwmapi.dll :', err);
     dwmapi = null;
+  }
+}
+
+/**
+ * Fixe la couleur de bordure Windows (DWM) pour une BrowserWindow Electron.
+ * @param {BrowserWindow} win - instance de BrowserWindow.
+ * @param {number} rgbColor - couleur au format 0xRRGGBB.
+ */
+function setWindowBorderColor(win, rgbColor) {
+  if (!dwmapi) return;
+
+  const hwndBuf = win.getNativeWindowHandle();
+  const colorBuf = Buffer.alloc(4);
+  const r = (rgbColor >> 16) & 0xff;
+  const g = (rgbColor >> 8) & 0xff;
+  const b = rgbColor & 0xff;
+  colorBuf.writeUInt8(b, 0);
+  colorBuf.writeUInt8(g, 1);
+  colorBuf.writeUInt8(r, 2);
+  colorBuf.writeUInt8(0x00, 3);
+
+  const DWMWA_BORDER_COLOR = 34;
+  const hr = dwmapi.DwmSetWindowAttribute(
+    hwndBuf,
+    DWMWA_BORDER_COLOR,
+    colorBuf,
+    colorBuf.length
+  );
+
+  if (hr !== 0) {
+    console.warn('DwmSetWindowAttribute a \u00e9chou\u00e9 (HRESULT):', hr);
   }
 }
 // Better-sqlite3 avec gestion d'erreur pour l'app packagée
@@ -115,20 +153,14 @@ let configService;
 
 // Applique une bordure native sous Windows via DWM
 function applyWindowsBorder(win, template) {
-  if (process.platform !== 'win32' || !dwmapi || !win || win.isDestroyed()) return;
+  if (process.platform !== 'win32' || !win || win.isDestroyed()) return;
   try {
-    const hwnd = win.getNativeWindowHandle().readInt32LE();
-    let colorValue = 0;
+    let rgbColor = 0;
     if (template && template.color && template.color !== 'transparent') {
-      const hex = template.color.replace('#', '');
-      const r = parseInt(hex.substr(0, 2), 16);
-      const g = parseInt(hex.substr(2, 2), 16);
-      const b = parseInt(hex.substr(4, 2), 16);
-      colorValue = (b << 16) | (g << 8) | r; // format BGR
+      rgbColor = parseInt(template.color.replace('#', ''), 16);
     }
-    const colorBuffer = ref.alloc('uint32', colorValue);
-    dwmapi.DwmSetWindowAttribute(hwnd, 35, colorBuffer, 4);
-    console.log(`Bordure Windows appliquée: ${template.color} -> ${colorValue}`);
+    setWindowBorderColor(win, rgbColor);
+    console.log(`Bordure Windows appliquée: ${template.color} -> ${rgbColor}`);
   } catch (err) {
     logError('applyWindowsBorder', err);
   }
@@ -165,7 +197,7 @@ function debugWindowsBorder(win, template) {
     return;
   }
   if (!dwmapi) {
-    console.log('\u274c API DWM non disponible (ffi-napi manquant?)');
+    console.log('\u274c API DWM non disponible (koffi/dwmapi manquant?)');
     return;
   }
   if (!win || win.isDestroyed()) {
@@ -1875,6 +1907,7 @@ async function createWindow () {
     frame: false,
     // Fond clair par défaut
     backgroundColor: '#f4f7fa',
+    show: false,
     autoHideMenuBar: true,
     title: config.appTitle || 'Indi-Suivi',
     webPreferences: {
@@ -1910,6 +1943,13 @@ async function createWindow () {
       logError('createWindow apply border', err);
     }
   }
+
+  win.once('ready-to-show', () => {
+    if (process.platform === 'win32') {
+      setWindowBorderColor(win, 0xFF0000);
+    }
+    win.show();
+  });
 
   const indexPath = app.isPackaged 
     ? path.join(__dirname, '..', '..', 'dist', 'index.html')
