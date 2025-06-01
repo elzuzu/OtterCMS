@@ -1096,8 +1096,7 @@ export default function ImportData({ user }) {
               Annuler
             </DattaButton>
             <DattaButton type="submit" variant="primary">Sauvegarder</DattaButton>
-          </DattaButton>
-        </div>
+          </div>
         </form>
       </DattaModal>
     );
