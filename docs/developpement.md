@@ -7,6 +7,7 @@ Ce document résume la mise en place d'un environnement local pour développer �
 - **Node.js 20 LTS** ou version ultérieure.
 - **npm** est recommandé pour la gestion des dépendances. Yarn ou pnpm fonctionnent mais ne sont pas testés.
 - Un système Windows, macOS ou Linux récent.
+- Sous **Windows**, les *Visual Studio Build Tools* avec le composant « Desktop development with C++ » doivent être installés pour permettre la compilation des dépendances natives.
 
 ## Installation des dépendances
 

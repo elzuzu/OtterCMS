@@ -21,7 +21,7 @@
     "dist:packager": "npm run build && electron-packager . \"Indi-Suivi\" --platform=win32 --arch=x64 --out=release-builds --overwrite",
     "install-app": "node ./scripts/install.js",
     "clean": "rimraf out dist .vite release-builds build",
-    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "rebuild": "electron-rebuild -f -w better-sqlite3 -w ffi-napi",
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
     "postinstall": "node scripts/robust-postinstall.js",
     "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
