@@ -219,10 +219,12 @@ module.exports = { Logger };
         
         # Installation des dépendances principales
         Write-ColorText "   📥 npm install (avec dev)..." $Gray
+        npm config set registry https://registry.npmjs.org/ | Out-Null
         npm install --include=dev --no-audit --prefer-offline
         if ($LASTEXITCODE -ne 0) {
             Write-ColorText "   ⚠️ npm install a échoué, tentative sans cache..." $Yellow
             npm cache clean --force
+            npm config set registry https://registry.npmjs.org/ | Out-Null
             npm install --include=dev --no-audit
             if ($LASTEXITCODE -ne 0) {
                 throw "Échec de l'installation des dépendances (code: $LASTEXITCODE)"
