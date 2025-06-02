@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$BuildPath = "release-builds",
     [int]$CompressionLevel = 9,
     [switch]$Verbose = $false,
