@@ -10,6 +10,8 @@ import DattaButton from './common/DattaButton';
 import DattaCard from './common/DattaCard';
 import DattaModal from './common/DattaModal';
 import { evaluateDynamicField } from '../utils/dynamic';
+import { DattaTextField } from './common/DattaForm';
+import DattaCheckbox from './common/DattaCheckbox';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -459,18 +461,11 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
             </DattaButton>
           </div>
           <div className="col-md-4 ms-auto">
-            <div className="input-group">
-              <span className="input-group-text">
-                <i className="feather icon-search"></i>
-              </span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Rechercher..."
-                value={filtre}
-                onChange={e => setFiltre(e.target.value)}
-              />
-            </div>
+            <DattaTextField
+              placeholder="Rechercher..."
+              value={filtre}
+              onChange={e => setFiltre(e.target.value)}
+            />
           </div>
           <div className="col-auto">
             <DattaButton variant="secondary" size="sm" onClick={handleConfigColonnes}>
@@ -484,10 +479,12 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
           <div className="colonnes-grid">
             {champsDisponibles.map(champ => (
               <div key={champ.key} className="colonne-option">
-                <label htmlFor={`col-${champ.key}`}>
-                  <input type="checkbox" id={`col-${champ.key}`} checked={colonnesAffichees.includes(champ.key)} onChange={() => handleToggleColonne(champ.key)}/>
-                  {champ.label} <small className="text-muted">({champ.categorieNom})</small>
-                </label>
+                <DattaCheckbox
+                  id={`col-${champ.key}`}
+                  label={<span>{champ.label} <small className="text-muted">({champ.categorieNom})</small></span>}
+                  checked={colonnesAffichees.includes(champ.key)}
+                  onChange={() => handleToggleColonne(champ.key)}
+                />
               </div>
             ))}
             {champsDisponibles.length === 0 && <p className="text-muted fst-italic">Aucun champ supplémentaire configurable n'est défini.</p>}

@@ -3,6 +3,7 @@ import DattaDataTable from './common/DattaDataTable';
 import DattaButton from './common/DattaButton';
 import DattaCard from './common/DattaCard';
 import DattaAlert from './common/DattaAlert';
+import { DattaTextField, DattaSelect } from './common/DattaForm';
 import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminUsers() {
@@ -152,48 +153,39 @@ export default function AdminUsers() {
         <div className="col-xl-4 col-md-12">
           <DattaCard title={editingUser ? 'Modifier un utilisateur' : 'Ajouter un utilisateur'}>
             <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label>Nom d'utilisateur:</label>
-            <input
-              type="text"
-              name="username"
-              value={newUser.username}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <label>Mot de passe {editingUser ? "(laisser vide pour ne pas changer)" : ""}:</label>
-            <input
-              type="password"
-              name="password"
-              value={newUser.password}
-              onChange={handleInputChange}
-              required={!editingUser}
-            />
-          </div>
-          <div className="mb-3">
-            <label>Rôle:</label>
-            <select
-              name="role"
-              value={newUser.role}
-              onChange={handleInputChange}
-            >
-              <option value="user">Utilisateur</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Administrateur</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label>Login Windows (sans domaine):</label>
-            <input
-              type="text"
-              name="windows_login"
-              value={newUser.windows_login}
-              onChange={handleInputChange}
-              placeholder="Nom d'utilisateur Windows sans domaine"
-            />
-          </div>
+          <DattaTextField
+            label="Nom d'utilisateur"
+            name="username"
+            value={newUser.username}
+            onChange={handleInputChange}
+            required
+          />
+          <DattaTextField
+            type="password"
+            label={`Mot de passe ${editingUser ? '(laisser vide pour ne pas changer)' : ''}`}
+            name="password"
+            value={newUser.password}
+            onChange={handleInputChange}
+            required={!editingUser}
+          />
+          <DattaSelect
+            label="Rôle"
+            name="role"
+            value={newUser.role}
+            onChange={handleInputChange}
+            options={[
+              { value: 'user', label: 'Utilisateur' },
+              { value: 'manager', label: 'Manager' },
+              { value: 'admin', label: 'Administrateur' },
+            ]}
+          />
+          <DattaTextField
+            label="Login Windows (sans domaine)"
+            name="windows_login"
+            value={newUser.windows_login}
+            onChange={handleInputChange}
+            placeholder="Nom d'utilisateur Windows sans domaine"
+          />
           <div className="form-actions">
             <DattaButton type="submit" variant="primary" disabled={loading}>
               {loading ? 'En cours...' : (editingUser ? 'Mettre à jour' : 'Ajouter')}
@@ -215,12 +207,11 @@ export default function AdminUsers() {
           <DattaCard
             title={`Liste des utilisateurs (${filteredUsers.length})`}
             actions={(
-              <input
-                type="text"
+              <DattaTextField
                 placeholder="🔍 Rechercher..."
                 value={filter}
                 onChange={e => setFilter(e.target.value)}
-                className="form-control form-control-sm"
+                style={{ marginBottom: 0 }}
               />
             )}
           >

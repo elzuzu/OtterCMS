@@ -3,6 +3,7 @@ import DattaPageTitle from './common/DattaPageTitle';
 import CircularProgress from './common/CircularProgress';
 import DattaButton from './common/DattaButton';
 import DattaEmptyState from './common/DattaEmptyState';
+import DattaCard from './common/DattaCard';
 
 export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToAllIndividus }) {
   const [stats, setStats] = useState(null);
@@ -40,11 +41,11 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
     return (
       <div className="pc-content">
         <DattaPageTitle title="Tableau de bord" />
-        <div className="card">
-          <div className="card-body" style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <DattaCard>
+          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
             <CircularProgress />
           </div>
-        </div>
+        </DattaCard>
       </div>
     );
   }
@@ -53,8 +54,8 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
     return (
       <div className="pc-content">
         <DattaPageTitle title="Tableau de bord" />
-        <div className="card">
-          <div className="card-body">
+        <DattaCard>
+          <div>
             <div className="error-message" style={{ margin: 'var(--spacing-4) 0' }}>
               {error}
               <DattaButton variant="secondary" onClick={loadStats} style={{ marginLeft: 'var(--spacing-3)' }}>
@@ -62,7 +63,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
               </DattaButton>
             </div>
           </div>
-        </div>
+        </DattaCard>
       </div>
     );
   }
@@ -71,17 +72,17 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
     <div className="pc-content">
       <DattaPageTitle title="Tableau de bord" />
       {!stats ? (
-        <div className="card">
-          <div className="card-body text-center">
+        <DattaCard>
+          <div className="text-center">
             <DattaEmptyState message="Aucune statistique disponible pour le moment." />
             <DattaButton variant="primary" onClick={loadStats} style={{ marginTop: 'var(--spacing-3)' }}>
               Recharger
             </DattaButton>
           </div>
-        </div>
+        </DattaCard>
       ) : (
-        <div className="card">
-          <div className="card-body">
+        <DattaCard>
+          <div>
             <div className="row">
               {stats.mesIndividus !== undefined && (
                 <div className="col-lg-3 col-md-6 col-sm-12 mb-4">
@@ -253,7 +254,7 @@ export default function Dashboard({ user, onNavigateToMyIndividus, onNavigateToA
               )}
             </div>
           </div>
-        </div>
+        </DattaCard>
       )}
     </div>
   );

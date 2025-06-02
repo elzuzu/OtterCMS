@@ -3,6 +3,7 @@ import { DattaTextField } from './common/DattaForm';
 import DattaAlert from './common/DattaAlert';
 import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
+import DattaCard from './common/DattaCard';
 
 export default function UserSettings({ user }) {
   const [loginWin, setLoginWin] = useState('');
@@ -41,7 +42,7 @@ export default function UserSettings({ user }) {
   return (
     <div className="pc-content user-settings">
       <DattaPageTitle title="Paramètres utilisateur" />
-      <div className="card" style={{ padding: 'var(--spacing-2)' }}>
+      <DattaCard style={{ padding: 'var(--spacing-2)' }}>
         <div className="mb-3">
           <label>Login Windows (nom d'utilisateur uniquement):</label>
           <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', marginTop: '0.25rem' }}>
@@ -57,17 +58,14 @@ export default function UserSettings({ user }) {
           </div>
           {message && <DattaAlert type={message.includes('succès') ? 'success' : 'error'}>{message}</DattaAlert>}
         </div>
-      </div>
-      <div className="card" style={{ marginTop: 'var(--spacing-3)' }}>
-        <div className="card-header">
-          <h6 className="section-title mb-0">Informations utilisateur</h6>
-        </div>
-        <div className="card-body user-info">
+      </DattaCard>
+      <DattaCard style={{ marginTop: 'var(--spacing-3)' }} title="Informations utilisateur">
+        <div className="user-info">
           <div>Nom d'utilisateur: <strong>{user.username}</strong></div>
           <div>Rôle actuel: <strong>{user.role}</strong></div>
           <div>ID utilisateur: <strong>{user.id || user.userId}</strong></div>
         </div>
-      </div>
+      </DattaCard>
     </div>
   );
 }

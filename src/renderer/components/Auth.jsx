@@ -4,6 +4,7 @@ import WindowControls from './common/WindowControls';
 // Utilisation des icônes Feather de Datta Able
 import DattaAlert from './common/DattaAlert';
 import DattaButton from './common/DattaButton';
+import { DattaTextField } from './common/DattaForm';
 
 export default function Auth({ setUser }) {
   const [username, setUsername] = useState('');
@@ -172,35 +173,24 @@ export default function Auth({ setUser }) {
               </div>
               <div className="card-body">
             <form onSubmit={handleLogin}>
-              <div className="mb-3 text-start">
-                <label className="form-label" htmlFor="username">
-                  <i className="feather icon-user me-1" /> Nom d'utilisateur
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  className="form-control"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Entrez votre nom d'utilisateur"
-                  required
-                  autoFocus
-                />
-              </div>
-              <div className="mb-4 text-start">
-                <label className="form-label" htmlFor="password">
-                  <i className="feather icon-lock me-1" /> Mot de passe
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  className="form-control"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Entrez votre mot de passe"
-                  required
-                />
-              </div>
+              <DattaTextField
+                id="username"
+                label={<><i className="feather icon-user me-1" /> Nom d'utilisateur</>}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Entrez votre nom d'utilisateur"
+                required
+                autoFocus
+              />
+              <DattaTextField
+                id="password"
+                type="password"
+                label={<><i className="feather icon-lock me-1" /> Mot de passe</>}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Entrez votre mot de passe"
+                required
+              />
               <DattaButton variant="primary" className="btn-block mb-4" type="submit" loading={loading || isInitializing}>
                 Se connecter
               </DattaButton>
