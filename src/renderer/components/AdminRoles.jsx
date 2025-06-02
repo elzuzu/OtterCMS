@@ -138,6 +138,5 @@ export default function AdminRoles({ user }) {
           />
         </DattaCard>
       </DattaCard>
-    </DattaCard>
   );
 }
