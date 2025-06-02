@@ -3,6 +3,10 @@ import { ALL_PERMISSIONS } from '../constants/permissions';
 import { hasPermission } from '../utils/permissions';
 import DattaDataTable from './common/DattaDataTable';
 import DattaButton from './common/DattaButton';
+import DattaCard from './common/DattaCard';
+import DattaAlert from './common/DattaAlert';
+import DattaCheckbox from './common/DattaCheckbox';
+import { DattaTextField } from './common/DattaForm';
 import { EditIcon, TrashIcon } from './common/Icons';
 
 export default function AdminRoles({ user }) {
@@ -57,43 +61,33 @@ export default function AdminRoles({ user }) {
   if (!hasPermission(user, 'manage_roles')) return <div>Accès refusé.</div>;
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <h5 className="mb-0">Gestion des rôles</h5>
-      </div>
+    <DattaCard title="Gestion des rôles">
       {message && (
-        <div className={`alert ${message.toLowerCase().includes('erreur') ? 'alert-danger' : 'alert-success'}`} role="alert">
+        <DattaAlert type={message.toLowerCase().includes('erreur') ? 'error' : 'success'}>
           {message}
-        </div>
+        </DattaAlert>
       )}
-      <div className="card mt-3"> {/* Added card for the form */}
-        <div className="card-header"> {/* Added card-header for the form title */}
-          <h5 className="mb-0">{editingRole ? 'Modifier un rôle' : 'Créer un rôle'}</h5> {/* Changed h3 to h5 and moved here */}
-        </div>
-        <div className="card-body"> {/* Added card-body for the form content */}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label>Nom du rôle:</label>
-            <input
-              value={roleName}
-              onChange={e => setRoleName(e.target.value)}
-              placeholder="Nom"
-              required
-            />
-          </div>
+      <DattaCard className="mt-3" title={editingRole ? 'Modifier un rôle' : 'Créer un rôle'}>
+        <form onSubmit={handleSubmit}>
+          <DattaTextField
+            label="Nom du rôle"
+            value={roleName}
+            onChange={e => setRoleName(e.target.value)}
+            placeholder="Nom"
+            required
+          />
           <div className="permissions-grid">
             {ALL_PERMISSIONS.map(p => (
-              <label key={p}>
-                <input
-                  type="checkbox"
-                  checked={rolePerms.includes(p)}
-                  onChange={() => togglePerm(p)}
-                />{' '}
-                {p}
-              </label>
+              <DattaCheckbox
+                key={p}
+                id={`perm-${p}`}
+                label={p}
+                checked={rolePerms.includes(p)}
+                onChange={() => togglePerm(p)}
+              />
             ))}
           </div>
-          <div className="form-actions mt-3"> {/* Added margin for spacing */}
+          <div className="form-actions mt-3">
             <DattaButton type="submit" variant="primary">
               {editingRole ? 'Mettre à jour' : 'Créer'}
             </DattaButton>
@@ -104,17 +98,12 @@ export default function AdminRoles({ user }) {
             )}
           </div>
         </form>
-        </div> {/* End card-body for form */}
-      </div> {/* End card for form */}
+      </DattaCard>
 
-      <div className="card mt-3"> {/* Added card for the roles list */}
-        <div className="card-header"> {/* Added card-header for the list title */}
-          <h5 className="mb-0">Rôles existants</h5> {/* Changed h3 to h5 and moved here */}
-        </div>
-        <div className="card-body"> {/* Added card-body for the list content */}
-          <DattaDataTable
-            data={roles}
-            getRowKey={r => r.name}
+      <DattaCard className="mt-3" title="Rôles existants">
+        <DattaDataTable
+          data={roles}
+          getRowKey={r => r.name}
         columns={[
           { header: 'Nom', accessor: 'name' },
           { header: 'Permissions', render: r => r.permissions.join(', ') },
@@ -147,8 +136,8 @@ export default function AdminRoles({ user }) {
           }
         ]}
           />
-        </div> {/* End card-body for list */}
-      </div> {/* End card for list */}
-    </div>
+        </DattaCard>
+      </DattaCard>
+    </DattaCard>
   );
 }

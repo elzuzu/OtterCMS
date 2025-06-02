@@ -7,6 +7,8 @@ import DattaPageTitle from './common/DattaPageTitle';
 import DattaButton from './common/DattaButton';
 import DattaStepper, { Step, StepLabel } from './common/DattaStepper';
 import DattaTabs, { Tab } from './common/DattaTabs';
+import DattaCard from './common/DattaCard';
+import { DattaTextField, DattaSelect } from './common/DattaForm';
 
 // Constantes pour les types de champs disponibles
 const FIELD_TYPES = [
@@ -894,26 +896,37 @@ export default function ImportData({ user }) {
   const renderOracleConnectionStep = () => {
     return (
       <div className="wizard-panel-content">
-        <div className="mb-3">
-          <label>Serveur</label>
-          <input type="text" className="stylish-input" value={oracleConfig.host} onChange={e => setOracleConfig(prev => ({ ...prev, host: e.target.value }))} required />
-        </div>
-        <div className="mb-3">
-          <label>Port</label>
-          <input type="number" className="stylish-input" value={oracleConfig.port} onChange={e => setOracleConfig(prev => ({ ...prev, port: parseInt(e.target.value, 10) }))} />
-        </div>
-        <div className="mb-3">
-          <label>Service Name / SID</label>
-          <input type="text" className="stylish-input" value={oracleConfig.serviceName} onChange={e => setOracleConfig(prev => ({ ...prev, serviceName: e.target.value }))} required />
-        </div>
-        <div className="mb-3">
-          <label>Nom d'utilisateur</label>
-          <input type="text" className="stylish-input" value={oracleConfig.username} onChange={e => setOracleConfig(prev => ({ ...prev, username: e.target.value }))} required />
-        </div>
-        <div className="mb-3">
-          <label>Mot de passe</label>
-          <input type="password" className="stylish-input" value={oracleConfig.password} onChange={e => setOracleConfig(prev => ({ ...prev, password: e.target.value }))} required />
-        </div>
+        <DattaTextField
+          label="Serveur"
+          value={oracleConfig.host}
+          onChange={e => setOracleConfig(prev => ({ ...prev, host: e.target.value }))}
+          required
+        />
+        <DattaTextField
+          type="number"
+          label="Port"
+          value={oracleConfig.port}
+          onChange={e => setOracleConfig(prev => ({ ...prev, port: parseInt(e.target.value, 10) }))}
+        />
+        <DattaTextField
+          label="Service Name / SID"
+          value={oracleConfig.serviceName}
+          onChange={e => setOracleConfig(prev => ({ ...prev, serviceName: e.target.value }))}
+          required
+        />
+        <DattaTextField
+          label="Nom d'utilisateur"
+          value={oracleConfig.username}
+          onChange={e => setOracleConfig(prev => ({ ...prev, username: e.target.value }))}
+          required
+        />
+        <DattaTextField
+          type="password"
+          label="Mot de passe"
+          value={oracleConfig.password}
+          onChange={e => setOracleConfig(prev => ({ ...prev, password: e.target.value }))}
+          required
+        />
         <div className="form-actions">
           <DattaButton variant="primary" onClick={handleTestConnection} disabled={loading}>{loading ? 'Test en cours...' : 'Tester la connexion'}</DattaButton>
           {oracleConnected && (
@@ -1180,20 +1193,21 @@ export default function ImportData({ user }) {
             </div>
             <div className="mb-3">
               <label htmlFor="numero-individu-select">Colonne pour le numéro d'individu:</label>
-              <select
-                id="numero-individu-select" value={numeroIndividuHeader}
+              <DattaSelect
+                id="numero-individu-select"
+                value={numeroIndividuHeader}
                 onChange={(e) => setNumeroIndividuHeader(e.target.value)}
-                className="stylish-input select-stylish" required
-              >
-                <option value="">-- Sélectionnez --</option>
-                {previewData.rawHeaders.map(h => <option key={h} value={h}>{h}</option>)}
-              </select>
+                options={[{ value: '', label: '-- Sélectionnez --' }, ...previewData.rawHeaders.map(h => ({ value: h, label: h }))]}
+                required
+              />
             </div>
             <div className="mb-3">
-              <label>
-                <input type="checkbox" checked={createIfMissing} onChange={e => setCreateIfMissing(e.target.checked)} />
-                Créer un individu si le numéro est manquant dans la base de données
-              </label>
+              <DattaCheckbox
+                id="create-if-missing"
+                label="Créer un individu si le numéro est manquant dans la base de données"
+                checked={createIfMissing}
+                onChange={e => setCreateIfMissing(e.target.checked)}
+              />
               <p className="help-text">Si coché, les lignes avec un numéro unique non trouvé en base seront créées. Sinon, elles pourraient être ignorées ou mises à jour si le numéro existe.</p>
             </div>
             <div className="form-actions">
@@ -1410,8 +1424,7 @@ export default function ImportData({ user }) {
   return (
     <div className="pc-content">
       <DattaPageTitle title="Importation de données individus" />
-      <div className="card import-wizard">
-        <div className="card-body">
+      <DattaCard className="import-wizard">
       {message.text && (
         <DattaAlert type={message.type || 'info'}>
           <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit' }}>{message.text}</pre>
@@ -1455,8 +1468,7 @@ export default function ImportData({ user }) {
         )}
         {(!loading || importStep === 1 || importStep === 4) && (sourceType === 'file' ? renderFileStepContent() : renderOracleStepContent())}
       </div>
-        </div>
-      </div>
+      </DattaCard>
     </div>
   );
 }
