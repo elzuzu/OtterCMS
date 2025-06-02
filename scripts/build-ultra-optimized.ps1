@@ -1,4 +1,4 @@
-param(
+﻿param(
     [switch]$Clean = $true,
     [switch]$Verbose = $false,
     [switch]$SkipUPX = $false,
