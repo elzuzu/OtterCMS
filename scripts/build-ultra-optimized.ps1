@@ -176,11 +176,40 @@ try {
         Write-ColorText "   ⚠️ Rebuild natifs échoué mais on continue..." $Yellow
     }
 
+    Write-ColorText "🧹 Nettoyage du cache electron-builder..." $Yellow
+    try {
+        $electronBuilderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
+        if (Test-Path $electronBuilderCache) {
+            Write-ColorText "   🗑️ Suppression du cache : $electronBuilderCache" $Gray
+            Remove-Item -Path $electronBuilderCache -Recurse -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
+        }
+
+        Write-ColorText "   🔄 Forcer le re-téléchargement des outils..." $Gray
+        npx electron-builder install-app-deps --force-rebuild
+        Write-ColorText "   ✅ Cache nettoyé" $Green
+    } catch {
+        Write-ColorText "   ⚠️ Nettoyage du cache échoué : $($_.Exception.Message)" $Yellow
+    }
+
     Write-ColorText "📦 Construction des exécutables (NSIS + Portable + ZIP)..." $Yellow
     if ($Verbose) { $env:DEBUG = "electron-builder" }
 
     npx electron-builder --win --publish never
-    if ($LASTEXITCODE -ne 0) { throw "Échec electron-builder" }
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorText "   ⚠️ Electron-builder a échoué, nouvelle tentative..." $Yellow
+        $electronBuilderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
+        if (Test-Path $electronBuilderCache) {
+            Remove-Item -Path $electronBuilderCache -Recurse -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 3
+        }
+        npx electron-builder --win --publish never --config.win.target=nsis
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   ⚠️ Tentative finale avec --dir..." $Yellow
+            npx electron-builder --win --dir
+            if ($LASTEXITCODE -ne 0) { throw "Échec electron-builder" }
+        }
+    }
 
     # Compression UPX améliorée
     if (-not $SkipUPX) {

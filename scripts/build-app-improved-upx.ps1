@@ -337,9 +337,26 @@ module.exports = { Logger };
         }
         
         # Construction de l'exécutable
+        Write-ColorText "`n🧹 Nettoyage du cache electron-builder..." $Yellow
+        try {
+            $electronBuilderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
+            if (Test-Path $electronBuilderCache) {
+                Write-ColorText "   🗑️ Suppression du cache : $electronBuilderCache" $Gray
+                Remove-Item -Path $electronBuilderCache -Recurse -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+            }
+
+            Write-ColorText "   🔄 Forcer le re-téléchargement des outils..." $Gray
+            npx electron-builder install-app-deps --force-rebuild
+
+            Write-ColorText "   ✅ Cache nettoyé" $Green
+        } catch {
+            Write-ColorText "   ⚠️ Nettoyage du cache échoué : $($_.Exception.Message)" $Yellow
+        }
+
         Write-ColorText "`n📦 Construction de l'exécutable..." $Yellow
         if ($Verbose) { $env:DEBUG = "electron-builder" }
-        
+
         $builderArgs = @(
             "--win",
             "--publish", "never",
@@ -347,13 +364,24 @@ module.exports = { Logger };
             "--config.nsis.oneClick=false",
             "--config.nsis.allowElevation=true"
         )
-        
+
         npx electron-builder @builderArgs
         if ($LASTEXITCODE -ne 0) {
-            Write-ColorText "   ⚠️ Electron-builder a échoué, tentative avec options simplifiées..." $Yellow
-            npx electron-builder --win --dir
-            if ($LASTEXITCODE -ne 0) { 
-                throw "Tous les modes de build ont échoué" 
+            Write-ColorText "   ⚠️ Electron-builder a échoué, tentative avec nettoyage du cache..." $Yellow
+
+            $electronBuilderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
+            if (Test-Path $electronBuilderCache) {
+                Remove-Item -Path $electronBuilderCache -Recurse -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 3
+            }
+
+            npx electron-builder --win --publish never --config.win.target=nsis
+            if ($LASTEXITCODE -ne 0) {
+                Write-ColorText "   ⚠️ Tentative finale avec répertoire seulement..." $Yellow
+                npx electron-builder --win --dir
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Tous les modes de build ont échoué"
+                }
             }
         }
         
