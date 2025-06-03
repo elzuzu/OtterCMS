@@ -1,12 +1,12 @@
-﻿# Script de build ultra-robuste pour Indi-Suivi - Version amélioré
+# Script de build ultra-robuste pour Indi-Suivi - Version ameliore
 param(
-    [switch]$Clean = $true,
-    [switch]$InstallDeps = $false,
-    [switch]$Verbose = $false,
-    [switch]$UseForge = $false,
-    [switch]$UsePackager = $false,
-    [switch]$SkipNativeDeps = $false,
-    [switch]$SkipUPX = $false,
+    [bool]$Clean = $true,
+    [bool]$InstallDeps = $false,
+    [bool]$Verbose = $false,
+    [bool]$UseForge = $false,
+    [bool]$UsePackager = $false,
+    [bool]$SkipNativeDeps = $false,
+    [bool]$SkipUPX = $false,
     [int]$UPXLevel = 9
 )
 
@@ -18,239 +18,460 @@ $Cyan = [System.ConsoleColor]::Cyan
 $Gray = [System.ConsoleColor]::Gray
 
 function Write-ColorText($Text, $Color) {
-    $current = $Host.UI.RawUI.ForegroundColor
+    $currentColor = $Host.UI.RawUI.ForegroundColor
     $Host.UI.RawUI.ForegroundColor = $Color
     Write-Host $Text
-    $Host.UI.RawUI.ForegroundColor = $current
+    $Host.UI.RawUI.ForegroundColor = $currentColor
 }
 
-function Resolve-UPXPath {
-    $candidates = @(
-        'D:\\tools\\upx\\upx.exe',
-        'C:\\Program Files\\UPX\\upx.exe'
-    )
-    $env:PATH.Split(';') | ForEach-Object {
-        $p = Join-Path $_ 'upx.exe'
-        if (Test-Path $p) { $candidates += $p }
-    }
-    foreach ($p in $candidates) { if (Test-Path $p) { return $p } }
-    return $null
-}
-
+# Fonction UPX amelioree
 function Invoke-UPXCompression {
     param(
-        [string]$BuildPath = 'release-builds',
+        [string]$BuildPath = "release-builds",
         [int]$CompressionLevel = 9,
-        [switch]$Verbose = $false
+        [bool]$Verbose = $false
     )
-    $upx = Resolve-UPXPath
-    if (-not $upx) {
-        Write-ColorText "ℹ️ UPX non trouvé à $upx - compression ignorée" $Gray
+
+    $upxPath = 'D:\tools\upx\upx.exe'
+
+    if (-not (Test-Path $upxPath)) {
+        Write-ColorText "ℹ️ UPX non trouvé à $upxPath - compression ignorée" $Gray
         return $false
     }
+
     try {
-        $version = & $upx --version 2>&1 | Select-Object -First 1
-        Write-ColorText "🗜️ Compression UPX ($version)..." $Yellow
+        $upxVersion = & $upxPath --version 2>&1 | Select-Object -First 1
+        Write-ColorText "🗜️ Compression UPX ($upxVersion)..." $Yellow
     } catch {
         Write-ColorText "⚠️ UPX non fonctionnel - compression ignorée" $Yellow
         return $false
     }
+
     $compressed = 0
     $totalSavings = 0
-    foreach ($exe in (Get-ChildItem -Path $BuildPath -Recurse -Filter '*.exe')) {
-        $orig = $exe.Length
-        $args = @("-$CompressionLevel", '--best', '--compress-icons=0', '--strip-relocs=0', $exe.FullName)
-        if (-not $Verbose) { $args += '--quiet' }
-        & $upx @args 2>&1 | Out-Null
-        if ($LASTEXITCODE -eq 0) {
-            $newSize = (Get-Item $exe.FullName).Length
-            $totalSavings += $orig - $newSize
-            $compressed++
+
+    $searchPaths = @($BuildPath, "out", "dist")
+
+    foreach ($searchPath in $searchPaths) {
+        if (Test-Path $searchPath) {
+            $executables = Get-ChildItem -Path $searchPath -Recurse -Filter "*.exe" |
+                          Where-Object {
+                              $_.Name -like "*Indi-Suivi*" -or
+                              $_.Name -like "*indi-suivi*" -or
+                              ($_.Directory.Name -eq "win-unpacked" -and $_.Name -eq "Indi-Suivi.exe")
+                          }
+
+            foreach ($exe in $executables) {
+                $originalSize = $exe.Length
+                $originalSizeMB = [math]::Round($originalSize / 1MB, 2)
+
+                if ($originalSizeMB -lt 1 -or $originalSizeMB -gt 150) {
+                    Write-ColorText "   ⏭️ $($exe.Name) ignoré (taille: $originalSizeMB MB)" $Gray
+                    continue
+                }
+
+                Write-ColorText "   🗜️ Compression de $($exe.Name) ($originalSizeMB MB)..." $Cyan
+
+                try {
+                    $upxArgs = @(
+                        "-$CompressionLevel",
+                        "--best",
+                        "--compress-icons=0",
+                        "--strip-relocs=0",
+                        $exe.FullName
+                    )
+
+                    if (-not $Verbose) { $upxArgs += "--quiet" }
+
+                    & $upxPath @upxArgs 2>&1 | Out-Null
+
+                    if ($LASTEXITCODE -eq 0) {
+                        $newSize = (Get-Item $exe.FullName).Length
+                        $newSizeMB = [math]::Round($newSize / 1MB, 2)
+                        $reduction = [math]::Round((1 - $newSize / $originalSize) * 100, 1)
+                        $totalSavings += $originalSize - $newSize
+                        $compressed++
+
+                        Write-ColorText "   ✅ $($exe.Name): $originalSizeMB MB → $newSizeMB MB (-$reduction%)" $Green
+                    } else {
+                        Write-ColorText "   ⚠️ Compression échouée pour $($exe.Name)" $Red
+                    }
+                } catch {
+                    Write-ColorText "   ❌ Erreur compression $($exe.Name): $($_.Exception.Message)" $Red
+                }
+            }
         }
     }
+
     if ($compressed -gt 0) {
-        $mb = [math]::Round($totalSavings / 1MB, 2)
-        Write-ColorText "📊 Compression UPX terminée : $compressed fichier(s), économie $mb MB" $Green
+        $totalSavingsMB = [math]::Round($totalSavings / 1MB, 2)
+        Write-ColorText "📊 Compression UPX terminée: $compressed fichier(s), économie: $totalSavingsMB MB" $Green
         return $true
+    } else {
+        Write-ColorText "ℹ️ Aucun fichier compressé" $Gray
+        return $false
     }
-    Write-ColorText "ℹ️ Aucun fichier compressé" $Gray
-    return $false
 }
 
+# Obtenir le répertoire racine du projet
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Write-ColorText "🚀 Répertoire du projet: $projectRoot" $Cyan
+
+# Se déplacer dans le répertoire racine
 Push-Location $projectRoot
 
-$env:NODE_ENV = 'production'
-$env:GENERATE_SOURCEMAP = 'false'
-$env:SKIP_PREFLIGHT_CHECK = 'true'
+# Variables d'environnement pour optimisation
+$env:NODE_ENV = "production"
+$env:GENERATE_SOURCEMAP = "false"
+$env:SKIP_PREFLIGHT_CHECK = "true"
 
 try {
+    # Étape 0: Vérifications préalables
     Write-ColorText "`n🔍 Vérifications préalables..." $Yellow
+    
+    # Vérifier Node.js
     try {
         $nodeVersion = node --version
         Write-ColorText "   ✓ Node.js: $nodeVersion" $Green
     } catch {
         throw "Node.js n'est pas installé ou n'est pas dans le PATH"
     }
-
-    $iconPath = Join-Path $projectRoot 'src\assets\app-icon.ico'
+    
+    # Vérifier l'icône
+    $iconPath = Join-Path $projectRoot "src\assets\app-icon.ico"
     if (Test-Path $iconPath) {
         Write-ColorText "   ✓ Icône trouvée: $iconPath" $Green
     } else {
         Write-ColorText "   ⚠️ Icône manquante: $iconPath" $Red
-        Write-ColorText "   ⚠️ Le script ne crée pas d'icône par défaut" $Yellow
+        Write-ColorText "   ⚠️ ATTENTION: Le script ne crée PAS d'icône par défaut. Vous DEVEZ fournir une icône .ico valide à l'emplacement spécifié." $Red
+        Write-ColorText "   Poursuite du script, mais le build échouera probablement ou l'application n'aura pas d'icône." $Yellow
     }
-
-    $utilsDir = Join-Path $projectRoot 'src\utils'
-    $loggerPath = Join-Path $utilsDir 'logger.js'
+    
+    # Créer le module utils/logger s'il n'existe pas
+    $utilsDir = Join-Path $projectRoot "src\utils"
+    $loggerPath = Join-Path $utilsDir "logger.js"
     if (-not (Test-Path $loggerPath)) {
         Write-ColorText "   📝 Création du module logger manquant..." $Yellow
-        if (-not (Test-Path $utilsDir)) { New-Item -ItemType Directory -Path $utilsDir -Force | Out-Null }
+        if (-not (Test-Path $utilsDir)) {
+            New-Item -ItemType Directory -Path $utilsDir -Force | Out-Null
+        }
+        
         $loggerContent = @"
 // Module logger simple
 class Logger {
-    static info(message) { console.log(`[INFO] ${new Date().toISOString()}: ${message}`) }
-    static error(message) { console.error(`[ERROR] ${new Date().toISOString()}: ${message}`) }
-    static warn(message) { console.warn(`[WARN] ${new Date().toISOString()}: ${message}`) }
-    static debug(message) { console.log(`[DEBUG] ${new Date().toISOString()}: ${message}`) }
+    static info(message) {
+        console.log(`[INFO] ${new Date().toISOString()}: ${message}`);
+    }
+    
+    static error(message) {
+        console.error(`[ERROR] ${new Date().toISOString()}: ${message}`);
+    }
+    
+    static warn(message) {
+        console.warn(`[WARN] ${new Date().toISOString()}: ${message}`);
+    }
+    
+    static debug(message) {
+        console.log(`[DEBUG] ${new Date().toISOString()}: ${message}`);
+    }
 }
-module.exports = { Logger }
+
+module.exports = { Logger };
 "@
         Set-Content -Path $loggerPath -Value $loggerContent -Encoding UTF8
         Write-ColorText "   ✓ Module logger créé: $loggerPath" $Green
     }
-
+    
+    # Étape 1: Nettoyage
     if ($Clean) {
         Write-ColorText "`n🧹 Nettoyage complet..." $Yellow
-        Get-Process node*,electron* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        
+        # Arrêter tous les processus Node/Electron
+        Get-Process node*, electron* -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 2
-        @('out','dist','.vite','release-builds','build','.webpack') | ForEach-Object { if (Test-Path $_) { Remove-Item -Path $_ -Recurse -Force -ErrorAction SilentlyContinue } }
-        Get-ChildItem -Path . -Include '*.exe','*.zip','*.AppImage','*.dmg','*.deb','*.rpm' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
-        Write-ColorText "✅ Nettoyage terminé" $Green
-    }
-
-    if ($InstallDeps -or -not (Test-Path 'node_modules')) {
-        Write-ColorText "`n📦 Installation des dépendances..." $Yellow
-        if ($InstallDeps -and (Test-Path 'node_modules')) {
-            Remove-Item -Path 'node_modules' -Recurse -Force -ErrorAction SilentlyContinue
-        }
-
-        # Nettoyage du cache Electron pour éviter les erreurs HTTP 400 lors du téléchargement
-        $electronCaches = @(
-            (Join-Path $env:LOCALAPPDATA 'electron\\Cache'),
-            (Join-Path $env:USERPROFILE '.cache\\electron')
-        )
-        foreach ($cache in $electronCaches) {
-            if (Test-Path $cache) {
+        
+        # Supprimer tous les dossiers de build
+        @("out", "dist", ".vite", "release-builds", "build", ".webpack") | ForEach-Object {
+            if (Test-Path $_) {
                 try {
-                    Remove-Item -Path $cache -Recurse -Force -ErrorAction Stop
-                    Write-ColorText "   ✓ Cache Electron supprimé: $cache" $Gray
+                    Remove-Item -Path $_ -Recurse -Force -ErrorAction Stop
+                    Write-ColorText "   ✓ Supprimé: $_" $Gray
                 } catch {
-                    Write-ColorText "   ⚠️ Impossible de supprimer le cache Electron: $cache" $Yellow
+                    Write-ColorText "   ⚠️ Impossible de supprimer: $_ (fichiers verrouillés?)" $Yellow
                 }
             }
         }
-
-        npm install --include=dev --no-audit
+        
+        # Supprimer les fichiers générés
+        Get-ChildItem -Path . -Include @("*.exe", "*.zip", "*.AppImage", "*.dmg", "*.deb", "*.rpm") -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
+        
+        Write-ColorText "✅ Nettoyage terminé" $Green
+    }
+    
+    # Étape 2: Installation des dépendances
+    if ($InstallDeps -or -not (Test-Path "node_modules")) {
+        Write-ColorText "`n📦 Installation des dépendances..." $Yellow
+        
+        if ($InstallDeps -and (Test-Path "node_modules")) {
+            Write-ColorText "   🗑️ Suppression de node_modules..." $Yellow
+            Remove-Item -Path "node_modules" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        
+        # Installation des dépendances principales
+        Write-ColorText "   📥 npm install (avec dev)..." $Gray
+        npm install --include=dev --no-audit --prefer-offline
         if ($LASTEXITCODE -ne 0) {
             Write-ColorText "   ⚠️ npm install a échoué, tentative sans cache..." $Yellow
             npm cache clean --force
             npm install --include=dev --no-audit
-            if ($LASTEXITCODE -ne 0) { throw "Échec de l'installation des dépendances" }
+            if ($LASTEXITCODE -ne 0) {
+                throw "Échec de l'installation des dépendances (code: $LASTEXITCODE)"
+            }
         }
+        
+        # Setup des dépendances natives séparément si pas ignoré
         if (-not $SkipNativeDeps) {
             Write-ColorText "   🔧 Configuration des dépendances natives..." $Yellow
             npm run setup-native-deps
+            if ($LASTEXITCODE -ne 0) {
+                Write-ColorText "   ⚠️ Setup des dépendances natives échoué, mais on continue..." $Yellow
+            }
         }
+        
         Write-ColorText "✅ Dépendances installées" $Green
     }
-
+    
+    # Choix du mode de build
     if ($UseForge) {
         Write-ColorText "`n🔧 Mode Electron Forge..." $Cyan
-        if (-not (Test-Path 'node_modules/@electron-forge')) {
+        if (-not (Test-Path "node_modules\@electron-forge")) {
+            Write-ColorText "   📦 Installation d'Electron Forge..." $Yellow
             npm install --save-dev @electron-forge/cli @electron-forge/maker-squirrel @electron-forge/maker-deb @electron-forge/maker-rpm @electron-forge/maker-zip
             npx electron-forge import
         }
         npx electron-forge make
     } elseif ($UsePackager) {
         Write-ColorText "`n🔧 Mode Electron Packager..." $Cyan
-        if (-not (Test-Path 'node_modules/@electron/packager')) { npm install --save-dev @electron/packager }
-        npx electron-packager . 'Indi-Suivi' --platform=win32 --arch=x64 --out=release-builds --overwrite --icon='src/assets/app-icon.ico'
+        if (-not (Test-Path "node_modules\@electron\packager")) {
+            npm install --save-dev @electron/packager
+        }
+        npx electron-packager . "Indi-Suivi" --platform=win32 --arch=x64 --out=release-builds --overwrite --icon="src/assets/app-icon.ico"
     } else {
         Write-ColorText "`n🛠️ Mode Electron Builder (défaut)..." $Cyan
-        @('.vite','.vite/build','dist') | ForEach-Object { if (-not (Test-Path $_)) { New-Item -ItemType Directory -Path $_ -Force | Out-Null } }
+        
+        # Créer les dossiers de build nécessaires
+        @(".vite", ".vite/build", "dist") | ForEach-Object {
+            if (-not (Test-Path $_)) {
+                New-Item -ItemType Directory -Path $_ -Force | Out-Null
+                Write-ColorText "   ✓ Créé: $_" $Gray
+            }
+        }
+        
         Write-ColorText "`n🏗️ Build des composants..." $Yellow
+        
+        # Build main.js
         Write-ColorText "   📝 Build main.js..." $Gray
         npx vite build --config vite.main.config.ts --mode production
         if ($LASTEXITCODE -ne 0) {
-            if (Test-Path 'src\main.js') { Copy-Item 'src\main.js' '.vite\build\main.js' -Force } else { throw 'Impossible de construire main.js' }
+            Write-ColorText "   ❌ Échec du build main.js" $Red
+            if (Test-Path "src\main.js") {
+                Copy-Item "src\main.js" ".vite\build\main.js" -Force
+                Write-ColorText "   ✓ Fallback: main.js copié directement" $Yellow
+            } else {
+                throw "Impossible de construire main.js"
+            }
         }
+        
+        # Build preload.js
         Write-ColorText "   📝 Build preload.js..." $Gray
         npx vite build --config vite.preload.config.ts --mode production
         if ($LASTEXITCODE -ne 0) {
-            if (Test-Path 'src\preload.ts') { npx tsc src\preload.ts --outDir .vite\build --module commonjs --target es2020 --esModuleInterop --skipLibCheck }
-            if (-not (Test-Path '.vite\build\preload.js')) { throw 'Impossible de construire preload.js' }
+            Write-ColorText "   ❌ Échec du build preload.js" $Red
+            if (Test-Path "src\preload.ts") {
+                npx tsc src\preload.ts --outDir .vite\build --module commonjs --target es2020 --esModuleInterop --skipLibCheck
+                if (-not (Test-Path ".vite\build\preload.js")) {
+                    throw "Impossible de construire preload.js"
+                } else {
+                    Write-ColorText "   ✓ Fallback: preload.js compilé avec tsc" $Yellow
+                }
+            }
         }
+        
+        # Build renderer
         Write-ColorText "   📝 Build renderer..." $Gray
         npx vite build --config vite.config.js --mode production
-        if ($LASTEXITCODE -ne 0) { throw 'Échec du build renderer' }
-        foreach ($file in @('.vite/build/main.js','.vite/build/preload.js','dist/index.html')) { if (-not (Test-Path $file)) { throw "Fichier critique manquant: $file" } }
-        $utilsSrc = 'src\utils'
-        $utilsDest = '.vite\build\utils'
-        if (Test-Path $utilsSrc) { Copy-Item $utilsSrc $utilsDest -Recurse -Force }
+        if ($LASTEXITCODE -ne 0) {
+            throw "Échec du build renderer (React)"
+        }
+        
+        # Vérifier les fichiers critiques
+        $requiredFiles = @(
+            ".vite/build/main.js",
+            ".vite/build/preload.js",
+            "dist/index.html"
+        )
+        foreach ($file in $requiredFiles) {
+            if (-not (Test-Path $file)) {
+                throw "Fichier critique manquant: $file"
+            }
+            Write-ColorText "   ✓ Vérifié: $file" $Green
+        }
+
+        # Copier les utilitaires nécessaires dans le dossier de build
+        $utilsSrc = "src\utils"
+        $utilsDest = ".vite\build\utils"
+        if (Test-Path $utilsSrc) {
+            Copy-Item $utilsSrc $utilsDest -Recurse -Force
+            Write-ColorText "   ✓ Utils copiés dans le build" $Green
+        }
+        
+        # Rebuild des modules natifs (si pas ignoré)
         if (-not $SkipNativeDeps) {
             Write-ColorText "`n🔧 Rebuild des modules natifs..." $Yellow
             npx electron-rebuild -f -w better-sqlite3
+            if ($LASTEXITCODE -ne 0) {
+                Write-ColorText "   ⚠️ Rebuild des modules natifs échoué (code: $LASTEXITCODE). Cela peut causer des problèmes d'exécution." $Yellow
+            } else {
+                Write-ColorText "   ✓ Modules natifs rebuilt" $Green
+            }
         }
+        
+        # Construction de l'exécutable
         Write-ColorText "`n🧹 Nettoyage du cache electron-builder..." $Yellow
-        $cache = "$env:LOCALAPPDATA\electron-builder\Cache"
-        if (Test-Path $cache) { Remove-Item -Path $cache -Recurse -Force -ErrorAction SilentlyContinue }
-        npx electron-builder install-app-deps --force-rebuild
+        try {
+            $electronBuilderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
+            if (Test-Path $electronBuilderCache) {
+                Write-ColorText "   🗑️ Suppression du cache : $electronBuilderCache" $Gray
+                Remove-Item -Path $electronBuilderCache -Recurse -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+            }
+
+            Write-ColorText "   🔄 Forcer le re-téléchargement des outils..." $Gray
+            npx electron-builder install-app-deps --force-rebuild
+
+            Write-ColorText "   ✅ Cache nettoyé" $Green
+        } catch {
+            Write-ColorText "   ⚠️ Nettoyage du cache échoué : $($_.Exception.Message)" $Yellow
+        }
+
         Write-ColorText "`n📦 Construction de l'exécutable..." $Yellow
-        if ($Verbose) { $env:DEBUG = 'electron-builder' }
-        $builderArgs = @("--win","--publish","never","--config.compression=normal","--config.nsis.oneClick=false","--config.nsis.allowElevation=true")
+        if ($Verbose) { $env:DEBUG = "electron-builder" }
+
+        $builderArgs = @(
+            "--win",
+            "--publish", "never",
+            "--config.compression=normal",
+            "--config.nsis.oneClick=false",
+            "--config.nsis.allowElevation=true"
+        )
+
         npx electron-builder @builderArgs
         if ($LASTEXITCODE -ne 0) {
-            npx electron-builder --win --dir
-            if ($LASTEXITCODE -ne 0) { throw 'Tous les modes de build ont échoué' }
+            Write-ColorText "   ⚠️ Electron-builder a échoué, tentative avec nettoyage du cache..." $Yellow
+
+            $electronBuilderCache = "$env:LOCALAPPDATA\electron-builder\Cache"
+            if (Test-Path $electronBuilderCache) {
+                Remove-Item -Path $electronBuilderCache -Recurse -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 3
+            }
+
+            npx electron-builder --win --publish never --config.win.target=nsis
+            if ($LASTEXITCODE -ne 0) {
+                Write-ColorText "   ⚠️ Tentative finale avec répertoire seulement..." $Yellow
+                npx electron-builder --win --dir
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Tous les modes de build ont échoué"
+                }
+            }
         }
-        if (Test-Path '.vite') { Get-ChildItem -Path '.vite' -Recurse -Include '*.map' | Remove-Item -Force }
-        if (Test-Path 'dist') { Get-ChildItem -Path 'dist' -Recurse -Include '*.md','*.txt','LICENSE*' | Remove-Item -Force }
+        
+        # Optimisation de la taille
+        Write-ColorText "`n🗜️ Optimisation de la taille..." $Yellow
+
+        if (Test-Path ".vite") {
+            Get-ChildItem -Path ".vite" -Recurse -Include "*.map" | Remove-Item -Force
+            Write-ColorText "   ✓ Source maps supprimées" $Gray
+        }
+
+        if (Test-Path "dist") {
+            Get-ChildItem -Path "dist" -Recurse -Include "*.md", "*.txt", "LICENSE*" | Remove-Item -Force
+            Write-ColorText "   ✓ Documentation supprimée" $Gray
+        }
+    }
+    
+    Write-ColorText "`n✅ Build terminé avec succès!" $Green
+    
+    # Analyse des fichiers générés
+    $outputPaths = @("release-builds", "out", "dist")
+    $foundFiles = @()
+    foreach ($outputPath in $outputPaths) {
+        if (Test-Path $outputPath) {
+            $files = Get-ChildItem -Path $outputPath -Recurse | Where-Object { $_.Extension -in @('.exe', '.zip', '.msi', '.nupkg', '.AppImage') }
+            $foundFiles += $files
+        }
     }
 
-    Write-ColorText "`n🗜️ Compression UPX des exécutables..." $Yellow
-    if (-not $SkipUPX) { Invoke-UPXCompression -BuildPath 'release-builds' -CompressionLevel $UPXLevel -Verbose:$Verbose }
-    else { Write-ColorText "⏭️ Compression UPX ignorée" $Gray }
-
-    Write-ColorText "`n✅ Build terminé avec succès!" $Green
-    $outputPaths = @('release-builds','out','dist')
-    $found = @()
-    foreach ($p in $outputPaths) { if (Test-Path $p) { $found += Get-ChildItem -Path $p -Recurse | Where-Object { $_.Extension -in '.exe','.zip','.msi','.nupkg','.AppImage' } } }
-    if ($found.Count -gt 0) {
-        Write-ColorText "`n📊 Fichiers générés:" $Yellow
-        foreach ($f in $found) {
-            $size = [math]::Round($f.Length / 1MB, 2)
-            Write-ColorText "   ✓ $($f.Name) ($size MB)" $Green
-            Write-ColorText "     $($f.FullName)" $Gray
+    # Compression UPX améliorée
+    if (-not $SkipUPX) {
+        Write-ColorText "`n🗜️ Compression UPX des exécutables..." $Yellow
+        $upxSuccess = Invoke-UPXCompression -BuildPath "release-builds" -CompressionLevel $UPXLevel -Verbose:$Verbose
+        if ($upxSuccess) {
+            Write-ColorText "✅ Compression UPX terminée avec succès" $Green
+            # Recharger les fichiers après compression
+            $foundFiles = @()
+            foreach ($outputPath in @("release-builds", "out", "dist")) {
+                if (Test-Path $outputPath) {
+                    $files = Get-ChildItem -Path $outputPath -Recurse | Where-Object { $_.Extension -in @('.exe', '.zip', '.msi', '.nupkg', '.AppImage') }
+                    $foundFiles += $files
+                }
+            }
+        } else {
+            Write-ColorText "⚠️ Compression UPX ignorée ou échouée" $Yellow
         }
     } else {
-        Write-ColorText "`n⚠️ Aucun fichier exécutable trouvé" $Yellow
+        Write-ColorText "`n⏭️ Compression UPX ignorée (paramètre -SkipUPX)" $Gray
     }
-}
-catch {
+
+    if ($foundFiles.Count -gt 0) {
+        Write-ColorText "`n📊 Fichiers générés:" $Yellow
+        foreach ($file in $foundFiles) {
+            $size = [math]::Round($file.Length / 1MB, 2)
+            Write-ColorText "   ✓ $($file.Name) ($size MB)" $Green
+            Write-ColorText "     $($file.FullName)" $Gray
+        }
+
+        Write-ColorText "`n📊 Analyse de taille finale:" $Cyan
+        foreach ($file in $foundFiles) {
+            $sizeMB = [math]::Round($file.Length / 1MB, 2)
+            $color = if ($sizeMB -gt 100) { $Red } elseif ($sizeMB -gt 50) { $Yellow } else { $Green }
+            Write-ColorText "   $($file.Name): $sizeMB MB" $color
+            if ($sizeMB -gt 80) {
+                Write-ColorText "   ⚠️ Taille encore élevée. Vérifiez l'inclusion des dépendances." $Yellow
+            }
+        }
+        
+        # Test de l'exécutable
+        $mainExe = $foundFiles | Where-Object { $_.Extension -eq '.exe' -and $_.Name -like '*Indi-Suivi*' } | Select-Object -First 1
+        if ($mainExe) {
+            Write-ColorText "`nℹ️ Exécutable généré: $($mainExe.FullName)" $Green
+            Write-ColorText "   Lancez-le manuellement pour le tester." $Cyan
+        }
+    } else {
+        Write-ColorText "`n⚠️ Aucun fichier exécutable trouvé dans les dossiers de sortie!" $Yellow
+    }
+    
+} catch {
     Write-ColorText "`n❌ Erreur: $_" $Red
     Write-ColorText "Stack trace:" $Red
     Write-ColorText $_.ScriptStackTrace $Gray
     Write-ColorText "`n🔧 Suggestions de dépannage:" $Yellow
-    Write-ColorText "1. Essayez: .\build.ps1 -UseForge" $Gray
-    Write-ColorText "2. Ou bien: .\build.ps1 -UsePackager" $Gray
-    Write-ColorText "3. Ou encore: .\build.ps1 -InstallDeps -Clean" $Gray
-    Write-ColorText "4. Ou encore: .\build.ps1 -SkipNativeDeps" $Gray
-    Write-ColorText "5. Vérifiez que src/main.js n'a pas d'erreurs" $Gray
+    Write-ColorText "1. Essayez: .\build-app-improved.ps1 -UseForge" $Gray
+    Write-ColorText "2. Ou bien: .\build-app-improved.ps1 -UsePackager" $Gray
+    Write-ColorText "3. Ou encore: .\build-app-improved.ps1 -InstallDeps -Clean" $Gray
+    Write-ColorText "4. Ou encore: .\build-app-improved.ps1 -SkipNativeDeps" $Gray
+    Write-ColorText "5. Vérifiez que src/main.js n'a pas d'erreurs de syntaxe" $Gray
     exit 1
-}
-finally {
+} finally {
     Pop-Location
     Remove-Item Env:DEBUG -ErrorAction SilentlyContinue
 }
