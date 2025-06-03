@@ -114,7 +114,7 @@ if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 if (-not $PSBoundParameters.ContainsKey('InstallDeps')) { $InstallDeps = $false }
 if (-not $PSBoundParameters.ContainsKey('Verbose')) { $Verbose = $false }
 
-$electronVersion = "37.0.0-beta.2"
+$electronVersion = "36.3.2"
 $electronArch = "x64"
 $electronPlatform = "win32"
 $electronZipFileName = "electron-v$electronVersion-$electronPlatform-$electronArch.zip"

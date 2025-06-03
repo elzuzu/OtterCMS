@@ -5,7 +5,7 @@ Ce document résume la mise en place d'un environnement local pour développer �
 ## Prérequis
 
 - **Node.js 20 LTS** ou version ultérieure.
-- **Electron 37.0.0-beta.2** fourni via le script `build.ps1`.
+- **Electron 36.3.2** fourni via le script `build.ps1`.
 - **npm** est recommandé pour la gestion des dépendances. Yarn ou pnpm fonctionnent mais ne sont pas testés.
 - Un système Windows, macOS ou Linux récent.
 - Sous **Windows**, les *Visual Studio Build Tools* avec le composant « Desktop development with C++ » sont recommandés pour compiler les dépendances natives, mais le build peut fonctionner sans.
@@ -69,7 +69,7 @@ Vous pouvez activer le téléchargement automatique des outils supplémentaires�
 scripts\build.ps1 -DownloadElectronLocally -DownloadTools -InstallDeps
 ```
 
-Cette commande télécharge UPX et 7‑Zip si besoin, puis récupère Electron **37.0.0-beta.2** et le place dans le cache pour accélérer `npm install`.
+Cette commande télécharge UPX et 7‑Zip si besoin, puis récupère Electron **36.3.2** et le place dans le cache pour accélérer `npm install`.
 
 ### Conseils 2025
 
