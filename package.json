@@ -20,7 +20,7 @@
     "dist:forge": "npm run build && electron-forge make",
     "dist:packager": "npm run build && electron-packager . \"Indi-Suivi\" --platform=win32 --arch=x64 --out=release-builds --overwrite",
     "install-app": "node ./scripts/install.js",
-    "clean": "rimraf out dist .vite release-builds build",
+    "clean": "rimraf release-builds out dist .vite build .webpack node_modules/.cache",
     "rebuild": "electron-rebuild -f -w better-sqlite3",
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
     "postinstall": "node scripts/robust-postinstall.js",
@@ -35,7 +35,14 @@
     "build-optimized": "node scripts/build-optimized.js",
     "dist:final": "npm run build-optimized",
     "build:ps": "pwsh scripts/build.ps1",
-    "analyze:size": "node scripts/analyze-app.js"
+    "analyze:size": "node scripts/analyze-app.js",
+    "analyze-app": "node scripts/analyze-app-advanced.js",
+    "build:ultra": "node scripts/build-ultra-optimized.js",
+    "optimize-assets-advanced": "node scripts/optimize-assets-advanced.js",
+    "cleanup-dependencies-ultra": "node scripts/cleanup-dependencies-ultra.js",
+    "upx-compress-advanced": "node scripts/upx-compress-advanced.js",
+    "validate-build-advanced": "node scripts/validate-build-advanced.js",
+    "dist-ultra": "electron-builder --win --config electron-builder-optimized.json"
   },
   "keywords": [
     "electron",
@@ -129,22 +136,30 @@
       {
         "from": "db",
         "to": "db",
-        "filter": ["**/*.sqlite"]
+        "filter": [
+          "**/*.sqlite"
+        ]
       }
     ],
     "win": {
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "zip",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         },
         {
           "target": "portable",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "src/assets/app-icon.ico",
