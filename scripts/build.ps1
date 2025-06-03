@@ -1,4 +1,4 @@
-# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
+﻿# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
 
 param(
     [switch]$Clean,
@@ -25,7 +25,7 @@ function Test-Command {
     param(
         [string]$Command
     )
-    (Get-Command $Command -ErrorAction SilentlyContinue) -ne $null
+    (Get-Command $Command -CommandType Application -ErrorAction SilentlyContinue) -ne $null
 }
 
 $Green = "Green"

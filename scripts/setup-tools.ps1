@@ -1,4 +1,4 @@
-# PowerShell script to download required tools (UPX and 7zip)
+﻿# PowerShell script to download required tools (UPX and 7zip)
 param(
     # Dossier où installer UPX et 7-Zip. Par défaut dans l'espace utilisateur
     [string]$ToolsDir = $(Join-Path $env:USERPROFILE 'AppData\Local\indi-suivi-tools')
@@ -6,13 +6,14 @@ param(
 
 function Test-Command {
     param([string]$Command)
-    (Get-Command $Command -ErrorAction SilentlyContinue) -ne $null
+    (Get-Command $Command -CommandType Application -ErrorAction SilentlyContinue) -ne $null
 }
 
 function Download-File {
     param([string]$Url, [string]$Destination)
-    if (Test-Command 'curl') {
-        & curl -L -o $Destination $Url
+    $curlCmd = Get-Command curl -CommandType Application -ErrorAction SilentlyContinue
+    if ($curlCmd) {
+        & $curlCmd.Path -L -o $Destination $Url
     } else {
         Invoke-WebRequest -Uri $Url -OutFile $Destination -UseBasicParsing
     }
