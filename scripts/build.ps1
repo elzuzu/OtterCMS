@@ -1,7 +1,4 @@
-# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
-
-# Arret des processus Electron ou Node residuels
-Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
+﻿# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
 
 param(
     [switch]$Clean,
@@ -13,6 +10,25 @@ param(
     [switch]$SkipUPX,
     [int]$UPXLevel = 9
 )
+
+# Arret des processus Electron ou Node residuels
+Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Élévation des droits et nettoyage du cache npm
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+npm cache clean --force
+
+# Nettoyage rapide des dossiers et du cache Node.js
+Remove-Item -Path "node_modules", "dist", "out", ".vite", "release-builds" -Recurse -Force -ErrorAction SilentlyContinue
+$nodeCacheDirs = @(
+    "$env:APPDATA\npm-cache",
+    "$env:LOCALAPPDATA\npm-cache"
+)
+foreach ($cacheDir in $nodeCacheDirs) {
+    if (Test-Path $cacheDir) {
+        Remove-Item -Path $cacheDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
 
 # Valeurs par defaut si les switches ne sont pas specifies
 if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
