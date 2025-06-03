@@ -1,7 +1,4 @@
-# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
-
-# Arret des processus Electron ou Node residuels
-Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
+﻿# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
 
 param(
     [switch]$Clean,
@@ -13,6 +10,9 @@ param(
     [switch]$SkipUPX,
     [int]$UPXLevel = 9
 )
+
+# Arret des processus Electron ou Node residuels
+Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
 
 # Valeurs par defaut si les switches ne sont pas specifies
 if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
