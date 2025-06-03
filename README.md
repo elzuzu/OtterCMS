@@ -89,7 +89,7 @@ npm run setup-native-deps
 ```
 pour récupérer automatiquement les binaires précompilés.
 
-Des scripts PowerShell complètent le build sous Windows, par exemple `scripts/build-app.ps1` ou `scripts/build-ultra-optimized.ps1` pour une version allégée.
+Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
 
 Les exécutables sont déposés dans le dossier `release-builds/`.
 

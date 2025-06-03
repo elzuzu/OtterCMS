@@ -61,8 +61,7 @@ La commande suivante crée un exécutable pour votre plateforme :
 npm run dist
 ```
 Les fichiers générés se trouvent dans le dossier `release-builds/`. La configuration d'Electron Builder se situe dans la section `build` du `package.json`.
-Sous Windows, le script `scripts/build-app.ps1` permet de nettoyer et de lancer la construction en une seule commande. Des options `-UseForge` ou `-UsePackager` sont disponibles si `electron-builder` rencontre des problèmes.
-Si `D:\tools\upx\upx.exe` est détecté, les scripts compressent automatiquement l'exécutable final avec **UPX** afin de réduire sa taille.
+Sous Windows, exécutez simplement `scripts/build.ps1` pour lancer automatiquement la compilation, appliquer les optimisations et compresser l'exécutable avec **UPX** si disponible.
 
 ### Conseils 2025
 
