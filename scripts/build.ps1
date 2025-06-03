@@ -14,6 +14,10 @@ param(
 # Arret des processus Electron ou Node residuels
 Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
 
+# Élévation des droits et nettoyage du cache npm
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+npm cache clean --force
+
 # Valeurs par defaut si les switches ne sont pas specifies
 if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 if (-not $PSBoundParameters.ContainsKey('InstallDeps')) { $InstallDeps = $false }
