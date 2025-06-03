@@ -17,7 +17,7 @@ Application Electron et React pour le suivi d'individus avec champs dynamiques e
 - [Construction et distribution](#construction-et-distribution)
 - [Documentation](#documentation)
 - [Graph de navigation](#graph-de-navigation)
-- [Guide d'utilisation final - Build Electron 37.0.0-beta.2](#guide-dutilisation-final---build-electron-3700-beta2)
+- [Guide d'utilisation final - Build Electron 36.3.2](#guide-dutilisation-final---build-electron-3632)
 - [Licence](#licence)
 
 ## Nouveautés
@@ -38,7 +38,7 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 ## Prérequis
 
 - **Node.js 20** ou version ultérieure
-- **Electron 37.0.0-beta.2** téléchargé automatiquement par le script
+- **Electron 36.3.2** téléchargé automatiquement par le script
 - **Python 3** installé et accessible via `python` pour la compilation node-gyp
  - **npm** ou équivalent (pnpm, Yarn)
 - Sous **Windows**, les *Visual Studio Build Tools* avec le composant
@@ -102,7 +102,7 @@ Vous pouvez lui passer des options supplémentaires :
 scripts\build.ps1 -DownloadElectronLocally -DownloadTools -InstallDeps
 ```
 
-`-DownloadTools` télécharge UPX et 7‑Zip si nécessaire, tandis que `-DownloadElectronLocally` récupère l'archive officielle d'Electron **37.0.0-beta.2** et la place dans le cache npm.
+`-DownloadTools` télécharge UPX et 7‑Zip si nécessaire, tandis que `-DownloadElectronLocally` récupère l'archive officielle d'Electron **36.3.2** et la place dans le cache npm.
 
 Les exécutables sont déposés dans le dossier `release-builds/`.
 
@@ -150,17 +150,17 @@ La navigation principale est décrite par le GraphML ci‑dessous. Le fichier d�
 </graphml>
 ```
 
-## Guide d'utilisation final - Build Electron 37.0.0-beta.2
+## Guide d'utilisation final - Build Electron 36.3.2
 
 ### 🎯 Système 100% Autonome Intégré
 
-Ce guide présente le **système de build final** qui télécharge automatiquement toutes les dépendances nécessaires et génère des builds optimisés avec Electron 37.0.0-beta.2.
+Ce guide présente le **système de build final** qui télécharge automatiquement toutes les dépendances nécessaires et génère des builds optimisés avec Electron 36.3.2.
 
 ### 🚀 Commandes Principales (Ordre Recommandé)
 
 #### 1. Build Standard Autonome
 ```powershell
-# Télécharge Electron 37.0.0-beta.2 + outils + build optimisé
+# Télécharge Electron 36.3.2 + outils + build optimisé
 .\scripts\build.ps1 -DownloadElectronLocally -InstallDeps
 ```
 
@@ -272,7 +272,7 @@ release-builds/
 
 local-tools/                       # Outils téléchargés automatiquement
 ├── UPX/upx.exe                   # UPX pour compression
-├── 7-Zip/7z.exe                  # 7-Zip pour compression avancée
+├── 7zip/7zr.exe                  # 7-Zip pour compression avancée
 ├── WebP/bin/cwebp.exe            # Outils WebP
 ├── AVIF/bin/avifenc.exe          # Outils AVIF
 └── Brotli/brotli.exe             # Compresseur Brotli
@@ -291,10 +291,10 @@ dist/                              # Build Vite optimisé
 
 Le script vérifie et configure automatiquement :
 
-1. **Electron 37.0.0-beta.2** - Téléchargement et cache local
+1. **Electron 36.3.2** - Téléchargement et cache local
 2. **Vite** - Installation automatique si manquant  
 3. **UPX et outils** - Téléchargement depuis sources officielles
-4. **Modules natifs** - Reconstruction pour Electron 37
+4. **Modules natifs** - Reconstruction pour Electron 36
 5. **Cache npm** - Nettoyage et optimisation
 6. **Variables d'environnement** - Configuration et nettoyage
 
@@ -307,7 +307,7 @@ Le script vérifie et configure automatiquement :
 
 #### Compatibilité
 - **OS**: Windows x64
-- **Electron**: 37.0.0-beta.2
+- **Electron**: 36.3.2
 - **Node.js**: 20+ LTS
 - **Formats**: NSIS, Portable, Répertoire
 
@@ -362,7 +362,7 @@ Ce système final offre :
 - ✅ **Builds reproductibles** - Versions d'outils garanties
 - ✅ **Optimisations 2025** - Technologies de pointe intégrées
 - ✅ **Compression maximale** - Taille réduite de 70%+
-- ✅ **Support Electron 37.0.0-beta.2** - Version beta stable
+- ✅ **Support Electron 36.3.2** - Version stable
 - ✅ **Gestion d'
 
 ## Licence

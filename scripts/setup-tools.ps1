@@ -32,12 +32,20 @@ if (-not (Test-Path $upxExe)) {
 }
 
 $sevenDir = Join-Path $ToolsDir '7zip'
-$sevenExe = Join-Path $sevenDir '7z.exe'
-if (-not (Test-Path $sevenExe)) {
-    $exe = Join-Path $ToolsDir '7zr.exe'
-    Download-File 'https://www.7-zip.org/a/7zr.exe' $exe
-    & $exe x -o$sevenDir
-    Remove-Item $exe
+$sevenExeFile = Join-Path $sevenDir '7zr.exe'
+if (-not (Test-Path $sevenExeFile)) {
+    Write-Host "   Telechargement de 7zr.exe vers $sevenExeFile..."
+    if (-not (Test-Path $sevenDir)) { New-Item -ItemType Directory -Path $sevenDir -Force | Out-Null }
+    try {
+        Download-File 'https://www.7-zip.org/a/7zr.exe' $sevenExeFile
+        if (Test-Path $sevenExeFile) {
+            Write-Host "   ✅ 7zr.exe telecharge vers $sevenExeFile."
+        } else {
+            Write-Host "   ❌ Echec du telechargement de 7zr.exe."
+        }
+    } catch {
+        Write-Host "   ❌ Erreur lors du telechargement de 7zr.exe: $($_.Exception.Message)"
+    }
 }
 
 Write-Host "Tools installed in $ToolsDir"
