@@ -2085,14 +2085,45 @@ global.getWindowsInfo = () => {
   return getWindowsVersion();
 };
 
-global.debugBorder = () => {
-  if (mainWindow) {
-    const info = getWindowsVersion();
-    console.log('🔍 === DEBUG INFO ===');
-    console.log('Windows version:', info);
-    console.log('Frame activé:', !mainWindow.frameless);
-    console.log('Fenêtre visible:', mainWindow.isVisible());
-    return info;
+  global.debugBorder = () => {
+    if (mainWindow) {
+      const info = getWindowsVersion();
+      console.log('🔍 === DEBUG INFO ===');
+      console.log('Windows version:', info);
+      console.log('Frame activé:', !mainWindow.frameless);
+      console.log('Fenêtre visible:', mainWindow.isVisible());
+      return info;
+    }
+    return null;
+  };
+
+// === Clean exit handling ===
+function cleanupResources () {
+  try {
+    if (db && db.open) {
+      db.close();
+      log('Database closed on exit.');
+    }
+  } catch (err) {
+    logError('cleanupResources', err);
   }
-  return null;
-};
+}
+
+app.on('before-quit', cleanupResources);
+process.on('exit', cleanupResources);
+['SIGINT', 'SIGTERM'].forEach(sig => {
+  process.on(sig, () => {
+    cleanupResources();
+    app.quit();
+  });
+});
+process.on('uncaughtException', (err) => {
+  logError('uncaughtException', err);
+  cleanupResources();
+  app.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+  logError('unhandledRejection', reason);
+  cleanupResources();
+  app.exit(1);
+});
