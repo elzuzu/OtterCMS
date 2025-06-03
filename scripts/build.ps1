@@ -1,5 +1,6 @@
 ﻿# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
 
+Get-ChildItem "./scripts" -Recurse | Unblock-File
 param(
     [switch]$Clean,
     [switch]$InstallDeps,
