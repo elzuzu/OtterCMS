@@ -1,6 +1,5 @@
 ﻿# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
 
-Get-ChildItem "./scripts" -Recurse | Unblock-File
 param(
     [switch]$Clean,
     [switch]$InstallDeps,
@@ -88,6 +87,9 @@ trap {
     Write-ColorText "5. Vérifiez que src/main.js n'a pas d'erreurs" $Gray
     exit 1
 }
+
+# Débloquer les scripts pour éviter les messages d'avertissement
+Get-ChildItem "./scripts" -Recurse | Unblock-File
 
 Write-ColorText "`n🧹 Arrêt des processus Electron/Node résiduels..." $Yellow
 Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
