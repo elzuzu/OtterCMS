@@ -21,7 +21,7 @@
     "dist:packager": "npm run build && electron-packager . \"Indi-Suivi\" --platform=win32 --arch=x64 --out=release-builds --overwrite",
     "install-app": "node ./scripts/install.js",
     "clean": "rimraf release-builds out dist .vite build .webpack node_modules/.cache",
-    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "rebuild": "electron-rebuild -f -w better-sqlite3,oracledb",
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
     "postinstall": "node scripts/robust-postinstall.js",
     "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
@@ -104,6 +104,7 @@
       "node_modules/better-sqlite3/lib/**/*",
       "node_modules/better-sqlite3/build/**/*",
       "node_modules/better-sqlite3/package.json",
+      "node_modules/oracledb/**/*",
       "!node_modules/**/*",
       "!**/*.map",
       "!**/*.ts",
@@ -111,6 +112,7 @@
     ],
     "asarUnpack": [
       "node_modules/better-sqlite3/**/*",
+      "node_modules/oracledb/**/*",
       "dist/datta-able-assets/**/*",
       "dist/images/**/*"
     ],

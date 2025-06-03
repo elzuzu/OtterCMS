@@ -87,7 +87,7 @@ function main() {
         if (!directRebuildSuccess) {
             console.log('⚠️ [Postinstall] Rebuild direct échoué, essai avec better-sqlite3 seulement...');
             const sqlite3RebuildSuccess = runCommand(
-                'npx electron-rebuild --force --only better-sqlite3',
+                'npx electron-rebuild --force --only better-sqlite3,oracledb',
                 'Rebuild de better-sqlite3 uniquement'
             );
             if (!sqlite3RebuildSuccess) {
