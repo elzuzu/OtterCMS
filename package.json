@@ -42,7 +42,10 @@
     "cleanup-dependencies-ultra": "node scripts/cleanup-dependencies-ultra.js",
     "upx-compress-advanced": "node scripts/upx-compress-advanced.js",
     "validate-build-advanced": "node scripts/validate-build-advanced.js",
-    "dist-ultra": "electron-builder --win --config electron-builder-optimized.json"
+    "dist-ultra": "electron-builder --win --config electron-builder-optimized.json",
+    "check-native": "node scripts/check-native-modules.js",
+    "force-rebuild": "npm run clean && npm install && npx electron-rebuild --force",
+    "fix-sqlite": "npx electron-rebuild --force --only better-sqlite3"
   },
   "keywords": [
     "electron",

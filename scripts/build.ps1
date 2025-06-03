@@ -237,10 +237,11 @@ if ($DownloadElectronLocally) {
 
 
 if ($InstallDeps -and -not $SkipNativeDeps) {
-    Write-ColorText "`n🛠️ Configuration modules natifs..." $Cyan
-    npm rebuild --force better-sqlite3
+    Write-ColorText "`n🛠️ Reconstruction des modules natifs pour Electron..." $Cyan
+    npm run setup-native-deps
     if ($LASTEXITCODE -ne 0) {
-        npx node-pre-gyp install --directory=node_modules/better-sqlite3
+        Write-ColorText "   ❌ Reconstruction des dépendances natives échouée" $Red
+        exit 1
     }
     Write-ColorText "   Reconstruction des modules natifs terminée." $Green
 }
