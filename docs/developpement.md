@@ -61,7 +61,7 @@ La commande suivante crée un exécutable pour votre plateforme :
 npm run dist
 ```
 Les fichiers générés se trouvent dans le dossier `release-builds/`. La configuration d'Electron Builder se situe dans la section `build` du `package.json`.
-Sous Windows, exécutez simplement `scripts/build.ps1` pour lancer automatiquement la compilation, appliquer les optimisations et compresser l'exécutable avec **UPX** si disponible.
+Sous Windows, exécutez simplement `scripts/build.ps1` pour lancer automatiquement la compilation, appliquer les optimisations et compresser l'exécutable avec **UPX** si disponible. Le script nettoie aussi le cache Electron avant l'installation pour éviter les erreurs de téléchargement.
 
 ### Conseils 2025
 

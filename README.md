@@ -90,6 +90,7 @@ npm run setup-native-deps
 pour récupérer automatiquement les binaires précompilés.
 
 Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
+Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement.
 
 Les exécutables sont déposés dans le dossier `release-builds/`.
 

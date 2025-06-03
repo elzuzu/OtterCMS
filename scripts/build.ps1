@@ -132,13 +132,30 @@ module.exports = { Logger }
 
     if ($InstallDeps -or -not (Test-Path 'node_modules')) {
         Write-ColorText "`n📦 Installation des dépendances..." $Yellow
-        if ($InstallDeps -and (Test-Path 'node_modules')) { Remove-Item -Path 'node_modules' -Recurse -Force -ErrorAction SilentlyContinue }
-        npm config set registry https://registry.npmjs.org/ | Out-Null
-        npm install --include=dev --no-audit --prefer-offline
+        if ($InstallDeps -and (Test-Path 'node_modules')) {
+            Remove-Item -Path 'node_modules' -Recurse -Force -ErrorAction SilentlyContinue
+        }
+
+        # Nettoyage du cache Electron pour éviter les erreurs HTTP 400 lors du téléchargement
+        $electronCaches = @(
+            (Join-Path $env:LOCALAPPDATA 'electron\\Cache'),
+            (Join-Path $env:USERPROFILE '.cache\\electron')
+        )
+        foreach ($cache in $electronCaches) {
+            if (Test-Path $cache) {
+                try {
+                    Remove-Item -Path $cache -Recurse -Force -ErrorAction Stop
+                    Write-ColorText "   ✓ Cache Electron supprimé: $cache" $Gray
+                } catch {
+                    Write-ColorText "   ⚠️ Impossible de supprimer le cache Electron: $cache" $Yellow
+                }
+            }
+        }
+
+        npm install --include=dev --no-audit
         if ($LASTEXITCODE -ne 0) {
             Write-ColorText "   ⚠️ npm install a échoué, tentative sans cache..." $Yellow
             npm cache clean --force
-            npm config set registry https://registry.npmjs.org/ | Out-Null
             npm install --include=dev --no-audit
             if ($LASTEXITCODE -ne 0) { throw "Échec de l'installation des dépendances" }
         }
