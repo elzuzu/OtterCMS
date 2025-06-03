@@ -299,9 +299,9 @@ if (-not $SkipUPX) {
                         try {
                             # Utiliser la commande UPX appropriée
                             if ($upxCommand -eq "upx") {
-                                upx --best -$UPXLevel "$($exe.FullName)"
+                                upx --best -$UPXLevel --force "$($exe.FullName)"
                             } else {
-                                & cmd /c "$upxCommand --best -$UPXLevel `"$($exe.FullName)`""
+                                & cmd /c "$upxCommand --best -$UPXLevel --force `"$($exe.FullName)`""
                             }
                             if ($LASTEXITCODE -eq 0) {
                                 Write-ColorText "      ✅ Compressé avec succès" $Green
