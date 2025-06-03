@@ -1,14 +1,27 @@
-# Script de build ultra-robuste pour Indi-Suivi - Version ameliore
+# Script de build ultra-robuste pour Indi-Suivi - Version amelioree avec UPX optimise
+
+# Arret des processus Electron ou Node residuels
+Get-Process -Name "electron*", "node*" -ErrorAction SilentlyContinue | Stop-Process -Force
+
 param(
-    [bool]$Clean = $true,
-    [bool]$InstallDeps = $false,
-    [bool]$Verbose = $false,
-    [bool]$UseForge = $false,
-    [bool]$UsePackager = $false,
-    [bool]$SkipNativeDeps = $false,
-    [bool]$SkipUPX = $false,
+    [switch]$Clean,
+    [switch]$InstallDeps,
+    [switch]$Verbose,
+    [switch]$UseForge,
+    [switch]$UsePackager,
+    [switch]$SkipNativeDeps,
+    [switch]$SkipUPX,
     [int]$UPXLevel = 9
 )
+
+# Valeurs par defaut si les switches ne sont pas specifies
+if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
+if (-not $PSBoundParameters.ContainsKey('InstallDeps')) { $InstallDeps = $false }
+if (-not $PSBoundParameters.ContainsKey('Verbose')) { $Verbose = $false }
+if (-not $PSBoundParameters.ContainsKey('UseForge')) { $UseForge = $false }
+if (-not $PSBoundParameters.ContainsKey('UsePackager')) { $UsePackager = $false }
+if (-not $PSBoundParameters.ContainsKey('SkipNativeDeps')) { $SkipNativeDeps = $false }
+if (-not $PSBoundParameters.ContainsKey('SkipUPX')) { $SkipUPX = $false }
 
 # Couleurs pour les messages
 $Red = [System.ConsoleColor]::Red
@@ -268,11 +281,16 @@ module.exports = { Logger };
         }
         
         Write-ColorText "`n🏗️ Build des composants..." $Yellow
-        
+
+        $viteInstalled = Test-Path "node_modules/vite"
+        if (-not $viteInstalled) {
+            Write-ColorText "   ⚠️ Vite n'est pas installé, utilisation des fichiers sources directement" $Yellow
+        }
+
         # Build main.js
         Write-ColorText "   📝 Build main.js..." $Gray
-        npx vite build --config vite.main.config.ts --mode production
-        if ($LASTEXITCODE -ne 0) {
+        if ($viteInstalled) { npx vite build --config vite.main.config.ts --mode production }
+        if ($LASTEXITCODE -ne 0 -or -not $viteInstalled) {
             Write-ColorText "   ❌ Échec du build main.js" $Red
             if (Test-Path "src\main.js") {
                 Copy-Item "src\main.js" ".vite\build\main.js" -Force
@@ -284,8 +302,8 @@ module.exports = { Logger };
         
         # Build preload.js
         Write-ColorText "   📝 Build preload.js..." $Gray
-        npx vite build --config vite.preload.config.ts --mode production
-        if ($LASTEXITCODE -ne 0) {
+        if ($viteInstalled) { npx vite build --config vite.preload.config.ts --mode production }
+        if ($LASTEXITCODE -ne 0 -or -not $viteInstalled) {
             Write-ColorText "   ❌ Échec du build preload.js" $Red
             if (Test-Path "src\preload.ts") {
                 npx tsc src\preload.ts --outDir .vite\build --module commonjs --target es2020 --esModuleInterop --skipLibCheck
@@ -299,8 +317,8 @@ module.exports = { Logger };
         
         # Build renderer
         Write-ColorText "   📝 Build renderer..." $Gray
-        npx vite build --config vite.config.js --mode production
-        if ($LASTEXITCODE -ne 0) {
+        if ($viteInstalled) { npx vite build --config vite.config.js --mode production }
+        if ($LASTEXITCODE -ne 0 -or -not $viteInstalled) {
             throw "Échec du build renderer (React)"
         }
         
