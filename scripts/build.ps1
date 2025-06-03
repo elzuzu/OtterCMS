@@ -39,12 +39,39 @@ $Blue = "Blue"
 Write-ColorText "`n🚀 Démarrage du script de build pour Indi-Suivi..." $Green
 
 if ($DownloadTools) {
-    Write-ColorText "   Téléchargement des outils nécessaires..." $Cyan
-    $setupScript = Join-Path $PSScriptRoot 'setup-tools.ps1'
-    if (Test-Path $setupScript) {
-        & powershell -ExecutionPolicy Bypass -File $setupScript
-    } else {
-        Write-ColorText "   Script setup-tools.ps1 introuvable" $Red
+    Write-ColorText "`n🛠️ Téléchargement des outils nécessaires..." $Cyan
+
+    # Définir un dossier d'outils dans l'espace utilisateur pour éviter les droits admin
+    $toolsPath = Join-Path $env:USERPROFILE "AppData\Local\indi-suivi-tools"
+
+    try {
+        # Lancer le script de téléchargement
+        $setupScript = Join-Path $PSScriptRoot 'setup-tools.ps1'
+        if (Test-Path $setupScript) {
+            Write-ColorText "   Lancement de setup-tools.ps1..." $Gray
+            & powershell -ExecutionPolicy Bypass -File $setupScript -ToolsDir $toolsPath
+
+            # Ajouter les outils au PATH de cette session
+            $upxPath = Join-Path $toolsPath "upx"
+            $sevenPath = Join-Path $toolsPath "7zip"
+
+            if (Test-Path $upxPath) {
+                $env:PATH = "$upxPath;$env:PATH"
+                Write-ColorText "   ✅ UPX ajouté au PATH pour cette session" $Green
+            }
+
+            if (Test-Path $sevenPath) {
+                $env:PATH = "$sevenPath;$env:PATH"
+                Write-ColorText "   ✅ 7-Zip ajouté au PATH pour cette session" $Green
+            }
+
+        } else {
+            Write-ColorText "   ❌ Script setup-tools.ps1 introuvable" $Red
+            Write-ColorText "   Téléchargement manuel requis depuis: https://github.com/upx/upx/releases" $Yellow
+        }
+    } catch {
+        Write-ColorText "   ❌ Erreur lors du téléchargement des outils: $($_.Exception.Message)" $Red
+        Write-ColorText "   Vous pouvez continuer sans UPX (compression désactivée)" $Yellow
     }
 }
 
@@ -227,19 +254,41 @@ if ($UseForge) {
     npm run dist:packager
     Write-ColorText "   Build Electron Packager terminé." $Green
 } else {
-    Write-ColorText "   Lancement du build par défaut (Vite)." $Blue
+    Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
     npm run build
     Write-ColorText "   Build Vite terminé." $Green
+    npm run dist
+    Write-ColorText "   Build Electron terminé." $Green
 }
 
 if (-not $SkipUPX) {
     Write-ColorText "`n⚡ Compression des exécutables avec UPX (niveau $UPXLevel)..." $Cyan
-    if (-not (Test-Command "upx")) {
-        Write-ColorText "   ⚠️ UPX n'est pas trouvé dans le PATH. Veuillez l'installer et l'ajouter à votre PATH." $Yellow
+
+    # Vérifier UPX dans PATH ou dans le dossier d'outils local
+    $upxFound = $false
+    $upxCommand = "upx"
+
+    if (Test-Command "upx") {
+        $upxFound = $true
+        Write-ColorText "   ✅ UPX trouvé dans le PATH système" $Green
+    } else {
+        # Chercher dans le dossier d'outils local
+        $localUpx = Join-Path $env:USERPROFILE "AppData\Local\indi-suivi-tools\upx\upx.exe"
+        if (Test-Path $localUpx) {
+            $upxFound = $true
+            $upxCommand = "`"$localUpx`""
+            Write-ColorText "   ✅ UPX trouvé localement: $localUpx" $Green
+        }
+    }
+
+    if (-not $upxFound) {
+        Write-ColorText "   ⚠️ UPX non trouvé. Utilisez -DownloadTools pour l'installer automatiquement." $Yellow
+        Write-ColorText "   Ou téléchargez depuis: https://github.com/upx/upx/releases" $Yellow
         Write-ColorText "   Saut de l'étape de compression UPX." $Yellow
     } else {
         $outputFolders = @("dist", "out", "release-builds")
         $foundExe = $false
+
         foreach ($folder in $outputFolders) {
             if (Test-Path $folder) {
                 $exeFiles = Get-ChildItem -Path $folder -Recurse -Include "*.exe" -ErrorAction SilentlyContinue
@@ -247,15 +296,28 @@ if (-not $SkipUPX) {
                     $foundExe = $true
                     foreach ($exe in $exeFiles) {
                         Write-ColorText "      Compression de $($exe.FullName)..." $Gray
-                        upx --best -$UPXLevel "$($exe.FullName)"
+                        try {
+                            # Utiliser la commande UPX appropriée
+                            if ($upxCommand -eq "upx") {
+                                upx --best -$UPXLevel "$($exe.FullName)"
+                            } else {
+                                & cmd /c "$upxCommand --best -$UPXLevel `"$($exe.FullName)`""
+                            }
+                            if ($LASTEXITCODE -eq 0) {
+                                Write-ColorText "      ✅ Compressé avec succès" $Green
+                            }
+                        } catch {
+                            Write-ColorText "      ⚠️ Erreur de compression: $($_.Exception.Message)" $Yellow
+                        }
                     }
                 }
             }
         }
+
         if ($foundExe) {
             Write-ColorText "   Compression UPX terminée." $Green
         } else {
-            Write-ColorText "   Aucun exécutable trouvé pour la compression UPX." $Yellow
+            Write-ColorText "   ⚠️ Aucun exécutable trouvé à compresser." $Yellow
         }
     }
 }
