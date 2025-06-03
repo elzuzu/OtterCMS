@@ -90,6 +90,10 @@ Si la compilation des dépendances natives échoue, lancez :
 npm run setup-native-deps
 ```
 pour récupérer automatiquement les binaires précompilés.
+Vous pouvez vérifier la présence des modules natifs avec :
+```bash
+npm run check-native
+```
 Ce dépôt est désormais configuré pour télécharger les binaires de `better-sqlite3`
 et de `oracledb` depuis **npmmirror**, évitant ainsi toute compilation locale et la
 dépendance à Visual Studio. Les modules natifs sont également exclus de l'archive
@@ -97,7 +101,9 @@ dépendance à Visual Studio. Les modules natifs sont également exclus de l'arc
 production.
 
 Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
-Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement.
+Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement et
+reconstruit automatiquement les modules natifs (`better-sqlite3`, `oracledb`) via `npm run setup-native-deps` lorsque l'option
+`-InstallDeps` est utilisée.
 Vous pouvez lui passer des options supplémentaires :
 
 ```powershell
