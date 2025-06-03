@@ -63,7 +63,7 @@
     "bcryptjs": "^3.0.2",
     "better-sqlite3": "^11.10.0",
     "chart.js": "^4.4.9",
-    "electron": "36.2.0",
+    "electron": "37.0.0-beta.2",
     "electron-squirrel-startup": "^1.0.1",
     "electron-updater": "^6.6.2",
     "framer-motion": "^12.11.0",

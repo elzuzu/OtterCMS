@@ -54,7 +54,7 @@ function main() {
     console.log('🔍 [Postinstall] Vérification de l\'installation d\'Electron...');
     if (!checkElectronInstalled()) {
         console.log('⚠️ [Postinstall] Electron n\'est pas correctement installé, tentative de réinstallation...');
-        const electronReinstall = runCommand('npm install electron@36.2.0 --save-dev --no-audit', 'Réinstallation d\'Electron');
+        const electronReinstall = runCommand('npm install electron@37.0.0-beta.2 --save-dev --no-audit', 'Réinstallation d\'Electron');
         if (!electronReinstall) {
             console.error('❌ [Postinstall] CRITIQUE: Impossible de réinstaller Electron');
             process.exit(1);
