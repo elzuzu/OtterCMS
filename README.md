@@ -36,8 +36,9 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 
 ## Prérequis
 
- - **Node.js 20** ou version ultérieure
- - **Python 3** installé et accessible via `python` pour la compilation node-gyp
+- **Node.js 20** ou version ultérieure
+- **Electron 37.0.0-beta.2** téléchargé automatiquement par le script
+- **Python 3** installé et accessible via `python` pour la compilation node-gyp
  - **npm** ou équivalent (pnpm, Yarn)
 - Sous **Windows**, les *Visual Studio Build Tools* avec le composant
   « Desktop development with C++ » sont recommandés pour compiler les modules
@@ -91,6 +92,13 @@ pour récupérer automatiquement les binaires précompilés.
 
 Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
 Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement.
+Vous pouvez lui passer des options supplémentaires :
+
+```powershell
+scripts\build.ps1 -DownloadElectronLocally -DownloadTools -InstallDeps
+```
+
+`-DownloadTools` télécharge UPX et 7‑Zip si nécessaire, tandis que `-DownloadElectronLocally` récupère l'archive officielle d'Electron **37.0.0-beta.2** et la place dans le cache npm.
 
 Les exécutables sont déposés dans le dossier `release-builds/`.
 
