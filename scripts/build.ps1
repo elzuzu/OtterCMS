@@ -155,6 +155,13 @@ if ($InstallDeps -or $DownloadElectronLocally) {
         Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
     }
 
+    # Configuration pour utiliser les binaires précompilés
+    $env:npm_config_build_from_source = "false"
+    $env:npm_config_node_gyp = ""
+    $env:npm_config_better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
+    $env:better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
+    Write-ColorText "   Configuration pour binaires précompilés..." $Gray
+
     npm install
     if ($LASTEXITCODE -ne 0) {
         Write-ColorText "   ❌ npm install a échoué - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
@@ -202,11 +209,10 @@ if ($DownloadElectronLocally) {
 
 
 if ($InstallDeps -and -not $SkipNativeDeps) {
-    Write-ColorText "`n🛠️ Reconstruire les modules natifs pour Electron..." $Cyan
-if (Test-Path (Join-Path $projectRoot "node_modules\.bin\electron-rebuild.cmd")) {
-    & (Join-Path $projectRoot "node_modules\.bin\electron-rebuild.cmd")
-    } else {
-        npm rebuild
+    Write-ColorText "`n🛠️ Configuration modules natifs..." $Cyan
+    npm rebuild --force better-sqlite3
+    if ($LASTEXITCODE -ne 0) {
+        npx node-pre-gyp install --directory=node_modules/better-sqlite3
     }
     Write-ColorText "   Reconstruction des modules natifs terminée." $Green
 }

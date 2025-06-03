@@ -8,6 +8,10 @@ const fs = require('fs');
 const path = require('path');
 
 console.log('🔧 [Postinstall] Démarrage du script postinstall robuste...');
+// Utiliser les binaires précompilés pour better-sqlite3
+process.env.npm_config_build_from_source = 'false';
+process.env.npm_config_better_sqlite3_binary_host_mirror = 'https://npmmirror.com/mirrors/better-sqlite3/';
+process.env.better_sqlite3_binary_host_mirror = 'https://npmmirror.com/mirrors/better-sqlite3/';
 
 function runCommand(command, description) {
     try {
@@ -18,7 +22,10 @@ function runCommand(command, description) {
             env: {
                 ...process.env,
                 npm_config_prefer_offline: 'false',
-                npm_config_audit: 'false'
+                npm_config_audit: 'false',
+                npm_config_build_from_source: 'false',
+                npm_config_better_sqlite3_binary_host_mirror: 'https://npmmirror.com/mirrors/better-sqlite3/',
+                better_sqlite3_binary_host_mirror: 'https://npmmirror.com/mirrors/better-sqlite3/'
             }
         });
         console.log(`✅ [Postinstall] ${description} - Terminé avec succès`);

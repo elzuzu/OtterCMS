@@ -90,6 +90,9 @@ Si la compilation des dépendances natives échoue, lancez :
 npm run setup-native-deps
 ```
 pour récupérer automatiquement les binaires précompilés.
+Ce dépôt est désormais configuré pour télécharger les binaires de `better-sqlite3`
+depuis **npmmirror**, évitant ainsi toute compilation locale et la dépendance à
+Visual Studio.
 
 Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
 Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement.
