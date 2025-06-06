@@ -231,8 +231,15 @@ if ($DownloadElectronLocally) {
     Write-ColorText "   Extraction de $downloadedFilePath vers $electronLocalDownloadDir" $Gray
     try {
         Expand-Archive -Path $downloadedFilePath -DestinationPath $electronLocalDownloadDir -Force
-        $electronExe = Join-Path $electronLocalDownloadDir "electron.exe"
-        if (Test-Path $electronExe) {
+
+        # Les archives Electron contiennent généralement un sous-dossier.
+        # Rechercher electron.exe dans l'arborescence extraite et remonter
+        $exePath = Get-ChildItem -Path $electronLocalDownloadDir -Recurse -Filter "electron.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($exePath) {
+            if ($exePath.Directory.FullName -ne $electronLocalDownloadDir) {
+                Move-Item -Path (Join-Path $exePath.Directory.FullName '*') -Destination $electronLocalDownloadDir -Force
+                Remove-Item -Path $exePath.Directory.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
             Write-ColorText "   Extraction terminée - electron.exe trouvé." $Green
         } else {
             throw "electron.exe non trouvé après extraction"
@@ -240,6 +247,12 @@ if ($DownloadElectronLocally) {
     } catch {
         Write-ColorText "   ❌ Échec de l'extraction: $_" $Red
         throw "Impossible d'extraire Electron"
+    }
+
+    # S'assurer que l'archive ZIP reste disponible pour electron-builder
+    $electronZipPath = Join-Path $electronLocalDownloadDir $electronZipFileName
+    if (-not (Test-Path $electronZipPath) -and (Test-Path $downloadedFilePath)) {
+        Copy-Item -Path $downloadedFilePath -Destination $electronZipPath -Force
     }
 
     Write-ColorText "`n📋 Préparation du cache Electron local..." $Cyan
@@ -415,15 +428,6 @@ if ($InstallDeps -or $DownloadElectronLocally) {
     }
 }
 
-if ($DownloadElectronLocally) {
-    Write-ColorText "`n🧹 Nettoyage..." $Yellow
-    Remove-Item Env:ELECTRON_CACHE -ErrorAction SilentlyContinue
-    Remove-Item Env:electron_config_cache -ErrorAction SilentlyContinue
-    if (Test-Path $electronLocalDownloadDir) {
-        Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
-    }
-    Write-ColorText "   Nettoyage terminé." $Green
-}
 
 
 if ($InstallDeps -and -not $SkipNativeDeps -and -not $ForcePrebuilt) {
@@ -454,7 +458,23 @@ if ($UseForge) {
     Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
     npm run build
     Write-ColorText "   Build Vite terminé." $Green
-    npm run dist
+    if ($DownloadElectronLocally) {
+        Write-ColorText "   Build Electron avec binaire local." $Blue
+
+        $electronExePath = Join-Path $electronLocalDownloadDir "electron.exe"
+        if (-not (Test-Path $electronExePath)) {
+            Write-ColorText "   ❌ electron.exe non trouvé dans $electronLocalDownloadDir" $Red
+            throw "electron.exe manquant dans $electronLocalDownloadDir"
+        }
+
+        npx electron-builder --win --config.electronDist="$electronLocalDownloadDir"
+        # Option alternative :
+        # $env:ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
+        # npx electron-builder --win
+        # Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
+    } else {
+        npm run dist
+    }
     Write-ColorText "   Build Electron terminé." $Green
 }
 
@@ -545,6 +565,18 @@ if ($foundFiles.Count -gt 0) {
     }
 } else {
     Write-ColorText "`n⚠️ Aucun fichier exécutable trouvé dans les dossiers de sortie!" $Yellow
+}
+
+if ($DownloadElectronLocally) {
+    Write-ColorText "`n🧹 Nettoyage final..." $Yellow
+    Remove-Item Env:ELECTRON_CACHE -ErrorAction SilentlyContinue
+    Remove-Item Env:electron_config_cache -ErrorAction SilentlyContinue
+    Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
+    # Garder $electronLocalDownloadDir pour debug. Décommentez pour le supprimer.
+    # if (Test-Path $electronLocalDownloadDir) {
+    #     Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
+    # }
+    Write-ColorText "   Nettoyage final terminé." $Green
 }
 
 Clear-W64DevKitEnvironment
