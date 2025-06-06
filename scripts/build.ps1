@@ -289,7 +289,8 @@ if ($InstallDeps -or $DownloadElectronLocally) {
 
         npm config set proxy http://wyera:Tarace123!@proxy.ge-admin.ad.etat-ge.ch:3128
         npm config set https-proxy http://wyera:Tarace123!@proxy.ge-admin.ad.etat-ge.ch:3128
-        npm config set cafile "D:\projets\MyPowerEnv\Cert\proxy-ca.pem"
+        # Correction du chemin du certificat proxy
+        npm config set cafile "D:\projets\MyPowerEnv\Certificates\proxy-ca.pem"
 
         Write-ColorText "   📦 Installation npm avec binaires précompilés..." $Green
         npm install --no-optional --ignore-scripts --prefer-offline
