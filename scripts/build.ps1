@@ -10,7 +10,8 @@ param(
     [switch]$SkipUPX,
     [int]$UPXLevel = 9,
     [switch]$DownloadElectronLocally,
-    [switch]$DownloadTools
+    [switch]$DownloadTools,
+    [switch]$ForcePrebuilt
 )
 
 function Write-ColorText {
@@ -116,6 +117,7 @@ Write-ColorText "   Dossiers et caches nettoyés." $Green
 if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 if (-not $PSBoundParameters.ContainsKey('InstallDeps')) { $InstallDeps = $false }
 if (-not $PSBoundParameters.ContainsKey('Verbose')) { $Verbose = $false }
+if (-not $PSBoundParameters.ContainsKey('ForcePrebuilt')) { $ForcePrebuilt = $false }
 
 $electronVersion = "36.3.2"
 $electronArch = "x64"
@@ -183,6 +185,10 @@ if ($InstallDeps -or $DownloadElectronLocally) {
 
     if ($DownloadElectronLocally) {
         Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
+    }
+
+    if ($ForcePrebuilt) {
+        Write-ColorText "   🔒 Mode binaires précompilés forcé" $Yellow
     }
 
     Write-ColorText "   ⚙️ Configuration npm pour binaires précompilés..." $Cyan
