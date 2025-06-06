@@ -407,8 +407,18 @@ if ($UseForge) {
     $oracleNode = "node_modules\oracledb\build\Release\oracledb.node"
 
     if (-not (Test-Path $sqliteNode) -or -not (Test-Path $oracleNode)) {
-        Write-ColorText "Reconstruction des modules natifs pour Electron 36.3.2..." $Cyan
-        npx electron-rebuild --version=36.3.2 --force --only better-sqlite3,oracledb --arch x64
+        Write-ColorText "Installation des binaires précompilés..." $Cyan
+
+        $env:npm_config_build_from_source = "false"
+        $env:npm_config_oracledb_binary_host_mirror = "https://registry.npmmirror.com/-/binary/oracledb/"
+        $env:oracledb_binary_host_mirror = "https://registry.npmmirror.com/-/binary/oracledb/"
+
+        Write-ColorText "   Réinstallation oracledb avec binaires précompilés..." $Gray
+        npm install oracledb@6.3.0 --build-from-source=false --prefer-offline
+
+        Write-ColorText "   Reconstruction better-sqlite3..." $Gray
+        npx electron-rebuild --version=36.3.2 --force --only better-sqlite3 --arch x64
+
         if ($LASTEXITCODE -ne 0) {
             Write-ColorText "   ❌ Reconstruction échouée" $Red
             throw "Échec de la reconstruction des modules natifs"
@@ -423,10 +433,17 @@ if ($UseForge) {
     }
 
     if (Test-Path $oracleNode) {
-        Write-ColorText "   ✅ oracledb.node trouvé" $Green
+        Write-ColorText "   ✅ oracledb.node trouvé (binaire précompilé)" $Green
     } else {
         Write-ColorText "   ❌ oracledb.node MANQUANT" $Red
-        throw "Module natif oracledb manquant après reconstruction"
+        Write-ColorText "   🔄 Tentative de téléchargement manuel du binaire..." $Yellow
+        & "./scripts/download-oracledb-binary.ps1" -ElectronVersion "36.3.2" -OracleVersion "6.3.0"
+
+        if (Test-Path $oracleNode) {
+            Write-ColorText "   ✅ oracledb.node téléchargé" $Green
+        } else {
+            throw "Impossible d'obtenir le binaire oracledb précompilé"
+        }
     }
 
     npm run build

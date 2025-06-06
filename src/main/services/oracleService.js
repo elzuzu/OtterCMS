@@ -1,16 +1,27 @@
-const oracledb = require('oracledb');
+let oracledb = null;
+try {
+  oracledb = require('oracledb');
+  console.log('✅ oracledb chargé avec succès');
+} catch (error) {
+  console.warn('⚠️ oracledb non disponible:', error.message);
+}
 
 class OracleService {
   constructor() {
     this.connections = new Map();
-    try {
-      oracledb.initOracleClient({ libDir: null });
-    } catch (_) {
-      // ignore if already initialized or library not required
+    if (oracledb) {
+      try {
+        oracledb.initOracleClient({ libDir: null });
+      } catch (_) {
+        // ignore if already initialized or library not required
+      }
     }
   }
 
   async testConnection(config) {
+    if (!oracledb) {
+      return { success: false, error: 'Module oracledb non disponible' };
+    }
     let connection;
     try {
       connection = await oracledb.getConnection({
@@ -30,6 +41,9 @@ class OracleService {
   }
 
   async executeQuery(config, query, options = {}) {
+    if (!oracledb) {
+      return { success: false, error: 'Module oracledb non disponible' };
+    }
     let connection;
     try {
       connection = await oracledb.getConnection({

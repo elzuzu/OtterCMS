@@ -73,6 +73,15 @@ const xlsx = require('xlsx');
 const { log, logError, logIPC, logger } = require('./utils/logger'); // Assuming 'logger' is the instance with setLevel
 const { inferType } = require('./utils/inferType');
 const os = require('os');
+// Chargement conditionnel d'oracledb
+let oracledb = null;
+try {
+  oracledb = require('oracledb');
+  console.log('✅ oracledb chargé avec succès');
+} catch (error) {
+  console.warn('⚠️ oracledb non disponible:', error.message);
+  console.log('ℹ️ Les fonctionnalités Oracle seront désactivées');
+}
 const ConfigService = require('./main/services/configService');
 const oracleService = require('./main/services/oracleService');
 const oracleConfigService = require('./main/services/oracleConfigService');
@@ -629,6 +638,9 @@ ipcMain.handle('init-database', async (event) => {
 });
 
 ipcMain.handle('test-oracle-connection', async (event, config) => {
+  if (!oracledb) {
+    return { success: false, error: 'Module oracledb non disponible' };
+  }
   return oracleService.testConnection(config);
 });
 
