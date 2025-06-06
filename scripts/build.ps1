@@ -231,8 +231,15 @@ if ($DownloadElectronLocally) {
     Write-ColorText "   Extraction de $downloadedFilePath vers $electronLocalDownloadDir" $Gray
     try {
         Expand-Archive -Path $downloadedFilePath -DestinationPath $electronLocalDownloadDir -Force
-        $electronExe = Join-Path $electronLocalDownloadDir "electron.exe"
-        if (Test-Path $electronExe) {
+
+        # Les archives Electron contiennent généralement un sous-dossier.
+        # Rechercher electron.exe dans l'arborescence extraite et remonter
+        $exePath = Get-ChildItem -Path $electronLocalDownloadDir -Recurse -Filter "electron.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($exePath) {
+            if ($exePath.Directory.FullName -ne $electronLocalDownloadDir) {
+                Move-Item -Path (Join-Path $exePath.Directory.FullName '*') -Destination $electronLocalDownloadDir -Force
+                Remove-Item -Path $exePath.Directory.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
             Write-ColorText "   Extraction terminée - electron.exe trouvé." $Green
         } else {
             throw "electron.exe non trouvé après extraction"
@@ -258,6 +265,8 @@ if ($DownloadElectronLocally) {
 
     $env:ELECTRON_CACHE = $electronCacheDir
     $env:electron_config_cache = $electronCacheDir
+    $env:ELECTRON_CUSTOM_DIR = $electronLocalDownloadDir
+    $env:ELECTRON_CUSTOM_FILENAME = $electronZipFileName
     Write-ColorText "   Variables de cache configurées." $Gray
 }
 
@@ -419,6 +428,8 @@ if ($DownloadElectronLocally) {
     Write-ColorText "`n🧹 Nettoyage..." $Yellow
     Remove-Item Env:ELECTRON_CACHE -ErrorAction SilentlyContinue
     Remove-Item Env:electron_config_cache -ErrorAction SilentlyContinue
+    Remove-Item Env:ELECTRON_CUSTOM_DIR -ErrorAction SilentlyContinue
+    Remove-Item Env:ELECTRON_CUSTOM_FILENAME -ErrorAction SilentlyContinue
     if (Test-Path $electronLocalDownloadDir) {
         Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -454,7 +465,12 @@ if ($UseForge) {
     Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
     npm run build
     Write-ColorText "   Build Vite terminé." $Green
-    npm run dist
+    if ($DownloadElectronLocally) {
+        Write-ColorText "   Build Electron avec binaire local." $Blue
+        npx electron-builder --win --config.electronDist="$electronLocalDownloadDir"
+    } else {
+        npm run dist
+    }
     Write-ColorText "   Build Electron terminé." $Green
 }
 
