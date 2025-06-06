@@ -118,10 +118,12 @@ if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 if (-not $PSBoundParameters.ContainsKey('InstallDeps')) { $InstallDeps = $false }
 if (-not $PSBoundParameters.ContainsKey('Verbose')) { $Verbose = $false }
 if (-not $PSBoundParameters.ContainsKey('ForcePrebuilt')) { $ForcePrebuilt = $false }
+if ($ForcePrebuilt -and -not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 
 $electronVersion = "36.3.2"
 $electronArch = "x64"
 $electronPlatform = "win32"
+$sqliteVersion = "11.10.0"
 $electronZipFileName = "electron-v$electronVersion-$electronPlatform-$electronArch.zip"
 $electronDownloadUrl = "https://github.com/electron/electron/releases/download/v$electronVersion/$electronZipFileName"
 $electronLocalDownloadDir = Join-Path $PSScriptRoot "electron-local-temp"
@@ -220,7 +222,7 @@ if ($InstallDeps -or $DownloadElectronLocally) {
         if ($LASTEXITCODE -ne 0) {
             Write-ColorText "   🛠️ Téléchargement manuel des binaires..." $Magenta
 
-            $sqliteNodeUrl = "https://npmmirror.com/mirrors/better-sqlite3/v11.10.0/better-sqlite3-v11.10.0-electron-v36-win32-x64.tar.gz"
+            $sqliteNodeUrl = "https://npmmirror.com/mirrors/better-sqlite3/v$sqliteVersion/better-sqlite3-v$sqliteVersion-electron-v$($electronVersion.Split('.')[0])-$electronPlatform-$electronArch.tar.gz"
             $sqliteDestDir = "node_modules\better-sqlite3\build\Release"
 
             if (-not (Test-Path $sqliteDestDir)) {
@@ -234,6 +236,8 @@ if ($InstallDeps -or $DownloadElectronLocally) {
                 if (Get-Command "7z" -ErrorAction SilentlyContinue) {
                     7z x $tempFile -o"$env:TEMP\sqlite3-extract\"
                     Copy-Item "$env:TEMP\sqlite3-extract\*\better_sqlite3.node" $sqliteDestDir -Force
+                } else {
+                    Write-ColorText "   ⚠️ 7zip non trouvé, extraction impossible" $Yellow
                 }
 
                 Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
@@ -287,12 +291,6 @@ if ($InstallDeps -or $DownloadElectronLocally) {
         if ($DownloadElectronLocally) {
             Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
         }
-
-        $env:npm_config_build_from_source = "false"
-        $env:npm_config_node_gyp = ""
-        $env:npm_config_better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
-        $env:better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
-        Write-ColorText "   Configuration pour binaires précompilés..." $Gray
 
         npm install
         if ($LASTEXITCODE -ne 0) {
