@@ -71,6 +71,12 @@ scripts\build.ps1 -DownloadElectronLocally -DownloadTools -InstallDeps
 
 Cette commande télécharge UPX et 7‑Zip si besoin, puis récupère Electron **36.3.2** et le place dans le cache pour accélérer `npm install`.
 
+En cas de doute sur la présence d'Electron ou pour diagnostiquer une installation défaillante, lancez :
+
+```powershell
+scripts\electron-diagnostic.ps1
+```
+
 ### Conseils 2025
 
 - Privilégiez l'utilisation de versions LTS des outils pour garantir la compatibilité.
