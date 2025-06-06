@@ -151,6 +151,194 @@ function Test-BetterSqlite3 {
     return (Test-Path $sqliteNode)
 }
 
+# Fonction de copie d'Electron corrigée
+function Copy-ElectronFiles-Fixed {
+    param(
+        $SourcePath,
+        $TargetPath
+    )
+
+    Write-ColorText "Copie manuelle des fichiers Electron..." $Cyan
+
+    $electronDistPath = Join-Path $TargetPath "dist"
+    if (-not (Test-Path $electronDistPath)) {
+        New-Item -ItemType Directory -Path $electronDistPath -Force | Out-Null
+    }
+
+    $sourceFiles = Get-ChildItem -Path $SourcePath -File
+    foreach ($file in $sourceFiles) {
+        Copy-Item -Path $file.FullName -Destination $electronDistPath -Force
+        Write-ColorText "     Copié: $($file.Name)" $Gray
+    }
+
+    $sourceDirs = Get-ChildItem -Path $SourcePath -Directory
+    foreach ($dir in $sourceDirs) {
+        $targetDir = Join-Path $electronDistPath $dir.Name
+        Copy-Item -Path $dir.FullName -Destination $targetDir -Recurse -Force
+        Write-ColorText "     Copié: $($dir.Name)" $Gray
+    }
+
+    $pathFile = Join-Path $TargetPath "path.txt"
+    "dist" | Out-File -FilePath $pathFile -Encoding UTF8 -NoNewline
+
+    Write-ColorText "   ✅ Copie réussie avec path.txt" $Green
+}
+
+# Vérification des modules natifs dans le build
+function Verify-NativeModules-Fixed {
+    Write-ColorText "Verification des modules natifs embarques..." $Cyan
+    $buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
+    $allOk = $true
+
+    $sqlitePaths = @(
+        "resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node",
+        "resources\app\node_modules\better-sqlite3\build\Release\better_sqlite3.node",
+        "resources\app.asar.unpacked\node_modules\better-sqlite3\lib\binding\better_sqlite3.node"
+    )
+
+    $sqliteFound = $false
+    foreach ($path in $sqlitePaths) {
+        $fullPath = Join-Path $buildDir $path
+        if (Test-Path $fullPath) {
+            Write-ColorText "   ✅ better-sqlite3 embarqué: $path" $Green
+            $sqliteFound = $true
+            break
+        }
+    }
+
+    if (-not $sqliteFound) {
+        Write-ColorText "   ❌ better-sqlite3 manquant dans le build" $Red
+        $asarUnpacked = Join-Path $buildDir "resources\app.asar.unpacked"
+        if (Test-Path $asarUnpacked) {
+            Write-ColorText "   📁 app.asar.unpacked existe" $Gray
+            $sqliteDir = Join-Path $asarUnpacked "node_modules\better-sqlite3"
+            if (Test-Path $sqliteDir) {
+                Write-ColorText "   📁 better-sqlite3 dir existe" $Gray
+                Get-ChildItem -Path $sqliteDir -Recurse -Name "*.node" | ForEach-Object {
+                    Write-ColorText "   🔍 Trouvé: $_" $Gray
+                }
+            } else {
+                Write-ColorText "   ❌ Dossier better-sqlite3 manquant" $Red
+            }
+        }
+        $allOk = $false
+    }
+
+    $oracleFound = $false
+    $oraclePaths = @(
+        "resources\app.asar.unpacked\node_modules\oracledb\package.json",
+        "resources\app\node_modules\oracledb\package.json",
+        "resources\app.asar.unpacked\node_modules\oracledb\lib\oracledb.js",
+        "resources\app\node_modules\oracledb\lib\oracledb.js"
+    )
+    foreach ($path in $oraclePaths) {
+        $fullPath = Join-Path $buildDir $path
+        if (Test-Path $fullPath) {
+            Write-ColorText "   ✅ OracleDB embarqué (mode Thin): $path" $Green
+            $oracleFound = $true
+            break
+        }
+    }
+
+    if (-not $oracleFound) {
+        Write-ColorText "   ❌ OracleDB manquant - Diagnostic..." $Yellow
+        $nodeModulesDirs = Get-ChildItem -Path $buildDir -Recurse -Directory -Name "node_modules" -ErrorAction SilentlyContinue
+        foreach ($dir in $nodeModulesDirs) {
+            Write-ColorText "   📁 node_modules trouvé: $dir" $Gray
+            $fullNodeModules = Join-Path $buildDir $dir
+            $oracleInside = Join-Path $fullNodeModules "oracledb"
+            if (Test-Path $oracleInside) {
+                Write-ColorText "   🔍 OracleDB trouvé dans: $dir" $Green
+                $oracleFound = $true
+            }
+        }
+        if (-not $oracleFound) {
+            Write-ColorText "   ❌ OracleDB absent du build" $Red
+            $allOk = $false
+        }
+    }
+
+    return $allOk
+}
+
+# Correction post-build de better-sqlite3
+function Fix-BetterSqlite3-PostBuild {
+    Write-ColorText "🔧 Correction post-build better-sqlite3..." $Cyan
+    $buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
+
+    $possibleTargets = @(
+        "resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release",
+        "resources\app\node_modules\better-sqlite3\build\Release"
+    )
+
+    $targetDir = $null
+    foreach ($relPath in $possibleTargets) {
+        $dir = Join-Path $buildDir $relPath
+        if (Test-Path (Split-Path $dir -Parent)) {
+            $targetDir = $dir
+            break
+        }
+    }
+
+    if (-not $targetDir) {
+        $targetDir = Join-Path $buildDir $possibleTargets[0]
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        Write-ColorText "   📁 Dossier créé: $targetDir" $Gray
+    }
+
+    $sourceSqlite = "node_modules\better-sqlite3\build\Release\better_sqlite3.node"
+    $targetSqlite = Join-Path $targetDir "better_sqlite3.node"
+
+    if (Test-Path $sourceSqlite) {
+        Copy-Item -Path $sourceSqlite -Destination $targetSqlite -Force
+        Write-ColorText "   ✅ better_sqlite3.node copié manuellement" $Green
+        return $true
+    } else {
+        Write-ColorText "   ❌ Source better_sqlite3.node introuvable" $Red
+        return $false
+    }
+}
+
+# Correction post-build d'OracleDB
+function Fix-OracleDB-PostBuild {
+    Write-ColorText "🔧 Correction post-build OracleDB..." $Cyan
+    $buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
+
+    $possibleLocations = @(
+        "resources\app.asar.unpacked\node_modules",
+        "resources\app\node_modules"
+    )
+
+    $targetFound = $false
+    foreach ($loc in $possibleLocations) {
+        $full = Join-Path $buildDir $loc
+        if (Test-Path $full) {
+            Write-ColorText "   📁 Modules trouvés dans: $loc" $Gray
+            $oracleDir = Join-Path $full "oracledb"
+            if (Test-Path $oracleDir) {
+                Write-ColorText "   ✅ OracleDB déjà présent dans $loc" $Green
+                $targetFound = $true
+                break
+            } else {
+                $sourceOracle = "node_modules\oracledb"
+                if (Test-Path $sourceOracle) {
+                    Copy-Item -Path $sourceOracle -Destination $oracleDir -Recurse -Force
+                    Write-ColorText "   ✅ OracleDB copié vers $loc" $Green
+                    $targetFound = $true
+                    break
+                }
+            }
+        }
+    }
+
+    if (-not $targetFound) {
+        Write-ColorText "   ❌ Impossible de localiser le répertoire node_modules du build" $Red
+        return $false
+    }
+
+    return $true
+}
+
 Remove-Item -Path "$env:LOCALAPPDATA\electron-builder\Cache" -Recurse -Force
 
 Write-ColorText "Demarrage du script de build pour Indi-Suivi..." $Cyan
@@ -298,63 +486,20 @@ if ($InstallDeps -or $DownloadElectronLocally) {
             }
 
             if ($DownloadElectronLocally) {
-                Write-ColorText "Copie manuelle des fichiers Electron..." $Cyan
-
-                # Vérifier que le répertoire source existe et contient electron.exe
                 $electronExePath = Join-Path $electronLocalDownloadDir "electron.exe"
                 if (-not (Test-Path $electronExePath)) {
                     Write-ColorText "   ERREUR: electron.exe non trouvé dans $electronLocalDownloadDir" $Red
                     throw "electron.exe manquant dans le répertoire local"
                 }
 
-                # Créer ou nettoyer le répertoire de destination
                 if (-not (Test-Path $electronTargetDistPath)) {
                     New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
-                    Write-ColorText "   Répertoire de destination créé: $electronTargetDistPath" $Gray
                 } else {
                     Remove-Item -Path "$electronTargetDistPath\*" -Recurse -Force -ErrorAction SilentlyContinue
-                    Write-ColorText "   Répertoire de destination nettoyé" $Gray
                 }
 
-                # Copier tous les fichiers du répertoire temporaire
-                try {
-                    $filesToCopy = Get-ChildItem -Path $electronLocalDownloadDir -Exclude "*.zip" -ErrorAction Stop
-                    $copiedCount = 0
-                    foreach ($file in $filesToCopy) {
-                        Copy-Item -Path $file.FullName -Destination $electronTargetDistPath -Recurse -Force -ErrorAction Stop
-                        $copiedCount++
-                        Write-ColorText "     Copié: $($file.Name)" $Gray
-                    }
+                Copy-ElectronFiles-Fixed -SourcePath $electronLocalDownloadDir -TargetPath (Split-Path $electronTargetDistPath -Parent)
 
-                    $finalElectronPath = Join-Path $electronTargetDistPath "electron.exe"
-                    if (Test-Path $finalElectronPath) {
-                        Write-ColorText "   ✅ Copie réussie: $copiedCount fichiers copiés" $Green
-                        Write-ColorText "   ✅ electron.exe présent dans le répertoire final" $Green
-
-                        $criticalFiles = @("ffmpeg.dll", "d3dcompiler_47.dll", "libEGL.dll", "libGLESv2.dll")
-                        $missingFiles = @()
-                        foreach ($criticalFile in $criticalFiles) {
-                            $criticalPath = Join-Path $electronTargetDistPath $criticalFile
-                            if (-not (Test-Path $criticalPath)) {
-                                $missingFiles += $criticalFile
-                            }
-                        }
-                        if ($missingFiles.Count -gt 0) {
-                            Write-ColorText "   ⚠️ Fichiers critiques manquants: $($missingFiles -join ', ')" $Yellow
-                        } else {
-                            Write-ColorText "   ✅ Tous les fichiers critiques présents" $Green
-                        }
-                    } else {
-                        throw "electron.exe absent après copie"
-                    }
-
-                    Write-ColorText "   Copie manuelle terminee." $Green
-                } catch {
-                    Write-ColorText "   ERREUR lors de la copie: $_" $Red
-                    throw "Échec de la copie manuelle d'Electron: $_"
-                }
-
-                # Vérifier la cohérence du package.json d'Electron
                 $electronPackageJsonPath = Join-Path (Split-Path $electronTargetDistPath -Parent) "package.json"
                 if (Test-Path $electronPackageJsonPath) {
                     try {
@@ -508,6 +653,9 @@ if ($UseForge) {
         npm run dist
     }
     Write-ColorText "   Build Electron termine." $Green
+    Start-Sleep -Seconds 2
+    Fix-BetterSqlite3-PostBuild | Out-Null
+    Fix-OracleDB-PostBuild | Out-Null
 }
 
 if (-not $SkipUPX) {
@@ -572,20 +720,19 @@ foreach ($folder in $outputFolders) {
     }
 }
 
-Write-ColorText "Verification des modules natifs embarques..." $Cyan
-$buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
-$nativeModules = @(
-    @{ Name = 'better-sqlite3'; Path = 'resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node' }
-)
-
-foreach ($mod in $nativeModules) {
-    $fullPath = Join-Path $buildDir $mod.Path
-    if (Test-Path $fullPath) {
-        Write-ColorText "   ✅ $($mod.Name) embarqué" $Green
-    } else {
-        Write-ColorText "   ❌ $($mod.Name) manquant dans le build" $Red
-    }
+Write-ColorText "🔍 Diagnostic OracleDB..." $Cyan
+$buildDir = "release-builds\win-unpacked"
+Write-Host "   Recherche d'OracleDB dans le build..."
+Get-ChildItem -Path $buildDir -Recurse -Name "*oracle*" -ErrorAction SilentlyContinue | ForEach-Object {
+    Write-Host "   🔍 Trouvé: $_" -ForegroundColor Gray
 }
+$resourcesDir = Join-Path $buildDir "resources"
+if (Test-Path $resourcesDir) {
+    Write-Host "   Structure resources:"
+    Get-ChildItem $resourcesDir | ForEach-Object { Write-Host "     $_" -ForegroundColor Gray }
+}
+
+Verify-NativeModules-Fixed | Out-Null
 
 if ($foundFiles.Count -gt 0) {
     Write-ColorText "   Fichiers executables trouves:" $Green

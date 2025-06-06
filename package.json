@@ -110,13 +110,13 @@
       "node_modules/better-sqlite3/build/**/*",
       "node_modules/oracledb/package.json",
       "node_modules/oracledb/lib/**/*",
+      "node_modules/oracledb/**/*",
       "!**/*.map",
       "!**/*.ts"
     ],
     "asarUnpack": [
-      "node_modules/better-sqlite3/build/Release/*.node",
-      "node_modules/better-sqlite3/lib/**/*",
-      "node_modules/oracledb/lib/**/*"
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/oracledb/**/*"
     ],
     "directories": {
       "buildResources": "src/assets",
