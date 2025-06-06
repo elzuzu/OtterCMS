@@ -116,7 +116,9 @@
     ],
     "asarUnpack": [
       "node_modules/better-sqlite3/**/*",
-      "node_modules/oracledb/**/*"
+      "node_modules/oracledb/**/*",
+      ".vite/build/main.js",
+      ".vite/build/utils/**/*"
     ],
     "directories": {
       "buildResources": "src/assets",
