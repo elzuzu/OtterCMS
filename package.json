@@ -110,6 +110,7 @@
       "node_modules/better-sqlite3/build/**/*",
       "node_modules/oracledb/package.json",
       "node_modules/oracledb/lib/**/*",
+      "node_modules/oracledb/**/*",
       "!**/*.map",
       "!**/*.ts"
     ],

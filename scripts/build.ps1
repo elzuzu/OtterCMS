@@ -227,20 +227,35 @@ function Verify-NativeModules-Fixed {
     $oracleFound = $false
     $oraclePaths = @(
         "resources\app.asar.unpacked\node_modules\oracledb\package.json",
-        "resources\app\node_modules\oracledb\package.json"
+        "resources\app\node_modules\oracledb\package.json",
+        "resources\app.asar.unpacked\node_modules\oracledb\lib\oracledb.js",
+        "resources\app\node_modules\oracledb\lib\oracledb.js"
     )
     foreach ($path in $oraclePaths) {
         $fullPath = Join-Path $buildDir $path
         if (Test-Path $fullPath) {
-            Write-ColorText "   ✅ OracleDB embarqué (mode Thin)" $Green
+            Write-ColorText "   ✅ OracleDB embarqué (mode Thin): $path" $Green
             $oracleFound = $true
             break
         }
     }
 
     if (-not $oracleFound) {
-        Write-ColorText "   ❌ OracleDB manquant dans le build" $Red
-        $allOk = $false
+        Write-ColorText "   ❌ OracleDB manquant - Diagnostic..." $Yellow
+        $nodeModulesDirs = Get-ChildItem -Path $buildDir -Recurse -Directory -Name "node_modules" -ErrorAction SilentlyContinue
+        foreach ($dir in $nodeModulesDirs) {
+            Write-ColorText "   📁 node_modules trouvé: $dir" $Gray
+            $fullNodeModules = Join-Path $buildDir $dir
+            $oracleInside = Join-Path $fullNodeModules "oracledb"
+            if (Test-Path $oracleInside) {
+                Write-ColorText "   🔍 OracleDB trouvé dans: $dir" $Green
+                $oracleFound = $true
+            }
+        }
+        if (-not $oracleFound) {
+            Write-ColorText "   ❌ OracleDB absent du build" $Red
+            $allOk = $false
+        }
     }
 
     return $allOk
@@ -282,6 +297,46 @@ function Fix-BetterSqlite3-PostBuild {
         Write-ColorText "   ❌ Source better_sqlite3.node introuvable" $Red
         return $false
     }
+}
+
+# Correction post-build d'OracleDB
+function Fix-OracleDB-PostBuild {
+    Write-ColorText "🔧 Correction post-build OracleDB..." $Cyan
+    $buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
+
+    $possibleLocations = @(
+        "resources\app.asar.unpacked\node_modules",
+        "resources\app\node_modules"
+    )
+
+    $targetFound = $false
+    foreach ($loc in $possibleLocations) {
+        $full = Join-Path $buildDir $loc
+        if (Test-Path $full) {
+            Write-ColorText "   📁 Modules trouvés dans: $loc" $Gray
+            $oracleDir = Join-Path $full "oracledb"
+            if (Test-Path $oracleDir) {
+                Write-ColorText "   ✅ OracleDB déjà présent dans $loc" $Green
+                $targetFound = $true
+                break
+            } else {
+                $sourceOracle = "node_modules\oracledb"
+                if (Test-Path $sourceOracle) {
+                    Copy-Item -Path $sourceOracle -Destination $oracleDir -Recurse -Force
+                    Write-ColorText "   ✅ OracleDB copié vers $loc" $Green
+                    $targetFound = $true
+                    break
+                }
+            }
+        }
+    }
+
+    if (-not $targetFound) {
+        Write-ColorText "   ❌ Impossible de localiser le répertoire node_modules du build" $Red
+        return $false
+    }
+
+    return $true
 }
 
 Remove-Item -Path "$env:LOCALAPPDATA\electron-builder\Cache" -Recurse -Force
@@ -600,6 +655,7 @@ if ($UseForge) {
     Write-ColorText "   Build Electron termine." $Green
     Start-Sleep -Seconds 2
     Fix-BetterSqlite3-PostBuild | Out-Null
+    Fix-OracleDB-PostBuild | Out-Null
 }
 
 if (-not $SkipUPX) {
@@ -662,6 +718,18 @@ foreach ($folder in $outputFolders) {
     if (Test-Path $folder) {
         $foundFiles += Get-ChildItem -Path $folder -Recurse -Include "*.exe" -ErrorAction SilentlyContinue
     }
+}
+
+Write-ColorText "🔍 Diagnostic OracleDB..." $Cyan
+$buildDir = "release-builds\win-unpacked"
+Write-Host "   Recherche d'OracleDB dans le build..."
+Get-ChildItem -Path $buildDir -Recurse -Name "*oracle*" -ErrorAction SilentlyContinue | ForEach-Object {
+    Write-Host "   🔍 Trouvé: $_" -ForegroundColor Gray
+}
+$resourcesDir = Join-Path $buildDir "resources"
+if (Test-Path $resourcesDir) {
+    Write-Host "   Structure resources:"
+    Get-ChildItem $resourcesDir | ForEach-Object { Write-Host "     $_" -ForegroundColor Gray }
 }
 
 Verify-NativeModules-Fixed | Out-Null
