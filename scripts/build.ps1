@@ -402,6 +402,33 @@ if ($UseForge) {
     Write-ColorText "   Build Electron Packager termine." $Green
 } else {
     Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
+
+    $sqliteNode = "node_modules\better-sqlite3\build\Release\better_sqlite3.node"
+    $oracleNode = "node_modules\oracledb\build\Release\oracledb.node"
+
+    if (-not (Test-Path $sqliteNode) -or -not (Test-Path $oracleNode)) {
+        Write-ColorText "Reconstruction des modules natifs pour Electron 36.3.2..." $Cyan
+        npx electron-rebuild --version=36.3.2 --force --only better-sqlite3,oracledb --arch x64
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   ❌ Reconstruction échouée" $Red
+            throw "Échec de la reconstruction des modules natifs"
+        }
+    }
+
+    if (Test-Path $sqliteNode) {
+        Write-ColorText "   ✅ better-sqlite3.node trouvé" $Green
+    } else {
+        Write-ColorText "   ❌ better-sqlite3.node MANQUANT" $Red
+        throw "Module natif better-sqlite3 manquant après reconstruction"
+    }
+
+    if (Test-Path $oracleNode) {
+        Write-ColorText "   ✅ oracledb.node trouvé" $Green
+    } else {
+        Write-ColorText "   ❌ oracledb.node MANQUANT" $Red
+        throw "Module natif oracledb manquant après reconstruction"
+    }
+
     npm run build
     Write-ColorText "   Build Vite termine." $Green
     

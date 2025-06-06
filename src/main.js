@@ -65,38 +65,9 @@ let Database;
 try {
   Database = require('better-sqlite3');
 } catch (error) {
-  console.error('Erreur chargement better-sqlite3:', error.message);
-  // Essayer plusieurs chemins alternatifs pour l'app packagée
-  try {
-    if (app.isPackaged) {
-      const possiblePaths = [
-        path.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'better-sqlite3'),
-        path.join(process.resourcesPath, 'node_modules', 'better-sqlite3'),
-        path.join(__dirname, '..', '..', 'node_modules', 'better-sqlite3')
-      ];
-
-      let loaded = false;
-      for (const sqlitePath of possiblePaths) {
-        try {
-          Database = require(sqlitePath);
-          loaded = true;
-          break;
-        } catch (pathError) {
-          console.warn(`Tentative échouée: ${sqlitePath}`, pathError.message);
-        }
-      }
-
-      if (!loaded) {
-        throw new Error('Aucun chemin valide trouvé pour better-sqlite3');
-      }
-    } else {
-      Database = require('better-sqlite3');
-    }
-  } catch (fallbackError) {
-    console.error('Impossible de charger better-sqlite3:', fallbackError.message);
-    dialog.showErrorBox('Erreur critique', 'Impossible de charger la base de données. L\'application ne peut pas fonctionner.');
-    app.quit();
-  }
+  console.error('❌ CRITIQUE: better-sqlite3 non trouvé:', error.message);
+  dialog.showErrorBox('Erreur', 'Module better-sqlite3 manquant');
+  app.quit();
 }
 const xlsx = require('xlsx');
 const { log, logError, logIPC, logger } = require('./utils/logger'); // Assuming 'logger' is the instance with setLevel

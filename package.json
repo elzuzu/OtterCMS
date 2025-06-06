@@ -42,7 +42,7 @@
     "cleanup-dependencies-ultra": "node scripts/cleanup-dependencies-ultra.js",
     "upx-compress-advanced": "node scripts/upx-compress-advanced.js",
     "validate-build-advanced": "node scripts/validate-build-advanced.js",
-    "dist-ultra": "electron-builder --win --config electron-builder-optimized.json",
+    "dist-ultra": "electron-builder --win",
     "check-native": "node scripts/check-native-modules.js",
     "force-rebuild": "npm run clean && npm install && npx electron-rebuild --force",
     "fix-sqlite": "npx electron-rebuild --force --only better-sqlite3",
@@ -105,19 +105,20 @@
       ".vite/build/preload.js",
       "dist/**/*",
       ".vite/build/utils/**/*",
+      "node_modules/better-sqlite3/package.json",
       "node_modules/better-sqlite3/lib/**/*",
       "node_modules/better-sqlite3/build/**/*",
-      "node_modules/better-sqlite3/package.json",
-      "node_modules/oracledb/**/*",
+      "node_modules/oracledb/package.json",
+      "node_modules/oracledb/lib/**/*",
+      "node_modules/oracledb/build/**/*",
       "!**/*.map",
-      "!**/*.ts",
-      "!**/tsconfig.json"
+      "!**/*.ts"
     ],
     "asarUnpack": [
-      "node_modules/better-sqlite3/**/*",
-      "node_modules/oracledb/**/*",
-      "dist/datta-able-assets/**/*",
-      "dist/images/**/*"
+      "node_modules/better-sqlite3/build/Release/*.node",
+      "node_modules/better-sqlite3/lib/**/*",
+      "node_modules/oracledb/build/Release/*.node",
+      "node_modules/oracledb/lib/**/*"
     ],
     "directories": {
       "buildResources": "src/assets",
