@@ -11,7 +11,7 @@ param(
     [int]$UPXLevel = 9,
     [switch]$DownloadElectronLocally,
     [switch]$DownloadTools,
-    [switch]$ForcePrebuilt
+    [switch]$ForcePrebuilt  # Enforce using prebuilt binaries
 )
 
 function Write-ColorText {
