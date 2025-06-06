@@ -8,7 +8,7 @@ Ce document résume la mise en place d'un environnement local pour développer �
 - **Electron 36.3.2** fourni via le script `build.ps1`.
 - **npm** est recommandé pour la gestion des dépendances. Yarn ou pnpm fonctionnent mais ne sont pas testés.
 - Un système Windows, macOS ou Linux récent.
-- Sous **Windows**, les *Visual Studio Build Tools* avec le composant « Desktop development with C++ » sont recommandés pour compiler les dépendances natives, mais le build peut fonctionner sans.
+- Sous **Windows**, installez **w64devkit** dans `D:\tools\w64devkit` afin de compiler les dépendances natives. Le script `build.ps1` le configure automatiquement.
 
 ## Installation des dépendances
 
