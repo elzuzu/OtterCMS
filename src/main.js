@@ -63,7 +63,17 @@ function applyBorderTemplate(win, template) {
 // Better-sqlite3 avec gestion d'erreur pour l'app packagée
 let Database;
 try {
-  Database = require('better-sqlite3');
+  if (app.isPackaged) {
+    const betterSqlitePath = path.join(
+      process.resourcesPath,
+      'app.asar.unpacked',
+      'node_modules',
+      'better-sqlite3'
+    );
+    Database = require(betterSqlitePath);
+  } else {
+    Database = require('better-sqlite3');
+  }
 } catch (error) {
   console.error('❌ CRITIQUE: better-sqlite3 non trouvé:', error.message);
   dialog.showErrorBox('Erreur', 'Module better-sqlite3 manquant');
