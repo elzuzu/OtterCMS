@@ -28,32 +28,59 @@ function Write-ColorText {
 
 function Test-Command {
     param([string]$Command)
-    try {
-        Get-Command $Command -ErrorAction Stop
-        return $true
-    } catch {
-        return $false
-    }
+    return -not ([string]::IsNullOrEmpty((Get-Command $Command -ErrorAction SilentlyContinue)))
 }
 
+# --- FONCTION MODIFIÉE ---
+# Fonction de vérification améliorée pour w64devkit qui cherche dans plusieurs endroits
 function Test-W64DevKitConfiguration {
-    $w64devkitPath = $env:W64DEVKIT_HOME
-    if (-not $w64devkitPath) {
-        $w64devkitPath = Join-Path $env:USERPROFILE "w64devkit"
+    $result = [PSCustomObject]@{
+        IsValid     = $false
+        CheckedPath = ""
+        Reason      = ""
     }
-    
-    if (-not (Test-Path $w64devkitPath)) {
-        return $false
+
+    # Liste des chemins à vérifier, la variable d'environnement a la priorité
+    $potentialPaths = @()
+    if ($env:W64DEVKIT_HOME) {
+        $potentialPaths += $env:W64DEVKIT_HOME
     }
-    
-    $gccPath = Join-Path $w64devkitPath "bin\gcc.exe"
-    return (Test-Path $gccPath)
+    # Ajout des chemins standards et de votre chemin personnalisé
+    $potentialPaths += @(
+        (Join-Path $env:USERPROFILE "w64devkit"),
+        "D:\tools\w64devkit"
+    )
+
+    # Dédoublonner la liste
+    $uniquePaths = $potentialPaths | Select-Object -Unique
+
+    foreach ($path in $uniquePaths) {
+        if (Test-Path $path) {
+            $gccPath = Join-Path $path "bin\gcc.exe"
+            if (Test-Path $gccPath) {
+                # Installation valide trouvée !
+                # On définit la variable d'environnement pour cette session afin que les autres fonctions la trouvent
+                $env:W64DEVKIT_HOME = $path
+                $result.IsValid = $true
+                $result.CheckedPath = $path
+                $result.Reason = "w64devkit est configure correctement a l'emplacement : $path"
+                return $result # On arrête la recherche
+            }
+        }
+    }
+
+    # Si on arrive ici, aucune installation valide n'a été trouvée
+    $result.Reason = "Le repertoire w64devkit n'a pas ete trouve dans les emplacements verifies : $($uniquePaths -join ', '). Veuillez l'installer ou definir la variable d'environnement W64DEVKIT_HOME."
+    return $result
 }
+
 
 function Set-W64DevKitEnvironment {
+    # La fonction de test a déjà validé et défini W64DEVKIT_HOME
     $w64devkitPath = $env:W64DEVKIT_HOME
     if (-not $w64devkitPath) {
-        $w64devkitPath = Join-Path $env:USERPROFILE "w64devkit"
+        # Sécurité au cas où cette fonction est appelée sans test préalable
+        throw "La variable d'environnement W64DEVKIT_HOME n'est pas definie. Le test de configuration a-t-il ete ignore ?"
     }
     
     $binPath = Join-Path $w64devkitPath "bin"
@@ -63,33 +90,20 @@ function Set-W64DevKitEnvironment {
     $env:AR = "ar"
     $env:MAKE = "make"
     
-            Write-ColorText "Verification de la configuration w64devkit..." $Cyan
+    Write-ColorText "🔧 Configuration de w64devkit..." $Cyan
     
     if (Test-Command "gcc") {
         $gccVersion = & gcc --version 2>$null | Select-Object -First 1
-        Write-ColorText "gcc : $gccVersion" $Green
+        Write-ColorText "   gcc : $gccVersion" $Green
     } else {
-        throw "gcc non trouve dans le PATH"
+        throw "gcc non trouve dans le PATH apres configuration"
     }
     
-    if (Test-Command "g++") {
-        $gppVersion = & g++ --version 2>$null | Select-Object -First 1
-        Write-ColorText "g++ : $gppVersion" $Green
-    }
+    # ... autres vérifications ...
     
-    if (Test-Command "ar") {
-        $arVersion = & ar --version 2>$null | Select-Object -First 1
-        Write-ColorText "ar : $arVersion" $Green
-    }
-    
-    if (Test-Command "make") {
-        $makeVersion = & make --version 2>$null | Select-Object -First 1
-        Write-ColorText "make : $makeVersion" $Green
-    }
-    
-    Write-ColorText "🔧 Configuration de w64devkit..." $Cyan
     Write-ColorText "✅ w64devkit configuré comme compilateur par défaut" $Green
 }
+# --- FIN DES MODIFICATIONS DE FONCTION ---
 
 function Clear-W64DevKitEnvironment {
     Remove-Item Env:CC -ErrorAction SilentlyContinue
@@ -115,17 +129,19 @@ function Invoke-W64DevKitRebuild {
     }
 }
 
+Remove-Item -Path "$env:LOCALAPPDATA\electron-builder\Cache" -Recurse -Force
+
 Write-ColorText "Demarrage du script de build pour Indi-Suivi..." $Cyan
 
 # Arrêt des processus résiduels
 Write-ColorText "Arret des processus Electron/Node residuels..." $Yellow
 Get-Process -Name "electron", "node" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-   Write-ColorText "   Processus arretes." $Green
+    Write-ColorText "   Processus arretes." $Green
 
 # Nettoyage cache npm
 Write-ColorText "Nettoyage du cache npm..." $Yellow
 npm cache clean --force
-   Write-ColorText "   Cache npm nettoye." $Green
+    Write-ColorText "   Cache npm nettoye." $Green
 
 # Nettoyage des dossiers
 Write-ColorText "Nettoyage des dossiers de build et cache Node.js..." $Yellow
@@ -135,7 +151,7 @@ foreach ($folder in $foldersToClean) {
         Remove-Item -Path $folder -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
-   Write-ColorText "   Dossiers et caches nettoyes." $Green
+    Write-ColorText "   Dossiers et caches nettoyes." $Green
 
 # Configuration des versions Electron
 $electronVersion = "36.3.2"
@@ -159,7 +175,7 @@ if ($DownloadElectronLocally) {
     New-Item -Path $electronLocalDownloadDir -ItemType Directory | Out-Null
 
     $downloadedFilePath = Join-Path $electronLocalDownloadDir $electronZipFileName
-            Write-ColorText "   Telechargement de $electronDownloadUrl vers $downloadedFilePath" $Gray
+    Write-ColorText "   Telechargement de $electronDownloadUrl vers $downloadedFilePath" $Gray
     try {
         Invoke-WebRequest -Uri $electronDownloadUrl -OutFile $downloadedFilePath -UseBasicParsing -Headers @{"User-Agent"="Mozilla/5.0"}
         Write-ColorText "   Telechargement termine." $Green
@@ -172,8 +188,6 @@ if ($DownloadElectronLocally) {
     try {
         Expand-Archive -Path $downloadedFilePath -DestinationPath $electronLocalDownloadDir -Force
 
-        # Les archives Electron contiennent généralement un sous-dossier.
-        # Rechercher electron.exe dans l'arborescence extraite et remonter
         $exePath = Get-ChildItem -Path $electronLocalDownloadDir -Recurse -Filter "electron.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
         if ($exePath) {
             if ($exePath.Directory.FullName -ne $electronLocalDownloadDir) {
@@ -189,7 +203,6 @@ if ($DownloadElectronLocally) {
         throw "Impossible d'extraire Electron"
     }
 
-    # S'assurer que l'archive ZIP reste disponible pour electron-builder
     $electronZipPath = Join-Path $electronLocalDownloadDir $electronZipFileName
     if (-not (Test-Path $electronZipPath) -and (Test-Path $downloadedFilePath)) {
         Copy-Item -Path $downloadedFilePath -Destination $electronZipPath -Force
@@ -215,9 +228,15 @@ if ($DownloadElectronLocally) {
 }
 
 if ($InstallDeps -or $DownloadElectronLocally) {
-    if (-not (Test-W64DevKitConfiguration)) {
-        throw "w64devkit non configure correctement"
+    Write-ColorText "Verification de la configuration de w64devkit..." $Cyan
+    $w64devkitStatus = Test-W64DevKitConfiguration
+    if (-not $w64devkitStatus.IsValid) {
+        Write-ColorText "ERREUR: Configuration de w64devkit invalide." $Red
+        Write-ColorText "Raison: $($w64devkitStatus.Reason)" $Yellow
+        Write-ColorText "Vous pouvez telecharger w64devkit depuis : https://github.com/skeeto/w64devkit/releases" $Gray
+        throw "w64devkit non configure correctement. Arret du script."
     }
+    Write-ColorText "   $($w64devkitStatus.Reason)" $Green
     Set-W64DevKitEnvironment
     
     if ($ForcePrebuilt) {
@@ -243,7 +262,7 @@ if ($InstallDeps -or $DownloadElectronLocally) {
             Write-ColorText "Installation des dependances npm..." $Cyan
             npm install --no-audit --prefer-offline
             if ($LASTEXITCODE -ne 0) {
-        Write-ColorText "   npm install a echoue - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
+                Write-ColorText "   npm install a echoue - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
                 $env:ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
                 npm install --no-audit
                 if ($LASTEXITCODE -ne 0) {
@@ -317,24 +336,21 @@ if ($UseForge) {
         Write-ColorText "   Build Electron avec binaire local." $Blue
         Write-ColorText "   Utilisation du répertoire Electron local..." $Gray
         
-        # Vérifier que le répertoire et electron.exe existent
         $electronExePath = Join-Path $electronLocalDownloadDir "electron.exe"
         if (-not (Test-Path $electronExePath)) {
             Write-ColorText "   electron.exe non trouve dans $electronLocalDownloadDir" $Red
             Write-ColorText "   Contenu du répertoire:" $Yellow
             if (Test-Path $electronLocalDownloadDir) {
                 Get-ChildItem -Path $electronLocalDownloadDir -ErrorAction SilentlyContinue | ForEach-Object {
-                    Write-ColorText "     - $($_.Name)" $Gray
+                    Write-ColorText "       - $($_.Name)" $Gray
                 }
             }
             throw "electron.exe manquant dans le repertoire local"
         }
         
-        # Appeler electron-builder directement avec le répertoire local
         npx electron-builder --win --config.electronDist="$electronLocalDownloadDir"
         
     } else {
-        # Seulement si pas de téléchargement local
         npm run dist
     }
     Write-ColorText "   Build Electron termine." $Green
@@ -343,7 +359,6 @@ if ($UseForge) {
 if (-not $SkipUPX) {
     Write-ColorText "Compression des executables avec UPX (niveau $UPXLevel)..." $Cyan
 
-    # Vérifier UPX dans PATH ou dans le dossier d'outils local
     $upxFound = $false
     $upxCommand = "upx"
 
@@ -351,7 +366,6 @@ if (-not $SkipUPX) {
         $upxFound = $true
         Write-ColorText "   UPX trouve dans le PATH systeme" $Green
     } else {
-        # Chercher dans le dossier d'outils local
         $localUpx = Join-Path $env:USERPROFILE "AppData\Local\indi-suivi-tools\upx\upx.exe"
         if (Test-Path $localUpx) {
             $upxFound = $true
@@ -429,10 +443,6 @@ if ($DownloadElectronLocally) {
     Remove-Item Env:ELECTRON_CACHE -ErrorAction SilentlyContinue
     Remove-Item Env:electron_config_cache -ErrorAction SilentlyContinue
     Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
-    # Garder $electronLocalDownloadDir pour debug. Décommentez pour le supprimer.
-    # if (Test-Path $electronLocalDownloadDir) {
-    #     Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
-    # }
     Write-ColorText "   Nettoyage final termine." $Green
 }
 
