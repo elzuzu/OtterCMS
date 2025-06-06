@@ -21,4 +21,3 @@ function checkNativeModule(moduleName) {
 
 console.log('🔍 Vérification des modules natifs...');
 checkNativeModule('better-sqlite3');
-checkNativeModule('oracledb');

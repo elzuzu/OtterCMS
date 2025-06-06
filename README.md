@@ -94,15 +94,16 @@ Vous pouvez vérifier la présence des modules natifs avec :
 ```bash
 npm run check-native
 ```
-Ce dépôt est désormais configuré pour télécharger les binaires de `better-sqlite3`
-et de `oracledb` depuis **npmmirror**, évitant ainsi toute compilation locale et la
-dépendance à Visual Studio. Les modules natifs sont également exclus de l'archive
-`asar` via la configuration `asarUnpack` pour assurer leur chargement correct en
-production.
+Ce dépôt est configuré pour utiliser `better-sqlite3` avec des binaires
+précompilés depuis **npmmirror**. Le module `oracledb` fonctionne
+désormais en **mode Thin** (pur JavaScript) et ne nécessite plus de
+compilation ni de dépendances natives. Les modules natifs restants sont
+exclus de l'archive `asar` via la configuration `asarUnpack` pour assurer
+leur chargement correct en production.
 
 Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
 Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement et
-reconstruit automatiquement les modules natifs (`better-sqlite3`, `oracledb`) via `npm run setup-native-deps` lorsque l'option
+reconstruit automatiquement le module natif `better-sqlite3` via `npm run setup-native-deps` lorsque l'option
 `-InstallDeps` est utilisée.
 Vous pouvez lui passer des options supplémentaires :
 

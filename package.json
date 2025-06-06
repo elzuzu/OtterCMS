@@ -21,7 +21,7 @@
     "dist:packager": "npm run build && electron-packager . \"Indi-Suivi\" --platform=win32 --arch=x64 --out=release-builds --overwrite",
     "install-app": "node ./scripts/install.js",
     "clean": "rimraf release-builds out dist .vite build .webpack node_modules/.cache",
-    "rebuild": "electron-rebuild -f -w better-sqlite3,oracledb",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
     "cleanup-deps": "node scripts/cleanup-dependencies.js",
     "postinstall": "electron-builder install-app-deps && node scripts/robust-postinstall.js",
     "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
@@ -76,7 +76,7 @@
     "xlsx": "^0.18.5",
     "zustand": "^5.0.4",
     "react-perfect-scrollbar": "^1.5.8",
-    "oracledb": "^6.3.0",
+    "oracledb": "^6.8.0",
     "react-apexcharts": "^1.4.0",
     "apexcharts": "^4.0.0"
   },
@@ -110,14 +110,12 @@
       "node_modules/better-sqlite3/build/**/*",
       "node_modules/oracledb/package.json",
       "node_modules/oracledb/lib/**/*",
-      "node_modules/oracledb/build/**/*",
       "!**/*.map",
       "!**/*.ts"
     ],
     "asarUnpack": [
       "node_modules/better-sqlite3/build/Release/*.node",
       "node_modules/better-sqlite3/lib/**/*",
-      "node_modules/oracledb/build/Release/*.node",
       "node_modules/oracledb/lib/**/*"
     ],
     "directories": {

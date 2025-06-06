@@ -10,11 +10,9 @@ class OracleService {
   constructor() {
     this.connections = new Map();
     if (oracledb) {
-      try {
-        oracledb.initOracleClient({ libDir: null });
-      } catch (_) {
-        // ignore if already initialized or library not required
-      }
+      console.log('🔌 OracleDB mode Thin initialisé');
+      console.log('📊 Version:', oracledb.versionString);
+      console.log('⚡ Mode Thin actif:', oracledb.thin);
     }
   }
 

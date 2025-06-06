@@ -404,21 +404,37 @@ if ($UseForge) {
     Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
 
     $sqliteNode = "node_modules\better-sqlite3\build\Release\better_sqlite3.node"
-    $oracleNode = "node_modules\oracledb\build\Release\oracledb.node"
+    $oracleModule = "node_modules\oracledb\package.json"
 
-    if (-not (Test-Path $sqliteNode) -or -not (Test-Path $oracleNode)) {
-        Write-ColorText "Installation oracledb depuis les sources..." $Cyan
-
-        npm uninstall oracledb
-        npm install --save https://github.com/oracle/node-oracledb/releases/download/v6.8.0/oracledb-src-6.8.0.tgz
-        npm install --save-dev nan@latest
-
-        Write-ColorText "   Reconstruction avec electron-rebuild..." $Gray
-        npx electron-rebuild --version=36.3.2 --force --only better-sqlite3,oracledb --arch x64
-
+    Write-ColorText "Installation d'OracleDB en mode Thin (sans compilation)..." $Cyan
+    if (-not (Test-Path $oracleModule)) {
+        Write-ColorText "   Installation OracleDB 6.8.0 en mode Thin..." $Gray
+        npm uninstall oracledb 2>$null
+        Remove-Item -Path "node_modules\oracledb" -Recurse -Force -ErrorAction SilentlyContinue
+        npm install oracledb@6.8.0 --no-optional
         if ($LASTEXITCODE -ne 0) {
-            Write-ColorText "   ❌ Reconstruction échouée" $Red
-            throw "Échec de la reconstruction des modules natifs"
+            Write-ColorText "   ❌ Échec installation OracleDB" $Red
+            throw "Impossible d'installer OracleDB"
+        }
+        Remove-Item -Path "node_modules\oracledb\build" -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path "node_modules\oracledb\src" -Recurse -Force -ErrorAction SilentlyContinue
+        Write-ColorText "   ✅ OracleDB installé en mode Thin (pure JavaScript)" $Green
+    } else {
+        $packageJson = Get-Content "node_modules\oracledb\package.json" | ConvertFrom-Json
+        if ($packageJson.version -lt "6.0.0") {
+            Write-ColorText "   🔄 Mise à jour vers OracleDB 6.x (mode Thin)..." $Yellow
+            npm install oracledb@6.8.0 --no-optional
+            Remove-Item -Path "node_modules\oracledb\build" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        Write-ColorText "   ✅ OracleDB en mode Thin déjà installé" $Green
+    }
+
+    if (-not (Test-Path $sqliteNode)) {
+        Write-ColorText "   Reconstruction better-sqlite3..." $Gray
+        npx electron-rebuild --version=36.3.2 --force --only better-sqlite3 --arch x64
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   ❌ Reconstruction better-sqlite3 échouée" $Red
+            throw "Échec de la reconstruction de better-sqlite3"
         }
     }
 
@@ -429,11 +445,11 @@ if ($UseForge) {
         throw "Module natif better-sqlite3 manquant après reconstruction"
     }
 
-    if (Test-Path $oracleNode) {
-        Write-ColorText "   ✅ oracledb.node compilé" $Green
+    if (Test-Path $oracleModule) {
+        Write-ColorText "   ✅ oracledb.module installé (mode Thin - pur JavaScript)" $Green
     } else {
-        Write-ColorText "   ❌ oracledb.node MANQUANT" $Red
-        throw "Impossible de trouver oracledb.node après compilation"
+        Write-ColorText "   ❌ oracledb.module MANQUANT" $Red
+        throw "Module OracleDB manquant"
     }
 
     npm run build
@@ -528,8 +544,7 @@ foreach ($folder in $outputFolders) {
 Write-ColorText "Verification des modules natifs embarques..." $Cyan
 $buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
 $nativeModules = @(
-    @{ Name = 'better-sqlite3'; Path = 'resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node' },
-    @{ Name = 'oracledb'; Path = 'resources\app.asar.unpacked\node_modules\oracledb\build\Release\oracledb.node' }
+    @{ Name = 'better-sqlite3'; Path = 'resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node' }
 )
 
 foreach ($mod in $nativeModules) {
