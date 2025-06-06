@@ -282,10 +282,14 @@ if ($InstallDeps -or $DownloadElectronLocally) {
         $env:npm_config_shrinkwrap = "false"
         $env:npm_config_better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
         $env:better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
+        $env:npm_config_sqlite3_binary_host_mirror = "https://registry.npmmirror.com/-/binary/sqlite3/"
         $env:npm_config_target_platform = $electronPlatform
         $env:npm_config_target_arch = $electronArch
         $env:npm_config_runtime = "electron"
         $env:npm_config_target = $electronVersion
+
+        $env:NODE_TLS_REJECT_UNAUTHORIZED = "0"
+        npm config set strict-ssl false
 
         npm config set proxy http://wyera:Tarace123!@proxy.ge-admin.ad.etat-ge.ch:3128
         npm config set https-proxy http://wyera:Tarace123!@proxy.ge-admin.ad.etat-ge.ch:3128
@@ -424,6 +428,9 @@ if ($DownloadElectronLocally) {
 
 if ($InstallDeps -and -not $SkipNativeDeps -and -not $ForcePrebuilt) {
     Write-ColorText "`n🛠️ Reconstruction des modules natifs pour Electron..." $Cyan
+    if (-not (Test-Path "node_modules\@electron\rebuild")) {
+        npm install @electron/rebuild --save-dev --no-audit
+    }
     Invoke-W64DevKitRebuild
     if ($LASTEXITCODE -ne 0) {
         Write-ColorText "   ❌ Reconstruction des dépendances natives échouée" $Red
