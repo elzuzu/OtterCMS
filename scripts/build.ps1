@@ -10,7 +10,8 @@ param(
     [switch]$SkipUPX,
     [int]$UPXLevel = 9,
     [switch]$DownloadElectronLocally,
-    [switch]$DownloadTools
+    [switch]$DownloadTools,
+    [switch]$ForcePrebuilt  # Enforce using prebuilt binaries
 )
 
 function Write-ColorText {
@@ -116,10 +117,13 @@ Write-ColorText "   Dossiers et caches nettoyés." $Green
 if (-not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 if (-not $PSBoundParameters.ContainsKey('InstallDeps')) { $InstallDeps = $false }
 if (-not $PSBoundParameters.ContainsKey('Verbose')) { $Verbose = $false }
+if (-not $PSBoundParameters.ContainsKey('ForcePrebuilt')) { $ForcePrebuilt = $false }
+if ($ForcePrebuilt -and -not $PSBoundParameters.ContainsKey('Clean')) { $Clean = $true }
 
 $electronVersion = "36.3.2"
 $electronArch = "x64"
 $electronPlatform = "win32"
+$sqliteVersion = "11.10.0"
 $electronZipFileName = "electron-v$electronVersion-$electronPlatform-$electronArch.zip"
 $electronDownloadUrl = "https://github.com/electron/electron/releases/download/v$electronVersion/$electronZipFileName"
 $electronLocalDownloadDir = Join-Path $PSScriptRoot "electron-local-temp"
@@ -179,24 +183,84 @@ if ($DownloadElectronLocally) {
 }
 
 if ($InstallDeps -or $DownloadElectronLocally) {
-    Write-ColorText "`n📦 Installation des dépendances npm..." $Cyan
+    if ($ForcePrebuilt) {
+        Write-ColorText "`n🔧 Installation des dépendances avec binaires précompilés..." $Green
 
-    if ($DownloadElectronLocally) {
-        Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
-    }
+        if ($DownloadElectronLocally) {
+            Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
+        }
 
-    # Configuration pour utiliser les binaires précompilés
-    $env:npm_config_build_from_source = "false"
-    $env:npm_config_node_gyp = ""
-    $env:npm_config_better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
-    $env:better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
-    Write-ColorText "   Configuration pour binaires précompilés..." $Gray
-
-    npm install
-    if ($LASTEXITCODE -ne 0) {
-        Write-ColorText "   ❌ npm install a échoué - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
+        Write-ColorText "   🔒 Mode binaires précompilés forcé" $Yellow
+        Write-ColorText "   ⚙️ Configuration npm pour binaires précompilés..." $Cyan
+        $env:npm_config_build_from_source = "false"
+        $env:npm_config_node_gyp = ""
         $env:ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
-        npm install
+        $env:npm_config_cache_min = "999999999"
+        $env:npm_config_shrinkwrap = "false"
+        $env:npm_config_better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
+        $env:better_sqlite3_binary_host_mirror = "https://npmmirror.com/mirrors/better-sqlite3/"
+        $env:npm_config_target_platform = $electronPlatform
+        $env:npm_config_target_arch = $electronArch
+        $env:npm_config_runtime = "electron"
+        $env:npm_config_target = $electronVersion
+
+        npm config set proxy http://wyera:Tarace123!@proxy.ge-admin.ad.etat-ge.ch:3128
+        npm config set https-proxy http://wyera:Tarace123!@proxy.ge-admin.ad.etat-ge.ch:3128
+        npm config set cafile "D:\projets\MyPowerEnv\Cert\proxy-ca.pem"
+
+        Write-ColorText "   📦 Installation npm avec binaires précompilés..." $Green
+        npm install --no-optional --ignore-scripts --prefer-offline
+
+        Write-ColorText "   🔧 Installation better-sqlite3 avec binaire précompilé..." $Yellow
+        npm install better-sqlite3@11.10.0 --build-from-source=false --fallback-to-build=false
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   ⚠️ Tentative avec registry alternatif..." $Yellow
+            npm install better-sqlite3@11.10.0 --registry=https://registry.npmmirror.com/ --build-from-source=false
+        }
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   🛠️ Téléchargement manuel des binaires..." $Magenta
+
+            $sqliteNodeUrl = "https://npmmirror.com/mirrors/better-sqlite3/v$sqliteVersion/better-sqlite3-v$sqliteVersion-electron-v$($electronVersion.Split('.')[0])-$electronPlatform-$electronArch.tar.gz"
+            $sqliteDestDir = "node_modules\better-sqlite3\build\Release"
+
+            if (-not (Test-Path $sqliteDestDir)) {
+                New-Item -Path $sqliteDestDir -ItemType Directory -Force | Out-Null
+            }
+
+            try {
+                $tempFile = "$env:TEMP\better-sqlite3-binary.tar.gz"
+                Invoke-WebRequest -Uri $sqliteNodeUrl -OutFile $tempFile -Headers @{"User-Agent"="npm/install"}
+
+                if (Get-Command "7z" -ErrorAction SilentlyContinue) {
+                    7z x $tempFile -o"$env:TEMP\sqlite3-extract\"
+                    Copy-Item "$env:TEMP\sqlite3-extract\*\better_sqlite3.node" $sqliteDestDir -Force
+                } else {
+                    Write-ColorText "   ⚠️ 7zip non trouvé, extraction impossible" $Yellow
+                }
+
+                Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+                Write-ColorText "   ✅ Binaires téléchargés manuellement" $Green
+            } catch {
+                Write-ColorText "   ❌ Échec téléchargement manuel: $_" $Red
+            }
+        }
+
+        Write-ColorText "   🔍 Vérification des modules natifs..." $Cyan
+        node scripts/check-native-modules.js
+
+        Remove-Item Env:npm_config_build_from_source -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_node_gyp -ErrorAction SilentlyContinue
+        Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_cache_min -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_shrinkwrap -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_better_sqlite3_binary_host_mirror -ErrorAction SilentlyContinue
+        Remove-Item Env:better_sqlite3_binary_host_mirror -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_target_platform -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_target_arch -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_runtime -ErrorAction SilentlyContinue
+        Remove-Item Env:npm_config_target -ErrorAction SilentlyContinue
 
         if ($LASTEXITCODE -eq 0 -and $DownloadElectronLocally) {
             Write-ColorText "`n📋 Copie manuelle des fichiers Electron..." $Cyan
@@ -214,17 +278,53 @@ if ($InstallDeps -or $DownloadElectronLocally) {
             Write-ColorText "   Copie manuelle terminée." $Green
         }
 
-        Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
-    }
+        $viteCmd = Join-Path $projectRoot "node_modules\.bin\vite.cmd"
+        if (-not (Test-Path $viteCmd)) {
+            Write-ColorText "   📦 Installation de Vite..." $Yellow
+            npm install vite --save-dev
+        }
 
-    # Vérifier immédiatement si Vite est présent, sinon l'installer
-    $viteCmd = Join-Path $projectRoot "node_modules\.bin\vite.cmd"
-    if (-not (Test-Path $viteCmd)) {
-        Write-ColorText "   📦 Installation de Vite..." $Yellow
-        npm install vite --save-dev
-    }
+        Write-ColorText "   Installation des dépendances terminée." $Green
+    } else {
+        Write-ColorText "`n📦 Installation des dépendances npm..." $Cyan
 
-    Write-ColorText "   Installation des dépendances terminée." $Green
+        if ($DownloadElectronLocally) {
+            Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
+        }
+
+        npm install
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "   ❌ npm install a échoué - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
+            $env:ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
+            npm install
+
+            if ($LASTEXITCODE -eq 0 -and $DownloadElectronLocally) {
+                Write-ColorText "`n📋 Copie manuelle des fichiers Electron..." $Cyan
+                if (-not (Test-Path $electronTargetDistPath)) {
+                    New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
+                } else {
+                    Remove-Item -Path $electronTargetDistPath -Recurse -Force -ErrorAction SilentlyContinue
+                    New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
+                }
+
+                $filesToCopy = Get-ChildItem -Path $electronLocalDownloadDir -Exclude "*.zip"
+                foreach ($file in $filesToCopy) {
+                    Copy-Item -Path $file.FullName -Destination $electronTargetDistPath -Recurse -Force
+                }
+                Write-ColorText "   Copie manuelle terminée." $Green
+            }
+
+            Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
+        }
+
+        $viteCmd = Join-Path $projectRoot "node_modules\.bin\vite.cmd"
+        if (-not (Test-Path $viteCmd)) {
+            Write-ColorText "   📦 Installation de Vite..." $Yellow
+            npm install vite --save-dev
+        }
+
+        Write-ColorText "   Installation des dépendances terminée." $Green
+    }
 }
 
 if ($DownloadElectronLocally) {
@@ -238,7 +338,7 @@ if ($DownloadElectronLocally) {
 }
 
 
-if ($InstallDeps -and -not $SkipNativeDeps) {
+if ($InstallDeps -and -not $SkipNativeDeps -and -not $ForcePrebuilt) {
     Write-ColorText "`n🛠️ Reconstruction des modules natifs pour Electron..." $Cyan
     npm run setup-native-deps
     if ($LASTEXITCODE -ne 0) {
@@ -246,6 +346,8 @@ if ($InstallDeps -and -not $SkipNativeDeps) {
         exit 1
     }
     Write-ColorText "   Reconstruction des modules natifs terminée." $Green
+} elseif ($ForcePrebuilt) {
+    Write-ColorText "⏭️ Reconstruction évitée (binaires précompilés)" $Yellow
 }
 
 Write-ColorText "`n🏗️ Lancement du processus de build principal..." $Cyan
