@@ -114,9 +114,8 @@
       "!**/*.ts"
     ],
     "asarUnpack": [
-      "node_modules/better-sqlite3/build/Release/*.node",
-      "node_modules/better-sqlite3/lib/**/*",
-      "node_modules/oracledb/lib/**/*"
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/oracledb/**/*"
     ],
     "directories": {
       "buildResources": "src/assets",
@@ -130,6 +129,10 @@
       {
         "from": "public/datta-able-assets",
         "to": "datta-able-assets"
+      },
+      {
+        "from": "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
+        "to": "app.asar.unpacked/node_modules/better-sqlite3/build/Release/"
       }
     ],
     "extraFiles": [
