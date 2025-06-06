@@ -89,6 +89,10 @@ function Set-W64DevKitEnvironment {
     $env:CXX = "g++"
     $env:AR = "ar"
     $env:MAKE = "make"
+    # Variables specifiques pour la compilation de better-sqlite3
+    $env:npm_config_node_gyp_force_cc = $env:CC
+    $env:npm_config_node_gyp_force_cxx = $env:CXX
+    $env:GYP_DEFINES = "target_arch=x64"
     
     Write-ColorText "🔧 Configuration de w64devkit..." $Cyan
     
@@ -117,7 +121,7 @@ function Invoke-W64DevKitRebuild {
     Set-W64DevKitEnvironment
     
     try {
-        npx electron-rebuild --force
+        npx electron-rebuild --version=36.3.2 --force --only better-sqlite3 --arch x64
         if ($LASTEXITCODE -eq 0) {
         Write-ColorText "Rebuild w64devkit reussi" $Green
         } else {
@@ -127,6 +131,24 @@ function Invoke-W64DevKitRebuild {
         Write-ColorText "   Erreur lors du rebuild w64devkit: $_" $Red
         throw
     }
+}
+
+function Test-BetterSqlite3 {
+    $sqliteNode = "node_modules\better-sqlite3\build\Release\better_sqlite3.node"
+
+    if (Test-Path $sqliteNode) {
+        Write-ColorText "   ✅ better-sqlite3 OK" $Green
+        return $true
+    }
+
+    Write-ColorText "   ❌ better-sqlite3 manquant - Tentative de réparation..." $Yellow
+    Remove-Item -Path "node_modules\better-sqlite3\build" -Recurse -Force -ErrorAction SilentlyContinue
+
+    Set-W64DevKitEnvironment
+    $env:npm_config_build_from_source = "true"
+    npm rebuild better-sqlite3 --build-from-source
+
+    return (Test-Path $sqliteNode)
 }
 
 Remove-Item -Path "$env:LOCALAPPDATA\electron-builder\Cache" -Recurse -Force
@@ -238,6 +260,11 @@ if ($InstallDeps -or $DownloadElectronLocally) {
     }
     Write-ColorText "   $($w64devkitStatus.Reason)" $Green
     Set-W64DevKitEnvironment
+
+    # Configuration spécifique pour better-sqlite3
+    Write-ColorText "Configuration spéciale pour better-sqlite3..." $Cyan
+    $env:npm_config_better_sqlite3_binary_host_mirror = ""
+    $env:npm_config_build_from_source = "true"
     
     if ($ForcePrebuilt) {
         Write-ColorText "Installation des dependances avec binaires precompiles..." $Green
@@ -353,6 +380,10 @@ if ($InstallDeps -or $DownloadElectronLocally) {
 
         Write-ColorText "   Installation des dependances terminee." $Green
     }
+}
+
+if (-not (Test-BetterSqlite3)) {
+    throw "better-sqlite3 non fonctionnel"
 }
 
 if ($DownloadElectronLocally) {
