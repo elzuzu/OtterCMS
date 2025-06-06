@@ -74,7 +74,7 @@ export default defineConfig({
       external: [
         'electron',
         'better-sqlite3', // Module natif
-        'oracledb', // Module natif
+        'oracledb', // Mode Thin
         './utils/logger',
         './utils/inferType',
         ...builtinModules,

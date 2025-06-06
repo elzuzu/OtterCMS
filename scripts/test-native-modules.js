@@ -2,8 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const modules = [
-  'better-sqlite3/build/Release/better_sqlite3.node',
-  'oracledb/build/Release/oracledb.node'
+  'better-sqlite3/build/Release/better_sqlite3.node'
 ];
 
 console.log('\u{1F50D} Vérification des modules natifs...');

@@ -53,7 +53,7 @@ function rebuildForElectron() {
     if (!electronVersion) return false;
 
     console.log(`🔧 [Postinstall] Rebuild pour Electron ${electronVersion}...`);
-    const rebuildCmd = `npx electron-rebuild --version=${electronVersion} --force --only better-sqlite3,oracledb`;
+    const rebuildCmd = `npx electron-rebuild --version=${electronVersion} --force --only better-sqlite3`;
     return runCommand(rebuildCmd, 'Rebuild spécifique Electron');
 }
 
@@ -105,7 +105,7 @@ function main() {
         if (!directRebuildSuccess) {
             console.log('⚠️ [Postinstall] Rebuild Electron échoué, essai méthode alternative...');
             const sqlite3RebuildSuccess = runCommand(
-                'npx electron-rebuild --force --only better-sqlite3,oracledb',
+                'npx electron-rebuild --force --only better-sqlite3',
                 'Rebuild de better-sqlite3 uniquement'
             );
             if (!sqlite3RebuildSuccess) {
