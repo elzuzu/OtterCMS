@@ -63,28 +63,28 @@ function Set-W64DevKitEnvironment {
     $env:AR = "ar"
     $env:MAKE = "make"
     
-    Write-ColorText "🔍 Vérification de la configuration w64devkit..." $Cyan
+            Write-ColorText "Verification de la configuration w64devkit..." $Cyan
     
     if (Test-Command "gcc") {
         $gccVersion = & gcc --version 2>$null | Select-Object -First 1
-        Write-ColorText "✅ gcc : $gccVersion" $Green
+        Write-ColorText "gcc : $gccVersion" $Green
     } else {
-        throw "gcc non trouvé dans le PATH"
+        throw "gcc non trouve dans le PATH"
     }
     
     if (Test-Command "g++") {
         $gppVersion = & g++ --version 2>$null | Select-Object -First 1
-        Write-ColorText "✅ g++ : $gppVersion" $Green
+        Write-ColorText "g++ : $gppVersion" $Green
     }
     
     if (Test-Command "ar") {
         $arVersion = & ar --version 2>$null | Select-Object -First 1
-        Write-ColorText "✅ ar : $arVersion" $Green
+        Write-ColorText "ar : $arVersion" $Green
     }
     
     if (Test-Command "make") {
         $makeVersion = & make --version 2>$null | Select-Object -First 1
-        Write-ColorText "✅ make : $makeVersion" $Green
+        Write-ColorText "make : $makeVersion" $Green
     }
     
     Write-ColorText "🔧 Configuration de w64devkit..." $Cyan
@@ -99,43 +99,43 @@ function Clear-W64DevKitEnvironment {
 }
 
 function Invoke-W64DevKitRebuild {
-    Write-ColorText "🔨 Rebuild avec w64devkit..." $Cyan
+    Write-ColorText "Rebuild avec w64devkit..." $Cyan
     Set-W64DevKitEnvironment
     
     try {
         npx electron-rebuild --force
         if ($LASTEXITCODE -eq 0) {
-            Write-ColorText "✅ Rebuild w64devkit réussi" $Green
+        Write-ColorText "Rebuild w64devkit reussi" $Green
         } else {
-            throw "Échec du rebuild w64devkit"
+            throw "Echec du rebuild w64devkit"
         }
     } catch {
-        Write-ColorText "❌ Erreur lors du rebuild w64devkit: $_" $Red
+        Write-ColorText "   Erreur lors du rebuild w64devkit: $_" $Red
         throw
     }
 }
 
-Write-ColorText "`n🚀 Démarrage du script de build pour Indi-Suivi..." $Cyan
+Write-ColorText "Demarrage du script de build pour Indi-Suivi..." $Cyan
 
 # Arrêt des processus résiduels
-Write-ColorText "`n🧹 Arrêt des processus Electron/Node résiduels..." $Yellow
+Write-ColorText "Arret des processus Electron/Node residuels..." $Yellow
 Get-Process -Name "electron", "node" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-Write-ColorText "   Processus arrêtés." $Green
+   Write-ColorText "   Processus arretes." $Green
 
 # Nettoyage cache npm
-Write-ColorText "`n🧹 Nettoyage du cache npm..." $Yellow
+Write-ColorText "Nettoyage du cache npm..." $Yellow
 npm cache clean --force
-Write-ColorText "   Cache npm nettoyé." $Green
+   Write-ColorText "   Cache npm nettoye." $Green
 
 # Nettoyage des dossiers
-Write-ColorText "`n🗑️ Nettoyage des dossiers de build et cache Node.js..." $Yellow
+Write-ColorText "Nettoyage des dossiers de build et cache Node.js..." $Yellow
 $foldersToClean = @("release-builds", "out", "dist", ".vite", "build", ".webpack", "node_modules\.cache")
 foreach ($folder in $foldersToClean) {
     if (Test-Path $folder) {
         Remove-Item -Path $folder -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
-Write-ColorText "   Dossiers et caches nettoyés." $Green
+   Write-ColorText "   Dossiers et caches nettoyes." $Green
 
 # Configuration des versions Electron
 $electronVersion = "36.3.2"
@@ -151,7 +151,7 @@ $electronCacheDir = Join-Path $env:LOCALAPPDATA "electron\Cache"
 $electronTargetDistPath = Join-Path $projectRoot "node_modules\electron\dist"
 
 if ($DownloadElectronLocally) {
-    Write-ColorText "`n⬇️ Téléchargement local d'Electron $electronVersion pour $electronPlatform-$electronArch..." $Cyan
+    Write-ColorText "Telechargement local d'Electron $electronVersion pour $electronPlatform-$electronArch..." $Cyan
 
     if (Test-Path $electronLocalDownloadDir) {
         Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
@@ -159,13 +159,13 @@ if ($DownloadElectronLocally) {
     New-Item -Path $electronLocalDownloadDir -ItemType Directory | Out-Null
 
     $downloadedFilePath = Join-Path $electronLocalDownloadDir $electronZipFileName
-    Write-ColorText "   Téléchargement de $electronDownloadUrl vers $downloadedFilePath" $Gray
+            Write-ColorText "   Telechargement de $electronDownloadUrl vers $downloadedFilePath" $Gray
     try {
         Invoke-WebRequest -Uri $electronDownloadUrl -OutFile $downloadedFilePath -UseBasicParsing -Headers @{"User-Agent"="Mozilla/5.0"}
-        Write-ColorText "   Téléchargement terminé." $Green
+        Write-ColorText "   Telechargement termine." $Green
     } catch {
-        Write-ColorText "   ❌ Échec du téléchargement: $_" $Red
-        throw "Impossible de télécharger Electron $electronVersion"
+        Write-ColorText "   Echec du telechargement: $_" $Red
+        throw "Impossible de telecharger Electron $electronVersion"
     }
 
     Write-ColorText "   Extraction de $downloadedFilePath vers $electronLocalDownloadDir" $Gray
@@ -180,12 +180,12 @@ if ($DownloadElectronLocally) {
                 Move-Item -Path (Join-Path $exePath.Directory.FullName '*') -Destination $electronLocalDownloadDir -Force
                 Remove-Item -Path $exePath.Directory.FullName -Recurse -Force -ErrorAction SilentlyContinue
             }
-            Write-ColorText "   Extraction terminée - electron.exe trouvé." $Green
+            Write-ColorText "   Extraction terminee - electron.exe trouve." $Green
         } else {
-            throw "electron.exe non trouvé après extraction"
+            throw "electron.exe non trouve apres extraction"
         }
     } catch {
-        Write-ColorText "   ❌ Échec de l'extraction: $_" $Red
+        Write-ColorText "   Echec de l'extraction: $_" $Red
         throw "Impossible d'extraire Electron"
     }
 
@@ -195,7 +195,7 @@ if ($DownloadElectronLocally) {
         Copy-Item -Path $downloadedFilePath -Destination $electronZipPath -Force
     }
 
-    Write-ColorText "`n📋 Préparation du cache Electron local..." $Cyan
+    Write-ColorText "Preparation du cache Electron local..." $Cyan
     $cacheKey = "httpsgithub.comelectronelectronreleasesdownloadv$electronVersion$electronZipFileName"
     $targetCacheDir = Join-Path $electronCacheDir $cacheKey
 
@@ -207,28 +207,28 @@ if ($DownloadElectronLocally) {
     }
 
     Copy-Item -Path $downloadedFilePath -Destination (Join-Path $targetCacheDir $electronZipFileName) -Force
-    Write-ColorText "   Archive copiée dans le cache Electron." $Green
+    Write-ColorText "   Archive copiee dans le cache Electron." $Green
 
     $env:ELECTRON_CACHE = $electronCacheDir
     $env:electron_config_cache = $electronCacheDir
-    Write-ColorText "   Variables de cache configurées." $Gray
+    Write-ColorText "   Variables de cache configurees." $Gray
 }
 
 if ($InstallDeps -or $DownloadElectronLocally) {
     if (-not (Test-W64DevKitConfiguration)) {
-        throw "w64devkit non configuré correctement"
+        throw "w64devkit non configure correctement"
     }
     Set-W64DevKitEnvironment
     
     if ($ForcePrebuilt) {
-        Write-ColorText "`n🔧 Installation des dépendances avec binaires précompilés..." $Green
+        Write-ColorText "Installation des dependances avec binaires precompiles..." $Green
 
         if ($DownloadElectronLocally) {
             Write-ColorText "   Utilisation du cache Electron local pour éviter le téléchargement..." $Gray
         }
 
-        Write-ColorText "   🔒 Mode binaires précompilés forcé" $Yellow
-        Write-ColorText "   ⚙️ Configuration npm pour binaires précompilés..." $Cyan
+        Write-ColorText "   Mode binaires precompiles force" $Yellow
+        Write-ColorText "   Configuration npm pour binaires precompiles..." $Cyan
         $env:npm_config_build_from_source = "false"
         $env:npm_config_node_gyp = ""
         $env:ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
@@ -240,19 +240,19 @@ if ($InstallDeps -or $DownloadElectronLocally) {
         $env:sqlite3_binary_host_mirror = "https://registry.npmmirror.com/-/binary/sqlite3/"
 
         try {
-            Write-ColorText "`n📦 Installation des dépendances npm..." $Cyan
+            Write-ColorText "Installation des dependances npm..." $Cyan
             npm install --no-audit --prefer-offline
             if ($LASTEXITCODE -ne 0) {
-                Write-ColorText "   ❌ npm install a échoué - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
+        Write-ColorText "   npm install a echoue - tentative avec ELECTRON_SKIP_BINARY_DOWNLOAD..." $Yellow
                 $env:ELECTRON_SKIP_BINARY_DOWNLOAD = "1"
                 npm install --no-audit
                 if ($LASTEXITCODE -ne 0) {
-                    throw "Installation des dépendances npm échouée"
+                    throw "Installation des dependances npm echouee"
                 }
             }
 
             if ($DownloadElectronLocally) {
-                Write-ColorText "`n📋 Copie manuelle des fichiers Electron..." $Cyan
+                Write-ColorText "Copie manuelle des fichiers Electron..." $Cyan
                 
                 if (-not (Test-Path $electronTargetDistPath)) {
                     New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
@@ -265,53 +265,53 @@ if ($InstallDeps -or $DownloadElectronLocally) {
                 foreach ($file in $filesToCopy) {
                     Copy-Item -Path $file.FullName -Destination $electronTargetDistPath -Recurse -Force
                 }
-                Write-ColorText "   Copie manuelle terminée." $Green
+                Write-ColorText "   Copie manuelle terminee." $Green
             }
 
             Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
         } catch {
-            Write-ColorText "   ❌ Erreur lors de l'installation: $_" $Red
+            Write-ColorText "   Erreur lors de l'installation: $_" $Red
             throw
         }
 
         $viteCmd = Join-Path $projectRoot "node_modules\.bin\vite.cmd"
         if (-not (Test-Path $viteCmd)) {
-            Write-ColorText "   📦 Installation de Vite..." $Yellow
+            Write-ColorText "   Installation de Vite..." $Yellow
             npm install vite --save-dev
         }
 
-        Write-ColorText "   Installation des dépendances terminée." $Green
+        Write-ColorText "   Installation des dependances terminee." $Green
     }
 }
 
 if ($InstallDeps -and -not $SkipNativeDeps -and -not $ForcePrebuilt) {
-    Write-ColorText "`n🛠️ Reconstruction des modules natifs pour Electron..." $Cyan
+    Write-ColorText "Reconstruction des modules natifs pour Electron..." $Cyan
     if (-not (Test-Path "node_modules\@electron\rebuild")) {
         npm install @electron/rebuild --save-dev --no-audit
     }
     Invoke-W64DevKitRebuild
     if ($LASTEXITCODE -ne 0) {
-        Write-ColorText "   ❌ Reconstruction des dépendances natives échouée" $Red
+        Write-ColorText "   Reconstruction des dependances natives echouee" $Red
         exit 1
     }
-    Write-ColorText "   Reconstruction des modules natifs terminée." $Green
+    Write-ColorText "   Reconstruction des modules natifs terminee." $Green
 } elseif ($ForcePrebuilt) {
-    Write-ColorText "⏭️ Reconstruction évitée (binaires précompilés)" $Yellow
+    Write-ColorText "Reconstruction evitee (binaires precompiles)" $Yellow
 }
 
-Write-ColorText "`n🏗️ Lancement du processus de build principal..." $Cyan
+Write-ColorText "Lancement du processus de build principal..." $Cyan
 if ($UseForge) {
     Write-ColorText "   Utilisation d'Electron Forge." $Blue
     npm run dist:forge
-    Write-ColorText "   Build Electron Forge terminé." $Green
+    Write-ColorText "   Build Electron Forge termine." $Green
 } elseif ($UsePackager) {
     Write-ColorText "   Utilisation d'Electron Packager." $Blue
     npm run dist:packager
-    Write-ColorText "   Build Electron Packager terminé." $Green
+    Write-ColorText "   Build Electron Packager termine." $Green
 } else {
     Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
     npm run build
-    Write-ColorText "   Build Vite terminé." $Green
+    Write-ColorText "   Build Vite termine." $Green
     
     if ($DownloadElectronLocally) {
         Write-ColorText "   Build Electron avec binaire local." $Blue
@@ -320,14 +320,14 @@ if ($UseForge) {
         # Vérifier que le répertoire et electron.exe existent
         $electronExePath = Join-Path $electronLocalDownloadDir "electron.exe"
         if (-not (Test-Path $electronExePath)) {
-            Write-ColorText "   ❌ electron.exe non trouvé dans $electronLocalDownloadDir" $Red
+            Write-ColorText "   electron.exe non trouve dans $electronLocalDownloadDir" $Red
             Write-ColorText "   Contenu du répertoire:" $Yellow
             if (Test-Path $electronLocalDownloadDir) {
                 Get-ChildItem -Path $electronLocalDownloadDir -ErrorAction SilentlyContinue | ForEach-Object {
                     Write-ColorText "     - $($_.Name)" $Gray
                 }
             }
-            throw "electron.exe manquant dans le répertoire local"
+            throw "electron.exe manquant dans le repertoire local"
         }
         
         # Appeler electron-builder directement avec le répertoire local
@@ -337,11 +337,11 @@ if ($UseForge) {
         # Seulement si pas de téléchargement local
         npm run dist
     }
-    Write-ColorText "   Build Electron terminé." $Green
+    Write-ColorText "   Build Electron termine." $Green
 }
 
 if (-not $SkipUPX) {
-    Write-ColorText "`n⚡ Compression des exécutables avec UPX (niveau $UPXLevel)..." $Cyan
+    Write-ColorText "Compression des executables avec UPX (niveau $UPXLevel)..." $Cyan
 
     # Vérifier UPX dans PATH ou dans le dossier d'outils local
     $upxFound = $false
@@ -349,21 +349,21 @@ if (-not $SkipUPX) {
 
     if (Test-Command "upx") {
         $upxFound = $true
-        Write-ColorText "   ✅ UPX trouvé dans le PATH système" $Green
+        Write-ColorText "   UPX trouve dans le PATH systeme" $Green
     } else {
         # Chercher dans le dossier d'outils local
         $localUpx = Join-Path $env:USERPROFILE "AppData\Local\indi-suivi-tools\upx\upx.exe"
         if (Test-Path $localUpx) {
             $upxFound = $true
             $upxCommand = "`"$localUpx`""
-            Write-ColorText "   ✅ UPX trouvé localement: $localUpx" $Green
+            Write-ColorText "   UPX trouve localement: $localUpx" $Green
         }
     }
 
     if (-not $upxFound) {
-        Write-ColorText "   ⚠️ UPX non trouvé. Utilisez -DownloadTools pour l'installer automatiquement." $Yellow
-        Write-ColorText "   Ou téléchargez depuis: https://github.com/upx/upx/releases" $Gray
-        Write-ColorText "   Saut de l'étape de compression UPX." $Yellow
+        Write-ColorText "   UPX non trouve. Utilisez -DownloadTools pour l'installer automatiquement." $Yellow
+        Write-ColorText "   Ou telechargez depuis: https://github.com/upx/upx/releases" $Gray
+        Write-ColorText "   Saut de l'etape de compression UPX." $Yellow
     } else {
         $outputFolders = @("release-builds", "out", "dist")
         $compressedCount = 0
@@ -377,24 +377,24 @@ if (-not $SkipUPX) {
                         & $upxCommand --ultra-brute --lzma -$UPXLevel $exe.FullName
                         if ($LASTEXITCODE -eq 0) {
                             $compressedCount++
-                            Write-ColorText "   ✅ $($exe.Name) compressé avec succès" $Green
+                            Write-ColorText "   $($exe.Name) compresse avec succes" $Green
                         }
                     } catch {
-                        Write-ColorText "   ⚠️ Échec de compression pour $($exe.Name): $_" $Yellow
+                        Write-ColorText "   Echec de compression pour $($exe.Name): $_" $Yellow
                     }
                 }
             }
         }
         
         if ($compressedCount -gt 0) {
-            Write-ColorText "   ✅ $compressedCount fichier(s) compressé(s) avec UPX" $Green
+            Write-ColorText "   $compressedCount fichier(s) compresse(s) avec UPX" $Green
         } else {
-            Write-ColorText "   ⚠️ Aucun fichier exécutable trouvé à compresser" $Yellow
+            Write-ColorText "   Aucun fichier executable trouve a compresser" $Yellow
         }
     }
 }
 
-Write-ColorText "`n📊 Vérification des exécutables générés..." $Cyan
+Write-ColorText "Verification des executables generes..." $Cyan
 
 $outputFolders = @("release-builds", "out", "dist")
 $foundFiles = @()
@@ -405,27 +405,27 @@ foreach ($folder in $outputFolders) {
 }
 
 if ($foundFiles.Count -gt 0) {
-    Write-ColorText "   Fichiers exécutables trouvés:" $Green
+    Write-ColorText "   Fichiers executables trouves:" $Green
     foreach ($file in $foundFiles) {
         $sizeMB = [math]::Round($file.Length / 1MB, 2)
         Write-ColorText "   - $($file.Name) ($sizeMB MB)" $Gray
         if ($sizeMB -gt 80) {
-            Write-ColorText "   ⚠️ Taille encore élevée. Vérifiez l'inclusion des dépendances." $Yellow
+            Write-ColorText "   Taille encore elevee. Verifiez l'inclusion des dependances." $Yellow
         }
     }
 
     $mainExe = $foundFiles | Where-Object { $_.Extension -eq '.exe' -and $_.Name -like '*Indi-Suivi*' } | Select-Object -First 1
     if ($mainExe) {
-        Write-ColorText "`nℹ️ Exécutable généré: $($mainExe.FullName)" $Green
+        Write-ColorText "Executable genere: $($mainExe.FullName)" $Green
         Write-ColorText "   Lancez-le manuellement pour le tester." $Cyan
     }
 } else {
-    Write-ColorText "`n⚠️ Aucun fichier exécutable trouvé dans les dossiers de sortie!" $Yellow
+    Write-ColorText "Aucun fichier executable trouve dans les dossiers de sortie!" $Yellow
 }
 
 # Nettoyage final (uniquement si utilisation d'Electron local)
 if ($DownloadElectronLocally) {
-    Write-ColorText "`n🧹 Nettoyage final..." $Yellow
+    Write-ColorText "Nettoyage final..." $Yellow
     Remove-Item Env:ELECTRON_CACHE -ErrorAction SilentlyContinue
     Remove-Item Env:electron_config_cache -ErrorAction SilentlyContinue
     Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
@@ -433,9 +433,9 @@ if ($DownloadElectronLocally) {
     # if (Test-Path $electronLocalDownloadDir) {
     #     Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
     # }
-    Write-ColorText "   Nettoyage final terminé." $Green
+    Write-ColorText "   Nettoyage final termine." $Green
 }
 
 Clear-W64DevKitEnvironment
 
-Write-ColorText "`n✅ Script de build terminé avec succès!" $Green
+Write-ColorText "Script de build termine avec succes!" $Green
