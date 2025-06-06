@@ -45,7 +45,8 @@
     "dist-ultra": "electron-builder --win --config electron-builder-optimized.json",
     "check-native": "node scripts/check-native-modules.js",
     "force-rebuild": "npm run clean && npm install && npx electron-rebuild --force",
-    "fix-sqlite": "npx electron-rebuild --force --only better-sqlite3"
+    "fix-sqlite": "npx electron-rebuild --force --only better-sqlite3",
+    "setup-prebuilt": "npm install --build-from-source=false --prefer-offline"
   },
   "keywords": [
     "electron",
