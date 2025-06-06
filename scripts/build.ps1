@@ -192,7 +192,8 @@ function Verify-NativeModules-Fixed {
 
     $sqlitePaths = @(
         "resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node",
-        "resources\app\node_modules\better-sqlite3\build\Release\better_sqlite3.node"
+        "resources\app\node_modules\better-sqlite3\build\Release\better_sqlite3.node",
+        "resources\app.asar.unpacked\node_modules\better-sqlite3\lib\binding\better_sqlite3.node"
     )
 
     $sqliteFound = $false
@@ -249,15 +250,29 @@ function Verify-NativeModules-Fixed {
 function Fix-BetterSqlite3-PostBuild {
     Write-ColorText "🔧 Correction post-build better-sqlite3..." $Cyan
     $buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
-    $targetSqliteDir = Join-Path $buildDir "resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release"
 
-    if (-not (Test-Path $targetSqliteDir)) {
-        New-Item -ItemType Directory -Path $targetSqliteDir -Force | Out-Null
-        Write-ColorText "   📁 Dossier créé: $targetSqliteDir" $Gray
+    $possibleTargets = @(
+        "resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release",
+        "resources\app\node_modules\better-sqlite3\build\Release"
+    )
+
+    $targetDir = $null
+    foreach ($relPath in $possibleTargets) {
+        $dir = Join-Path $buildDir $relPath
+        if (Test-Path (Split-Path $dir -Parent)) {
+            $targetDir = $dir
+            break
+        }
+    }
+
+    if (-not $targetDir) {
+        $targetDir = Join-Path $buildDir $possibleTargets[0]
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        Write-ColorText "   📁 Dossier créé: $targetDir" $Gray
     }
 
     $sourceSqlite = "node_modules\better-sqlite3\build\Release\better_sqlite3.node"
-    $targetSqlite = Join-Path $targetSqliteDir "better_sqlite3.node"
+    $targetSqlite = Join-Path $targetDir "better_sqlite3.node"
 
     if (Test-Path $sourceSqlite) {
         Copy-Item -Path $sourceSqlite -Destination $targetSqlite -Force
@@ -583,6 +598,7 @@ if ($UseForge) {
         npm run dist
     }
     Write-ColorText "   Build Electron termine." $Green
+    Start-Sleep -Seconds 2
     Fix-BetterSqlite3-PostBuild | Out-Null
 }
 
