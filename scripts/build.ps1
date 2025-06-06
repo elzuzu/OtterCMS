@@ -231,8 +231,15 @@ if ($DownloadElectronLocally) {
     Write-ColorText "   Extraction de $downloadedFilePath vers $electronLocalDownloadDir" $Gray
     try {
         Expand-Archive -Path $downloadedFilePath -DestinationPath $electronLocalDownloadDir -Force
-        $electronExe = Join-Path $electronLocalDownloadDir "electron.exe"
-        if (Test-Path $electronExe) {
+
+        # Les archives Electron contiennent généralement un sous-dossier.
+        # Rechercher electron.exe dans l'arborescence extraite et remonter
+        $exePath = Get-ChildItem -Path $electronLocalDownloadDir -Recurse -Filter "electron.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($exePath) {
+            if ($exePath.Directory.FullName -ne $electronLocalDownloadDir) {
+                Move-Item -Path (Join-Path $exePath.Directory.FullName '*') -Destination $electronLocalDownloadDir -Force
+                Remove-Item -Path $exePath.Directory.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
             Write-ColorText "   Extraction terminée - electron.exe trouvé." $Green
         } else {
             throw "electron.exe non trouvé après extraction"
