@@ -258,6 +258,8 @@ if ($DownloadElectronLocally) {
 
     $env:ELECTRON_CACHE = $electronCacheDir
     $env:electron_config_cache = $electronCacheDir
+    $env:ELECTRON_CUSTOM_DIR = $electronLocalDownloadDir
+    $env:ELECTRON_CUSTOM_FILENAME = $electronZipFileName
     Write-ColorText "   Variables de cache configurées." $Gray
 }
 
@@ -419,6 +421,8 @@ if ($DownloadElectronLocally) {
     Write-ColorText "`n🧹 Nettoyage..." $Yellow
     Remove-Item Env:ELECTRON_CACHE -ErrorAction SilentlyContinue
     Remove-Item Env:electron_config_cache -ErrorAction SilentlyContinue
+    Remove-Item Env:ELECTRON_CUSTOM_DIR -ErrorAction SilentlyContinue
+    Remove-Item Env:ELECTRON_CUSTOM_FILENAME -ErrorAction SilentlyContinue
     if (Test-Path $electronLocalDownloadDir) {
         Remove-Item -Path $electronLocalDownloadDir -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -454,7 +458,12 @@ if ($UseForge) {
     Write-ColorText "   Lancement du build complet (Vite + Electron)." $Blue
     npm run build
     Write-ColorText "   Build Vite terminé." $Green
-    npm run dist
+    if ($DownloadElectronLocally) {
+        Write-ColorText "   Build Electron avec binaire local." $Blue
+        npx electron-builder --win --config.electronDist="$electronLocalDownloadDir"
+    } else {
+        npm run dist
+    }
     Write-ColorText "   Build Electron terminé." $Green
 }
 
