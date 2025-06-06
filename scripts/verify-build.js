@@ -5,6 +5,7 @@ function verifyBuild() {
   const buildDir = './release-builds/win-unpacked';
   const expectedFiles = [
     'resources/app.asar.unpacked/node_modules/better-sqlite3/build/Release/better_sqlite3.node',
+    'resources/app.asar.unpacked/node_modules/oracledb/build/Release/oracledb.node',
     'Indi-Suivi.exe'
   ];
   

@@ -272,19 +272,71 @@ if ($InstallDeps -or $DownloadElectronLocally) {
 
             if ($DownloadElectronLocally) {
                 Write-ColorText "Copie manuelle des fichiers Electron..." $Cyan
-                
-                if (-not (Test-Path $electronTargetDistPath)) {
-                    New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
-                } else {
-                    Remove-Item -Path $electronTargetDistPath -Recurse -Force -ErrorAction SilentlyContinue
-                    New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
+
+                # Vérifier que le répertoire source existe et contient electron.exe
+                $electronExePath = Join-Path $electronLocalDownloadDir "electron.exe"
+                if (-not (Test-Path $electronExePath)) {
+                    Write-ColorText "   ERREUR: electron.exe non trouvé dans $electronLocalDownloadDir" $Red
+                    throw "electron.exe manquant dans le répertoire local"
                 }
 
-                $filesToCopy = Get-ChildItem -Path $electronLocalDownloadDir -Exclude "*.zip"
-                foreach ($file in $filesToCopy) {
-                    Copy-Item -Path $file.FullName -Destination $electronTargetDistPath -Recurse -Force
+                # Créer ou nettoyer le répertoire de destination
+                if (-not (Test-Path $electronTargetDistPath)) {
+                    New-Item -Path $electronTargetDistPath -ItemType Directory -Force | Out-Null
+                    Write-ColorText "   Répertoire de destination créé: $electronTargetDistPath" $Gray
+                } else {
+                    Remove-Item -Path "$electronTargetDistPath\*" -Recurse -Force -ErrorAction SilentlyContinue
+                    Write-ColorText "   Répertoire de destination nettoyé" $Gray
                 }
-                Write-ColorText "   Copie manuelle terminee." $Green
+
+                # Copier tous les fichiers du répertoire temporaire
+                try {
+                    $filesToCopy = Get-ChildItem -Path $electronLocalDownloadDir -Exclude "*.zip" -ErrorAction Stop
+                    $copiedCount = 0
+                    foreach ($file in $filesToCopy) {
+                        Copy-Item -Path $file.FullName -Destination $electronTargetDistPath -Recurse -Force -ErrorAction Stop
+                        $copiedCount++
+                        Write-ColorText "     Copié: $($file.Name)" $Gray
+                    }
+
+                    $finalElectronPath = Join-Path $electronTargetDistPath "electron.exe"
+                    if (Test-Path $finalElectronPath) {
+                        Write-ColorText "   ✅ Copie réussie: $copiedCount fichiers copiés" $Green
+                        Write-ColorText "   ✅ electron.exe présent dans le répertoire final" $Green
+
+                        $criticalFiles = @("ffmpeg.dll", "d3dcompiler_47.dll", "libEGL.dll", "libGLESv2.dll")
+                        $missingFiles = @()
+                        foreach ($criticalFile in $criticalFiles) {
+                            $criticalPath = Join-Path $electronTargetDistPath $criticalFile
+                            if (-not (Test-Path $criticalPath)) {
+                                $missingFiles += $criticalFile
+                            }
+                        }
+                        if ($missingFiles.Count -gt 0) {
+                            Write-ColorText "   ⚠️ Fichiers critiques manquants: $($missingFiles -join ', ')" $Yellow
+                        } else {
+                            Write-ColorText "   ✅ Tous les fichiers critiques présents" $Green
+                        }
+                    } else {
+                        throw "electron.exe absent après copie"
+                    }
+
+                    Write-ColorText "   Copie manuelle terminee." $Green
+                } catch {
+                    Write-ColorText "   ERREUR lors de la copie: $_" $Red
+                    throw "Échec de la copie manuelle d'Electron: $_"
+                }
+
+                # Vérifier la cohérence du package.json d'Electron
+                $electronPackageJsonPath = Join-Path (Split-Path $electronTargetDistPath -Parent) "package.json"
+                if (Test-Path $electronPackageJsonPath) {
+                    try {
+                        $electronPkg = Get-Content $electronPackageJsonPath | ConvertFrom-Json
+                        Write-ColorText "   📦 Version Electron détectée: $($electronPkg.version)" $Gray
+                    } catch {
+                        Write-ColorText "   ⚠️ Impossible de lire le package.json d'Electron" $Yellow
+                    }
+                }
             }
 
             Remove-Item Env:ELECTRON_SKIP_BINARY_DOWNLOAD -ErrorAction SilentlyContinue
@@ -300,6 +352,27 @@ if ($InstallDeps -or $DownloadElectronLocally) {
         }
 
         Write-ColorText "   Installation des dependances terminee." $Green
+    }
+}
+
+if ($DownloadElectronLocally) {
+    Write-ColorText "Vérification finale d'Electron..." $Cyan
+
+    $electronMainPath = Join-Path $electronTargetDistPath "electron.exe"
+    if (-not (Test-Path $electronMainPath)) {
+        Write-ColorText "   ❌ CRITIQUE: electron.exe manquant" $Red
+        throw "Electron non installé correctement"
+    }
+
+    try {
+        $electronVersion = & $electronMainPath --version 2>$null
+        if ($electronVersion) {
+            Write-ColorText "   ✅ Electron fonctionnel: $electronVersion" $Green
+        } else {
+            Write-ColorText "   ⚠️ Electron installé mais version non détectable" $Yellow
+        }
+    } catch {
+        Write-ColorText "   ⚠️ Test d'Electron échoué: $_" $Yellow
     }
 }
 
@@ -415,6 +488,22 @@ $foundFiles = @()
 foreach ($folder in $outputFolders) {
     if (Test-Path $folder) {
         $foundFiles += Get-ChildItem -Path $folder -Recurse -Include "*.exe" -ErrorAction SilentlyContinue
+    }
+}
+
+Write-ColorText "Verification des modules natifs embarques..." $Cyan
+$buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
+$nativeModules = @(
+    @{ Name = 'better-sqlite3'; Path = 'resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node' },
+    @{ Name = 'oracledb'; Path = 'resources\app.asar.unpacked\node_modules\oracledb\build\Release\oracledb.node' }
+)
+
+foreach ($mod in $nativeModules) {
+    $fullPath = Join-Path $buildDir $mod.Path
+    if (Test-Path $fullPath) {
+        Write-ColorText "   ✅ $($mod.Name) embarqué" $Green
+    } else {
+        Write-ColorText "   ❌ $($mod.Name) manquant dans le build" $Red
     }
 }
 
