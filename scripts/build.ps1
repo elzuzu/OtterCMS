@@ -29,6 +29,85 @@ function Test-Command {
     (Get-Command $Command -CommandType Application -ErrorAction SilentlyContinue) -ne $null
 }
 
+# Configure w64devkit for native module builds
+function Set-W64DevKitEnvironment {
+    Write-ColorText "🔧 Configuration de w64devkit..." $Cyan
+    $w64devkitPath = "D:\tools\w64devkit\bin"
+    if (-not (Test-Path $w64devkitPath)) {
+        Write-ColorText "❌ w64devkit non trouvé dans $w64devkitPath" $Red
+        throw "w64devkit requis mais non trouvé"
+    }
+
+    $env:CC  = "$w64devkitPath\gcc.exe"
+    $env:CXX = "$w64devkitPath\g++.exe"
+    $env:AR  = "$w64devkitPath\ar.exe"
+    $env:LINK = "$w64devkitPath\g++.exe"
+    $env:MAKE = "$w64devkitPath\make.exe"
+
+    $env:npm_config_msvs_version = ""
+    $env:GYP_MSVS_VERSION = ""
+    $env:npm_config_node_gyp_force_cxx = "$w64devkitPath\g++.exe"
+    $env:npm_config_node_gyp_force_cc  = "$w64devkitPath\gcc.exe"
+
+    $env:npm_config_target_platform = "win32"
+    $env:npm_config_target_arch = "x64"
+    $env:npm_config_runtime = "electron"
+    $env:npm_config_target = $electronVersion
+    $env:npm_config_disturl = "https://electronjs.org/headers"
+    $env:npm_config_cache_min = "0"
+
+    $env:PATH = "$w64devkitPath;$env:PATH"
+    Write-ColorText "✅ w64devkit configuré comme compilateur par défaut" $Green
+}
+
+function Invoke-W64DevKitRebuild {
+    Write-ColorText "🔨 Rebuild avec w64devkit..." $Yellow
+    Set-W64DevKitEnvironment
+    try {
+        $rebuildCmd = "npx electron-rebuild --force --types=prod,dev,optional --module-dir . --which-module better-sqlite3"
+        Invoke-Expression $rebuildCmd
+        Write-ColorText "✅ Rebuild w64devkit réussi" $Green
+    } catch {
+        Write-ColorText "❌ Échec rebuild w64devkit: $_" $Red
+        throw
+    }
+}
+
+function Test-W64DevKitConfiguration {
+    Write-ColorText "🔍 Vérification de la configuration w64devkit..." $Cyan
+    $tools = @("gcc", "g++", "ar", "make")
+    $w64devkitPath = "D:\tools\w64devkit\bin"
+    foreach ($tool in $tools) {
+        $toolPath = "$w64devkitPath\$tool.exe"
+        if (Test-Path $toolPath) {
+            $version = & $toolPath --version 2>$null | Select-Object -First 1
+            Write-ColorText "✅ $tool : $version" $Green
+        } else {
+            Write-ColorText "❌ $tool non trouvé" $Red
+            return $false
+        }
+    }
+    return $true
+}
+
+function Clear-W64DevKitEnvironment {
+    Remove-Item Env:CC -ErrorAction SilentlyContinue
+    Remove-Item Env:CXX -ErrorAction SilentlyContinue
+    Remove-Item Env:AR -ErrorAction SilentlyContinue
+    Remove-Item Env:LINK -ErrorAction SilentlyContinue
+    Remove-Item Env:MAKE -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_node_gyp_force_cxx -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_node_gyp_force_cc -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_msvs_version -ErrorAction SilentlyContinue
+    Remove-Item Env:GYP_MSVS_VERSION -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_target_platform -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_target_arch -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_runtime -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_target -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_disturl -ErrorAction SilentlyContinue
+    Remove-Item Env:npm_config_cache_min -ErrorAction SilentlyContinue
+}
+
 $Green = "Green"
 $Yellow = "Yellow"
 $Red = "Red"
@@ -183,6 +262,10 @@ if ($DownloadElectronLocally) {
 }
 
 if ($InstallDeps -or $DownloadElectronLocally) {
+    if (-not (Test-W64DevKitConfiguration)) {
+        throw "w64devkit non configuré correctement"
+    }
+    Set-W64DevKitEnvironment
     if ($ForcePrebuilt) {
         Write-ColorText "`n🔧 Installation des dépendances avec binaires précompilés..." $Green
 
@@ -340,7 +423,7 @@ if ($DownloadElectronLocally) {
 
 if ($InstallDeps -and -not $SkipNativeDeps -and -not $ForcePrebuilt) {
     Write-ColorText "`n🛠️ Reconstruction des modules natifs pour Electron..." $Cyan
-    npm run setup-native-deps
+    Invoke-W64DevKitRebuild
     if ($LASTEXITCODE -ne 0) {
         Write-ColorText "   ❌ Reconstruction des dépendances natives échouée" $Red
         exit 1
@@ -455,5 +538,7 @@ if ($foundFiles.Count -gt 0) {
 } else {
     Write-ColorText "`n⚠️ Aucun fichier exécutable trouvé dans les dossiers de sortie!" $Yellow
 }
+
+Clear-W64DevKitEnvironment
 
 Write-ColorText "`n✅ Script de build terminé avec succès!" $Green
