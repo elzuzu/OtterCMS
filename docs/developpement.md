@@ -77,6 +77,12 @@ En cas de doute sur la présence d'Electron ou pour diagnostiquer une installati
 scripts\electron-diagnostic.ps1
 ```
 
+Une fois le build terminé, validez la présence des modules natifs avec :
+
+```bash
+npm run verify-build
+```
+
 ### Conseils 2025
 
 - Privilégiez l'utilisation de versions LTS des outils pour garantir la compatibilité.

@@ -491,6 +491,22 @@ foreach ($folder in $outputFolders) {
     }
 }
 
+Write-ColorText "Verification des modules natifs embarques..." $Cyan
+$buildDir = Join-Path $projectRoot "release-builds\win-unpacked"
+$nativeModules = @(
+    @{ Name = 'better-sqlite3'; Path = 'resources\app.asar.unpacked\node_modules\better-sqlite3\build\Release\better_sqlite3.node' },
+    @{ Name = 'oracledb'; Path = 'resources\app.asar.unpacked\node_modules\oracledb\build\Release\oracledb.node' }
+)
+
+foreach ($mod in $nativeModules) {
+    $fullPath = Join-Path $buildDir $mod.Path
+    if (Test-Path $fullPath) {
+        Write-ColorText "   ✅ $($mod.Name) embarqué" $Green
+    } else {
+        Write-ColorText "   ❌ $($mod.Name) manquant dans le build" $Red
+    }
+}
+
 if ($foundFiles.Count -gt 0) {
     Write-ColorText "   Fichiers executables trouves:" $Green
     foreach ($file in $foundFiles) {
