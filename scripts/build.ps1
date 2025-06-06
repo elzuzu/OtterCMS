@@ -296,7 +296,7 @@ if ($DownloadElectronLocally) {
 }
 
 
-if ($InstallDeps -and -not $SkipNativeDeps) {
+if ($InstallDeps -and -not $SkipNativeDeps -and -not $ForcePrebuilt) {
     Write-ColorText "`n🛠️ Reconstruction des modules natifs pour Electron..." $Cyan
     npm run setup-native-deps
     if ($LASTEXITCODE -ne 0) {
@@ -304,6 +304,8 @@ if ($InstallDeps -and -not $SkipNativeDeps) {
         exit 1
     }
     Write-ColorText "   Reconstruction des modules natifs terminée." $Green
+} elseif ($ForcePrebuilt) {
+    Write-ColorText "⏭️ Reconstruction évitée (binaires précompilés)" $Yellow
 }
 
 Write-ColorText "`n🏗️ Lancement du processus de build principal..." $Cyan
