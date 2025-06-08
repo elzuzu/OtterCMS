@@ -3,8 +3,22 @@
 ## 📋 Vue d'ensemble
 Migration progressive d'Indi-Suivi depuis Electron/better-sqlite3 vers Tauri 2/libSQL tout en maintenant la base de données sur un partage réseau.
 
+### 🔍 Note importante sur libSQL vs rusqlite
+
+**libSQL** est le choix principal car c'est ce que vous avez demandé. Cependant, libSQL peut présenter des défis de compilation avec w64devkit/MinGW car :
+- Il a des dépendances C++ plus complexes
+- Il est principalement testé avec MSVC sur Windows
+- La compilation avec MinGW nécessite des flags spécifiques
+
+**Solution proposée** : 
+1. Tenter d'abord la compilation avec libSQL
+2. Si échec, utiliser rusqlite comme alternative (API très similaire)
+3. Les deux supportent parfaitement les chemins UNC Windows
+
+Le plan inclut les deux options pour garantir le succès du projet.
+
 ### ⚠️ Contraintes critiques
-- ✅ Client Windows 64-bit uniquement
+- ✅ Client Windows 64-bit uniquement  
 - ✅ Base de données SQLite sur partage réseau (\\server\share\db\indi-suivi.sqlite)
 - ✅ Pas de droits administrateur requis (utilisation de w64devkit + Rust portable)
 - ✅ Installation dans D:\tools
@@ -36,7 +50,7 @@ $rustupInitUrl = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msv
 # Fonction de téléchargement avec retry
 function Download-WithRetry {
     param([string]$Url, [string]$Output, [int]$MaxRetries = 3)
-
+    
     for ($i = 1; $i -le $MaxRetries; $i++) {
         try {
             Write-Host "Téléchargement de $Url (tentative $i/$MaxRetries)..." -ForegroundColor Cyan
@@ -61,26 +75,26 @@ if ((Test-Path $w64devkitPath) -and -not $ForceReinstall) {
     Write-Host "w64devkit déjà installé dans $w64devkitPath" -ForegroundColor Yellow
 } else {
     $tempZip = Join-Path $env:TEMP "w64devkit.zip"
-
+    
     if (Download-WithRetry -Url $w64devkitUrl -Output $tempZip) {
         Write-Host "Extraction de w64devkit..." -ForegroundColor Cyan
-
+        
         # Supprimer l'ancienne version si elle existe
         if (Test-Path $w64devkitPath) {
             Remove-Item -Path $w64devkitPath -Recurse -Force
         }
-
+        
         # Extraire
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         [System.IO.Compression.ZipFile]::ExtractToDirectory($tempZip, $ToolsDir)
-
+        
         # Vérifier l'extraction
         if (Test-Path (Join-Path $w64devkitPath "bin\gcc.exe")) {
             Write-Host "✅ w64devkit installé avec succès" -ForegroundColor Green
         } else {
             throw "Échec de l'extraction de w64devkit"
         }
-
+        
         Remove-Item $tempZip -Force
     } else {
         throw "Impossible de télécharger w64devkit"
@@ -99,28 +113,28 @@ if ((Test-Path (Join-Path $cargoHome "bin\cargo.exe")) -and -not $ForceReinstall
     # Créer les dossiers
     New-Item -ItemType Directory -Force -Path $rustupHome | Out-Null
     New-Item -ItemType Directory -Force -Path $cargoHome | Out-Null
-
+    
     $rustupInit = Join-Path $env:TEMP "rustup-init.exe"
-
+    
     if (Download-WithRetry -Url $rustupInitUrl -Output $rustupInit) {
         Write-Host "Installation de Rust (cela peut prendre quelques minutes)..." -ForegroundColor Cyan
-
+        
         # Variables d'environnement pour l'installation
         $env:RUSTUP_HOME = $rustupHome
         $env:CARGO_HOME = $cargoHome
         $env:RUSTUP_INIT_SKIP_PATH_CHECK = "yes"
-
+        
         # Installer Rust avec la toolchain GNU (pour w64devkit)
         & $rustupInit -y `
             --no-modify-path `
             --default-host x86_64-pc-windows-gnu `
             --default-toolchain stable `
             --profile minimal
-
+        
         if ($LASTEXITCODE -ne 0) {
             throw "Échec de l'installation de Rust"
         }
-
+        
         Write-Host "✅ Rust installé avec succès" -ForegroundColor Green
         Remove-Item $rustupInit -Force
     } else {
@@ -133,13 +147,16 @@ Write-Host "`n=== Configuration de Cargo pour w64devkit ===" -ForegroundColor Gr
 $cargoConfig = Join-Path $cargoHome "config.toml"
 $configContent = @"
 [target.x86_64-pc-windows-gnu]
-linker = "$($w64devkitPath -replace '\\', '\\\\')/bin/gcc.exe"
-ar = "$($w64devkitPath -replace '\\', '\\\\')/bin/ar.exe"
+linker = "$($w64devkitPath -replace '\\', '\\')/bin/gcc.exe"
+ar = "$($w64devkitPath -replace '\\', '\\')/bin/ar.exe"
 
 [env]
-CC = "$($w64devkitPath -replace '\\', '\\\\')/bin/gcc.exe"
-CXX = "$($w64devkitPath -replace '\\', '\\\\')/bin/g++.exe"
-AR = "$($w64devkitPath -replace '\\', '\\\\')/bin/ar.exe"
+CC = "$($w64devkitPath -replace '\\', '\\')/bin/gcc.exe"
+CXX = "$($w64devkitPath -replace '\\', '\\')/bin/g++.exe"
+AR = "$($w64devkitPath -replace '\\', '\\')/bin/ar.exe"
+# Flags pour supporter libSQL si possible
+CFLAGS = "-D_WIN32_WINNT=0x0601"
+CXXFLAGS = "-D_WIN32_WINNT=0x0601"
 
 [net]
 retry = 5
@@ -164,11 +181,55 @@ if ($LASTEXITCODE -ne 0) {
     throw "Cargo non fonctionnel"
 }
 
+# Test rapide de compilation libSQL
+Write-Host "`nTest de compatibilité libSQL avec w64devkit..." -ForegroundColor Cyan
+$testDir = Join-Path $env:TEMP "test-libsql-$(Get-Date -Format 'yyyyMMddHHmmss')"
+New-Item -ItemType Directory -Path $testDir | Out-Null
+
+$testCargo = @"
+[package]
+name = "test-libsql"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
+"@
+
+$testMain = @"
+fn main() {
+    println!("libSQL compile avec succès!");
+}
+"@
+
+Set-Content -Path "$testDir\Cargo.toml" -Value $testCargo
+New-Item -ItemType Directory -Path "$testDir\src" | Out-Null
+Set-Content -Path "$testDir\src\main.rs" -Value $testMain
+
+Push-Location $testDir
+$env:LIBSQL_STATIC = "1"
+$libsqlWorks = $false
+
+try {
+    & "$cargoHome\bin\cargo.exe" build --target x86_64-pc-windows-gnu 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ libSQL compile avec w64devkit!" -ForegroundColor Green
+        $libsqlWorks = $true
+    } else {
+        Write-Host "⚠️ libSQL ne compile pas avec w64devkit - rusqlite sera utilisé comme fallback" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "⚠️ Test libSQL échoué - rusqlite sera utilisé comme fallback" -ForegroundColor Yellow
+} finally {
+    Pop-Location
+    Remove-Item -Path $testDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 # Installer tauri-cli si pas déjà présent
 if (-not (Test-Path "$cargoHome\bin\cargo-tauri.exe")) {
     Write-Host "Installation de tauri-cli..." -ForegroundColor Cyan
     & "$cargoHome\bin\cargo.exe" install tauri-cli --locked
-
+    
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ tauri-cli installé" -ForegroundColor Green
     } else {
@@ -204,6 +265,16 @@ Write-Host "Rust: $rustPortableDir" -ForegroundColor Cyan
 Write-Host "Script env: $launchScript" -ForegroundColor Cyan
 Write-Host "`nPour utiliser l'environnement, exécutez:" -ForegroundColor Yellow
 Write-Host "  . $launchScript" -ForegroundColor White
+
+# Note sur libSQL
+if ($libsqlWorks) {
+    Write-Host "`n📌 Note: libSQL compile correctement avec votre configuration!" -ForegroundColor Green
+    Write-Host "   Vous pourrez utiliser libSQL comme prévu dans le projet." -ForegroundColor White
+} else {
+    Write-Host "`n📌 Note: libSQL ne compile pas avec w64devkit sur ce système." -ForegroundColor Yellow
+    Write-Host "   Utilisez rusqlite comme alternative (déjà inclus dans le plan)." -ForegroundColor White
+    Write-Host "   Les deux bibliothèques supportent parfaitement les chemins réseau UNC." -ForegroundColor White
+}
 ```
 
 - [ ] Créer le script `scripts/setup-tauri-tools.ps1`
@@ -228,16 +299,16 @@ param(
 # Fonction pour setup Tauri
 function Setup-Tauri-Environment {
     $tauriSetupScript = Join-Path $PSScriptRoot "setup-tauri-tools.ps1"
-
+    
     if (-not (Test-Path $tauriSetupScript)) {
         Write-ColorText "Script setup-tauri-tools.ps1 manquant!" $Red
         return $false
     }
-
+    
     # Exécuter le setup si demandé ou si les outils manquent
     $rustPortableDir = "D:\tools\rust-portable"
     $cargoPath = Join-Path $rustPortableDir ".cargo\bin\cargo.exe"
-
+    
     if ($SetupTauriTools -or -not (Test-Path $cargoPath)) {
         Write-ColorText "Installation des outils Tauri..." $Cyan
         & $tauriSetupScript
@@ -246,48 +317,48 @@ function Setup-Tauri-Environment {
             return $false
         }
     }
-
+    
     # Configurer l'environnement
     $env:RUSTUP_HOME = Join-Path $rustPortableDir ".rustup"
     $env:CARGO_HOME = Join-Path $rustPortableDir ".cargo"
     $env:PATH = "$env:CARGO_HOME\bin;D:\tools\w64devkit\bin;$env:PATH"
-
+    
     # Configurer w64devkit pour Rust
     Set-W64DevKitEnvironment
-
+    
     return $true
 }
 
 # Fonction de build Tauri
 function Build-Tauri-App {
     param([string]$Mode = "release")
-
+    
     Write-ColorText "Build Tauri en mode $Mode..." $Cyan
-
+    
     $srcTauriPath = Join-Path $projectRoot "src-tauri"
     if (-not (Test-Path $srcTauriPath)) {
         Write-ColorText "Dossier src-tauri manquant!" $Red
         return $false
     }
-
+    
     Push-Location $srcTauriPath
     try {
         $buildCmd = "cargo tauri build"
         if ($Mode -eq "debug") {
             $buildCmd = "cargo tauri build --debug"
         }
-
+        
         # Optimisations pour la release
         if ($Mode -eq "release") {
             $env:RUSTFLAGS = "-C target-cpu=native -C link-arg=-s"
         }
-
+        
         Write-ColorText "Exécution: $buildCmd" $Gray
         Invoke-Expression $buildCmd
-
+        
         if ($LASTEXITCODE -eq 0) {
             Write-ColorText "✅ Build Tauri réussi!" $Green
-
+            
             # Appliquer UPX si disponible
             if ($Mode -eq "release" -and -not $SkipUPX) {
                 $exePath = Join-Path $srcTauriPath "target\release\indi-suivi.exe"
@@ -295,7 +366,7 @@ function Build-Tauri-App {
                     Apply-UPX-Compression $exePath
                 }
             }
-
+            
             return $true
         } else {
             Write-ColorText "❌ Build Tauri échoué" $Red
@@ -317,11 +388,11 @@ if ($BuildTauri) {
     if (-not (Setup-Tauri-Environment)) {
         exit 1
     }
-
+    
     if (-not (Build-Tauri-App -Mode $TauriMode)) {
         exit 1
     }
-
+    
     Write-ColorText "Build Tauri terminé avec succès!" $Green
     exit 0
 }
@@ -342,77 +413,6 @@ if ($BuildTauri) {
   - [ ] better-sqlite3 → rusqlite avec feature "bundled"
   - [ ] oracledb → oracle_rs ou API REST séparée
 - [ ] Documenter toutes les API IPC utilisées
-
-### 0.4 Prototype de faisabilité
-
-Créer `tauri-test/test-network-db.rs` :
-
-```rust
-use rusqlite::{Connection, Result};
-use std::path::Path;
-
-fn test_network_db() -> Result<()> {
-    // Test avec chemin UNC Windows
-    let unc_path = r"\\server\share\db\test.sqlite";
-
-    println!("Test d'accès au partage réseau: {}", unc_path);
-
-    // Vérifier l'existence
-    if !Path::new(unc_path).exists() {
-        eprintln!("Erreur: Chemin réseau inaccessible");
-        return Ok(());
-    }
-
-    // Ouvrir la connexion
-    let conn = Connection::open(unc_path)?;
-
-    // Appliquer les PRAGMA
-    conn.execute_batch("
-        PRAGMA journal_mode = WAL;
-        PRAGMA synchronous = NORMAL;
-        PRAGMA foreign_keys = ON;
-        PRAGMA busy_timeout = 10000;
-        PRAGMA cache_size = -2000;
-        PRAGMA temp_store = MEMORY;
-    ")?;
-
-    // Test de création de table
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS test_tauri (
-            id INTEGER PRIMARY KEY,
-            data TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )",
-        [],
-    )?;
-
-    // Test d'insertion
-    conn.execute(
-        "INSERT INTO test_tauri (data) VALUES (?1)",
-        ["Test depuis Tauri"],
-    )?;
-
-    // Test de lecture
-    let mut stmt = conn.prepare("SELECT COUNT(*) FROM test_tauri")?;
-    let count: i32 = stmt.query_row([], |row| row.get(0))?;
-
-    println!("✅ Test réussi! {} enregistrements dans la table", count);
-
-    Ok(())
-}
-
-fn main() {
-    if let Err(e) = test_network_db() {
-        eprintln!("Erreur: {}", e);
-    }
-}
-```
-
-- [ ] Créer un projet Tauri de test minimal
-- [ ] Compiler avec `cargo build --target x86_64-pc-windows-gnu`
-- [ ] Tester l'accès réseau avec différentes configurations
-- [ ] Mesurer les performances (lecture/écriture)
-- [ ] Tester les accès concurrents
 
 ---
 
@@ -477,10 +477,15 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 
-# Base de données - rusqlite au lieu de libSQL pour compatibilité MinGW
-rusqlite = { version = "0.32", features = ["bundled", "backup", "blob", "chrono", "serde_json"] }
-r2d2 = "0.8"  # Pool de connexions
-r2d2_sqlite = "0.24"
+# Base de données - Options disponibles :
+
+# Option 1: libSQL (recommandé si compilation réussie)
+libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
+
+# Option 2: rusqlite (fallback si problèmes avec libSQL + MinGW)
+# rusqlite = { version = "0.32", features = ["bundled", "backup", "blob", "chrono", "serde_json"] }
+# r2d2 = "0.8"  # Pool de connexions
+# r2d2_sqlite = "0.24"
 
 # Authentification et crypto
 bcrypt = "0.15"
@@ -514,97 +519,89 @@ panic = "abort"     # Plus petit binaire
 ```
 
 - [ ] Créer `src-tauri/Cargo.toml` avec les dépendances
-- [ ] Tester la compilation : `cargo build --target x86_64-pc-windows-gnu`
-- [ ] Vérifier que rusqlite compile avec w64devkit
+- [ ] Tester d'abord avec libSQL : `cargo build --target x86_64-pc-windows-gnu`
+- [ ] Si échec de compilation libSQL, essayer avec ces flags :
+  ```powershell
+  $env:LIBSQL_STATIC = "1"
+  $env:CC = "D:\tools\w64devkit\bin\gcc.exe"
+  $env:CXX = "D:\tools\w64devkit\bin\g++.exe"
+  $env:CFLAGS = "-D_WIN32_WINNT=0x0601"
+  cargo build --target x86_64-pc-windows-gnu
+  ```
+- [ ] Si libSQL ne compile toujours pas, basculer sur rusqlite (décommenter dans Cargo.toml)
 - [ ] Optimiser les flags de compilation
 
 ### 1.3 Configuration base de données
 
-Créer `src-tauri/src/database/connection.rs` :
+Créer `src-tauri/src/database/connection.rs` avec support pour les deux options :
 
 ```rust
+// Option 1: Avec libSQL
+#[cfg(feature = "use-libsql")]
+use libsql::{Connection, Database, OpenFlags};
 use anyhow::{Context, Result};
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{params, Connection};
 use std::path::Path;
 use std::sync::Arc;
 use log::{info, error};
 
-pub struct Database {
-    pool: Arc<Pool<SqliteConnectionManager>>,
+pub struct DatabasePool {
+    db: Arc<Database>,
     db_path: String,
 }
 
-impl Database {
-    pub fn new(db_path: &str) -> Result<Self> {
-        info!("Connexion à la base de données: {}", db_path);
-
+impl DatabasePool {
+    pub async fn new(db_path: &str) -> Result<Self> {
+        info!("Connexion à la base de données (libSQL): {}", db_path);
+        
         // Vérifier l'accès au chemin réseau
         let path = Path::new(db_path);
         if !path.exists() {
             if let Some(parent) = path.parent() {
                 if !parent.exists() {
                     return Err(anyhow::anyhow!(
-                        "Le répertoire de la base de données n'existe pas: {:?}",
+                        "Le répertoire de la base de données n'existe pas: {:?}", 
                         parent
                     ));
                 }
             }
         }
-
-        // Configuration du pool de connexions
-        let manager = SqliteConnectionManager::file(db_path)
-            .with_init(|conn| {
-                // Appliquer les PRAGMA recommandés
-                conn.execute_batch(
-                    "PRAGMA journal_mode = WAL;
-                     PRAGMA synchronous = NORMAL;
-                     PRAGMA foreign_keys = ON;
-                     PRAGMA cache_size = -2000;
-                     PRAGMA busy_timeout = 10000;
-                     PRAGMA temp_store = MEMORY;"
-                )?;
-                Ok(())
-            });
-
-        let pool = Pool::builder()
-            .max_size(10)  // Maximum 10 connexions
-            .min_idle(Some(1))
-            .connection_timeout(std::time::Duration::from_secs(30))
-            .build(manager)
-            .context("Impossible de créer le pool de connexions")?;
-
-        // Test de connexion
-        let conn = pool.get()?;
-        conn.execute("SELECT 1", [])?;
-        info!("✅ Connexion à la base de données établie");
-
+        
+        // Configuration libSQL pour fichier local (mode embedded)
+        let db = Database::open(db_path)
+            .await
+            .context("Impossible d'ouvrir la base de données")?;
+        
+        // Test de connexion et application des PRAGMA
+        let conn = db.connect()?;
+        conn.execute_batch(
+            "PRAGMA journal_mode = WAL;
+             PRAGMA synchronous = NORMAL;
+             PRAGMA foreign_keys = ON;
+             PRAGMA cache_size = -2000;
+             PRAGMA busy_timeout = 10000;
+             PRAGMA temp_store = MEMORY;"
+        ).await?;
+        
+        info!("✅ Connexion à la base de données établie (libSQL)");
+        
         Ok(Self {
-            pool: Arc::new(pool),
+            db: Arc::new(db),
             db_path: db_path.to_string(),
         })
     }
-
-    pub fn get_connection(&self) -> Result<r2d2::PooledConnection<SqliteConnectionManager>> {
-        self.pool.get()
-            .context("Impossible d'obtenir une connexion depuis le pool")
-    }
-
-    pub fn init_schema(&self) -> Result<()> {
-        let conn = self.get_connection()?;
-
-        // Même schéma que l'application Electron
-        conn.execute_batch(include_str!("../../migrations/001_init.sql"))?;
-
-        info!("✅ Schéma de base de données initialisé");
-        Ok(())
+    
+    pub fn get_connection(&self) -> Result<Connection> {
+        self.db.connect()
+            .context("Impossible d'obtenir une connexion")
     }
 }
 
-// Thread-safe pour Tauri
-unsafe impl Send for Database {}
-unsafe impl Sync for Database {}
+// Option 2: Avec rusqlite (fallback)
+#[cfg(not(feature = "use-libsql"))]
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
+use rusqlite::{params, Connection};
+// ... code rusqlite du plan original ...
 ```
 
 - [ ] Implémenter le module de connexion
@@ -645,7 +642,7 @@ impl User {
     pub fn new(username: String, password: &str, role: UserRole) -> Result<Self> {
         let password_hash = hash(password, DEFAULT_COST)
             .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
-
+        
         Ok(Self {
             id: None,
             username,
@@ -655,11 +652,11 @@ impl User {
             deleted: false,
         })
     }
-
+    
     pub fn verify_password(&self, password: &str) -> bool {
         verify(password, &self.password_hash).unwrap_or(false)
     }
-
+    
     pub fn from_row(row: &Row) -> Result<Self> {
         Ok(Self {
             id: row.get(0)?,
@@ -674,16 +671,16 @@ impl User {
             deleted: row.get::<_, i32>(5)? != 0,
         })
     }
-
+    
     pub fn find_by_username(conn: &Connection, username: &str) -> Result<Option<Self>> {
         let mut stmt = conn.prepare(
-            "SELECT id, username, password_hash, role, windows_login, deleted
+            "SELECT id, username, password_hash, role, windows_login, deleted 
              FROM users WHERE username = ? AND deleted = 0"
         )?;
-
+        
         let user = stmt.query_row(params![username], |row| Self::from_row(row))
             .optional()?;
-
+        
         Ok(user)
     }
 }
@@ -737,17 +734,17 @@ pub async fn auth_login(
     request: LoginRequest,
 ) -> Result<AuthResponse, String> {
     let db = state.db.clone();
-
+    
     // Exécuter dans un thread séparé pour ne pas bloquer
     let result = tokio::task::spawn_blocking(move || {
         let conn = db.get_connection()
             .map_err(|e| format!("Erreur base de données: {}", e))?;
-
+        
         match User::find_by_username(&conn, &request.username) {
             Ok(Some(user)) => {
                 if user.verify_password(&request.password) {
                     let permissions = get_role_permissions(&conn, &user.role)?;
-
+                    
                     Ok(AuthResponse {
                         success: true,
                         user_id: user.id,
@@ -775,7 +772,7 @@ pub async fn auth_login(
     })
     .await
     .map_err(|e| format!("Erreur tâche: {}", e))??;
-
+    
     Ok(result)
 }
 
@@ -786,24 +783,24 @@ pub async fn get_windows_username() -> Result<AuthResponse, String> {
         use std::ffi::OsString;
         use std::os::windows::ffi::OsStringExt;
         use winapi::um::winbase::GetUserNameW;
-
+        
         unsafe {
             let mut size = 256;
             let mut buffer = vec![0u16; size as usize];
-
+            
             if GetUserNameW(buffer.as_mut_ptr(), &mut size) != 0 {
                 buffer.truncate(size as usize - 1);
                 let username = OsString::from_wide(&buffer)
                     .to_string_lossy()
                     .to_string();
-
+                
                 // Nettoyer le domaine si présent
                 let clean_username = username
                     .split('\\')
                     .last()
                     .unwrap_or(&username)
                     .to_string();
-
+                
                 return Ok(AuthResponse {
                     success: true,
                     username: Some(clean_username),
@@ -812,7 +809,7 @@ pub async fn get_windows_username() -> Result<AuthResponse, String> {
             }
         }
     }
-
+    
     Ok(AuthResponse {
         success: false,
         error: Some("Impossible de récupérer le nom d'utilisateur Windows".to_string()),
@@ -881,7 +878,7 @@ try {
     if ($Mode -eq "release") {
         $env:RUSTFLAGS = "-C target-cpu=native -C link-arg=-s -C opt-level=z"
     }
-
+    
     # Commande de build
     $buildArgs = @()
     if ($Mode -eq "debug") {
@@ -890,51 +887,51 @@ try {
     if ($Bundle) {
         $buildArgs += "--bundles nsis"
     }
-
+    
     # Exécuter le build
     Write-Host "cargo tauri build $($buildArgs -join ' ')" -ForegroundColor Gray
     & cargo tauri build @buildArgs
-
+    
     if ($LASTEXITCODE -ne 0) {
         throw "Build Tauri échoué"
     }
-
+    
     # Post-traitement
     if ($Mode -eq "release" -and -not $SkipUPX) {
         $exePath = ".\target\release\indi-suivi.exe"
         if (Test-Path $exePath) {
             Write-Host "Compression UPX..." -ForegroundColor Cyan
-
+            
             # Chercher UPX
             $upxPath = $null
             $upxLocations = @(
                 "D:\tools\upx\upx.exe",
                 "$env:LOCALAPPDATA\indi-suivi-tools\upx\upx.exe"
             )
-
+            
             foreach ($loc in $upxLocations) {
                 if (Test-Path $loc) {
                     $upxPath = $loc
                     break
                 }
             }
-
+            
             if ($upxPath) {
                 $sizeBefore = (Get-Item $exePath).Length / 1MB
                 & $upxPath --ultra-brute --lzma -9 $exePath
                 $sizeAfter = (Get-Item $exePath).Length / 1MB
-
-                Write-Host ("Taille réduite: {0:N2} MB -> {1:N2} MB ({2:N1}% de réduction)" -f
+                
+                Write-Host ("Taille réduite: {0:N2} MB -> {1:N2} MB ({2:N1}% de réduction)" -f 
                     $sizeBefore, $sizeAfter, ((1 - $sizeAfter/$sizeBefore) * 100)) -ForegroundColor Green
             } else {
                 Write-Host "UPX non trouvé, compression ignorée" -ForegroundColor Yellow
             }
         }
     }
-
+    
     # Afficher les résultats
     Write-Host "`n✅ Build terminé avec succès!" -ForegroundColor Green
-
+    
     if ($Bundle) {
         $bundlePath = ".\target\release\bundle\nsis"
         if (Test-Path $bundlePath) {
@@ -945,7 +942,7 @@ try {
             }
         }
     }
-
+    
 } finally {
     Pop-Location
 }
@@ -983,7 +980,7 @@ export const api = {
     }
     throw new Error('Aucun backend disponible');
   },
-
+  
   getWindowsUsername: async () => {
     if (isTauri) {
       return invoke('get_windows_username');
@@ -992,7 +989,7 @@ export const api = {
     }
     throw new Error('Aucun backend disponible');
   },
-
+  
   // Utilisateurs
   getUsers: async () => {
     if (isTauri) {
@@ -1002,7 +999,7 @@ export const api = {
     }
     throw new Error('Aucun backend disponible');
   },
-
+  
   // ... mapper toutes les autres méthodes
 };
 
@@ -1031,7 +1028,7 @@ export async function selectFile(): Promise<string | null> {
       extensions: ['xlsx', 'xls', 'csv']
     }]
   });
-
+  
   return selected as string | null;
 }
 
@@ -1060,12 +1057,12 @@ Créer `src-tauri/tests/integration_test.rs` :
 mod tests {
     use super::*;
     use tempfile::TempDir;
-
+    
     #[tokio::test]
     async fn test_network_database_access() {
         // Test avec un vrai partage réseau si disponible
         let network_path = r"\\server\share\test\test.db";
-
+        
         if std::path::Path::new(network_path).parent().map(|p| p.exists()).unwrap_or(false) {
             let db = Database::new(network_path);
             assert!(db.is_ok(), "Devrait pouvoir se connecter au partage réseau");
@@ -1073,16 +1070,16 @@ mod tests {
             println!("Partage réseau non disponible, test ignoré");
         }
     }
-
+    
     #[test]
     fn test_concurrent_access() {
         use std::thread;
         use std::sync::Arc;
-
+        
         let temp_dir = TempDir::new().unwrap();
         let db_path = temp_dir.path().join("test.db");
         let db = Arc::new(Database::new(db_path.to_str().unwrap()).unwrap());
-
+        
         // Simuler 10 accès concurrents
         let handles: Vec<_> = (0..10)
             .map(|i| {
@@ -1096,11 +1093,11 @@ mod tests {
                 })
             })
             .collect();
-
+        
         for handle in handles {
             handle.join().unwrap();
         }
-
+        
         // Vérifier que tous les inserts ont réussi
         let conn = db.get_connection().unwrap();
         let count: i32 = conn.query_row(
@@ -1108,7 +1105,7 @@ mod tests {
             [],
             |row| row.get(0)
         ).unwrap();
-
+        
         assert_eq!(count, 10, "Tous les threads devraient avoir inséré");
     }
 }
@@ -1198,13 +1195,13 @@ if (-not (Test-Path $testExe)) {
 # 3. Test de migration
 if (-not $DryRun) {
     Write-Host "`nMigration en cours..." -ForegroundColor Yellow
-
+    
     # Copier les fichiers de configuration
     $configFiles = @(
         "config\app-config.json",
         "config\encryption.key"
     )
-
+    
     foreach ($file in $configFiles) {
         if (Test-Path $file) {
             $dest = Join-Path "." $file
@@ -1239,10 +1236,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    
     steps:
     - uses: actions/checkout@v4
-
+    
     - name: Cache Rust
       uses: actions/cache@v4
       with:
@@ -1253,23 +1250,23 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
+    
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
       with:
         targets: x86_64-pc-windows-gnu
-
+    
     - name: Install w64devkit
       run: |
         Invoke-WebRequest -Uri "https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip" -OutFile w64devkit.zip
         Expand-Archive w64devkit.zip -DestinationPath .
         echo "${{ github.workspace }}\w64devkit\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
+    
     - name: Build Tauri
       run: |
         cd src-tauri
         cargo tauri build --bundles nsis
-
+    
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -1314,3 +1311,42 @@ jobs:
 - **Semaines 13-14** : Migration et déploiement
 
 **Go-live** : Semaine 15 avec déploiement progressif
+
+---
+
+## ❓ FAQ : libSQL vs rusqlite
+
+### Pourquoi envisager rusqlite comme alternative ?
+
+1. **Compatibilité MinGW garantie** : rusqlite avec `bundled` compile sans problème
+2. **API très similaire** : Migration facile si besoin
+3. **Maturité** : Plus testé sur Windows avec chemins UNC
+
+### Avantages de libSQL si la compilation réussit :
+
+1. **Features avancées** : Support natif des réplications (futur)
+2. **Compatible SQLite** : Même format de fichier
+3. **Performance** : Optimisations modernes
+
+### Comment décider ?
+
+1. Essayer d'abord libSQL (Phase 0.4)
+2. Si compilation OK → utiliser libSQL
+3. Si échec après tentatives → rusqlite
+4. Les deux supportent vos besoins actuels
+
+### Impact sur le code ?
+
+Minimal ! Exemple de compatibilité :
+
+```rust
+// Avec libSQL
+let conn = db.connect()?;
+conn.execute("INSERT INTO users (name) VALUES (?)", params![name]).await?;
+
+// Avec rusqlite
+let conn = db.get_connection()?;
+conn.execute("INSERT INTO users (name) VALUES (?1)", params![name])?;
+```
+
+Principal changement : libSQL est async, rusqlite est sync (mais on peut wrapper).
