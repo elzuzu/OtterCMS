@@ -1,0 +1,21 @@
+[package]
+name = "indi-suivi"
+version = "2.0.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = ["dialog-open", "dialog-save", "fs-all", "path-all", "protocol-all", "shell-open", "window-all", "updater"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

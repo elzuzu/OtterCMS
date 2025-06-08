@@ -3,7 +3,7 @@
 ![Node.js >=20](https://img.shields.io/badge/node-%3E=20.0-brightgreen)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
-Application Electron et React pour le suivi d'individus avec champs dynamiques et interface moderne.
+Application Tauri 2 et React pour le suivi d'individus avec champs dynamiques et interface moderne.
 
 ## Sommaire
 
@@ -17,7 +17,7 @@ Application Electron et React pour le suivi d'individus avec champs dynamiques e
 - [Construction et distribution](#construction-et-distribution)
 - [Documentation](#documentation)
 - [Graph de navigation](#graph-de-navigation)
-- [Guide d'utilisation final - Build Electron 36.3.2](#guide-dutilisation-final---build-electron-3632)
+- [Guide d'utilisation - Build Tauri 2](#guide-dutilisation---build-tauri-2)
 - [Licence](#licence)
 
 ## Nouveautés
@@ -38,12 +38,9 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 ## Prérequis
 
 - **Node.js 20** ou version ultérieure
-- **Electron 36.3.2** téléchargé automatiquement par le script
-- **Python 3** installé et accessible via `python` pour la compilation node-gyp
- - **npm** ou équivalent (pnpm, Yarn)
-- Sous **Windows**, installez **w64devkit** dans `D:\tools\w64devkit` pour
-  compiler les modules natifs. Le script `build.ps1` utilise automatiquement ce
-  compilateur et ne dépend plus des *Visual Studio Build Tools*.
+- **Rust stable** avec toolchain GNU (installé par le script)
+- **w64devkit** installé automatiquement dans `D:\tools`
+- **npm** ou équivalent (pnpm, Yarn)
 
 ## Installation rapide
 
@@ -60,10 +57,9 @@ Le fichier `config/app-config.json` définit notamment le chemin de la base de d
 
 ```
 src/
-  main.js        Processus principal Electron
-  preload.ts     Passerelle sécurisée vers l'API
   renderer/      Application React
   shared/        Types et constantes TypeScript
+src-tauri/       Backend Rust (Tauri)
 scripts/         Outils d'installation et de build
 config/          Fichiers de configuration
 ```
@@ -78,42 +74,15 @@ npm run dev
 
 ## Construction et distribution
 
-Génération d'un installateur via **electron-builder** :
+Génération d'un exécutable Tauri :
 
 ```bash
-npm run dist
+npm run build
 ```
 
-Si la compilation des dépendances natives échoue, lancez :
-
-```bash
-npm run setup-native-deps
-```
-pour récupérer automatiquement les binaires précompilés.
-Vous pouvez vérifier la présence des modules natifs avec :
-```bash
-npm run check-native
-```
-Ce dépôt est configuré pour utiliser `better-sqlite3` avec des binaires
-précompilés depuis **npmmirror**. Le module `oracledb` fonctionne
-désormais en **mode Thin** (pur JavaScript) et ne nécessite plus de
-compilation ni de dépendances natives. Les modules natifs restants sont
-exclus de l'archive `asar` via la configuration `asarUnpack` pour assurer
-leur chargement correct en production.
-
-Sous Windows, un unique script PowerShell `scripts/build.ps1` automatise la construction et la compression UPX.
-Le script supprime également le cache Electron avant l'installation des dépendances afin d'éviter les erreurs de téléchargement et
-reconstruit automatiquement le module natif `better-sqlite3` via `npm run setup-native-deps` lorsque l'option
-`-InstallDeps` est utilisée.
-Vous pouvez lui passer des options supplémentaires :
-
-```powershell
-scripts\build.ps1 -DownloadElectronLocally -DownloadTools -InstallDeps
-```
-
-`-DownloadTools` télécharge UPX et 7‑Zip si nécessaire, tandis que `-DownloadElectronLocally` récupère l'archive officielle d'Electron **36.3.2** et la place dans le cache npm.
-
-Les exécutables sont déposés dans le dossier `release-builds/`.
+Sous Windows, le script PowerShell `scripts/build-tauri.ps1` permet d'automatiser
+la configuration de l'environnement et la création de l'installateur NSIS.
+Il gère également la compression UPX en mode release.
 
 ## Documentation
 
@@ -159,221 +128,19 @@ La navigation principale est décrite par le GraphML ci‑dessous. Le fichier d�
 </graphml>
 ```
 
-## Guide d'utilisation final - Build Electron 36.3.2
+## Guide d'utilisation - Build Tauri 2
 
-### 🎯 Système 100% Autonome Intégré
-
-Ce guide présente le **système de build final** qui télécharge automatiquement toutes les dépendances nécessaires et génère des builds optimisés avec Electron 36.3.2.
-
-### 🚀 Commandes Principales (Ordre Recommandé)
-
-#### 1. Build Standard Autonome
-```powershell
-# Télécharge Electron 36.3.2 + outils + build optimisé
-.\scripts\build.ps1 -DownloadElectronLocally -InstallDeps
-```
-
-#### 2. Build Ultra-Optimisé Complet
-```powershell
-# Mode complet: toutes les optimisations + compression UPX
-.\scripts\build.ps1 -DownloadAllDeps -DownloadElectronLocally -InstallDeps -UltraOptimize
-```
-
-#### 3. Build avec Streaming et Module Federation
-```powershell
-# Build 2025: streaming + lazy loading + module federation
-.\scripts\build.ps1 -DownloadAllDeps -DownloadElectronLocally -InstallDeps -EnableStreaming -ModuleFederation
-```
-
-#### 4. Build Ultra-Complet (Recommandé)
-```powershell
-# TOUT en une commande: téléchargements + optimisations + compression maximale
-.\scripts\build.ps1 -DownloadAllDeps -DownloadElectronLocally -InstallDeps -UltraOptimize -EnableStreaming -UPXLevel 9
-```
-
-### 🛠️ Options de Build Alternatives
-
-#### Electron Forge
-```powershell
-.\scripts\build.ps1 -UseForge -DownloadElectronLocally -InstallDeps -DownloadAllDeps
-```
-
-#### Electron Packager
-```powershell
-.\scripts\build.ps1 -UsePackager -DownloadElectronLocally -InstallDeps -DownloadAllDeps
-```
-
-#### Build Propre (Clean Build)
-```powershell
-.\scripts\build.ps1 -Clean -DownloadElectronLocally -InstallDeps -DownloadAllDeps
-```
-
-### 🚨 Dépannage et Options de Secours
-
-#### Si problèmes avec modules natifs
-```powershell
-.\scripts\build.ps1 -DownloadElectronLocally -InstallDeps -SkipNativeDeps
-```
-
-#### Si problèmes avec UPX
-```powershell
-.\scripts\build.ps1 -DownloadElectronLocally -InstallDeps -SkipUPX
-```
-
-#### Mode Verbose (Débogage)
-```powershell
-.\scripts\build.ps1 -DownloadElectronLocally -InstallDeps -Verbose
-```
-
-#### Désactiver téléchargement automatique
-```powershell
-.\scripts\build.ps1 -DownloadAllDeps:$false -DownloadElectronLocally -InstallDeps
-```
-
-### 📊 Scripts NPM Avancés
-
-#### Builds spécialisés
+### Lancer en développement
 ```bash
-npm run build:optimized       # Build avec optimisations automatiques
-npm run build:ultra          # Build ultra-optimisé avec UPX
-npm run build:streaming      # Build avec optimisations streaming
-```
-
-#### Distributions spécialisées
-```bash
-npm run dist:ultra           # Distribution ultra-optimisée
-npm run dist:stream          # Distribution avec streaming
-npm run dist:forge           # Distribution avec Electron Forge
-npm run dist:packager        # Distribution avec Electron Packager
-```
-
-#### Optimisations individuelles
-```bash
-npm run optimize:deps        # Optimise les dépendances
-npm run optimize:assets      # Optimise les assets (WebP/AVIF)
-npm run compress:upx         # Compression UPX avancée
-npm run streaming:build      # Build avec optimisations streaming
-npm run validate:build       # Validation du build
-npm run analyze              # Analyse du bundle
-```
-
-### 🌐 Outils Téléchargés Automatiquement
-
-Le système télécharge automatiquement les outils suivants :
-
-#### Outils de Compression
-- **UPX 4.2.2** - Compression d'exécutables ultra-performante
-- **7-Zip 23.01** - Compression LZMA2 pour assets lourds
-- **Brotli 1.1.0** - Compression web ultra-efficace
-
-#### Outils d'Optimisation d'Images
-- **WebP Tools 1.3.2** - Conversion vers WebP (format 2025)
-- **AVIF Tools 1.0.3** - Conversion vers AVIF (format nouvelle génération)
-
-### 📁 Structure des Fichiers Générés
-
-```
-release-builds/
-├── Indi-Suivi-2.0.0-x64.exe     # Installateur NSIS (optimisé)
-├── Indi-Suivi-2.0.0-x64.zip     # Version portable (compressée)
-└── win-unpacked/                  # Version non packagée
-    └── Indi-Suivi.exe            # Exécutable principal (UPX compressé)
-
-local-tools/                       # Outils téléchargés automatiquement
-├── UPX/upx.exe                   # UPX pour compression
-├── 7zip/7zr.exe                  # 7-Zip pour compression avancée
-├── WebP/bin/cwebp.exe            # Outils WebP
-├── AVIF/bin/avifenc.exe          # Outils AVIF
-└── Brotli/brotli.exe             # Compresseur Brotli
-
-dist/                              # Build Vite optimisé
-├── assets/                       # Assets optimisés (WebP/AVIF)
-├── lazy-manifest.json            # Manifest de lazy loading
-└── index.html                    # Point d'entrée
-
-.vite/build/                       # Build Electron
-├── main.js                       # Processus principal
-└── preload.js                    # Script de préchargement
-```
-
-### ✅ Vérifications Automatiques du Système
-
-Le script vérifie et configure automatiquement :
-
-1. **Electron 36.3.2** - Téléchargement et cache local
-2. **Vite** - Installation automatique si manquant  
-3. **UPX et outils** - Téléchargement depuis sources officielles
-4. **Modules natifs** - Reconstruction pour Electron 36
-5. **Cache npm** - Nettoyage et optimisation
-6. **Variables d'environnement** - Configuration et nettoyage
-
-### 🎉 Résultats Attendus
-
-#### Performance
-- **Taille finale**: 40-80 MB (vs 200+ MB avant optimisation)
-- **Temps de build**: 3-8 minutes (premier run avec téléchargements)
-- **Compression**: Jusqu'à 70% de réduction avec UPX + optimisations
-
-#### Compatibilité
-- **OS**: Windows x64
-- **Electron**: 36.3.2
-- **Node.js**: 20+ LTS
-- **Formats**: NSIS, Portable, Répertoire
-
-#### Fonctionnalités 2025
-- **Streaming & Lazy Loading** - Chargement progressif des composants
-- **Module Federation** - Architecture micro-frontends
-- **Tree Shaking Ultra** - Élimination du code mort
-- **Compression Multi-Niveaux** - UPX + LZMA2 + Brotli
-- **Formats d'Images Modernes** - WebP + AVIF
-- **Workers Background** - Traitement asynchrone
-
-### 💡 Conseils d'Utilisation
-
-#### Pour le développement quotidien
-```powershell
-# Build rapide pour tester
-.\scripts\build.ps1 -DownloadElectronLocally -InstallDeps
-
-# Mode développement avec rechargement
 npm run dev
 ```
 
-#### Pour la production
-```powershell
-# Build complet optimisé pour distribution
-.\scripts\build.ps1 -DownloadAllDeps -DownloadElectronLocally -InstallDeps -UltraOptimize -EnableStreaming
+### Construire l'application
+```bash
+npm run build
 ```
 
-#### Pour résoudre les problèmes
-```powershell
-# Nettoyage complet et rebuild
-.\scripts\build.ps1 -Clean -DownloadElectronLocally -InstallDeps -Verbose
-```
-
-### 🔧 Configuration Avancée
-
-#### Variables d'environnement supportées
-- `ELECTRON_CACHE` - Cache Electron personnalisé
-- `NODE_ENV=production` - Mode production
-- `DEBUG=electron-builder` - Debug electron-builder
-
-#### Fichiers de configuration
-- `package.json` - Configuration build et scripts
-- `vite.config.js` - Configuration Vite renderer
-- `vite.main.config.ts` - Configuration Vite main process
-- `vite.preload.config.ts` - Configuration Vite preload
-
-### 🚀 Conclusion
-
-Ce système final offre :
-- ✅ **Zéro configuration manuelle** - Tout est téléchargé automatiquement
-- ✅ **Builds reproductibles** - Versions d'outils garanties
-- ✅ **Optimisations 2025** - Technologies de pointe intégrées
-- ✅ **Compression maximale** - Taille réduite de 70%+
-- ✅ **Support Electron 36.3.2** - Version stable
-- ✅ **Gestion d'
-
+Les scripts utilisent Tauri 2 avec le backend Rust dans `src-tauri/` et la base de données SQLite gérée via libSQL.
 ## Licence
 
 MIT
