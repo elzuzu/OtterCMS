@@ -277,11 +277,11 @@ if ($libsqlWorks) {
 }
 ```
 
-- [ ] Créer le script `scripts/setup-tauri-tools.ps1`
+- [x] Créer le script `scripts/setup-tauri-tools.ps1`
 - [ ] Tester le téléchargement et l'installation de w64devkit
 - [ ] Tester l'installation de Rust portable
 - [ ] Vérifier la configuration de Cargo
-- [ ] Documenter dans le README
+- [x] Documenter dans le README
 
 ### 0.2 Intégration dans build.ps1
 
@@ -455,10 +455,13 @@ indi-suivi/
     └── build-tauri.ps1
 ```
 
-- [ ] Initialiser le projet Tauri : `cargo tauri init`
-- [ ] Configurer `Cargo.toml` avec les bonnes dépendances
-- [ ] Adapter `tauri.conf.json` pour le build avec w64devkit
-- [ ] Créer la structure de dossiers
+- [x] Initialiser le projet Tauri : `cargo tauri init`
+- [x] Configurer `Cargo.toml` avec les bonnes dépendances
+- [x] Adapter `tauri.conf.json` pour le build avec w64devkit
+- [x] Créer la structure de dossiers
+- [x] Ajouter `src-tauri/build.rs`
+- [x] Ajouter `src-tauri/src/main.rs`
+- [x] Mettre à jour `package.json` pour utiliser `tauri-cli`
 
 ### 1.2 Configuration Cargo.toml
 
@@ -518,7 +521,7 @@ strip = true        # Retirer les symboles debug
 panic = "abort"     # Plus petit binaire
 ```
 
-- [ ] Créer `src-tauri/Cargo.toml` avec les dépendances
+- [x] Créer `src-tauri/Cargo.toml` avec les dépendances
 - [ ] Tester d'abord avec libSQL : `cargo build --target x86_64-pc-windows-gnu`
 - [ ] Si échec de compilation libSQL, essayer avec ces flags :
   ```powershell
@@ -948,7 +951,7 @@ try {
 }
 ```
 
-- [ ] Créer `scripts/build-tauri.ps1`
+- [x] Créer `scripts/build-tauri.ps1`
 - [ ] Intégrer avec le système de build existant
 - [ ] Tester les différents modes de build
 - [ ] Documenter l'utilisation

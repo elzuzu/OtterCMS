@@ -1,62 +1,18 @@
 {
-  "name": "indi-suivi-nodejs",
+  "name": "indi-suivi",
   "version": "2.0.0",
-  "description": "Application Electron Node.js full modulaire, champs dynamiques, audit trail complet.",
-  "main": ".vite/build/main.js",
+  "description": "Application Tauri 2 avec React",
   "homepage": "./",
   "scripts": {
-    "start": "electron .",
-    "dev": "concurrently -k \"npm run dev:vite\" \"npm run dev:main\" \"npm run dev:preload\" \"wait-on http://localhost:5173 && electron .\"",
-    "dev:vite": "vite --config vite.config.js --port 5173",
-    "dev:main": "vite build --config vite.main.config.ts --watch",
-    "dev:preload": "vite build --config vite.preload.config.ts --watch",
-    "build": "npm run build:main && npm run build:preload && npm run build:renderer",
-    "build:main": "vite build --config vite.main.config.ts",
-    "build:preload": "vite build --config vite.preload.config.ts",
-    "build:renderer": "vite build --config vite.config.js",
-    "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "dist:win": "npm run build && electron-builder --win",
-    "dist:forge": "npm run build && electron-forge make",
-    "dist:packager": "npm run build && electron-packager . \"Indi-Suivi\" --platform=win32 --arch=x64 --out=release-builds --overwrite",
-    "install-app": "node ./scripts/install.js",
-    "clean": "rimraf release-builds out dist .vite build .webpack node_modules/.cache",
-    "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "cleanup-deps": "node scripts/cleanup-dependencies.js",
-    "postinstall": "electron-builder install-app-deps && node scripts/robust-postinstall.js",
-    "setup-native-deps": "npx electron-builder install-app-deps && npm run rebuild",
-    "dist:validate": "npm run dist && node scripts/validate-build.js",
-    "verify-build": "node scripts/verify-build.js",
-    "dist:verify": "npm run dist && npm run verify-build",
-    "optimize-assets": "node scripts/optimize-assets.js",
-    "build:optimized": "npm run build && npm run optimize-assets",
-    "dist:optimized": "npm run build:optimized && npm run dist",
-    "performance-check": "node scripts/performance-check.js",
-    "build-optimized": "node scripts/build-optimized.js",
-    "dist:final": "npm run build-optimized",
-    "build:ps": "pwsh scripts/build.ps1",
-    "analyze:size": "node scripts/analyze-app.js",
-    "analyze-app": "node scripts/analyze-app-advanced.js",
-    "build:ultra": "node scripts/build-ultra-optimized.js",
-    "optimize-assets-advanced": "node scripts/optimize-assets-advanced.js",
-    "cleanup-dependencies-ultra": "node scripts/cleanup-dependencies-ultra.js",
-    "upx-compress-advanced": "node scripts/upx-compress-advanced.js",
-    "validate-build-advanced": "node scripts/validate-build-advanced.js",
-    "dist-ultra": "electron-builder --win",
-    "check-native": "node scripts/check-native-modules.js",
-    "force-rebuild": "npm run clean && npm install && npx electron-rebuild --force",
-    "fix-sqlite": "npx electron-rebuild --force --only better-sqlite3",
-    "setup-prebuilt": "npm install --build-from-source=false --prefer-offline"
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "frontend": "vite --config vite.config.js --port 5173"
   },
   "keywords": [
-    "electron",
-    "modulaire",
-    "champs dynamiques",
-    "audit",
-    "suivi",
-    "sqlite",
+    "tauri",
     "react",
-    "better-sqlite3"
+    "sqlite",
+    "modulaire"
   ],
   "author": "AWY",
   "license": "MIT",
@@ -64,11 +20,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "better-sqlite3": "^11.10.0",
     "chart.js": "^4.4.9",
-    "electron-squirrel-startup": "^1.0.1",
-    "electron-updater": "^6.6.2",
     "framer-motion": "^12.11.0",
     "react": "^19.1.0",
     "react-chartjs-2": "^5.3.0",
@@ -81,115 +33,9 @@
     "apexcharts": "^4.0.0"
   },
   "devDependencies": {
-    "@electron/packager": "^18.3.6",
-    "@electron/rebuild": "^3.7.2",
+    "@tauri-apps/cli": "^2.0.0",
     "@vitejs/plugin-react": "^4.4.1",
-    "babel-plugin-transform-remove-console": "^6.9.4",
-    "concurrently": "^9.1.2",
-    "electron": "36.3.2",
-    "electron-builder": "^26.0.12",
-    "rimraf": "^6.0.1",
-    "terser": "^5.30.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5",
-    "wait-on": "^8.0.3"
-  },
-  "build": {
-    "appId": "com.ege.indisuivi",
-    "productName": "Indi-Suivi",
-    "asar": true,
-    "compression": "normal",
-    "files": [
-      "package.json",
-      ".vite/build/main.js",
-      ".vite/build/preload.js",
-      "dist/**/*",
-      ".vite/build/utils/**/*",
-      "node_modules/better-sqlite3/package.json",
-      "node_modules/better-sqlite3/lib/**/*",
-      "node_modules/better-sqlite3/build/**/*",
-      "node_modules/oracledb/package.json",
-      "node_modules/oracledb/lib/**/*",
-      "node_modules/oracledb/**/*",
-      "!**/*.map",
-      "!**/*.ts"
-    ],
-    "asarUnpack": [
-      "node_modules/better-sqlite3/**/*",
-      "node_modules/oracledb/**/*",
-      ".vite/build/main.js",
-      ".vite/build/utils/**/*"
-    ],
-    "directories": {
-      "buildResources": "src/assets",
-      "output": "release-builds"
-    },
-    "extraResources": [
-      {
-        "from": "src/assets",
-        "to": "assets"
-      },
-      {
-        "from": "public/datta-able-assets",
-        "to": "datta-able-assets"
-      }
-    ],
-    "extraFiles": [
-      {
-        "from": "config",
-        "to": "config"
-      },
-      {
-        "from": "db",
-        "to": "db",
-        "filter": [
-          "**/*.sqlite"
-        ]
-      }
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "src/assets/app-icon.ico",
-      "requestedExecutionLevel": "asInvoker",
-      "signAndEditExecutable": false,
-      "artifactName": "${productName}-Setup-${version}.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "src/assets/app-icon.ico",
-      "uninstallerIcon": "src/assets/app-icon.ico",
-      "installerHeaderIcon": "src/assets/app-icon.ico",
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Indi-Suivi",
-      "include": "installer.nsh",
-      "installerSidebar": null,
-      "uninstallerSidebar": null,
-      "deleteAppDataOnUninstall": true
-    },
-    "portable": {
-      "artifactName": "${productName}-Portable-${version}.${ext}"
-    }
+    "vite": "^6.3.5"
   }
 }

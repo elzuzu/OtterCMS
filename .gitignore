@@ -47,3 +47,4 @@ release/
 # Datta Able images
 public/datta-able-assets/images/*
 !public/datta-able-assets/images/.gitkeep
+src-tauri/target/
