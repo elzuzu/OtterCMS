@@ -7,7 +7,6 @@ $ErrorActionPreference = "Stop"
 
 $rustVersion = "1.75.0"
 $rustupInitUrl = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
-$libsqlPackage = "@libsql/win32-x64-msvc"
 
 function Download-WithRetry {
     param([string]$Url, [string]$Output, [int]$MaxRetries = 3)
@@ -54,24 +53,12 @@ if ((Test-Path (Join-Path $cargoHome "bin\cargo.exe")) -and -not $ForceReinstall
     }
 }
 
-# 2. Installation de libSQL précompilé
-Write-Host "`n=== Installation de libSQL précompilé ===" -ForegroundColor Green
-$libsqlDir = Join-Path $ToolsDir "libsql"
-if ($ForceReinstall -and (Test-Path $libsqlDir)) {
-    Remove-Item -Path $libsqlDir -Recurse -Force
-}
-if (-not (Test-Path $libsqlDir)) { New-Item -ItemType Directory -Path $libsqlDir | Out-Null }
-Write-Host "Téléchargement du package $libsqlPackage..." -ForegroundColor Cyan
-npm install $libsqlPackage --prefix $libsqlDir | Out-Null
-Write-Host "✅ libSQL installé dans $libsqlDir" -ForegroundColor Green
-
-# 3. Création du script d'environnement
+# 2. Création du script d'environnement
 $launchScript = Join-Path $ToolsDir "start-tauri-env.ps1"
 $launchContent = @"
 # Script pour configurer l'environnement Tauri
 `$env:RUSTUP_HOME = "$rustupHome"
 `$env:CARGO_HOME = "$cargoHome"
-`$env:LIBSQL_LIB_DIR = "$libsqlDir\node_modules\@libsql\win32-x64-msvc"
 `$env:PATH = "$cargoHome\bin;`$env:PATH"
 Write-Host "Environnement Tauri configuré!"
 "@
@@ -79,7 +66,6 @@ Set-Content -Path $launchScript -Value $launchContent -Encoding UTF8
 
 Write-Host "`n=== Installation terminée ===" -ForegroundColor Green
 Write-Host "Rust: $rustPortableDir" -ForegroundColor Cyan
-Write-Host "libSQL: $libsqlDir" -ForegroundColor Cyan
 Write-Host "Script env: $launchScript" -ForegroundColor Cyan
 Write-Host "`nPour utiliser l'environnement, exécutez:" -ForegroundColor Yellow
 Write-Host "  . $launchScript" -ForegroundColor White

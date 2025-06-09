@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
 import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -24,26 +25,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Échec de la connexion');
+      const result: any = await invoke('login', { request: { username, password } });
+      if (result.success) {
+        setToken(result.token);
+        localStorage.setItem('token', result.token);
       }
-
-      const data = await response.json();
-      setToken(data.token);
-      setUser(data.user);
-      
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
     } catch (error) {
       throw new Error('Erreur lors de la connexion');
     }

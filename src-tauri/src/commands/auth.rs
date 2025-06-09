@@ -1,9 +1,6 @@
-use crate::database::models::{user::User, user::UserRole};
-use crate::AppState;
 use serde::{Deserialize, Serialize};
-use tauri::State;
-use super::db_command_with_retry;
-use libsql::Connection;
+use tauri::AppHandle;
+use tauri_plugin_sql::Database;
 use rand::{distributions::Alphanumeric, Rng};
 use bcrypt::verify;
 
@@ -20,57 +17,42 @@ pub struct AuthResponse {
     pub error: Option<String>,
 }
 
-impl Default for User {
-    fn default() -> Self {
-        User {
-            id: None,
-            username: String::new(),
-            password_hash: String::new(),
-            role: UserRole::User,
-            windows_login: None,
-            deleted: false,
+#[tauri::command]
+pub async fn login(app: AppHandle, request: AuthRequest) -> Result<AuthResponse, String> {
+    let db = Database::load(&app, "sqlite:ottercms.db")
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let rows = db
+        .select(
+            "SELECT id, password_hash FROM users WHERE username = ?",
+            &[&request.username],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(row) = rows.get(0) {
+        let password_hash: String = row.get("password_hash").unwrap_or_default();
+        if verify(&request.password, &password_hash).unwrap_or(false) {
+            return Ok(AuthResponse {
+                success: true,
+                token: Some(generate_token()),
+                error: None,
+            });
+        } else {
+            return Ok(AuthResponse {
+                success: false,
+                token: None,
+                error: Some("Invalid password".to_string()),
+            });
         }
     }
-}
 
-#[tauri::command]
-pub async fn login(
-    state: State<'_, AppState>,
-    request: AuthRequest,
-) -> Result<AuthResponse, String> {
-    let username = request.username.clone();
-    let password = request.password.clone();
-    db_command_with_retry(&state, move |conn: Connection| {
-        let username = username.clone();
-        let password = password.clone();
-        Box::pin(async move {
-            let mut stmt = conn.prepare("SELECT id, password_hash FROM users WHERE username = ?").await?;
-            let mut rows = stmt.query([username.as_str()]).await?;
-            if let Some(row) = rows.next().await? {
-                let password_hash: String = row.get(1)?;
-                if User::verify_password(&User { password_hash, ..Default::default() }, &password) {
-                    let token = generate_token();
-                    Ok::<AuthResponse, anyhow::Error>(AuthResponse {
-                        success: true,
-                        token: Some(token),
-                        error: None,
-                    })
-                } else {
-                    Ok::<AuthResponse, anyhow::Error>(AuthResponse {
-                        success: false,
-                        token: None,
-                        error: Some("Invalid password".to_string()),
-                    })
-                }
-            } else {
-                Ok::<AuthResponse, anyhow::Error>(AuthResponse {
-                    success: false,
-                    token: None,
-                    error: Some("User not found".to_string()),
-                })
-            }
-        })
-    }).await.map_err(|e| e.to_string())
+    Ok(AuthResponse {
+        success: false,
+        token: None,
+        error: Some("User not found".to_string()),
+    })
 }
 
 fn _verify_password(password: &str, hash: &str) -> bool {
@@ -115,26 +97,30 @@ pub async fn get_windows_username() -> Result<AuthResponse, String> {
 }
 
 #[tauri::command]
-pub async fn auto_login_with_windows(
-    state: State<'_, AppState>,
-    username: String,
-) -> Result<AuthResponse, String> {
-    db_command_with_retry(&state, move |conn| {
-        let username = username.clone();
-        Box::pin(async move {
-            match User::find_by_windows_login(&conn, &username).await {
-                Ok(Some(_user)) => Ok(AuthResponse {
-                    success: true,
-                    token: None,
-                    error: None,
-                }),
-                Ok(None) => Ok(AuthResponse {
-                    success: false,
-                    token: None,
-                    error: Some("Utilisateur non trouvé".to_string()),
-                }),
-                Err(e) => Err(anyhow::anyhow!(format!("Erreur lors de la recherche: {}", e))),
-            }
-        })
-    }).await.map_err(|e| format!("Erreur base de données: {}", e))
+pub async fn auto_login_with_windows(app: AppHandle, username: String) -> Result<AuthResponse, String> {
+    let db = Database::load(&app, "sqlite:ottercms.db")
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let rows = db
+        .select(
+            "SELECT id FROM users WHERE windows_login = ?",
+            &[&username],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if rows.is_empty() {
+        return Ok(AuthResponse {
+            success: false,
+            token: None,
+            error: Some("Utilisateur non trouvé".to_string()),
+        });
+    }
+
+    Ok(AuthResponse {
+        success: true,
+        token: None,
+        error: None,
+    })
 }
