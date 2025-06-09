@@ -5,10 +5,7 @@ Migration progressive d'Indi-Suivi depuis Electron/better-sqlite3 vers Tauri 2/l
 
 ### 🔍 Note importante sur libSQL vs rusqlite
 
-**libSQL** est le choix principal car c'est ce que vous avez demandé. Cependant, libSQL peut présenter des défis de compilation avec w64devkit/MinGW car :
-- Il a des dépendances C++ plus complexes
-- Il est principalement testé avec MSVC sur Windows
-- La compilation avec MinGW nécessite des flags spécifiques
+**libSQL** est le choix principal car c'est ce que vous avez demandé. Une version précompilée est désormais utilisée sous Windows, évitant toute complication liée à w64devkit/MinGW.
 
 **Solution proposée** : 
 1. Tenter d'abord la compilation avec libSQL
@@ -32,7 +29,7 @@ Le plan inclut les deux options pour garantir le succès du projet.
 ### 0.1 Script d'installation automatique des outils
 
 Créer `scripts/setup-tauri-tools.ps1` (version mise à jour utilisant libSQL précompilé) :
-*(L'ancien script basé sur w64devkit est conservé ci-dessous pour référence.)*
+*(Ancien script basé sur w64devkit, conservé pour référence. Non requis avec la version précompilée de libSQL.)*
 
 ```powershell
 param(
@@ -485,7 +482,7 @@ tokio = { version = "1", features = ["full"] }
 # Option 1: libSQL (recommandé si compilation réussie)
 libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
 
-# Option 2: rusqlite (fallback si problèmes avec libSQL + MinGW)
+# Option 2: rusqlite (fallback si problèmes avec libSQL)
 # rusqlite = { version = "0.32", features = ["bundled", "backup", "blob", "chrono", "serde_json"] }
 # r2d2 = "0.8"  # Pool de connexions
 # r2d2_sqlite = "0.24"
@@ -1202,7 +1199,7 @@ jobs:
 
 ### Pourquoi envisager rusqlite comme alternative ?
 
-1. **Compatibilité MinGW garantie** : rusqlite avec `bundled` compile sans problème
+1. **Moins de complications de build** : rusqlite avec `bundled` compile sans problème
 2. **API très similaire** : Migration facile si besoin
 3. **Maturité** : Plus testé sur Windows avec chemins UNC
 
