@@ -45,18 +45,3 @@ export function formatDateToDDMMYYYY(value) {
   return value;
 }
 
-export function parseDDMMYYYYToISO(value) {
-  if (typeof value !== 'string') return null;
-  const match = value.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
-  if (!match) return null;
-  let day = parseInt(match[1],10);
-  let month = parseInt(match[2],10);
-  let year = parseInt(match[3],10);
-  if (year < 100) year += year < 50 ? 2000 : 1900;
-  const dateObj = new Date(Date.UTC(year, month-1, day));
-  if (isNaN(dateObj.getTime())) return null;
-  const y = dateObj.getUTCFullYear();
-  const m = String(dateObj.getUTCMonth()+1).padStart(2,'0');
-  const d = String(dateObj.getUTCDate()).padStart(2,'0');
-  return `${y}-${m}-${d}`;
-}
