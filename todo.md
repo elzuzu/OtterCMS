@@ -20,7 +20,7 @@ Le plan inclut les deux options pour garantir le succès du projet.
 ### ⚠️ Contraintes critiques
 - ✅ Client Windows 64-bit uniquement  
 - ✅ Base de données SQLite sur partage réseau (\\server\share\db\indi-suivi.sqlite)
-- ✅ Pas de droits administrateur requis (utilisation de w64devkit + Rust portable)
+- ✅ Pas de droits administrateur requis (Rust portable et libSQL précompilé)
 - ✅ Installation dans D:\tools
 - ✅ Compatibilité ascendante avec l'existant
 - ✅ Zéro interruption de service
@@ -31,7 +31,8 @@ Le plan inclut les deux options pour garantir le succès du projet.
 
 ### 0.1 Script d'installation automatique des outils
 
-Créer `scripts/setup-tauri-tools.ps1` :
+Créer `scripts/setup-tauri-tools.ps1` (version mise à jour utilisant libSQL précompilé) :
+*(L'ancien script basé sur w64devkit est conservé ci-dessous pour référence.)*
 
 ```powershell
 param(

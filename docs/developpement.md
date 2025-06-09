@@ -8,8 +8,8 @@ Ce document résume la mise en place d'un environnement local pour développer �
 - **Rust stable** pour compiler le backend Tauri (installé automatiquement par le script).
 - **npm** est recommandé pour la gestion des dépendances. Yarn ou pnpm fonctionnent mais ne sont pas testés.
 - Un système Windows, macOS ou Linux récent.
- - Sous **Windows**, vous pouvez installer **w64devkit** et Rust portable via
-   `scripts/setup-tauri-tools.ps1` afin de compiler les dépendances natives.
+ - Sous **Windows**, exécutez `scripts/setup-tauri-tools.ps1` pour installer
+   Rust portable ainsi que la version précompilée de libSQL.
 
 ## Installation des dépendances
 
