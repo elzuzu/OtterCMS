@@ -1,14 +1,14 @@
 # Architecture des thèmes
 
-L'interface utilise le moteur de styles du template **Datta Able** combiné à Material-UI. Les couleurs et polices principales sont définies dans `src/renderer/styles/themes.css` et appliquées via la fonction React `useTheme`.
+L'interface utilise le moteur de styles du template **Datta Able** combiné à Material-UI. Les couleurs et polices principales sont définies dans `src/renderer/styles/themes.css`.
 
 ## Fonctionnement
 
-- `useTheme` définit désormais l'attribut `data-pc-preset` sur la balise `<html>` pour activer les préréglages de couleur Datta Able et charge la couleur principale correspondante.
+- L'attribut `data-pc-preset` sur la balise `<html>` active les préréglages de couleur Datta Able et charge la couleur principale correspondante.
 - Les couleurs de base sont stockées dans `colors.css` et surchargées par `themes.css`.
 - Les composants wrappers (`DattaCard`, `DattaDataTable`, etc.) encapsulent ceux de MUI pour conserver une apparence uniforme.
 
-Vous pouvez ajouter d'autres thèmes en ajoutant de nouveaux presets dans `useTheme.js` et en étendant la liste proposée dans la rubrique Template.
+Vous pouvez ajouter d'autres thèmes en définissant de nouveaux préréglages dans `themes.css` et en étendant la liste proposée dans la rubrique Template.
 
 ## Rubrique Template
 
