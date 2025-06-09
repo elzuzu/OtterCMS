@@ -1,5 +1,4 @@
 import React, { useState, lazy, Suspense, useEffect } from 'react';
-import useTheme from './hooks/useTheme';
 import DattaButton from './components/common/DattaButton';
 import borderTemplateService from './services/borderTemplateService';
 const Auth = lazy(() => import('./components/Auth'));
@@ -18,7 +17,6 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState(null);
-  useTheme();
 
   useEffect(() => {
     const initializeApp = async () => {

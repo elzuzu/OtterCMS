@@ -52,8 +52,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
   const [viewMode, setViewMode] = useState(getViewModeFromUrl);
   
   const [individus, setIndividus] = useState([]);
-  // eslint-disable-next-line no-unused-vars
-  const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
   
   const [loading, setLoading] = useState(true);
@@ -252,7 +250,6 @@ export default function IndividusList({ user, requestedView, onRequestedViewCons
       const catResponse = await window.api.getCategories();
       let loadedChampsDisponibles = [];
       if (catResponse && catResponse.success && Array.isArray(catResponse.data)) {
-        setCategories(catResponse.data);
         const fields = [];
         catResponse.data.forEach(cat => {
           if (cat.champs && Array.isArray(cat.champs)) {
