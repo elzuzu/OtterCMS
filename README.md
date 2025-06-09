@@ -38,8 +38,8 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 ## Prérequis
 
 - **Node.js 20** ou version ultérieure
-- **Rust stable** avec toolchain GNU (installé par le script)
-- **w64devkit** installé automatiquement dans `D:\tools`
+- **Rust stable** avec toolchain MSVC (installé par le script)
+- Bibliothèque **libSQL** précompilée (téléchargée automatiquement)
 - **npm** ou équivalent (pnpm, Yarn)
 
 ## Installation rapide
@@ -81,7 +81,7 @@ npm run build
 ```
 
 Sous Windows, exécutez `scripts/setup-tauri-tools.ps1` pour installer
-l'environnement Rust portable et w64devkit. Vous pourrez ensuite lancer
+l'environnement Rust portable et la bibliothèque libSQL précompilée. Vous pourrez ensuite lancer
 la commande suivante depuis `src-tauri` :
 
 ```powershell
