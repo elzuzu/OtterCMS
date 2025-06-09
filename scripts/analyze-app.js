@@ -38,7 +38,6 @@ function analyzeDirectory(dirPath, maxFiles = 20) {
 function analyzeApp() {
   console.log('🔍 Analyse détaillée de la taille de l\'application\n');
   const buildDirs = [
-    'release-builds/win-unpacked',
     'dist',
     '.vite/build',
     'node_modules'
@@ -74,33 +73,11 @@ function analyzeApp() {
       console.log('\n' + '='.repeat(50) + '\n');
     }
   }
-  const releaseDir = 'release-builds';
-  if (fs.existsSync(releaseDir)) {
-    console.log('🎯 Exécutables finaux:');
-    console.log('='.repeat(50));
-    const executables = fs.readdirSync(releaseDir)
-      .filter(file => file.endsWith('.exe') || file.endsWith('.zip'))
-      .map(file => {
-        const fullPath = path.join(releaseDir, file);
-        const stat = fs.statSync(fullPath);
-        return { name: file, size: stat.size };
-      })
-      .sort((a, b) => a.size - b.size);
-    executables.forEach(exe => {
-      const sizeMB = exe.size / (1024 * 1024);
-      const status = sizeMB <= 40 ? '✅' : sizeMB <= 60 ? '⚠️' : '❌';
-      console.log(`${status} ${exe.name}: ${formatBytes(exe.size)} (${sizeMB.toFixed(2)} MB)`);
-    });
-    console.log('\n🎯 Objectifs:');
-    console.log('  ✅ < 40 MB : Excellent');
-    console.log('  ⚠️ 40-60 MB : Acceptable');
-    console.log('  ❌ > 60 MB : Trop volumineux');
-  }
   console.log('\n💡 Recommandations pour réduire la taille:');
   console.log('1. Vérifiez les gros fichiers .js dans dist/');
   console.log('2. Optimisez les images dans assets/');
   console.log('3. Supprimez les dépendances inutiles');
-  console.log('4. Activez la compression maximum dans electron-builder');
+  console.log('4. Activez la compression maximum lors du bundling');
   console.log('5. Utilisez des imports dynamiques pour le code splitting');
 }
 
