@@ -2199,3 +2199,14 @@ export default function DattaKeyboardShortcuts() {
 5. ~~**[HIGH]** Intégrer `DattaLoadingOverlay` dans tous les composants existants~~
 
 **Goal : Avoir un système stable multi-utilisateurs d'ici 2 semaines !**
+
+---
+
+## 📝 Éléments à traiter ultérieurement
+
+- Personnaliser les TODOs du script `.git/hooks/sendemail-validate.sample` pour la validation des emails.
+- Passer en revue les placeholders d'interface :
+  - Variable CSS `--current-text-placeholder` dans `src/renderer/styles/themes.css`.
+  - Attributs `placeholder` dans de nombreux composants React (ex. `MassAttribution.jsx`, `ImportData.jsx`, `UserSettings.jsx`, etc.).
+  - Textes et images d'exemple utilisant `placeholder` dans `docs/datta-able-bootstrap-dashboard-master` et `public/datta-able-assets`.
+  - Styles spécifiques pour `::placeholder` dans les thèmes CSS.
