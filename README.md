@@ -84,8 +84,10 @@ npm run build
 ```
 
 Sous Windows, exécutez `scripts/setup-tauri-tools.ps1` pour installer
-l'environnement Rust portable et la bibliothèque libSQL précompilée. Vous pourrez ensuite lancer
-la commande suivante depuis `src-tauri` :
+l'environnement Rust portable et la bibliothèque libSQL précompilée. Le script
+génère un fichier `start-tauri-env.ps1` qu'il faut charger avant la compilation
+(via `.` suivi du chemin). Vous pourrez ensuite lancer la commande suivante
+depuis `src-tauri` :
 
 ```powershell
 cargo tauri build --release
