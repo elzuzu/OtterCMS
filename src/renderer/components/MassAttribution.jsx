@@ -566,7 +566,7 @@ export default function MassAttribution({ user }) {
                     type="number"
                     value={currentPercentage}
                     onChange={e => setCurrentPercentage(e.target.value)}
-                    placeholder="Ex:50"
+                    placeholder="Exemple : 50"
                     min="0"
                     max="100"
                   />

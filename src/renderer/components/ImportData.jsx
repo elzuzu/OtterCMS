@@ -1083,7 +1083,7 @@ export default function ImportData({ user }) {
               value={presetName}
               onChange={e => setPresetName(e.target.value)}
               required
-              placeholder="Ex: Import mensuel RH"
+              placeholder="Exemple : import mensuel RH"
             />
           </div>
           <div className="mb-3">
