@@ -1,0 +1,395 @@
+/* styles/critical.css - extracted critical styles used across the app */
+
+@import './themes.css';
+
+/* -------------------------------------------------------------------------- */
+/* Global typography and layout helpers                                       */
+/* -------------------------------------------------------------------------- */
+.page-title {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 var(--spacing-4) 0;
+}
+
+.section-title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  margin: var(--spacing-4) 0 var(--spacing-2) 0;
+}
+
+label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--current-text-secondary);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Wizard components (Import & Mass Attribution)                               */
+/* -------------------------------------------------------------------------- */
+.import-wizard,
+.mass-attribution-wizard {
+  width: 100%;
+}
+
+.wizard-steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--current-border-light);
+  gap: var(--spacing-2);
+}
+
+.wizard-step {
+  flex: 1;
+  text-align: center;
+  padding: var(--spacing-2) var(--spacing-1);
+  position: relative;
+  color: var(--current-text-secondary);
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: color var(--transition-duration), border-color var(--transition-duration);
+}
+
+.wizard-step .step-number {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 22px;
+  border-radius: 50%;
+  background-color: var(--color-neutral-200);
+  color: var(--current-text-secondary);
+  margin-right: var(--spacing-2);
+  font-weight: bold;
+  border: 1px solid var(--color-neutral-300);
+}
+
+.wizard-step.active {
+  color: var(--current-primary-color);
+  border-bottom-color: var(--current-primary-color);
+  font-weight: 600;
+}
+
+.wizard-step.active .step-number {
+  background-color: var(--current-primary-color);
+  color: var(--color-neutral-50);
+  border-color: var(--current-primary-color-hover);
+}
+
+.wizard-step.completed {
+  color: var(--color-success-700);
+}
+
+.wizard-step.completed .step-number {
+  background-color: var(--color-success-500);
+  color: var(--color-neutral-50);
+  border-color: var(--color-success-700);
+}
+
+.wizard-content {
+  padding-top: var(--spacing-4);
+}
+
+.wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-6);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--current-border-light);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Import preview tables                                                       */
+/* -------------------------------------------------------------------------- */
+.import-wizard .preview-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--current-border-light);
+  border-radius: var(--border-radius-sm);
+  display: block;
+}
+
+.import-wizard .preview-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+.import-wizard .preview-table-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary-300);
+  border-radius: var(--border-radius-full);
+}
+
+.import-wizard .preview-table {
+  width: max-content;
+  min-width: 100%;
+  white-space: nowrap;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.import-wizard .preview-table th,
+.import-wizard .preview-table td {
+  border: 1px solid var(--current-border-medium);
+  padding: var(--spacing-2);
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Data table                                                                  */
+/* -------------------------------------------------------------------------- */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  table-layout: fixed;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--spacing-1);
+  text-align: left;
+  border-bottom: 1px solid var(--current-border-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.data-table th {
+  background-color: var(--pc-card-bg);
+  font-weight: 600;
+  color: var(--current-text-primary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.data-table tbody tr {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.data-table .filter-row input {
+  width: 100%;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: 0.875rem;
+  border: 1px solid var(--current-border-medium);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--current-surface-color);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Audit timeline                                                              */
+/* -------------------------------------------------------------------------- */
+.audit-timeline {
+  margin-top: 20px;
+  position: relative;
+  padding-left: 40px;
+}
+.audit-timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background-color: var(--current-border-light);
+  border-radius: 3px;
+}
+
+.audit-entry {
+  background-color: var(--color-neutral-50);
+  border: 1px solid var(--current-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 15px;
+  margin-bottom: 20px;
+  position: relative;
+  display: flex;
+  gap: 15px;
+}
+
+.audit-icon-type {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: -23px;
+  top: 15px;
+  border: 2px solid var(--current-surface-color);
+}
+
+.audit-details {
+  flex-grow: 1;
+  padding-left: 15px;
+}
+
+.audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.audit-field-action {
+  font-weight: 600;
+  color: var(--current-text-primary);
+}
+
+.audit-value-change {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  line-height: 1.6;
+}
+
+.audit-old-value {
+  text-decoration: line-through;
+  color: var(--color-danger-500);
+  background-color: var(--color-danger-50);
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.audit-new-value {
+  font-weight: bold;
+  color: var(--color-success-500);
+  background-color: var(--color-success-50);
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Simple animations                                                           */
+/* -------------------------------------------------------------------------- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Preset import styles */
+.import-mode-selection {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.preset-card {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f8f9fa;
+  transition: all 0.2s;
+}
+
+.preset-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.preset-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.preset-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.preset-query {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.preset-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-preset-section {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.preset-summary {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.preset-summary ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+/* ========== ApexCharts Integration ========== */
+.apexcharts-canvas {
+  font-family: var(--pc-font-family) !important;
+}
+
+.apexcharts-title-text {
+  fill: var(--current-text-primary) !important;
+}
+
+.apexcharts-legend-text {
+  color: var(--current-text-secondary) !important;
+}
+
+.apexcharts-xaxis-label,
+.apexcharts-yaxis-label {
+  fill: var(--current-text-secondary) !important;
+}
+
+.apexcharts-gridline {
+  stroke: var(--current-border-light) !important;
+}
+
+.apexcharts-tooltip {
+  background: var(--current-surface-color) !important;
+  border: 1px solid var(--current-border-medium) !important;
+  box-shadow: var(--pc-shadow-2) !important;
+}
+
+.apexcharts-tooltip-title {
+  background: var(--current-primary-color) !important;
+  color: white !important;
+  border: none !important;
+}
+

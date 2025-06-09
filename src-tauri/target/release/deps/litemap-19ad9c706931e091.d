@@ -1,0 +1,11 @@
+D:\projets\OtterCMS\src-tauri\target\release\deps\liblitemap-19ad9c706931e091.rmeta: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\map.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\mod.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\slice_impl.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\vec_impl.rs
+
+D:\projets\OtterCMS\src-tauri\target\release\deps\liblitemap-19ad9c706931e091.rlib: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\map.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\mod.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\slice_impl.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\vec_impl.rs
+
+D:\projets\OtterCMS\src-tauri\target\release\deps\litemap-19ad9c706931e091.d: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\map.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\mod.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\slice_impl.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\vec_impl.rs
+
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\lib.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\map.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\mod.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\slice_impl.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\litemap-0.8.0\src\store\vec_impl.rs:

@@ -1,0 +1,1 @@
+import{j as e}from"./vendor-ui-CtvHukzg.js";function c({id:c,label:a,className:s="",checked:l,onChange:n,...o}){return e.jsxs("div",{className:`form-check ${s}`,children:[e.jsx("input",{type:"checkbox",className:"form-check-input",id:c,checked:l,onChange:n,...o}),a&&e.jsx("label",{className:"form-check-label",htmlFor:c,children:a})]})}export{c as D};

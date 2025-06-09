@@ -1,0 +1,11 @@
+D:\projets\OtterCMS\src-tauri\target\debug\deps\libkeyboard_types-9b093fb03a918b7b.rmeta: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\code.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\key.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\location.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\modifiers.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\shortcuts.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\webdriver.rs
+
+D:\projets\OtterCMS\src-tauri\target\debug\deps\keyboard_types-9b093fb03a918b7b.d: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\code.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\key.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\location.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\modifiers.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\shortcuts.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\webdriver.rs
+
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\lib.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\code.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\key.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\location.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\modifiers.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\shortcuts.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\keyboard-types-0.7.0\src\webdriver.rs:

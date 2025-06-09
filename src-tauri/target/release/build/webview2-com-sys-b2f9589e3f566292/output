@@ -1,0 +1,1 @@
+cargo:rustc-link-search=native=D:\projets\OtterCMS\src-tauri\target\release\build\webview2-com-sys-b2f9589e3f566292\out\x64

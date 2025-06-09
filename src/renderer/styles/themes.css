@@ -1,0 +1,240 @@
+/* styles/themes.css - theme variables for Datta Able migration */
+
+:root {
+  /* DattaAble Core Variables */
+  --pc-font-family: 'Inter', sans-serif;
+  --pc-bg-color: #f4f7fa;
+  --pc-sidebar-width: 260px;
+  --pc-sidebar-collapsed-width: 70px;
+  --pc-header-height: 64px;
+
+  /* Colors */
+  --pc-primary: #04a9f5;
+  --pc-primary-dark: #0288d1;
+  --pc-primary-light: #b3e5fc;
+
+  /* Shadows */
+  --pc-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --pc-shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --pc-shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* Borders */
+  --pc-border-color: #e9ecef;
+  --pc-border-radius: 0.375rem;
+  --pc-border-radius-lg: 0.5rem;
+
+  /* Electron window border */
+  --window-border-color: transparent;
+  --window-border-width: 0px;
+
+  /* Transitions */
+  --pc-transition-fast: 150ms ease-in-out;
+  --pc-transition-base: 250ms ease-in-out;
+  --pc-transition-slow: 350ms ease-in-out;
+  /* Additional DattaAble tokens */
+  --pc-sidebar-bg: #ffffff;
+  --pc-card-bg: #fafafa;
+  --pc-text-color: var(--current-text-primary);
+  /* Primary palette */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-300: #93c5fd;
+  --color-primary-500: #1890ff;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #096dd9;
+
+  /* Semantic colors */
+  --color-success-50: #f6ffed;
+  --color-success-500: #52c41a;
+  --color-success-700: #237804;
+  --color-warning-50: #fffbe6;
+  --color-warning-500: #faad14;
+  --color-warning-700: #d48806;
+  --color-info-50: #e6fffb;
+  --color-info-500: #13c2c2;
+  --color-info-700: #08979c;
+  --color-danger-50: #fff1f0;
+  --color-danger-500: #ff4d4f;
+  --color-danger-700: #a8071a;
+
+  /* Neutral scale */
+  --color-neutral-50: #f8f9fa;
+  --color-neutral-100: #f1f3f5;
+  --color-neutral-200: #e9ecef;
+  --color-neutral-300: #dee2e6;
+  --color-neutral-400: #ced4da;
+  --color-neutral-500: #adb5bd;
+  --color-neutral-600: #6c757d;
+  --color-neutral-700: #495057;
+  --color-neutral-800: #343a40;
+  --color-neutral-900: #212529;
+
+  /* Bootstrap variable mapping */
+  --bs-body-bg: var(--color-neutral-50);
+  --bs-body-color: var(--color-neutral-900);
+  --bs-primary: var(--color-primary-500);
+
+  /* Legacy aliases for backward compatibility */
+  --current-background-color: var(--bs-body-bg);
+  --current-surface-color: #ffffff;
+  --current-text-primary: var(--bs-body-color);
+  --current-text-secondary: #4b5563;
+  /* placeholder text color for accessibility */
+  --current-text-placeholder: #6c757d;
+  --current-border-light: var(--color-neutral-200);
+  --current-border-medium: var(--color-neutral-300);
+  --current-primary-color: var(--bs-primary);
+  --current-primary-color-hover: var(--color-primary-400);
+  --current-primary-color-active: var(--color-primary-700);
+
+  /* DattaAble base tokens */
+  --color-primary-400: #40a9ff;
+  --color-primary-700: #096dd9;
+  --card-bg: var(--pc-card-bg);
+  --border-radius-base: 6px;
+  --box-shadow-base: 0 2px 8px rgba(0,0,0,0.15);
+
+  /* Legacy aliases for backward compatibility */
+
+  /* Typography */
+  --font-family-base: 'Inter', sans-serif;
+  --font-family-mono: 'SFMono-Regular', monospace;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.5rem;
+  --font-size-h3: 1.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Spacing scale */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+
+  /* Misc */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-full: 9999px;
+  --transition-duration: 150ms;
+  --pc-overlay-bg: rgba(0, 0, 0, 0.7);
+  --pc-border-muted: rgba(0, 0, 0, 0.2);
+
+  /* === Global application border variables === */
+  --app-border-width: 0px;
+  --app-border-color: transparent;
+  --app-border-style: solid;
+  --app-border-glow: none;
+  --app-border-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--current-text-placeholder);
+  opacity: 1;
+}
+
+.layout-light { background-color: var(--pc-bg-color); }
+
+/* === Application border styles === */
+.pc-container {
+  transition: var(--app-border-transition);
+}
+
+/* Utility preview classes used in admin UI */
+.border-preview {
+  border: 2px solid var(--pc-border-light);
+  border-radius: var(--bs-border-radius, 0.375rem);
+  background: var(--pc-card-bg);
+  transition: var(--app-border-transition);
+}
+
+.border-preview.active {
+  border: var(--app-border-width) var(--app-border-style) var(--app-border-color);
+  box-shadow: var(--app-border-glow);
+}
+
+@keyframes borderPulse {
+  0%, 100% { box-shadow: var(--app-border-glow); }
+  50% { box-shadow: var(--app-border-glow), 0 0 20px var(--app-border-color); }
+}
+
+.border-changing {
+  animation: borderPulse 1s ease-in-out;
+}
+
+.border-template-admin .template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.border-template-admin .template-card {
+  border: 2px solid var(--pc-border-light);
+  border-radius: var(--bs-border-radius, 0.375rem);
+  padding: 1rem;
+  cursor: pointer;
+  transition: var(--app-border-transition);
+  text-align: center;
+}
+
+.border-template-admin .template-card:hover {
+  border-color: var(--pc-primary);
+  transform: translateY(-2px);
+}
+
+.border-template-admin .template-card.selected {
+  border-color: var(--pc-primary);
+  background: rgba(var(--pc-primary-rgb, 0, 0, 0), 0.1);
+}
+
+.border-template-admin .template-card .template-preview {
+  width: 100%;
+  height: 60px;
+  border-radius: var(--bs-border-radius-sm, 0.25rem);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--pc-text-muted);
+}
+
+.border-template-admin .template-card .template-name {
+  font-weight: 600;
+  color: var(--pc-text-primary);
+}
+
+.border-template-admin .template-card .template-description {
+  font-size: 0.8rem;
+  color: var(--pc-text-muted);
+  margin-top: 0.25rem;
+}
+
+.degraded-mode-alert {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .border-template-admin .template-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+[data-theme="dark"] {
+  --pc-bg-color: #1a1a1a;
+  --pc-card-bg: #2d2d2d;
+  --pc-text-color: #ffffff;
+  --pc-border-color: #404040;
+}

@@ -1,0 +1,64 @@
+{
+  "name": "ottercms",
+  "version": "2.0.0",
+  "description": "Application Tauri 2 avec React et libSQL",
+  "homepage": "./",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "vite build",
+    "tauri": "tauri",
+    "install-app": "node scripts/install-libsql.js",
+    "audit": "npm audit",
+    "audit-fix": "npm audit fix",
+    "clean": "rimraf node_modules package-lock.json dist src-tauri/target",
+    "reinstall": "npm run clean && npm install",
+    "security-check": "npm audit && npm outdated"
+  },
+  "keywords": [
+    "tauri",
+    "react",
+    "libsql",
+    "sqlite",
+    "desktop"
+  ],
+  "author": "AWY",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "antd": "^5.25.4",
+    "apexcharts": "^4.7.0",
+    "chart.js": "^4.4.9",
+    "framer-motion": "^12.16.0",
+    "react": "^19.1.0",
+    "react-apexcharts": "^1.7.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-perfect-scrollbar": "^1.5.8",
+    "react-router-dom": "^7.6.2",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@libsql/win32-x64-msvc": "^0.5.13",
+    "@tauri-apps/cli": "^2.5.0",
+    "@vitejs/plugin-react": "^4.5.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "rimraf": "^6.0.1",
+    "terser": "^5.41.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  },
+  "resolutions": {
+    "glob-parent": ">=5.1.2",
+    "trim": ">=0.0.3",
+    "trim-newlines": ">=3.0.1",
+    "got": ">=11.8.5"
+  },
+  "overrides": {
+    "glob-parent": ">=5.1.2",
+    "trim": ">=0.0.3"
+  }
+}

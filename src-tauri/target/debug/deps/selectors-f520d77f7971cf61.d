@@ -1,0 +1,18 @@
+D:\projets\OtterCMS\src-tauri\target\debug\deps\libselectors-f520d77f7971cf61.rmeta: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\attr.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\bloom.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\builder.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\context.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\matching.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\nth_index_cache.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\parser.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\sink.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\tree.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\visitor.rs D:\projets\OtterCMS\src-tauri\target\debug\build\selectors-7b6f9701b1f5e36b\out/ascii_case_insensitive_html_attributes.rs
+
+D:\projets\OtterCMS\src-tauri\target\debug\deps\selectors-f520d77f7971cf61.d: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\attr.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\bloom.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\builder.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\context.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\matching.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\nth_index_cache.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\parser.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\sink.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\tree.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\visitor.rs D:\projets\OtterCMS\src-tauri\target\debug\build\selectors-7b6f9701b1f5e36b\out/ascii_case_insensitive_html_attributes.rs
+
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\lib.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\attr.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\bloom.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\builder.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\context.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\matching.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\nth_index_cache.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\parser.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\sink.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\tree.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\selectors-0.22.0\visitor.rs:
+D:\projets\OtterCMS\src-tauri\target\debug\build\selectors-7b6f9701b1f5e36b\out/ascii_case_insensitive_html_attributes.rs:
+
+# env-dep:OUT_DIR=D:\\projets\\OtterCMS\\src-tauri\\target\\debug\\build\\selectors-7b6f9701b1f5e36b\\out

@@ -1,0 +1,38 @@
+[package]
+name = "ottercms"
+version = "2.0.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.5", features = ["wry"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.40", features = ["full"] }
+# Utiliser libsql avec sqlite bundled pour éviter la compilation native
+libsql = { version = "0.6.0", features = ["remote"], default-features = false }
+sysinfo = "0.31"
+anyhow = "1.0"
+futures = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+bcrypt = "0.15"
+rand = "0.8"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winbase"] }
+
+[features]
+default = []
+
+# Variables d'environnement pour forcer l'utilisation de la libsqlite3 système
+[env]
+LIBSQLITE3_SYS_USE_PKG_CONFIG = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

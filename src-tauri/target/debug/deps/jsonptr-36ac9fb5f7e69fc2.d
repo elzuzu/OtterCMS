@@ -1,0 +1,13 @@
+D:\projets\OtterCMS\src-tauri\target\debug\deps\libjsonptr-36ac9fb5f7e69fc2.rmeta: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\assign.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\delete.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\resolve.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\pointer.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\token.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\index.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\component.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\../README.md
+
+D:\projets\OtterCMS\src-tauri\target\debug\deps\jsonptr-36ac9fb5f7e69fc2.d: D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\lib.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\assign.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\delete.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\resolve.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\pointer.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\token.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\index.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\component.rs D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\../README.md
+
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\lib.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\assign.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\delete.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\resolve.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\pointer.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\token.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\index.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\component.rs:
+D:\softs\rust\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\jsonptr-0.6.3\src\../README.md:

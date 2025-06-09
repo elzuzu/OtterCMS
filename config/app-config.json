@@ -1,0 +1,12 @@
+{
+  "appTitle": "OtterCMS",
+  "dbPath": "../db/ottercms.sqlite",
+  "defaultLanguage": "fr",
+  "logLevel": "info",
+  "windowBorder": {
+    "color": "#1890ff",
+    "width": 0
+  },
+  "author": "AWY",
+  "company": "EGE"
+}
