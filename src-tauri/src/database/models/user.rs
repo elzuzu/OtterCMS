@@ -66,4 +66,17 @@ impl User {
 
         Ok(user)
     }
+
+    pub fn find_by_windows_login(conn: &Connection, login: &str) -> Result<Option<Self>> {
+        let mut stmt = conn.prepare(
+            "SELECT id, username, password_hash, role, windows_login, deleted \
+             FROM users WHERE windows_login = ? AND deleted = 0",
+        )?;
+
+        let user = stmt
+            .query_row(params![login], |row| Self::from_row(row))
+            .optional()?;
+
+        Ok(user)
+    }
 }

@@ -17,7 +17,35 @@ export default function Auth({ setUser }) {
 
   useEffect(() => {
     const checkApiAndAutoLogin = async () => {
-      if (window.api) {
+      if (window.__TAURI__ && window.__TAURI__.invoke) {
+        try {
+          setLoading(true);
+          const windowsUserResult = await window.__TAURI__.invoke('get_windows_username');
+          if (windowsUserResult && windowsUserResult.success) {
+            let windowsUsername = windowsUserResult.username;
+            if (windowsUsername && windowsUsername.includes('\\')) {
+              windowsUsername = windowsUsername.split('\\').pop();
+            }
+            const loginResult = await window.__TAURI__.invoke('auto_login_with_windows', { username: windowsUsername });
+            if (loginResult && loginResult.success) {
+              const user = {
+                id: loginResult.userId,
+                userId: loginResult.userId,
+                username: loginResult.username,
+                role: loginResult.role,
+                permissions: loginResult.permissions || getPermissionsForRole(loginResult.role),
+                windows_login: windowsUsername
+              };
+              setUser(user);
+            }
+          }
+        } catch (err) {
+          console.error("Auth.jsx: Erreur lors de l'autologin:", err);
+        } finally {
+          setLoading(false);
+          setIsAutoLoginAttempted(true);
+        }
+      } else if (window.api) {
         try {
           if (window.api.getWindowsUsername && window.api.autoLoginWithWindows) {
             setLoading(true);
@@ -103,12 +131,16 @@ export default function Auth({ setUser }) {
     setError('');
     setInitStatus('');
     try {
-      if (!window.api || !window.api.login) {
+      let res;
+      if (window.__TAURI__ && window.__TAURI__.invoke) {
+        res = await window.__TAURI__.invoke('auth_login', { request: { username, password } });
+      } else if (window.api && window.api.login) {
+        res = await window.api.login(username, password);
+      } else {
         setError("Erreur: API de connexion non disponible. Le script preload n'est peut-être pas chargé.");
         setLoading(false);
         return;
       }
-      const res = await window.api.login(username, password);
       if (res && res.success) {
         const user = {
           id: res.userId,
