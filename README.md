@@ -93,6 +93,21 @@ depuis `src-tauri` :
 cargo tauri build --release
 ```
 
+Un script PowerShell complet (`build.ps1`) est également disponible à la racine
+du dépôt pour automatiser l'installation des outils et la compilation. Il
+télécharge **PortableBuildTools** avec les options `--accept-license`,
+`--msvc=latest`, `--sdk=latest`, `--target=x64` et `--host=x64`, puis exécute
+`npx tauri build --no-bundle`.
+
+Utilisation typique :
+
+```powershell
+./build.ps1
+```
+
+Adaptez les paramètres dans le fichier si vous devez cibler d'autres versions
+de MSVC ou un chemin différent pour les outils.
+
 ## Documentation
 
 Les guides détaillés se trouvent dans le dossier [`docs`](docs). Consultez en particulier `developpement.md` et `guide-utilisation.md`.
