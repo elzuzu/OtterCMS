@@ -79,7 +79,8 @@
   --current-surface-color: #ffffff;
   --current-text-primary: var(--bs-body-color);
   --current-text-secondary: #4b5563;
-  --current-text-placeholder: #9ca3af;
+  /* placeholder text color for accessibility */
+  --current-text-placeholder: #6c757d;
   --current-border-light: var(--color-neutral-200);
   --current-border-medium: var(--color-neutral-300);
   --current-primary-color: var(--bs-primary);
