@@ -99,7 +99,7 @@ export default function LayoutManager({
                 <path d="M26 36 Q32 33 38 36" />
               </svg>
               <span className="b-brand-text d-sm-block fw-medium">
-                {title || 'Indi-Suivi'}
+                {title || 'OtterCMS'}
               </span>
               <span className="badge bg-brand-color-3 rounded-pill ms-2">v2.0</span>
             </a>

@@ -1,4 +1,4 @@
-# Indi-Suivi
+# OtterCMS
 
 ![Node.js >=20](https://img.shields.io/badge/node-%3E=20.0-brightgreen)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -101,7 +101,7 @@ La navigation principale est décrite par le GraphML ci‑dessous. Le fichier d�
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <graph id="IndiSuiviNavigation" edgedefault="directed">
+  <graph id="OtterCMSNavigation" edgedefault="directed">
     <node id="Auth"/>
     <node id="MainContent"/>
     <node id="Dashboard"/>

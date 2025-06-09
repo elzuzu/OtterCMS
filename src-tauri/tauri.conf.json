@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "Indi-Suivi",
+    "productName": "OtterCMS",
     "version": "2.0.0"
   },
   "build": {
@@ -11,7 +11,7 @@
   "tauri": {
     "windows": [
       {
-        "title": "Indi-Suivi",
+        "title": "OtterCMS",
         "width": 1200,
         "height": 800
       }

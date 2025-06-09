@@ -1,7 +1,7 @@
 # TODO: Migration Electron vers Tauri 2 + libSQL
 
 ## 📋 Vue d'ensemble
-Migration progressive d'Indi-Suivi depuis Electron/better-sqlite3 vers Tauri 2/libSQL tout en maintenant la base de données sur un partage réseau.
+Migration progressive d'OtterCMS depuis Electron/better-sqlite3 vers Tauri 2/libSQL tout en maintenant la base de données sur un partage réseau.
 
 ### 🔍 Note importante sur libSQL vs rusqlite
 
@@ -16,7 +16,7 @@ Le plan inclut les deux options pour garantir le succès du projet.
 
 ### ⚠️ Contraintes critiques
 - ✅ Client Windows 64-bit uniquement  
-- ✅ Base de données SQLite sur partage réseau (\\server\share\db\indi-suivi.sqlite)
+- ✅ Base de données SQLite sur partage réseau (\\server\share\db\ottercms.sqlite)
 - ✅ Pas de droits administrateur requis (Rust portable et libSQL précompilé)
 - ✅ Installation dans D:\tools
 - ✅ Compatibilité ascendante avec l'existant
@@ -199,7 +199,7 @@ function Build-Tauri-App {
             
             # Appliquer UPX si disponible
             if ($Mode -eq "release" -and -not $SkipUPX) {
-                $exePath = Join-Path $srcTauriPath "target\release\indi-suivi.exe"
+                $exePath = Join-Path $srcTauriPath "target\release\ottercms.exe"
                 if (Test-Path $exePath) {
                     Apply-UPX-Compression $exePath
                 }
@@ -259,7 +259,7 @@ if ($BuildTauri) {
 ### 1.1 Structure du projet Tauri
 
 ```
-indi-suivi/
+ottercms/
 ├── src-tauri/
 │   ├── Cargo.toml
 │   ├── tauri.conf.json
@@ -304,7 +304,7 @@ indi-suivi/
 
 ```toml
 [package]
-name = "indi-suivi"
+name = "ottercms"
 version = "2.0.0"
 edition = "2021"
 
@@ -847,7 +847,7 @@ $tauriTimes = @()
 for ($i = 1; $i -le $Iterations; $i++) {
     $start = Get-Date
     # Appeler une commande Tauri
-    & .\src-tauri\target\release\indi-suivi.exe benchmark --silent
+    & .\src-tauri\target\release\ottercms.exe benchmark --silent
     $end = Get-Date
     $tauriTimes += ($end - $start).TotalMilliseconds
 }
@@ -881,10 +881,10 @@ param(
     [switch]$BackupOnly
 )
 
-Write-Host "Migration Indi-Suivi vers Tauri" -ForegroundColor Cyan
+Write-Host "Migration OtterCMS vers Tauri" -ForegroundColor Cyan
 
 # 1. Backup de la base de données
-$dbPath = "\\server\share\db\indi-suivi.sqlite"
+$dbPath = "\\server\share\db\ottercms.sqlite"
 $backupPath = "$dbPath.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 
 Write-Host "Backup de la base de données..." -ForegroundColor Yellow
@@ -899,7 +899,7 @@ if ($BackupOnly) {
 Write-Host "`nVérification de compatibilité..." -ForegroundColor Yellow
 
 # Tester la connexion Tauri à la base
-$testExe = ".\src-tauri\target\release\indi-suivi.exe"
+$testExe = ".\src-tauri\target\release\ottercms.exe"
 if (-not (Test-Path $testExe)) {
     Write-Host "❌ Exécutable Tauri non trouvé. Lancez d'abord: cargo tauri build --release" -ForegroundColor Red
     exit 1

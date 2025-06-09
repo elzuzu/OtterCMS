@@ -16,7 +16,7 @@ fn main() {
         .setup(|app| {
             let db_path = app
                 .path_resolver()
-                .resolve_resource("../db/indi-suivi.sqlite")
+                .resolve_resource("../db/ottercms.sqlite")
                 .expect("Failed to resolve database path");
             #[cfg(feature = "use-libsql")]
             let pool = block_on(DatabasePool::new(db_path.to_str().unwrap()))

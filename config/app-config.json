@@ -1,6 +1,6 @@
 {
-  "appTitle": "Indi-Suivi",
-  "dbPath": "../db/indi-suivi.sqlite",
+  "appTitle": "OtterCMS",
+  "dbPath": "../db/ottercms.sqlite",
   "defaultLanguage": "fr",
   "logLevel": "info",
   "windowBorder": {

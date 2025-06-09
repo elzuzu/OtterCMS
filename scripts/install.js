@@ -1,7 +1,7 @@
 /**
  * install.js - Script d'initialisation Better-SQLite3
  * 
- * Ce script crée la configuration et la base de données initiale pour l'application Indi-Suivi
+ * Ce script crée la configuration et la base de données initiale pour l'application OtterCMS
  * en utilisant la bibliothèque better-sqlite3 pour de meilleures performances.
  */
 
@@ -12,9 +12,9 @@ const bcrypt = require('bcryptjs');
 
 // Configuration par défaut
 const configTemplate = {
-  "appTitle": "indi-suivi-nodejs",
+  "appTitle": "OtterCMS-nodejs",
   // Utilise path.resolve pour garantir un chemin absolu correct quel que soit le contexte d'exécution
-  "dbPath": path.resolve(__dirname, '..', 'db', 'indi-suivi.sqlite'),
+  "dbPath": path.resolve(__dirname, '..', 'db', 'ottercms.sqlite'),
   "defaultLanguage": "fr"
 };
 
