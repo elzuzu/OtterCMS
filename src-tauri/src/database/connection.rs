@@ -8,7 +8,9 @@ pub struct DatabasePool {
 
 impl DatabasePool {
     pub async fn new_network_optimized(db_path: &str) -> Result<Self> {
-        let db = Builder::new_remote(db_path.to_string(), "".to_string())
+        // Use a local SQLite connection since the database is a local file
+        // rather than a remote libSQL server
+        let db = Builder::new_local(db_path.to_string())
             .build()
             .await
             .context("Impossible d'ouvrir la base")?;
