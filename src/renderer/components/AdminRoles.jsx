@@ -17,8 +17,20 @@ export default function AdminRoles({ user }) {
   const [message, setMessage] = useState('');
 
   const loadRoles = async () => {
-    const res = await window.api.getRoles();
-    if (res.success) setRoles(res.data);
+    if (!window.api || !window.api.getRoles) {
+      setMessage("API indisponible");
+      return;
+    }
+    try {
+      const res = await window.api.getRoles();
+      if (res.success) {
+        setRoles(res.data);
+      } else {
+        setMessage(res.error || 'Erreur');
+      }
+    } catch (e) {
+      setMessage(e.message || 'Erreur');
+    }
   };
 
   useEffect(() => { loadRoles(); }, []);
@@ -41,21 +53,41 @@ export default function AdminRoles({ user }) {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    if (!window.api) {
+      setMessage('API indisponible');
+      return;
+    }
     const data = { name: roleName, permissions: rolePerms };
-    const res = editingRole ? await window.api.updateRole(data) : await window.api.createRole(data);
-    if (res.success) {
-      setMessage('Role sauvegardé');
-      loadRoles();
-      resetForm();
-    } else {
-      setMessage(res.error || 'Erreur');
+    try {
+      const res = editingRole ? await window.api.updateRole(data) : await window.api.createRole(data);
+      if (res.success) {
+        setMessage('Role sauvegardé');
+        loadRoles();
+        resetForm();
+      } else {
+        setMessage(res.error || 'Erreur');
+      }
+    } catch (e) {
+      setMessage(e.message || 'Erreur');
     }
   };
 
   const handleDelete = async name => {
     if (!window.confirm('Supprimer ce rôle ?')) return;
-    const res = await window.api.deleteRole(name);
-    if (res.success) loadRoles();
+    if (!window.api || !window.api.deleteRole) {
+      setMessage('API indisponible');
+      return;
+    }
+    try {
+      const res = await window.api.deleteRole(name);
+      if (res.success) {
+        loadRoles();
+      } else {
+        setMessage(res.error || 'Erreur');
+      }
+    } catch (e) {
+      setMessage(e.message || 'Erreur');
+    }
   };
 
   if (!hasPermission(user, 'manage_roles')) return <div>Accès refusé.</div>;

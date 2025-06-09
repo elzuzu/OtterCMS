@@ -28,7 +28,13 @@ fn main() {
             app.manage(state);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::auth::auth_login])
+        .invoke_handler(tauri::generate_handler![
+            commands::auth::auth_login,
+            commands::roles::get_roles,
+            commands::roles::create_role,
+            commands::roles::update_role,
+            commands::roles::delete_role
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
