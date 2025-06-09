@@ -36,11 +36,11 @@ export default function DattaDiagnosticPanel() {
           <ul className="list-unstyled">
             <li className="d-flex justify-content-between">
               <span>Connexion</span>
-              <span className={`badge bg-${diagnostics.dbConnection ? 'success' : 'danger'}`}>{diagnostics.dbConnection ? 'OK' : 'Echec'}</span>
+              <span className={`badge bg-${diagnostics.databaseConnected ? 'success' : 'danger'}`}>{diagnostics.databaseConnected ? 'OK' : 'Echec'}</span>
             </li>
             <li className="d-flex justify-content-between">
               <span>Temps de reponse</span>
-              <span className="badge bg-info">{diagnostics.dbLatency}ms</span>
+              <span className="badge bg-info">{diagnostics.databaseLatency}ms</span>
             </li>
           </ul>
         </div>
@@ -49,11 +49,11 @@ export default function DattaDiagnosticPanel() {
           <ul className="list-unstyled">
             <li className="d-flex justify-content-between">
               <span>Partage accessible</span>
-              <span className={`badge bg-${diagnostics.networkShare ? 'success' : 'danger'}`}>{diagnostics.networkShare ? 'OK' : 'Echec'}</span>
+              <span className={`badge bg-${diagnostics.networkShareAccessible ? 'success' : 'danger'}`}>{diagnostics.networkShareAccessible ? 'OK' : 'Echec'}</span>
             </li>
             <li className="d-flex justify-content-between">
               <span>Permissions</span>
-              <span className={`badge bg-${diagnostics.permissions ? 'success' : 'warning'}`}>{diagnostics.permissions ? 'Lecture/Ecriture' : 'Lecture seule'}</span>
+              <span className={`badge bg-${diagnostics.hasWritePermissions ? 'success' : 'warning'}`}>{diagnostics.hasWritePermissions ? 'Lecture/Ecriture' : 'Lecture seule'}</span>
             </li>
           </ul>
         </div>

@@ -22,7 +22,7 @@
 
 ### 1.1 Gestion robuste des verrous SQLite
 
-- [ ] **Implémentation du retry avec backoff exponentiel**
+- [x] **Implémentation du retry avec backoff exponentiel**
 ```rust
 // src-tauri/src/database/retry.rs
 use std::time::Duration;
@@ -83,7 +83,7 @@ where
 }
 ```
 
-- [ ] **Configuration optimisée pour réseau**
+- [x] **Configuration optimisée pour réseau**
 ```rust
 // src-tauri/src/database/connection.rs
 impl DatabasePool {
@@ -107,7 +107,7 @@ impl DatabasePool {
 }
 ```
 
-- [ ] **Wrapper de commandes avec retry automatique**
+- [x] **Wrapper de commandes avec retry automatique**
 ```rust
 // src-tauri/src/commands/mod.rs
 use crate::database::retry::{execute_with_retry, RetryConfig};
@@ -313,7 +313,7 @@ export default function DattaConflictResolver({
 
 ### 1.3 Commandes Tauri robustes
 
-- [ ] **Command de diagnostic réseau**
+- [x] **Command de diagnostic réseau**
 ```rust
 // src-tauri/src/commands/diagnostics.rs
 #[tauri::command]
@@ -989,7 +989,7 @@ export default DattaErrorBoundary;
 
 ### 3.2 Système de backup et diagnostic
 
-- [ ] **DattaBackupManager - Gestionnaire de sauvegardes**
+- [x] **DattaBackupManager - Gestionnaire de sauvegardes**
 ```jsx
 // src/renderer/components/common/DattaBackupManager.jsx
 import React, { useState, useEffect } from 'react';
@@ -1549,7 +1549,7 @@ export default NotificationProvider;
 
 ### 4.2 Outils d'administration
 
-- [ ] **DattaAdminToolkit - Boîte à outils administrateur**
+- [x] **DattaAdminToolkit - Boîte à outils administrateur**
 ```jsx
 // src/renderer/components/admin/DattaAdminToolkit.jsx
 import React, { useState } from 'react';
@@ -1817,7 +1817,7 @@ export default function DattaAdminToolkit({ user }) {
 
 ### 5.1 Thème sombre et personnalisation
 
-- [ ] **Extension du système de thèmes Datta Able**
+- [x] **Extension du système de thèmes Datta Able**
 ```css
 /* src/renderer/styles/themes-extended.css */
 
@@ -1888,7 +1888,7 @@ export default function DattaAdminToolkit({ user }) {
 }
 ```
 
-- [ ] **DattaThemeSelector - Sélecteur de thème**
+- [x] **DattaThemeSelector - Sélecteur de thème**
 ```jsx
 // src/renderer/components/common/DattaThemeSelector.jsx
 import React, { useState, useEffect } from 'react';
@@ -1990,7 +1990,7 @@ export default function DattaThemeSelector() {
 
 ### 5.2 Raccourcis clavier
 
-- [ ] **DattaKeyboardShortcuts - Gestionnaire de raccourcis**
+- [x] **DattaKeyboardShortcuts - Gestionnaire de raccourcis**
 ```jsx
 // src/renderer/components/common/DattaKeyboardShortcuts.jsx
 import React, { useEffect, useState } from 'react';

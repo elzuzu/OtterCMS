@@ -1,0 +1,67 @@
+/* Extended theme overrides */
+
+/* Mode sombre */
+[data-theme="dark"] {
+  --pc-bg-color: #1a1a1a;
+  --pc-card-bg: #2d2d2d;
+  --pc-sidebar-bg: #212121;
+  --pc-text-color: #ffffff;
+  --pc-border-color: #404040;
+  --current-text-primary: #ffffff;
+  --current-text-secondary: #b0b0b0;
+  --current-surface-color: #2d2d2d;
+  --current-border-light: #404040;
+  --current-border-medium: #555555;
+}
+
+[data-theme="dark"] .card {
+  background-color: var(--pc-card-bg);
+  border-color: var(--pc-border-color);
+  color: var(--pc-text-color);
+}
+
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .pc-sidebar {
+  background-color: var(--pc-sidebar-bg);
+  border-color: var(--pc-border-color);
+}
+
+[data-theme="dark"] .table {
+  --bs-table-bg: var(--pc-card-bg);
+  --bs-table-color: var(--pc-text-color);
+  --bs-table-border-color: var(--pc-border-color);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--current-surface-color);
+  border-color: var(--current-border-medium);
+  color: var(--current-text-primary);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: var(--current-surface-color);
+  border-color: var(--current-primary-color);
+  color: var(--current-text-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--pc-primary-rgb), 0.25);
+}
+
+/* Thème de couleur personnalisé */
+[data-color-scheme="blue"] {
+  --pc-primary: #007bff;
+  --pc-primary-dark: #0056b3;
+  --pc-primary-light: #b3d9ff;
+}
+
+[data-color-scheme="green"] {
+  --pc-primary: #28a745;
+  --pc-primary-dark: #1e7e34;
+  --pc-primary-light: #b3e6c0;
+}
+
+[data-color-scheme="purple"] {
+  --pc-primary: #6f42c1;
+  --pc-primary-dark: #59359a;
+  --pc-primary-light: #c8b5e8;
+}
