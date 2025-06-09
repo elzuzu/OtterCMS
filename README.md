@@ -67,6 +67,10 @@ scripts/         Outils d'installation et de build
 config/          Fichiers de configuration
 ```
 
+L'accès à la base de données se fait désormais directement depuis le frontend en
+utilisant le plugin **SQL** officiel de Tauri. Les anciennes commandes Rust ont
+été retirées pour simplifier l'architecture.
+
 ## Développement
 
 Démarrage en mode développement avec rechargement automatique :

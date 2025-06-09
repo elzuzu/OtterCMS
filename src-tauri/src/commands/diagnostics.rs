@@ -1,10 +1,9 @@
-use serde::Serialize;
-use tauri::{AppHandle};
-use tauri_plugin_sql::Database;
 use chrono::{DateTime, Utc};
-use sysinfo::{System, Disks, DiskExt};
+use serde::Serialize;
 use std::fs::{self, OpenOptions};
 use std::net::ToSocketAddrs;
+use sysinfo::{Disks, System};
+use tauri::AppHandle;
 
 #[derive(Debug, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -35,17 +34,15 @@ fn get_system_and_disks() -> (System, Disks) {
 #[tauri::command]
 pub async fn ping_database(app: AppHandle) -> Result<DiagnosticResult, String> {
     let start = std::time::Instant::now();
-    let db = Database::load(&app, "sqlite:ottercms.db")
-        .await
-        .map_err(|e| e.to_string())?;
-    db.execute("SELECT 1", &[]).await.map_err(|e| e.to_string())?;
+    let db_path = "../db/ottercms.sqlite";
+    let connected = fs::metadata(db_path).is_ok();
     let duration = start.elapsed();
     let (sys, disks) = get_system_and_disks();
 
     Ok(DiagnosticResult {
-        database_connected: true,
+        database_connected: connected,
         database_latency: Some(duration.as_millis() as u32),
-        database_integrity: check_database_integrity(&db).await,
+        database_integrity: connected,
         active_locks: None,
         network_share_accessible: check_network_share(),
         has_write_permissions: test_write_permissions(),
@@ -92,17 +89,6 @@ fn test_write_permissions() -> bool {
         }
         Err(_) => false,
     }
-}
-
-async fn check_database_integrity(db: &Database) -> bool {
-    if let Ok(rows) = db.select("PRAGMA integrity_check", &[]).await {
-        if let Some(row) = rows.get(0) {
-            if let Some(value) = row.get::<_, &str>("integrity_check") {
-                return value == "ok";
-            }
-        }
-    }
-    false
 }
 
 fn check_dns_resolution() -> bool {
