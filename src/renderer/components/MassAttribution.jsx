@@ -262,7 +262,7 @@ export default function MassAttribution({ user }) {
                     className="form-control"
                     value={filterValue}
                     onChange={e => setFilterValue(e.target.value)}
-                    placeholder={`Valeur pour ${field?.label || 'le champ'}`}
+                    placeholder={`Saisissez la valeur pour ${field?.label || 'ce champ'}`}
                   />
                 )}
               </div>
