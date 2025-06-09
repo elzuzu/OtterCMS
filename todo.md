@@ -28,8 +28,6 @@ Le plan inclut les deux options pour garantir le succès du projet.
 
 ### 0.1 Script d'installation automatique des outils
 
-Créer `scripts/setup-tauri-tools.ps1` (version mise à jour utilisant libSQL précompilé) :
-*(Ancien script basé sur w64devkit, conservé pour référence. Non requis avec la version précompilée de libSQL.)*
 
 ```powershell
 param(
@@ -39,16 +37,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Versions et URLs
-$w64devkitVersion = "1.21.0"
-$w64devkitUrl = "https://github.com/skeeto/w64devkit/releases/download/v$w64devkitVersion/w64devkit-$w64devkitVersion.zip"
-$rustVersion = "1.75.0"  # Version stable actuelle
+$rustVersion = "1.75.0"
 $rustupInitUrl = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
+$libsqlPackage = "@libsql/win32-x64-msvc"
 
-# Fonction de téléchargement avec retry
 function Download-WithRetry {
     param([string]$Url, [string]$Output, [int]$MaxRetries = 3)
-    
     for ($i = 1; $i -le $MaxRetries; $i++) {
         try {
             Write-Host "Téléchargement de $Url (tentative $i/$MaxRetries)..." -ForegroundColor Cyan
@@ -65,41 +59,7 @@ function Download-WithRetry {
     }
 }
 
-# 1. Installation de w64devkit
-Write-Host "`n=== Installation de w64devkit v$w64devkitVersion ===" -ForegroundColor Green
-$w64devkitPath = Join-Path $ToolsDir "w64devkit"
-
-if ((Test-Path $w64devkitPath) -and -not $ForceReinstall) {
-    Write-Host "w64devkit déjà installé dans $w64devkitPath" -ForegroundColor Yellow
-} else {
-    $tempZip = Join-Path $env:TEMP "w64devkit.zip"
-    
-    if (Download-WithRetry -Url $w64devkitUrl -Output $tempZip) {
-        Write-Host "Extraction de w64devkit..." -ForegroundColor Cyan
-        
-        # Supprimer l'ancienne version si elle existe
-        if (Test-Path $w64devkitPath) {
-            Remove-Item -Path $w64devkitPath -Recurse -Force
-        }
-        
-        # Extraire
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($tempZip, $ToolsDir)
-        
-        # Vérifier l'extraction
-        if (Test-Path (Join-Path $w64devkitPath "bin\gcc.exe")) {
-            Write-Host "✅ w64devkit installé avec succès" -ForegroundColor Green
-        } else {
-            throw "Échec de l'extraction de w64devkit"
-        }
-        
-        Remove-Item $tempZip -Force
-    } else {
-        throw "Impossible de télécharger w64devkit"
-    }
-}
-
-# 2. Installation de Rust portable
+# 1. Installation de Rust portable
 Write-Host "`n=== Installation de Rust portable ===" -ForegroundColor Green
 $rustPortableDir = Join-Path $ToolsDir "rust-portable"
 $rustupHome = Join-Path $rustPortableDir ".rustup"
@@ -108,31 +68,17 @@ $cargoHome = Join-Path $rustPortableDir ".cargo"
 if ((Test-Path (Join-Path $cargoHome "bin\cargo.exe")) -and -not $ForceReinstall) {
     Write-Host "Rust déjà installé dans $rustPortableDir" -ForegroundColor Yellow
 } else {
-    # Créer les dossiers
     New-Item -ItemType Directory -Force -Path $rustupHome | Out-Null
     New-Item -ItemType Directory -Force -Path $cargoHome | Out-Null
-    
+
     $rustupInit = Join-Path $env:TEMP "rustup-init.exe"
-    
     if (Download-WithRetry -Url $rustupInitUrl -Output $rustupInit) {
         Write-Host "Installation de Rust (cela peut prendre quelques minutes)..." -ForegroundColor Cyan
-        
-        # Variables d'environnement pour l'installation
         $env:RUSTUP_HOME = $rustupHome
         $env:CARGO_HOME = $cargoHome
         $env:RUSTUP_INIT_SKIP_PATH_CHECK = "yes"
-        
-        # Installer Rust avec la toolchain GNU (pour w64devkit)
-        & $rustupInit -y `
-            --no-modify-path `
-            --default-host x86_64-pc-windows-gnu `
-            --default-toolchain stable `
-            --profile minimal
-        
-        if ($LASTEXITCODE -ne 0) {
-            throw "Échec de l'installation de Rust"
-        }
-        
+        & $rustupInit -y --no-modify-path --default-host x86_64-pc-windows-msvc --default-toolchain stable --profile minimal
+        if ($LASTEXITCODE -ne 0) { throw "Échec de l'installation de Rust" }
         Write-Host "✅ Rust installé avec succès" -ForegroundColor Green
         Remove-Item $rustupInit -Force
     } else {
@@ -140,143 +86,38 @@ if ((Test-Path (Join-Path $cargoHome "bin\cargo.exe")) -and -not $ForceReinstall
     }
 }
 
-# 3. Configuration de Cargo pour utiliser w64devkit
-Write-Host "`n=== Configuration de Cargo pour w64devkit ===" -ForegroundColor Green
-$cargoConfig = Join-Path $cargoHome "config.toml"
-$configContent = @"
-[target.x86_64-pc-windows-gnu]
-linker = "$($w64devkitPath -replace '\\', '\\')/bin/gcc.exe"
-ar = "$($w64devkitPath -replace '\\', '\\')/bin/ar.exe"
-
-[env]
-CC = "$($w64devkitPath -replace '\\', '\\')/bin/gcc.exe"
-CXX = "$($w64devkitPath -replace '\\', '\\')/bin/g++.exe"
-AR = "$($w64devkitPath -replace '\\', '\\')/bin/ar.exe"
-# Flags pour supporter libSQL si possible
-CFLAGS = "-D_WIN32_WINNT=0x0601"
-CXXFLAGS = "-D_WIN32_WINNT=0x0601"
-
-[net]
-retry = 5
-git-fetch-with-cli = true
-
-[build]
-target = "x86_64-pc-windows-gnu"
-"@
-
-Set-Content -Path $cargoConfig -Value $configContent -Encoding UTF8
-Write-Host "✅ Configuration Cargo créée" -ForegroundColor Green
-
-# 4. Installation de tauri-cli
-Write-Host "`n=== Installation de tauri-cli ===" -ForegroundColor Green
-$env:PATH = "$cargoHome\bin;$w64devkitPath\bin;$env:PATH"
-$env:RUSTUP_HOME = $rustupHome
-$env:CARGO_HOME = $cargoHome
-
-# Vérifier si cargo fonctionne
-& "$cargoHome\bin\cargo.exe" --version
-if ($LASTEXITCODE -ne 0) {
-    throw "Cargo non fonctionnel"
+# 2. Installation de libSQL précompilé
+Write-Host "`n=== Installation de libSQL précompilé ===" -ForegroundColor Green
+$libsqlDir = Join-Path $ToolsDir "libsql"
+if ($ForceReinstall -and (Test-Path $libsqlDir)) {
+    Remove-Item -Path $libsqlDir -Recurse -Force
 }
+if (-not (Test-Path $libsqlDir)) { New-Item -ItemType Directory -Path $libsqlDir | Out-Null }
+Write-Host "Téléchargement du package $libsqlPackage..." -ForegroundColor Cyan
+npm install $libsqlPackage --prefix $libsqlDir | Out-Null
+Write-Host "✅ libSQL installé dans $libsqlDir" -ForegroundColor Green
 
-# Test rapide de compilation libSQL
-Write-Host "`nTest de compatibilité libSQL avec w64devkit..." -ForegroundColor Cyan
-$testDir = Join-Path $env:TEMP "test-libsql-$(Get-Date -Format 'yyyyMMddHHmmss')"
-New-Item -ItemType Directory -Path $testDir | Out-Null
-
-$testCargo = @"
-[package]
-name = "test-libsql"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
-"@
-
-$testMain = @"
-fn main() {
-    println!("libSQL compile avec succès!");
-}
-"@
-
-Set-Content -Path "$testDir\Cargo.toml" -Value $testCargo
-New-Item -ItemType Directory -Path "$testDir\src" | Out-Null
-Set-Content -Path "$testDir\src\main.rs" -Value $testMain
-
-Push-Location $testDir
-$env:LIBSQL_STATIC = "1"
-$libsqlWorks = $false
-
-try {
-    & "$cargoHome\bin\cargo.exe" build --target x86_64-pc-windows-gnu 2>&1 | Out-Null
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ libSQL compile avec w64devkit!" -ForegroundColor Green
-        $libsqlWorks = $true
-    } else {
-        Write-Host "⚠️ libSQL ne compile pas avec w64devkit - rusqlite sera utilisé comme fallback" -ForegroundColor Yellow
-    }
-} catch {
-    Write-Host "⚠️ Test libSQL échoué - rusqlite sera utilisé comme fallback" -ForegroundColor Yellow
-} finally {
-    Pop-Location
-    Remove-Item -Path $testDir -Recurse -Force -ErrorAction SilentlyContinue
-}
-
-# Installer tauri-cli si pas déjà présent
-if (-not (Test-Path "$cargoHome\bin\cargo-tauri.exe")) {
-    Write-Host "Installation de tauri-cli..." -ForegroundColor Cyan
-    & "$cargoHome\bin\cargo.exe" install tauri-cli --locked
-    
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ tauri-cli installé" -ForegroundColor Green
-    } else {
-        Write-Host "⚠️ Échec de l'installation de tauri-cli (non critique)" -ForegroundColor Yellow
-    }
-}
-
-# 5. Créer un script de lancement pour l'environnement
+# 3. Création du script d'environnement
 $launchScript = Join-Path $ToolsDir "start-tauri-env.ps1"
 $launchContent = @"
 # Script pour configurer l'environnement Tauri
 `$env:RUSTUP_HOME = "$rustupHome"
 `$env:CARGO_HOME = "$cargoHome"
-`$env:PATH = "$cargoHome\bin;$w64devkitPath\bin;`$env:PATH"
-`$env:CC = "$w64devkitPath\bin\gcc.exe"
-`$env:CXX = "$w64devkitPath\bin\g++.exe"
-`$env:AR = "$w64devkitPath\bin\ar.exe"
-
-Write-Host "Environnement Tauri configuré!" -ForegroundColor Green
-Write-Host "Versions:" -ForegroundColor Cyan
-rustc --version
-cargo --version
-gcc --version | Select-Object -First 1
+`$env:LIBSQL_LIB_DIR = "$libsqlDir\node_modules\@libsql\win32-x64-msvc"
+`$env:PATH = "$cargoHome\bin;`$env:PATH"
+Write-Host "Environnement Tauri configuré!"
 "@
-
 Set-Content -Path $launchScript -Value $launchContent -Encoding UTF8
-Write-Host "`n✅ Script de lancement créé: $launchScript" -ForegroundColor Green
 
-# 6. Afficher le résumé
 Write-Host "`n=== Installation terminée ===" -ForegroundColor Green
-Write-Host "w64devkit: $w64devkitPath" -ForegroundColor Cyan
 Write-Host "Rust: $rustPortableDir" -ForegroundColor Cyan
+Write-Host "libSQL: $libsqlDir" -ForegroundColor Cyan
 Write-Host "Script env: $launchScript" -ForegroundColor Cyan
 Write-Host "`nPour utiliser l'environnement, exécutez:" -ForegroundColor Yellow
 Write-Host "  . $launchScript" -ForegroundColor White
-
-# Note sur libSQL
-if ($libsqlWorks) {
-    Write-Host "`n📌 Note: libSQL compile correctement avec votre configuration!" -ForegroundColor Green
-    Write-Host "   Vous pourrez utiliser libSQL comme prévu dans le projet." -ForegroundColor White
-} else {
-    Write-Host "`n📌 Note: libSQL ne compile pas avec w64devkit sur ce système." -ForegroundColor Yellow
-    Write-Host "   Utilisez rusqlite comme alternative (déjà inclus dans le plan)." -ForegroundColor White
-    Write-Host "   Les deux bibliothèques supportent parfaitement les chemins réseau UNC." -ForegroundColor White
-}
 ```
-
 - [x] Créer le script `scripts/setup-tauri-tools.ps1`
-- [ ] Tester le téléchargement et l'installation de w64devkit *(à faire sur une machine Windows)*
+- [ ] Tester l'installation du script sur une machine Windows
 - [ ] Tester l'installation de Rust portable *(à faire sur une machine Windows)*
 - [ ] Vérifier la configuration de Cargo *(à faire après installation)*
 - [x] Documenter dans le README
@@ -319,10 +160,9 @@ function Setup-Tauri-Environment {
     # Configurer l'environnement
     $env:RUSTUP_HOME = Join-Path $rustPortableDir ".rustup"
     $env:CARGO_HOME = Join-Path $rustPortableDir ".cargo"
-    $env:PATH = "$env:CARGO_HOME\bin;D:\tools\w64devkit\bin;$env:PATH"
-    
-    # Configurer w64devkit pour Rust
-    Set-W64DevKitEnvironment
+    $env:PATH = "$env:CARGO_HOME\bin;$env:PATH"
+    # Charger l'environnement Tauri
+    . (Join-Path $ToolsDir "start-tauri-env.ps1")
     
     return $true
 }
@@ -454,7 +294,7 @@ indi-suivi/
 
 - [x] Initialiser le projet Tauri : `cargo tauri init`
 - [x] Configurer `Cargo.toml` avec les bonnes dépendances
-- [x] Adapter `tauri.conf.json` pour le build avec w64devkit
+- [x] Adapter `tauri.conf.json` pour la build Windows
 - [x] Créer la structure de dossiers
 - [x] Ajouter `src-tauri/build.rs`
 - [x] Ajouter `src-tauri/src/main.rs`
@@ -519,16 +359,8 @@ panic = "abort"     # Plus petit binaire
 ```
 
 - [x] Créer `src-tauri/Cargo.toml` avec les dépendances
-- [ ] Tester d'abord avec libSQL : `cargo build --target x86_64-pc-windows-gnu`
-- [ ] Si échec de compilation libSQL, essayer avec ces flags :
-  ```powershell
-  $env:LIBSQL_STATIC = "1"
-  $env:CC = "D:\tools\w64devkit\bin\gcc.exe"
-  $env:CXX = "D:\tools\w64devkit\bin\g++.exe"
-  $env:CFLAGS = "-D_WIN32_WINNT=0x0601"
-  cargo build --target x86_64-pc-windows-gnu
-  ```
-- [ ] Si libSQL ne compile toujours pas, basculer sur rusqlite (décommenter dans Cargo.toml)
+- [ ] Tester la compilation avec libSQL : `cargo build`
+- [ ] Si la compilation échoue, passer sur rusqlite (décommenter dans Cargo.toml)
 - [ ] Optimiser les flags de compilation
 
 ### 1.3 Configuration base de données
@@ -1135,13 +967,10 @@ jobs:
     - name: Setup Rust
       uses: dtolnay/rust-toolchain@stable
       with:
-        targets: x86_64-pc-windows-gnu
+          targets: x86_64-pc-windows-msvc
     
-    - name: Install w64devkit
-      run: |
-        Invoke-WebRequest -Uri "https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip" -OutFile w64devkit.zip
-        Expand-Archive w64devkit.zip -DestinationPath .
-        echo "${{ github.workspace }}\w64devkit\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Setup tools
+        run: pwsh scripts/setup-tauri-tools.ps1
     
     - name: Build Tauri
       run: |
