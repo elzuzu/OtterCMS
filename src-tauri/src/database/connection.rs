@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use std::sync::Arc;
-use libsql::{Database, Connection};
+use libsql::{Builder, Database, Connection};
 
 pub struct DatabasePool {
     db: Arc<Database>,
@@ -8,7 +8,10 @@ pub struct DatabasePool {
 
 impl DatabasePool {
     pub async fn new_network_optimized(db_path: &str) -> Result<Self> {
-        let db = Database::open_remote(db_path, "").context("Impossible d'ouvrir la base")?;
+        let db = Builder::new_remote(db_path.to_string(), "".to_string())
+            .build()
+            .await
+            .context("Impossible d'ouvrir la base")?;
         let conn = db.connect()?;
         conn.execute(
             "PRAGMA journal_mode=WAL",

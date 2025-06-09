@@ -22,7 +22,7 @@ async fn main() {
                 .join("db")
                 .join("ottercms.sqlite");
             
-            // Pour libsql 0.6.0, Database::open est synchrone
+            // Depuis libsql 0.6.0, l'ouverture via Builder est asynchrone
             let pool = block_on(DatabasePool::new_network_optimized(db_path.to_str().unwrap()))
                 .expect("failed to open database");
             
