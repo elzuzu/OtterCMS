@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
-// import Dashboard from './Dashboard'; // Removed
-// import IndividusList from './IndividusList'; // Removed
-// import ImportData from './ImportData'; // Removed
-// import MassAttribution from './MassAttribution'; // Removed
-// import AdminCategories from './AdminCategories'; // Removed
-// import AdminUsersSection from './AdminUsersSection'; // Removed
-// import AdminTemplate from './AdminTemplate'; // Removed
-// import UserSettings from './UserSettings'; // Removed
+// Components are lazy loaded via LazyComponents.jsx
 import * as LazyComponents from './LazyComponents';
 import CircularProgress from './common/CircularProgress'; // Path confirmed to be correct
 import LayoutManager from './layout/LayoutManager'; // Kept
