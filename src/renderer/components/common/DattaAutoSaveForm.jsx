@@ -113,8 +113,16 @@ export default function DattaAutoSaveForm({
 
   const handleConflictResolution = async (resolution) => {
     setConflictData(null);
-    setSaveStatus('saved');
-    // TODO: apply resolution strategy
+    setSaveStatus('saving');
+    try {
+      await onSave(data, resolution);
+      setLastSaved(new Date());
+      setSaveStatus('saved');
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      setSaveStatus('error');
+      onError?.(error);
+    }
   };
 
   return (

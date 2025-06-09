@@ -13,7 +13,7 @@ export default function DattaDataTable({
   page = 0,
   rowsPerPage = 10,
   onPageChange,
-  onRowsPerPageChange, // TODO: Implement UI for changing rowsPerPage if needed
+  onRowsPerPageChange,
 }) {
   const keyGetter = getRowKey || ((row, idx) => row.id || idx);
 
@@ -131,6 +131,21 @@ export default function DattaDataTable({
                 Suiv.
               </a>
             </div>
+            {onRowsPerPageChange && (
+              <div className="ms-3">
+                <select
+                  className="form-select form-select-sm"
+                  value={rowsPerPage}
+                  onChange={e => onRowsPerPageChange(parseInt(e.target.value, 10))}
+                >
+                  {[10, 25, 50, 100].map(size => (
+                    <option key={size} value={size}>
+                      {size} / page
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         )}
       </div>
