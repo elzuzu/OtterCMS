@@ -1,0 +1,61 @@
+import React, { useState, useEffect } from 'react';
+import DattaCard from './DattaCard';
+import DattaButton from './DattaButton';
+
+export default function DattaDiagnosticPanel() {
+  const [diagnostics, setDiagnostics] = useState({});
+  const [isRunning, setIsRunning] = useState(false);
+
+  const runDiagnostics = async () => {
+    setIsRunning(true);
+    try {
+      const results = await window.api.runDiagnostics();
+      setDiagnostics(results);
+    } catch (error) {
+      setDiagnostics({ error: error.message });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  return (
+    <DattaCard
+      title="Diagnostics systeme"
+      actions={
+        <DattaButton variant="primary" size="sm" onClick={runDiagnostics} loading={isRunning}>
+          <i className="feather icon-play me-2"></i>
+          Lancer diagnostic
+        </DattaButton>
+      }
+    >
+      <div className="row">
+        <div className="col-md-6">
+          <h6><i className="feather icon-database me-2"></i>Base de donnees</h6>
+          <ul className="list-unstyled">
+            <li className="d-flex justify-content-between">
+              <span>Connexion</span>
+              <span className={`badge bg-${diagnostics.dbConnection ? 'success' : 'danger'}`}>{diagnostics.dbConnection ? 'OK' : 'Echec'}</span>
+            </li>
+            <li className="d-flex justify-content-between">
+              <span>Temps de reponse</span>
+              <span className="badge bg-info">{diagnostics.dbLatency}ms</span>
+            </li>
+          </ul>
+        </div>
+        <div className="col-md-6">
+          <h6><i className="feather icon-wifi me-2"></i>Reseau</h6>
+          <ul className="list-unstyled">
+            <li className="d-flex justify-content-between">
+              <span>Partage accessible</span>
+              <span className={`badge bg-${diagnostics.networkShare ? 'success' : 'danger'}`}>{diagnostics.networkShare ? 'OK' : 'Echec'}</span>
+            </li>
+            <li className="d-flex justify-content-between">
+              <span>Permissions</span>
+              <span className={`badge bg-${diagnostics.permissions ? 'success' : 'warning'}`}>{diagnostics.permissions ? 'Lecture/Ecriture' : 'Lecture seule'}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </DattaCard>
+  );
+}
