@@ -3,6 +3,9 @@
 ![Node.js >=20](https://img.shields.io/badge/node-%3E=20.0-brightgreen)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
+**Auteur :** AWY  
+**Entreprise :** EGE
+
 Application Tauri 2 et React pour le suivi d'individus avec champs dynamiques et interface moderne.
 
 ## Sommaire
