@@ -1,4 +1,4 @@
-# Créer le dossier tools s'il n'existe pas
+﻿# Créer le dossier tools s'il n'existe pas
 New-Item -ItemType Directory -Force -Path "d:\tools"
 
 # Télécharger PortableBuildTools
