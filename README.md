@@ -42,7 +42,7 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 
 - **Node.js 20** ou version ultérieure
 - **Rust stable** avec toolchain MSVC (installé par le script)
-- Bibliothèque **libSQL** précompilée (téléchargée automatiquement)
+- Plugin **SQL officiel Tauri**
 - **npm** ou équivalent (pnpm, Yarn)
 
 ## Installation rapide
@@ -84,7 +84,7 @@ npm run build
 ```
 
 Sous Windows, exécutez `scripts/setup-tauri-tools.ps1` pour installer
-l'environnement Rust portable et la bibliothèque libSQL précompilée. Le script
+l'environnement Rust portable. Le script
 génère un fichier `start-tauri-env.ps1` qu'il faut charger avant la compilation
 (via `.` suivi du chemin). Vous pourrez ensuite lancer la commande suivante
 depuis `src-tauri` :
@@ -164,7 +164,7 @@ npm run dev
 npm run build
 ```
 
-Les scripts utilisent Tauri 2 avec le backend Rust dans `src-tauri/` et la base de données SQLite gérée via libSQL.
+Les scripts utilisent Tauri 2 avec le backend Rust dans `src-tauri/` et la base de données SQLite gérée via le plugin SQL.
 ## Licence
 
 MIT

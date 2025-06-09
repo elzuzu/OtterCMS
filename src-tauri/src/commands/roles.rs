@@ -1,9 +1,6 @@
-use crate::AppState;
 use serde::{Deserialize, Serialize};
-use tauri::State;
-use super::db_command_with_retry;
-use libsql::Connection;
-use anyhow::Result;
+use tauri::AppHandle;
+use tauri_plugin_sql::Database;
 use serde_json;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -30,95 +27,109 @@ pub struct RoleInput {
 }
 
 #[tauri::command]
-pub async fn get_roles(state: State<'_, AppState>) -> Result<Vec<Role>, String> {
-    db_command_with_retry(&state, |conn: Connection| Box::pin(async move {
-        let mut stmt = conn.prepare("SELECT id, name, description, permissions FROM roles").await?;
-        let mut rows = stmt.query(()).await?;
-        let mut roles = Vec::new();
-        
-        while let Some(row) = rows.next().await? {
-            let id: i64 = row.get(0)?;
-            let name: String = row.get(1)?;
-            let description: String = row.get(2)?;
-            let permissions_json: String = row.get(3)?;
-            roles.push(Role {
-                id: Some(id),
-                name,
-                description,
-                permissions: permissions_json,
-            });
-        }
-        
-        Ok::<Vec<Role>, anyhow::Error>(roles)
-    })).await.map_err(|e| e.to_string())
+pub async fn get_roles(app: AppHandle) -> Result<Vec<Role>, String> {
+    let db = Database::load(&app, "sqlite:ottercms.db")
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let rows = db
+        .select(
+            "SELECT id, name, description, permissions FROM roles",
+            &[],
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let mut roles = Vec::new();
+    for row in rows {
+        let id = row.get("id").and_then(|v| v.as_i64());
+        let name = row
+            .get("name")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+        let description = row
+            .get("description")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+        let permissions_json = row
+            .get("permissions")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+
+        roles.push(Role {
+            id,
+            name,
+            description,
+            permissions: permissions_json,
+        });
+    }
+
+    Ok(roles)
 }
 
 #[tauri::command]
-pub async fn create_role(state: State<'_, AppState>, role: Role) -> Result<Role, String> {
-    let name = role.name.clone();
-    let description = role.description.clone();
+pub async fn create_role(app: AppHandle, role: Role) -> Result<Role, String> {
+    let db = Database::load(&app, "sqlite:ottercms.db")
+        .await
+        .map_err(|e| e.to_string())?;
+
     let permissions_json = serde_json::to_string(&role.permissions)
         .map_err(|e| format!("Erreur de sérialisation des permissions: {}", e))?;
-    db_command_with_retry(&state, move |conn: Connection| {
-        let name = name.clone();
-        let description = description.clone();
-        let permissions_json = permissions_json.clone();
-        let role_name = role.name.clone();
-        let role_description = role.description.clone();
-        Box::pin(async move {
-            conn.execute(
-                "INSERT INTO roles (name, description, permissions) VALUES (?, ?, ?)",
-                libsql::params![name, description, permissions_json.clone()],
-            ).await?;
-            let id = conn.last_insert_rowid();
-            Ok::<Role, anyhow::Error>(Role {
-                id: Some(id),
-                name: role_name,
-                description: role_description,
-                permissions: permissions_json.clone(),
-            })
-        })
-    }).await.map_err(|e| e.to_string())
+
+    db.execute(
+        "INSERT INTO roles (name, description, permissions) VALUES (?, ?, ?)",
+        &[&role.name, &role.description, &permissions_json],
+    )
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok(Role {
+        id: None,
+        name: role.name,
+        description: role.description,
+        permissions: permissions_json,
+    })
 }
 
 #[tauri::command]
-pub async fn update_role(state: State<'_, AppState>, role: Role) -> Result<Role, String> {
-    let id = role.id;
-    let name = role.name.clone();
-    let description = role.description.clone();
+pub async fn update_role(app: AppHandle, role: Role) -> Result<Role, String> {
+    let db = Database::load(&app, "sqlite:ottercms.db")
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let id = role.id.ok_or_else(|| "ID manquant".to_string())?;
     let permissions_json = serde_json::to_string(&role.permissions)
         .map_err(|e| format!("Erreur de sérialisation des permissions: {}", e))?;
-    db_command_with_retry(&state, move |conn: Connection| {
-        let name = name.clone();
-        let description = description.clone();
-        let permissions_json = permissions_json.clone();
-        let id = id.clone();
-        let role_name = role.name.clone();
-        let role_description = role.description.clone();
-        let role_permissions = role.permissions.clone();
-        Box::pin(async move {
-            conn.execute(
-                "UPDATE roles SET name = ?, description = ?, permissions = ? WHERE id = ?",
-                libsql::params![name, description, permissions_json, id],
-            ).await?;
-            Ok::<Role, anyhow::Error>(Role {
-                id,
-                name: role_name,
-                description: role_description,
-                permissions: role_permissions,
-            })
-        })
-    }).await.map_err(|e| e.to_string())
+
+    db.execute(
+        "UPDATE roles SET name = ?, description = ?, permissions = ? WHERE id = ?",
+        &[&role.name, &role.description, &permissions_json, &id],
+    )
+    .await
+    .map_err(|e| e.to_string())?;
+
+    Ok(Role {
+        id: Some(id),
+        name: role.name,
+        description: role.description,
+        permissions: permissions_json,
+    })
 }
 
 #[tauri::command]
-pub async fn delete_role(state: State<'_, AppState>, id: Option<i64>) -> Result<(), String> {
+pub async fn delete_role(app: AppHandle, id: Option<i64>) -> Result<(), String> {
     let id = id.ok_or_else(|| "Role ID requis pour la suppression".to_string())?;
-    db_command_with_retry(&state, move |conn: Connection| {
-        let id = id.clone();
-        Box::pin(async move {
-            conn.execute("DELETE FROM roles WHERE id = ?", libsql::params![id]).await?;
-            Ok::<(), anyhow::Error>(())
-        })
-    }).await.map_err(|e| e.to_string())
+
+    let db = Database::load(&app, "sqlite:ottercms.db")
+        .await
+        .map_err(|e| e.to_string())?;
+
+    db.execute("DELETE FROM roles WHERE id = ?", &[&id])
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
 }

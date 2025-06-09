@@ -7,6 +7,11 @@
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:ottercms.db"]
+    }
+  },
   "app": {
     "windows": [
       {
@@ -14,6 +19,20 @@
         "width": 1200,
         "height": 800
       }
-    ]
+    ],
+    "security": {
+      "capabilities": [
+        {
+          "identifier": "main-capability",
+          "windows": ["main"],
+          "permissions": [
+            "core:default",
+            "sql:default",
+            "sql:allow-execute",
+            "sql:allow-select"
+          ]
+        }
+      ]
+    }
   }
 }

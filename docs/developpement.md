@@ -9,7 +9,7 @@ Ce document résume la mise en place d'un environnement local pour développer �
 - **npm** est recommandé pour la gestion des dépendances. Yarn ou pnpm fonctionnent mais ne sont pas testés.
 - Un système Windows, macOS ou Linux récent.
  - Sous **Windows**, exécutez `scripts/setup-tauri-tools.ps1` pour installer
-   Rust portable ainsi que la version précompilée de libSQL.
+   Rust portable.
 
 ## Installation des dépendances
 
@@ -52,7 +52,7 @@ La commande suivante crée un exécutable Tauri :
 npm run build
 ```
 Sous Windows, exécutez d'abord `scripts/setup-tauri-tools.ps1` pour préparer
-l'environnement (Rust portable et libSQL précompilé). Le script crée un
+l'environnement (Rust portable). Le script crée un
 fichier `start-tauri-env.ps1` qu'il faut charger dans votre terminal PowerShell
 (commande `. .\start-tauri-env.ps1`) avant d'appeler `cargo tauri build
 --release` dans `src-tauri`. Le script facultatif `setup-tools.ps1` peut

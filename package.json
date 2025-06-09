@@ -1,13 +1,12 @@
 {
   "name": "ottercms",
   "version": "2.0.0",
-  "description": "Application Tauri 2 avec React et libSQL",
+  "description": "Application Tauri 2 avec React et plugin SQL",
   "homepage": "./",
   "scripts": {
     "dev": "tauri dev",
     "build": "vite build",
     "tauri": "tauri",
-    "install-app": "node scripts/install-libsql.js",
     "audit": "npm audit",
     "audit-fix": "npm audit fix",
     "clean": "rimraf node_modules package-lock.json dist src-tauri/target",
@@ -17,7 +16,6 @@
   "keywords": [
     "tauri",
     "react",
-    "libsql",
     "sqlite",
     "desktop"
   ],
@@ -39,10 +37,10 @@
     "react-perfect-scrollbar": "^1.5.8",
     "react-router-dom": "^7.6.2",
     "xlsx": "^0.18.5",
-    "zustand": "^5.0.5"
+    "zustand": "^5.0.5",
+    "@tauri-apps/plugin-sql": "^2.0.0"
   },
   "devDependencies": {
-    "@libsql/win32-x64-msvc": "^0.5.13",
     "@tauri-apps/cli": "^2.5.0",
     "@vitejs/plugin-react": "^4.5.1",
     "babel-plugin-transform-remove-console": "^6.9.4",

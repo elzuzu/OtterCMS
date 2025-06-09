@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
 import DattaCard from './DattaCard';
 import DattaButton from './DattaButton';
 import DattaAlert from './DattaAlert';
@@ -21,7 +22,7 @@ export default function DattaDiagnosticPanel() {
   const runDiagnostics = async () => {
     setIsRunning(true);
     try {
-      const results = await window.api.runDiagnostics();
+      const results = await invoke('run_diagnostics');
       setDiagnostics(results);
     } catch (error) {
       setDiagnostics({ error: error.message, timestamp: new Date() });
