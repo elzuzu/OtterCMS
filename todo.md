@@ -1,1062 +1,499 @@
-# TODO: Migration Electron vers Tauri 2 + libSQL
+# Datta Able Tasks
 
-## 📋 Vue d'ensemble
-Migration progressive d'OtterCMS depuis Electron/better-sqlite3 vers Tauri 2/libSQL tout en maintenant la base de données sur un partage réseau.
+## CRITIQUE - A faire immediatement
 
-### 🔍 Note importante sur libSQL vs rusqlite
+### Stabilite reseau et concurrence (Datta Able UI)
+- [ ] Network status component
+```jsx
+// components/common/DattaNetworkStatus.jsx
+import React from 'react';
+import DattaAlert from './DattaAlert';
 
-**libSQL** est le choix principal car c'est ce que vous avez demandé. Une version précompilée est désormais utilisée sous Windows, évitant toute complication liée à w64devkit/MinGW.
+export default function DattaNetworkStatus({ isOnline, lastSync }) {
+  if (!isOnline) {
+    return (
+      <DattaAlert type="warning" className="fixed-top m-3">
+        <i className="feather icon-wifi-off me-2"></i>
+        Reseau indisponible - Mode hors ligne
+      </DattaAlert>
+    );
+  }
+  return (
+    <div className="badge bg-success">
+      <i className="feather icon-wifi me-1"></i>
+      Connecte
+    </div>
+  );
+}
+```
 
-**Solution proposée** : 
-1. Tenter d'abord la compilation avec libSQL
-2. Si échec, utiliser rusqlite comme alternative (API très similaire)
-3. Les deux supportent parfaitement les chemins UNC Windows
+- [ ] Conflict resolution modal
+```jsx
+// components/common/DattaConflictModal.jsx
+import React from 'react';
+import DattaModal from './DattaModal';
+import DattaButton from './DattaButton';
+import DattaAlert from './DattaAlert';
 
-Le plan inclut les deux options pour garantir le succès du projet.
+export default function DattaConflictModal({ conflicts, onResolve, onClose }) {
+  return (
+    <DattaModal open title="Conflit detecte" size="lg" onClose={onClose}>
+      <DattaAlert type="warning">
+        <i className="feather icon-alert-triangle me-2"></i>
+        Un autre utilisateur a modifie ces donnees simultanement.
+      </DattaAlert>
+      <div className="row">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">
+              <h6><i className="feather icon-user me-2"></i>Vos modifications</h6>
+            </div>
+            <div className="card-body">
+              {/* Afficher les changements locaux */}
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">
+              <h6><i className="feather icon-users me-2"></i>Modifications distantes</h6>
+            </div>
+            <div className="card-body">
+              {/* Afficher les changements distants */}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="d-flex justify-content-end gap-2 mt-3">
+        <DattaButton variant="secondary" onClick={onClose}>Annuler</DattaButton>
+        <DattaButton variant="primary" onClick={() => onResolve('local')}>Garder mes modifications</DattaButton>
+        <DattaButton variant="warning" onClick={() => onResolve('remote')}>Garder les modifications distantes</DattaButton>
+      </div>
+    </DattaModal>
+  );
+}
+```
 
-### ⚠️ Contraintes critiques
-- ✅ Client Windows 64-bit uniquement  
-- ✅ Base de données SQLite sur partage réseau (\\server\share\db\ottercms.sqlite)
-- ✅ Pas de droits administrateur requis (Rust portable et libSQL précompilé)
-- ✅ Installation dans D:\tools
-- ✅ Compatibilité ascendante avec l'existant
-- ✅ Zéro interruption de service
+### Integrite des donnees (UI Datta Able)
+- [ ] Backup status card
+```jsx
+// components/common/DattaBackupStatus.jsx
+export default function DattaBackupStatus({ lastBackup, nextBackup, isBackingUp }) {
+  return (
+    <div className="card">
+      <div className="card-body">
+        <div className="d-flex align-items-center">
+          <div className="avtar avtar-s bg-light-success me-3">
+            <i className={`feather ${isBackingUp ? 'icon-download' : 'icon-shield'}`}></i>
+          </div>
+          <div>
+            <h6 className="mb-1">Sauvegarde automatique</h6>
+            <p className="mb-0 text-muted">
+              {isBackingUp ? 'Sauvegarde en cours...' : `Derniere: ${lastBackup}`}
+            </p>
+          </div>
+        </div>
+        {isBackingUp && (
+          <div className="progress mt-2">
+            <div className="progress-bar progress-bar-striped progress-bar-animated" style={{ width: '100%' }}></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+```
 
----
+## HAUTE PRIORITE - Performance reseau et UX
 
-## Phase 0: Préparation et environnement portable (1 semaine)
+### Loading states unifies
+- [ ] DattaLoadingOverlay
+```jsx
+// components/common/DattaLoadingOverlay.jsx
+import React from 'react';
 
-### 0.1 Script d'installation automatique des outils
+export default function DattaLoadingOverlay({ isLoading, message = "Chargement...", progress = null, children }) {
+  return (
+    <div className="position-relative">
+      {children}
+      {isLoading && (
+        <div className="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75">
+          <div className="spinner-border text-primary mb-3" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <h6 className="mb-2">{message}</h6>
+          {progress !== null && (
+            <div className="progress" style={{ width: '200px' }}>
+              <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+```
 
+- [ ] DattaOperationStatus
+```jsx
+// components/common/DattaOperationStatus.jsx
+export default function DattaOperationStatus({ operations }) {
+  if (operations.length === 0) return null;
+  return (
+    <div className="fixed-bottom p-3">
+      <div className="card shadow">
+        <div className="card-body">
+          <h6><i className="feather icon-activity me-2"></i>Operations en cours</h6>
+          {operations.map(op => (
+            <div key={op.id} className="d-flex align-items-center mb-2">
+              <div className="spinner-border spinner-border-sm me-2" role="status"></div>
+              <span className="me-auto">{op.description}</span>
+              <div className="progress" style={{ width: '100px' }}>
+                <div className="progress-bar" style={{ width: `${op.progress}%` }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
 
-```powershell
-param(
-    [string]$ToolsDir = "D:\tools",
-    [switch]$ForceReinstall
-)
+### Error handling
+- [ ] DattaErrorBoundary
+```jsx
+// components/common/DattaErrorBoundary.jsx
+import React from 'react';
+import DattaButton from './DattaButton';
 
-$ErrorActionPreference = "Stop"
+class DattaErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-$rustVersion = "1.75.0"
-$rustupInitUrl = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
-$libsqlPackage = "@libsql/win32-x64-msvc"
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
 
-function Download-WithRetry {
-    param([string]$Url, [string]$Output, [int]$MaxRetries = 3)
-    for ($i = 1; $i -le $MaxRetries; $i++) {
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="d-flex justify-content-center align-items-center min-vh-100">
+          <div className="card text-center" style={{ maxWidth: '500px' }}>
+            <div className="card-body">
+              <div className="avtar avtar-xl bg-light-danger mb-4">
+                <i className="feather icon-alert-triangle f-36"></i>
+              </div>
+              <h4 className="mb-3">Oups ! Une erreur s'est produite</h4>
+              <p className="text-muted mb-4">L'application a rencontre un probleme. Vos donnees sont sauvegardees.</p>
+              <div className="d-flex gap-2 justify-content-center">
+                <DattaButton variant="primary" onClick={() => window.location.reload()}>Recharger l'application</DattaButton>
+                <DattaButton variant="secondary" onClick={() => this.setState({ hasError: false })}>Reessayer</DattaButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+```
+
+## MOYENNE PRIORITE - Composants robustes
+
+### Formulaires resistants aux erreurs reseau
+- [ ] DattaAutoSaveForm
+```jsx
+// components/common/DattaAutoSaveForm.jsx
+import React, { useEffect, useState } from 'react';
+import DattaAlert from './DattaAlert';
+
+export default function DattaAutoSaveForm({ data, onSave, onError, saveInterval = 30000, children }) {
+  const [lastSaved, setLastSaved] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('saved');
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (saveStatus === 'modified') {
+        setIsSaving(true);
         try {
-            Write-Host "Téléchargement de $Url (tentative $i/$MaxRetries)..." -ForegroundColor Cyan
-            Invoke-WebRequest -Uri $Url -OutFile $Output -UseBasicParsing -Headers @{"User-Agent"="Mozilla/5.0"}
-            return $true
-        } catch {
-            if ($i -eq $MaxRetries) {
-                Write-Host "Échec après $MaxRetries tentatives: $_" -ForegroundColor Red
-                return $false
-            }
-            Write-Host "Échec, nouvelle tentative dans 5 secondes..." -ForegroundColor Yellow
-            Start-Sleep -Seconds 5
+          await onSave(data);
+          setLastSaved(new Date());
+          setSaveStatus('saved');
+        } catch (error) {
+          setSaveStatus('error');
+          onError?.(error);
+        } finally {
+          setIsSaving(false);
         }
+      }
+    }, saveInterval);
+
+    return () => clearInterval(interval);
+  }, [data, saveInterval, saveStatus]);
+
+  const getStatusBadge = () => {
+    switch (saveStatus) {
+      case 'saved':
+        return <span className="badge bg-success">Sauvegarde</span>;
+      case 'modified':
+        return <span className="badge bg-warning">Non sauvegarde</span>;
+      case 'error':
+        return <span className="badge bg-danger">Erreur sauvegarde</span>;
+      default:
+        return null;
     }
+  };
+
+  return (
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div className="d-flex align-items-center gap-2">
+          {isSaving && <div className="spinner-border spinner-border-sm" role="status"></div>}
+          {getStatusBadge()}
+          {lastSaved && <small className="text-muted">Derniere sauvegarde: {lastSaved.toLocaleTimeString()}</small>}
+        </div>
+      </div>
+      {saveStatus === 'error' && (
+        <DattaAlert type="danger" className="mb-3">
+          <i className="feather icon-alert-circle me-2"></i>
+          Impossible de sauvegarder. Verifiez votre connexion reseau.
+        </DattaAlert>
+      )}
+      {children}
+    </div>
+  );
 }
-
-# 1. Installation de Rust portable
-Write-Host "`n=== Installation de Rust portable ===" -ForegroundColor Green
-$rustPortableDir = Join-Path $ToolsDir "rust-portable"
-$rustupHome = Join-Path $rustPortableDir ".rustup"
-$cargoHome = Join-Path $rustPortableDir ".cargo"
-
-if ((Test-Path (Join-Path $cargoHome "bin\cargo.exe")) -and -not $ForceReinstall) {
-    Write-Host "Rust déjà installé dans $rustPortableDir" -ForegroundColor Yellow
-} else {
-    New-Item -ItemType Directory -Force -Path $rustupHome | Out-Null
-    New-Item -ItemType Directory -Force -Path $cargoHome | Out-Null
-
-    $rustupInit = Join-Path $env:TEMP "rustup-init.exe"
-    if (Download-WithRetry -Url $rustupInitUrl -Output $rustupInit) {
-        Write-Host "Installation de Rust (cela peut prendre quelques minutes)..." -ForegroundColor Cyan
-        $env:RUSTUP_HOME = $rustupHome
-        $env:CARGO_HOME = $cargoHome
-        $env:RUSTUP_INIT_SKIP_PATH_CHECK = "yes"
-        & $rustupInit -y --no-modify-path --default-host x86_64-pc-windows-msvc --default-toolchain stable --profile minimal
-        if ($LASTEXITCODE -ne 0) { throw "Échec de l'installation de Rust" }
-        Write-Host "✅ Rust installé avec succès" -ForegroundColor Green
-        Remove-Item $rustupInit -Force
-    } else {
-        throw "Impossible de télécharger rustup-init"
-    }
-}
-
-# 2. Installation de libSQL précompilé
-Write-Host "`n=== Installation de libSQL précompilé ===" -ForegroundColor Green
-$libsqlDir = Join-Path $ToolsDir "libsql"
-if ($ForceReinstall -and (Test-Path $libsqlDir)) {
-    Remove-Item -Path $libsqlDir -Recurse -Force
-}
-if (-not (Test-Path $libsqlDir)) { New-Item -ItemType Directory -Path $libsqlDir | Out-Null }
-Write-Host "Téléchargement du package $libsqlPackage..." -ForegroundColor Cyan
-npm install $libsqlPackage --prefix $libsqlDir | Out-Null
-Write-Host "✅ libSQL installé dans $libsqlDir" -ForegroundColor Green
-
-# 3. Création du script d'environnement
-$launchScript = Join-Path $ToolsDir "start-tauri-env.ps1"
-$launchContent = @"
-# Script pour configurer l'environnement Tauri
-`$env:RUSTUP_HOME = "$rustupHome"
-`$env:CARGO_HOME = "$cargoHome"
-`$env:LIBSQL_LIB_DIR = "$libsqlDir\node_modules\@libsql\win32-x64-msvc"
-`$env:PATH = "$cargoHome\bin;`$env:PATH"
-Write-Host "Environnement Tauri configuré!"
-"@
-Set-Content -Path $launchScript -Value $launchContent -Encoding UTF8
-
-Write-Host "`n=== Installation terminée ===" -ForegroundColor Green
-Write-Host "Rust: $rustPortableDir" -ForegroundColor Cyan
-Write-Host "libSQL: $libsqlDir" -ForegroundColor Cyan
-Write-Host "Script env: $launchScript" -ForegroundColor Cyan
-Write-Host "`nPour utiliser l'environnement, exécutez:" -ForegroundColor Yellow
-Write-Host "  . $launchScript" -ForegroundColor White
 ```
-- [x] Créer le script `scripts/setup-tauri-tools.ps1`
-- [ ] Tester l'installation du script sur une machine Windows
-- [ ] Tester l'installation de Rust portable *(à faire sur une machine Windows)*
-- [ ] Vérifier la configuration de Cargo *(à faire après installation)*
-- [x] Documenter dans le README
 
-### 0.2 Intégration dans build.ps1
+### Tables optimisees pour le reseau
+- [ ] DattaNetworkDataTable
+```jsx
+// components/common/DattaNetworkDataTable.jsx
+import React, { useState, useEffect } from 'react';
+import DattaDataTable from './DattaDataTable';
+import DattaAlert from './DattaAlert';
 
-Modifier `scripts/build.ps1` pour ajouter le support Tauri :
+export default function DattaNetworkDataTable({ onLoadData, retryInterval = 5000, ...props }) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-```powershell
-# Ajouter ces paramètres
-param(
-    # ... paramètres existants ...
-    [switch]$SetupTauriTools,
-    [switch]$BuildTauri,
-    [string]$TauriMode = "release"  # "release" ou "debug"
-)
-
-# Fonction pour setup Tauri
-function Setup-Tauri-Environment {
-    $tauriSetupScript = Join-Path $PSScriptRoot "setup-tauri-tools.ps1"
-    
-    if (-not (Test-Path $tauriSetupScript)) {
-        Write-ColorText "Script setup-tauri-tools.ps1 manquant!" $Red
-        return $false
-    }
-    
-    # Exécuter le setup si demandé ou si les outils manquent
-    $rustPortableDir = "D:\tools\rust-portable"
-    $cargoPath = Join-Path $rustPortableDir ".cargo\bin\cargo.exe"
-    
-    if ($SetupTauriTools -or -not (Test-Path $cargoPath)) {
-        Write-ColorText "Installation des outils Tauri..." $Cyan
-        & $tauriSetupScript
-        if ($LASTEXITCODE -ne 0) {
-            Write-ColorText "Échec de l'installation des outils Tauri" $Red
-            return $false
-        }
-    }
-    
-    # Configurer l'environnement
-    $env:RUSTUP_HOME = Join-Path $rustPortableDir ".rustup"
-    $env:CARGO_HOME = Join-Path $rustPortableDir ".cargo"
-    $env:PATH = "$env:CARGO_HOME\bin;$env:PATH"
-    # Charger l'environnement Tauri
-    . (Join-Path $ToolsDir "start-tauri-env.ps1")
-    
-    return $true
-}
-
-# Fonction de build Tauri
-function Build-Tauri-App {
-    param([string]$Mode = "release")
-    
-    Write-ColorText "Build Tauri en mode $Mode..." $Cyan
-    
-    $srcTauriPath = Join-Path $projectRoot "src-tauri"
-    if (-not (Test-Path $srcTauriPath)) {
-        Write-ColorText "Dossier src-tauri manquant!" $Red
-        return $false
-    }
-    
-    Push-Location $srcTauriPath
+  const loadData = async () => {
     try {
-        $buildCmd = "cargo tauri build"
-        if ($Mode -eq "debug") {
-            $buildCmd = "cargo tauri build --debug"
-        }
-        
-        # Optimisations pour la release
-        if ($Mode -eq "release") {
-            $env:RUSTFLAGS = "-C target-cpu=native -C link-arg=-s"
-        }
-        
-        Write-ColorText "Exécution: $buildCmd" $Gray
-        Invoke-Expression $buildCmd
-        
-        if ($LASTEXITCODE -eq 0) {
-            Write-ColorText "✅ Build Tauri réussi!" $Green
-            
-            # Appliquer UPX si disponible
-            if ($Mode -eq "release" -and -not $SkipUPX) {
-                $exePath = Join-Path $srcTauriPath "target\release\ottercms.exe"
-                if (Test-Path $exePath) {
-                    Apply-UPX-Compression $exePath
-                }
-            }
-            
-            return $true
-        } else {
-            Write-ColorText "❌ Build Tauri échoué" $Red
-            return $false
-        }
+      setLoading(true);
+      setError(null);
+      const result = await onLoadData();
+      setData(result);
+      setRetryCount(0);
+    } catch (err) {
+      setError(err.message);
+      setRetryCount(prev => prev + 1);
+      if (retryCount < 3) {
+        setTimeout(loadData, retryInterval * Math.pow(2, retryCount));
+      }
     } finally {
-        Pop-Location
+      setLoading(false);
     }
-}
+  };
 
-# Ajouter dans le flux principal
-if ($SetupTauriTools) {
-    if (-not (Setup-Tauri-Environment)) {
-        exit 1
-    }
-}
+  useEffect(() => {
+    loadData();
+  }, []);
 
-if ($BuildTauri) {
-    if (-not (Setup-Tauri-Environment)) {
-        exit 1
-    }
-    
-    if (-not (Build-Tauri-App -Mode $TauriMode)) {
-        exit 1
-    }
-    
-    Write-ColorText "Build Tauri terminé avec succès!" $Green
-    exit 0
+  if (error && retryCount >= 3) {
+    return (
+      <div className="card">
+        <div className="card-body text-center">
+          <DattaAlert type="danger">
+            <i className="feather icon-wifi-off me-2"></i>
+            Impossible de charger les donnees. Verifiez votre connexion reseau.
+          </DattaAlert>
+          <button className="btn btn-primary" onClick={loadData}>
+            <i className="feather icon-refresh-cw me-2"></i>
+            Reessayer
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DattaDataTable
+      {...props}
+      data={data}
+      loading={loading}
+      actions={
+        <div className="d-flex align-items-center gap-2">
+          {props.actions}
+          {loading && <div className="spinner-border spinner-border-sm" role="status"></div>}
+        </div>
+      }
+    />
+  );
 }
 ```
 
-- [x] Modifier `scripts/build.ps1` avec le support Tauri
-- [ ] Tester `.\build.ps1 -SetupTauriTools`
-- [ ] Tester `.\build.ps1 -BuildTauri`
-- [x] Documenter les nouvelles options
+## Features etendues
 
-### 0.3 Analyse des dépendances
-- [ ] Lister toutes les dépendances Electron-spécifiques
-  - [ ] `electron-updater` → `tauri-plugin-updater`
-  - [ ] `electron-builder` → Tauri bundler intégré
-  - [ ] `better-sqlite3` → `rusqlite` (bundled)
-  - [ ] `bcryptjs` → `bcrypt` ou `argon2` (crates Rust)
-- [ ] Identifier les modules natifs critiques
-  - [ ] better-sqlite3 → rusqlite avec feature "bundled"
-  - [ ] oracledb → oracle_rs ou API REST séparée
-- [ ] Documenter toutes les API IPC utilisées
+### Notifications systeme
+- [ ] DattaNotificationCenter
+```jsx
+// components/common/DattaNotificationCenter.jsx
+import React, { useState, useEffect } from 'react';
+import DattaAlert from './DattaAlert';
+
+export default function DattaNotificationCenter() {
+  const [notifications, setNotifications] = useState([]);
+
+  const addNotification = (notification) => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { ...notification, id }]);
+    if (notification.autoClose !== false) {
+      setTimeout(() => removeNotification(id), notification.duration || 5000);
+    }
+  };
+
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  useEffect(() => {
+    window.showNotification = addNotification;
+    return () => {
+      delete window.showNotification;
+    };
+  }, []);
+
+  return (
+    <div className="position-fixed top-0 end-0 p-3" style={{ zIndex: 9999 }}>
+      {notifications.map(notification => (
+        <DattaAlert
+          key={notification.id}
+          type={notification.type}
+          dismissible
+          onClose={() => removeNotification(notification.id)}
+          className="mb-2 shadow"
+        >
+          {notification.icon && <i className={`feather ${notification.icon} me-2`}></i>}
+          {notification.message}
+        </DattaAlert>
+      ))}
+    </div>
+  );
+}
+```
+
+### Outils de diagnostic
+- [ ] DattaDiagnosticPanel
+```jsx
+// components/common/DattaDiagnosticPanel.jsx
+import React, { useState, useEffect } from 'react';
+import DattaCard from './DattaCard';
+import DattaButton from './DattaButton';
+
+export default function DattaDiagnosticPanel() {
+  const [diagnostics, setDiagnostics] = useState({});
+  const [isRunning, setIsRunning] = useState(false);
+
+  const runDiagnostics = async () => {
+    setIsRunning(true);
+    try {
+      const results = await window.api.runDiagnostics();
+      setDiagnostics(results);
+    } catch (error) {
+      setDiagnostics({ error: error.message });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  return (
+    <DattaCard
+      title="Diagnostics systeme"
+      actions={
+        <DattaButton variant="primary" size="sm" onClick={runDiagnostics} loading={isRunning}>
+          <i className="feather icon-play me-2"></i>
+          Lancer diagnostic
+        </DattaButton>
+      }
+    >
+      <div className="row">
+        <div className="col-md-6">
+          <h6><i className="feather icon-database me-2"></i>Base de donnees</h6>
+          <ul className="list-unstyled">
+            <li className="d-flex justify-content-between">
+              <span>Connexion</span>
+              <span className={`badge bg-${diagnostics.dbConnection ? 'success' : 'danger'}`}>{diagnostics.dbConnection ? 'OK' : 'Echec'}</span>
+            </li>
+            <li className="d-flex justify-content-between">
+              <span>Temps de reponse</span>
+              <span className="badge bg-info">{diagnostics.dbLatency}ms</span>
+            </li>
+          </ul>
+        </div>
+        <div className="col-md-6">
+          <h6><i className="feather icon-wifi me-2"></i>Reseau</h6>
+          <ul className="list-unstyled">
+            <li className="d-flex justify-content-between">
+              <span>Partage accessible</span>
+              <span className={`badge bg-${diagnostics.networkShare ? 'success' : 'danger'}`}>{diagnostics.networkShare ? 'OK' : 'Echec'}</span>
+            </li>
+            <li className="d-flex justify-content-between">
+              <span>Permissions</span>
+              <span className={`badge bg-${diagnostics.permissions ? 'success' : 'warning'}`}>{diagnostics.permissions ? 'Lecture/Ecriture' : 'Lecture seule'}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </DattaCard>
+  );
+}
+```
+
+## Extensions basses priorites
+
+### Themes etendus
+- [ ] Mode sombre Datta Able
+```css
+/* Ajouter dans themes.css */
+[data-theme="dark"] {
+  --pc-bg-color: #1a1a1a;
+  --pc-card-bg: #2d2d2d;
+  --pc-text-color: #ffffff;
+  --pc-border-color: #404040;
+  /* autres variables */
+}
+```
+
+### Composants avances
+- [ ] DattaMultiSelect
+- [ ] DattaDateRangePicker
+- [ ] DattaFileDropzone
+- [ ] DattaProgressTracker
+
+## Securite
+
+### Composants de securite
+- [ ] DattaSecurityAlert
+- [ ] DattaPasswordStrength
+- [ ] DattaAuditTrail
 
 ---
 
-## Phase 1: Architecture backend Rust (2-3 semaines)
-
-### 1.1 Structure du projet Tauri
-
-```
-ottercms/
-├── src-tauri/
-│   ├── Cargo.toml
-│   ├── tauri.conf.json
-│   ├── build.rs
-│   └── src/
-│       ├── main.rs
-│       ├── commands/
-│       │   ├── mod.rs
-│       │   ├── auth.rs
-│       │   ├── users.rs
-│       │   ├── categories.rs
-│       │   └── individus.rs
-│       ├── database/
-│       │   ├── mod.rs
-│       │   ├── connection.rs
-│       │   ├── migrations.rs
-│       │   └── models/
-│       ├── services/
-│       │   ├── mod.rs
-│       │   ├── config_service.rs
-│       │   ├── crypto_service.rs
-│       │   └── import_service.rs
-│       └── utils/
-│           ├── mod.rs
-│           ├── logger.rs
-│           └── error.rs
-├── src/               # Frontend React existant
-└── scripts/
-    ├── setup-tauri-tools.ps1
-    └── setup-tools.ps1
-```
-
-- [x] Initialiser le projet Tauri : `cargo tauri init`
-- [x] Configurer `Cargo.toml` avec les bonnes dépendances
-- [x] Adapter `tauri.conf.json` pour la build Windows
-- [x] Créer la structure de dossiers
-- [x] Ajouter `src-tauri/build.rs`
-- [x] Ajouter `src-tauri/src/main.rs`
-- [x] Mettre à jour `package.json` pour utiliser `tauri-cli`
-
-### 1.2 Configuration Cargo.toml
-
-```toml
-[package]
-name = "ottercms"
-version = "2.0.0"
-edition = "2021"
-
-[build-dependencies]
-tauri-build = { version = "2.0.0", features = [] }
-
-[dependencies]
-tauri = { version = "2.0.0", features = ["dialog-open", "dialog-save", "fs-all", "path-all", "protocol-all", "shell-open", "window-all", "updater"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-tokio = { version = "1", features = ["full"] }
-
-# Base de données - Options disponibles :
-
-# Option 1: libSQL (recommandé si compilation réussie)
-libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
-
-# Option 2: rusqlite (fallback si problèmes avec libSQL)
-# rusqlite = { version = "0.32", features = ["bundled", "backup", "blob", "chrono", "serde_json"] }
-# r2d2 = "0.8"  # Pool de connexions
-# r2d2_sqlite = "0.24"
-
-# Authentification et crypto
-bcrypt = "0.15"
-aes-gcm = "0.10"
-rand = "0.8"
-base64 = "0.22"
-
-# Utilitaires
-chrono = { version = "0.4", features = ["serde"] }
-anyhow = "1"
-thiserror = "1"
-log = "0.4"
-env_logger = "0.11"
-dirs = "5"
-
-# Import Excel/CSV
-calamine = "0.25"  # Lecture Excel
-csv = "1.3"
-
-# Windows-specific
-[target.'cfg(windows)'.dependencies]
-windows = { version = "0.54", features = ["Win32_System_Com", "Win32_Security", "Win32_System_WindowsProgramming"] }
-winapi = { version = "0.3", features = ["winuser", "winbase", "winnls"] }
-
-[profile.release]
-opt-level = "z"     # Optimiser pour la taille
-lto = true          # Link Time Optimization
-codegen-units = 1   # Meilleure optimisation
-strip = true        # Retirer les symboles debug
-panic = "abort"     # Plus petit binaire
-```
-
-- [x] Créer `src-tauri/Cargo.toml` avec les dépendances
-- [ ] Tester la compilation avec libSQL : `cargo build`
-- [ ] Si la compilation échoue, passer sur rusqlite (décommenter dans Cargo.toml)
-- [ ] Optimiser les flags de compilation
-
-### 1.3 Configuration base de données
-
-Créer `src-tauri/src/database/connection.rs` avec support pour les deux options :
-
-```rust
-// Option 1: Avec libSQL
-#[cfg(feature = "use-libsql")]
-use libsql::{Connection, Database, OpenFlags};
-use anyhow::{Context, Result};
-use std::path::Path;
-use std::sync::Arc;
-use log::{info, error};
-
-pub struct DatabasePool {
-    db: Arc<Database>,
-    db_path: String,
-}
-
-impl DatabasePool {
-    pub async fn new(db_path: &str) -> Result<Self> {
-        info!("Connexion à la base de données (libSQL): {}", db_path);
-        
-        // Vérifier l'accès au chemin réseau
-        let path = Path::new(db_path);
-        if !path.exists() {
-            if let Some(parent) = path.parent() {
-                if !parent.exists() {
-                    return Err(anyhow::anyhow!(
-                        "Le répertoire de la base de données n'existe pas: {:?}", 
-                        parent
-                    ));
-                }
-            }
-        }
-        
-        // Configuration libSQL pour fichier local (mode embedded)
-        let db = Database::open(db_path)
-            .await
-            .context("Impossible d'ouvrir la base de données")?;
-        
-        // Test de connexion et application des PRAGMA
-        let conn = db.connect()?;
-        conn.execute_batch(
-            "PRAGMA journal_mode = WAL;
-             PRAGMA synchronous = NORMAL;
-             PRAGMA foreign_keys = ON;
-             PRAGMA cache_size = -2000;
-             PRAGMA busy_timeout = 10000;
-             PRAGMA temp_store = MEMORY;"
-        ).await?;
-        
-        info!("✅ Connexion à la base de données établie (libSQL)");
-        
-        Ok(Self {
-            db: Arc::new(db),
-            db_path: db_path.to_string(),
-        })
-    }
-    
-    pub fn get_connection(&self) -> Result<Connection> {
-        self.db.connect()
-            .context("Impossible d'obtenir une connexion")
-    }
-}
-
-// Option 2: Avec rusqlite (fallback)
-#[cfg(not(feature = "use-libsql"))]
-use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{params, Connection};
-// ... code rusqlite du plan original ...
-```
-
- - [x] Implémenter le module de connexion
-- [ ] Gérer les chemins UNC Windows
-- [ ] Implémenter le pool de connexions
-- [ ] Tester avec plusieurs connexions simultanées
-
-### 1.4 Modèles de données
-
-Créer `src-tauri/src/database/models/user.rs` :
-
-```rust
-use serde::{Deserialize, Serialize};
-use rusqlite::{params, Connection, Result, Row};
-use bcrypt::{hash, verify, DEFAULT_COST};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct User {
-    pub id: Option<i32>,
-    pub username: String,
-    #[serde(skip_serializing)]
-    pub password_hash: String,
-    pub role: UserRole,
-    pub windows_login: Option<String>,
-    pub deleted: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum UserRole {
-    Admin,
-    Manager,
-    User,
-}
-
-impl User {
-    pub fn new(username: String, password: &str, role: UserRole) -> Result<Self> {
-        let password_hash = hash(password, DEFAULT_COST)
-            .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
-        
-        Ok(Self {
-            id: None,
-            username,
-            password_hash,
-            role,
-            windows_login: None,
-            deleted: false,
-        })
-    }
-    
-    pub fn verify_password(&self, password: &str) -> bool {
-        verify(password, &self.password_hash).unwrap_or(false)
-    }
-    
-    pub fn from_row(row: &Row) -> Result<Self> {
-        Ok(Self {
-            id: row.get(0)?,
-            username: row.get(1)?,
-            password_hash: row.get(2)?,
-            role: match row.get::<_, String>(3)?.as_str() {
-                "admin" => UserRole::Admin,
-                "manager" => UserRole::Manager,
-                _ => UserRole::User,
-            },
-            windows_login: row.get(4)?,
-            deleted: row.get::<_, i32>(5)? != 0,
-        })
-    }
-    
-    pub fn find_by_username(conn: &Connection, username: &str) -> Result<Option<Self>> {
-        let mut stmt = conn.prepare(
-            "SELECT id, username, password_hash, role, windows_login, deleted 
-             FROM users WHERE username = ? AND deleted = 0"
-        )?;
-        
-        let user = stmt.query_row(params![username], |row| Self::from_row(row))
-            .optional()?;
-        
-        Ok(user)
-    }
-}
-```
-
- - [ ] Créer tous les modèles (User, Category, Individu, Audit) *(User implémenté)*
-- [ ] Implémenter les méthodes CRUD pour chaque modèle
-- [ ] Gérer la sérialisation JSON des champs dynamiques
-- [ ] Ajouter les tests unitaires
-
----
-
-## Phase 2: Commands Tauri (API IPC) (3-4 semaines)
-
-### 2.1 Commands d'authentification
-
-Créer `src-tauri/src/commands/auth.rs` :
-
-```rust
-use crate::database::models::{User, UserRole};
-use crate::AppState;
-use serde::{Deserialize, Serialize};
-use tauri::State;
-
-#[derive(Debug, Serialize)]
-pub struct AuthResponse {
-    pub success: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user_id: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub username: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub role: Option<UserRole>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub windows_login: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub permissions: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct LoginRequest {
-    pub username: String,
-    pub password: String,
-}
-
-#[tauri::command]
-pub async fn auth_login(
-    state: State<'_, AppState>,
-    request: LoginRequest,
-) -> Result<AuthResponse, String> {
-    let db = state.db.clone();
-    
-    // Exécuter dans un thread séparé pour ne pas bloquer
-    let result = tokio::task::spawn_blocking(move || {
-        let conn = db.get_connection()
-            .map_err(|e| format!("Erreur base de données: {}", e))?;
-        
-        match User::find_by_username(&conn, &request.username) {
-            Ok(Some(user)) => {
-                if user.verify_password(&request.password) {
-                    let permissions = get_role_permissions(&conn, &user.role)?;
-                    
-                    Ok(AuthResponse {
-                        success: true,
-                        user_id: user.id,
-                        username: Some(user.username),
-                        role: Some(user.role),
-                        windows_login: user.windows_login,
-                        permissions: Some(permissions),
-                        error: None,
-                    })
-                } else {
-                    Ok(AuthResponse {
-                        success: false,
-                        error: Some("Mot de passe incorrect".to_string()),
-                        ..Default::default()
-                    })
-                }
-            }
-            Ok(None) => Ok(AuthResponse {
-                success: false,
-                error: Some("Utilisateur non trouvé".to_string()),
-                ..Default::default()
-            }),
-            Err(e) => Err(format!("Erreur lors de la recherche: {}", e)),
-        }
-    })
-    .await
-    .map_err(|e| format!("Erreur tâche: {}", e))??;
-    
-    Ok(result)
-}
-
-#[tauri::command]
-pub async fn get_windows_username() -> Result<AuthResponse, String> {
-    #[cfg(windows)]
-    {
-        use std::ffi::OsString;
-        use std::os::windows::ffi::OsStringExt;
-        use winapi::um::winbase::GetUserNameW;
-        
-        unsafe {
-            let mut size = 256;
-            let mut buffer = vec![0u16; size as usize];
-            
-            if GetUserNameW(buffer.as_mut_ptr(), &mut size) != 0 {
-                buffer.truncate(size as usize - 1);
-                let username = OsString::from_wide(&buffer)
-                    .to_string_lossy()
-                    .to_string();
-                
-                // Nettoyer le domaine si présent
-                let clean_username = username
-                    .split('\\')
-                    .last()
-                    .unwrap_or(&username)
-                    .to_string();
-                
-                return Ok(AuthResponse {
-                    success: true,
-                    username: Some(clean_username),
-                    ..Default::default()
-                });
-            }
-        }
-    }
-    
-    Ok(AuthResponse {
-        success: false,
-        error: Some("Impossible de récupérer le nom d'utilisateur Windows".to_string()),
-        ..Default::default()
-    })
-}
-```
-
-- [ ] Implémenter toutes les commandes d'authentification
-- [ ] Gérer l'auto-login Windows
-- [ ] Implémenter la gestion des sessions
-- [ ] Ajouter les tests d'intégration
-
-### 2.2 Script de build Tauri intégré
-
-Le script `build-tauri.ps1` a finalement été retiré. Utilisez à la place
-`scripts/setup-tauri-tools.ps1` pour préparer l'environnement puis exécutez
-`cargo tauri build --release` pour générer l'application.
-
-- [x] Créer `scripts/build-tauri.ps1` (obsolète)
-- [ ] Intégrer avec le système de build existant
-- [ ] Tester les différents modes de build
-- [ ] Documenter l'utilisation
-
----
-
-## Phase 3: Migration frontend (2-3 semaines)
-
-### 3.1 Wrapper de compatibilité API
-
-Créer `src/services/api-wrapper.ts` pour faciliter la transition :
-
-```typescript
-// Wrapper pour maintenir la compatibilité pendant la migration
-import { invoke } from '@tauri-apps/api/core';
-
-// Détection de l'environnement
-const isTauri = window.__TAURI__ !== undefined;
-const isElectron = window.api !== undefined;
-
-// API unifiée
-export const api = {
-  // Authentification
-  login: async (username: string, password: string) => {
-    if (isTauri) {
-      return invoke('auth_login', { request: { username, password } });
-    } else if (isElectron) {
-      return window.api.login(username, password);
-    }
-    throw new Error('Aucun backend disponible');
-  },
-  
-  getWindowsUsername: async () => {
-    if (isTauri) {
-      return invoke('get_windows_username');
-    } else if (isElectron) {
-      return window.api.getWindowsUsername();
-    }
-    throw new Error('Aucun backend disponible');
-  },
-  
-  // Utilisateurs
-  getUsers: async () => {
-    if (isTauri) {
-      return invoke('get_users');
-    } else if (isElectron) {
-      return window.api.getUsers();
-    }
-    throw new Error('Aucun backend disponible');
-  },
-  
-  // ... mapper toutes les autres méthodes
-};
-
-// Export pour compatibilité
-export default api;
-```
-
-- [ ] Créer le wrapper de compatibilité complet
-- [ ] Remplacer progressivement `window.api` par le wrapper
-- [ ] Tester avec les deux backends
-- [ ] Documenter les différences d'API
-
-### 3.2 Adaptation des imports et dialogues
-
-```typescript
-// Dialogues fichiers
-import { open, save } from '@tauri-apps/plugin-dialog';
-import { readBinaryFile, writeBinaryFile } from '@tauri-apps/plugin-fs';
-
-// Remplacer les dialogues Electron
-export async function selectFile(): Promise<string | null> {
-  const selected = await open({
-    multiple: false,
-    filters: [{
-      name: 'Fichiers Excel/CSV',
-      extensions: ['xlsx', 'xls', 'csv']
-    }]
-  });
-  
-  return selected as string | null;
-}
-
-// Lecture de fichiers
-export async function readExcelFile(path: string): Promise<ArrayBuffer> {
-  const contents = await readBinaryFile(path);
-  return contents.buffer;
-}
-```
-
-- [ ] Migrer tous les dialogues système
-- [ ] Adapter la lecture/écriture de fichiers
-- [ ] Gérer les permissions Tauri
-- [ ] Tester l'accès aux partages réseau
-
----
-
-## Phase 4: Tests et optimisations (2 semaines)
-
-### 4.1 Tests automatisés
-
-Créer `src-tauri/tests/integration_test.rs` :
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use tempfile::TempDir;
-    
-    #[tokio::test]
-    async fn test_network_database_access() {
-        // Test avec un vrai partage réseau si disponible
-        let network_path = r"\\server\share\test\test.db";
-        
-        if std::path::Path::new(network_path).parent().map(|p| p.exists()).unwrap_or(false) {
-            let db = Database::new(network_path);
-            assert!(db.is_ok(), "Devrait pouvoir se connecter au partage réseau");
-        } else {
-            println!("Partage réseau non disponible, test ignoré");
-        }
-    }
-    
-    #[test]
-    fn test_concurrent_access() {
-        use std::thread;
-        use std::sync::Arc;
-        
-        let temp_dir = TempDir::new().unwrap();
-        let db_path = temp_dir.path().join("test.db");
-        let db = Arc::new(Database::new(db_path.to_str().unwrap()).unwrap());
-        
-        // Simuler 10 accès concurrents
-        let handles: Vec<_> = (0..10)
-            .map(|i| {
-                let db_clone = db.clone();
-                thread::spawn(move || {
-                    let conn = db_clone.get_connection().unwrap();
-                    conn.execute(
-                        "INSERT INTO test_table (data) VALUES (?)",
-                        params![format!("Thread {}", i)]
-                    ).unwrap();
-                })
-            })
-            .collect();
-        
-        for handle in handles {
-            handle.join().unwrap();
-        }
-        
-        // Vérifier que tous les inserts ont réussi
-        let conn = db.get_connection().unwrap();
-        let count: i32 = conn.query_row(
-            "SELECT COUNT(*) FROM test_table",
-            [],
-            |row| row.get(0)
-        ).unwrap();
-        
-        assert_eq!(count, 10, "Tous les threads devraient avoir inséré");
-    }
-}
-```
-
-- [ ] Créer une suite de tests complète
-- [ ] Tests de performance réseau
-- [ ] Tests de charge multi-utilisateurs
-- [ ] Tests de migration de données
-
-### 4.2 Benchmarks et optimisations
-
-```powershell
-# Script de benchmark
-# scripts/benchmark-tauri.ps1
-
-param(
-    [int]$Iterations = 100,
-    [string]$DbPath = "\\server\share\db\bench.db"
-)
-
-Write-Host "Benchmark Tauri vs Electron" -ForegroundColor Cyan
-
-# Benchmark Tauri
-$tauriTimes = @()
-for ($i = 1; $i -le $Iterations; $i++) {
-    $start = Get-Date
-    # Appeler une commande Tauri
-    & .\src-tauri\target\release\ottercms.exe benchmark --silent
-    $end = Get-Date
-    $tauriTimes += ($end - $start).TotalMilliseconds
-}
-
-# Statistiques
-$avgTauri = ($tauriTimes | Measure-Object -Average).Average
-$minTauri = ($tauriTimes | Measure-Object -Minimum).Minimum
-$maxTauri = ($tauriTimes | Measure-Object -Maximum).Maximum
-
-Write-Host "`nRésultats Tauri:" -ForegroundColor Green
-Write-Host "  Moyenne: $([math]::Round($avgTauri, 2)) ms"
-Write-Host "  Min: $([math]::Round($minTauri, 2)) ms"
-Write-Host "  Max: $([math]::Round($maxTauri, 2)) ms"
-```
-
-- [ ] Créer les scripts de benchmark
-- [ ] Mesurer les performances vs Electron
-- [ ] Optimiser les requêtes critiques
-- [ ] Documenter les résultats
-
----
-
-## Phase 5: Migration et déploiement (1-2 semaines)
-
-### 5.1 Script de migration automatique
-
-```powershell
-# scripts/migrate-to-tauri.ps1
-param(
-    [switch]$DryRun,
-    [switch]$BackupOnly
-)
-
-Write-Host "Migration OtterCMS vers Tauri" -ForegroundColor Cyan
-
-# 1. Backup de la base de données
-$dbPath = "\\server\share\db\ottercms.sqlite"
-$backupPath = "$dbPath.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-
-Write-Host "Backup de la base de données..." -ForegroundColor Yellow
-Copy-Item $dbPath $backupPath -Force
-Write-Host "✅ Backup créé: $backupPath" -ForegroundColor Green
-
-if ($BackupOnly) {
-    exit 0
-}
-
-# 2. Vérification de compatibilité
-Write-Host "`nVérification de compatibilité..." -ForegroundColor Yellow
-
-# Tester la connexion Tauri à la base
-$testExe = ".\src-tauri\target\release\ottercms.exe"
-if (-not (Test-Path $testExe)) {
-    Write-Host "❌ Exécutable Tauri non trouvé. Lancez d'abord: cargo tauri build --release" -ForegroundColor Red
-    exit 1
-}
-
-# 3. Test de migration
-if (-not $DryRun) {
-    Write-Host "`nMigration en cours..." -ForegroundColor Yellow
-    
-    # Copier les fichiers de configuration
-    $configFiles = @(
-        "config\app-config.json",
-        "config\encryption.key"
-    )
-    
-    foreach ($file in $configFiles) {
-        if (Test-Path $file) {
-            $dest = Join-Path "." $file
-            Copy-Item $file $dest -Force
-            Write-Host "  ✅ $file copié" -ForegroundColor Green
-        }
-    }
-}
-
-Write-Host "`n✅ Migration terminée!" -ForegroundColor Green
-Write-Host "Lancez l'application avec: $testExe" -ForegroundColor Cyan
-```
-
-- [ ] Créer le script de migration
-- [ ] Documenter le processus complet
-- [ ] Créer un guide utilisateur
-- [ ] Préparer le déploiement
-
-### 5.2 Configuration CI/CD
-
-`.github/workflows/build-tauri.yml` :
-
-```yaml
-name: Build Tauri
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-jobs:
-  build:
-    runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Cache Rust
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    
-    - name: Setup Rust
-      uses: dtolnay/rust-toolchain@stable
-      with:
-          targets: x86_64-pc-windows-msvc
-    
-      - name: Setup tools
-        run: pwsh scripts/setup-tauri-tools.ps1
-    
-    - name: Build Tauri
-      run: |
-        cd src-tauri
-        cargo tauri build --bundles nsis
-    
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-installer
-        path: src-tauri/target/release/bundle/nsis/*.exe
-```
-
-- [ ] Configurer GitHub Actions
-- [ ] Automatiser les tests
-- [ ] Configurer la signature du code
-- [ ] Mettre en place l'auto-update
-
----
-
-## 📊 Métriques de succès
-
-- [ ] **Taille finale** : < 25MB (exe seul), < 40MB (installateur)
-- [ ] **Temps de démarrage** : < 1.5s
-- [ ] **RAM au repos** : < 80MB
-- [ ] **Performances DB réseau** : ≥ Electron actuel
-- [ ] **Compatibilité** : 100% des fonctionnalités
-- [ ] **Stabilité** : 0 régression critique
-
----
-
-## 🚨 Points de vigilance
-
-1. **Chemins UNC** : Tester extensivement avec différents serveurs
-2. **Permissions réseau** : Gérer les timeouts et reconnexions
-3. **WAL mode** : S'assurer que le serveur supporte les fichiers -wal/-shm
-4. **Oracle** : Évaluer si migration nécessaire ou garder un service Node.js
-5. **Signatures Windows** : Prévoir un certificat pour éviter SmartScreen
-
----
-
-## 📅 Planning
-
-- **Semaines 1-2** : Setup environnement + prototype
-- **Semaines 3-5** : Backend Rust core
-- **Semaines 6-9** : Commands et services
-- **Semaines 10-12** : Frontend et tests
-- **Semaines 13-14** : Migration et déploiement
-
-**Go-live** : Semaine 15 avec déploiement progressif
-
----
-
-## ❓ FAQ : libSQL vs rusqlite
-
-### Pourquoi envisager rusqlite comme alternative ?
-
-1. **Moins de complications de build** : rusqlite avec `bundled` compile sans problème
-2. **API très similaire** : Migration facile si besoin
-3. **Maturité** : Plus testé sur Windows avec chemins UNC
-
-### Avantages de libSQL si la compilation réussit :
-
-1. **Features avancées** : Support natif des réplications (futur)
-2. **Compatible SQLite** : Même format de fichier
-3. **Performance** : Optimisations modernes
-
-### Comment décider ?
-
-1. Essayer d'abord libSQL (Phase 0.4)
-2. Si compilation OK → utiliser libSQL
-3. Si échec après tentatives → rusqlite
-4. Les deux supportent vos besoins actuels
-
-### Impact sur le code ?
-
-Minimal ! Exemple de compatibilité :
-
-```rust
-// Avec libSQL
-let conn = db.connect()?;
-conn.execute("INSERT INTO users (name) VALUES (?)", params![name]).await?;
-
-// Avec rusqlite
-let conn = db.get_connection()?;
-conn.execute("INSERT INTO users (name) VALUES (?1)", params![name])?;
-```
-
-Principal changement : libSQL est async, rusqlite est sync (mais on peut wrapper).
+### Priorites specifiques
+1. Semaine 1-2 : components reseau et conflits
+2. Semaine 3-4 : loading states et error handling
+3. Semaine 5-6 : formulaires auto-save et diagnostics
+4. Semaine 7+ : extensions thematiques et composants avances
+
+### Avantages du framework
+- Coherence visuelle
+- Maintenance simplifiee
+- Performance optimisee
+- Evolutivite dans l'ecosysteme Datta Able
