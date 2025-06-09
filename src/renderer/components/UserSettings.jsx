@@ -47,7 +47,7 @@ export default function UserSettings({ user }) {
           <label>Login Windows (nom d'utilisateur uniquement):</label>
           <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', marginTop: '0.25rem' }}>
             <DattaTextField
-              placeholder="Ex: jean (sans domaine)"
+              placeholder="Ex: jean (sans le domaine)"
               value={loginWin}
               onChange={e => setLoginWin(e.target.value)}
               style={{ marginBottom: 0 }}
