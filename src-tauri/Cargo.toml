@@ -12,7 +12,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.40", features = ["full"] }
 # Utiliser libsql avec sqlite bundled pour éviter la compilation native
-libsql = { version = "0.6.0", features = ["remote", "tls"], default-features = false }
+libsql = { version = "0.6.0", features = ["core", "remote", "tls"], default-features = false }
 sysinfo = "0.31"
 anyhow = "1.0"
 futures = "0.3"
