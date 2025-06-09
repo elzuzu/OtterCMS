@@ -28,7 +28,6 @@
     "xlsx": "^0.18.5",
     "zustand": "^5.0.4",
     "react-perfect-scrollbar": "^1.5.8",
-    "oracledb": "^6.8.0",
     "react-apexcharts": "^1.4.0",
     "apexcharts": "^4.0.0"
   },
