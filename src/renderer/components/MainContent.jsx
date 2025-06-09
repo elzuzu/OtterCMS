@@ -34,7 +34,7 @@ function ComponentLoader() {
 export default function MainContent({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [requestedViewForIndividus, setRequestedViewForIndividus] = useState(null);
-  const [appTitle, setAppTitle] = useState('indi-suivi-nodejs');
+  const [appTitle, setAppTitle] = useState('OtterCMS-nodejs');
 
 
   useEffect(() => {

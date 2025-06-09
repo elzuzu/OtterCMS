@@ -1,6 +1,6 @@
 # Guide d'utilisation
 
-Ce guide explique les étapes principales pour prendre en main l'application **Indi-Suivi**.
+Ce guide explique les étapes principales pour prendre en main l'application **OtterCMS**.
 
 ## Premier lancement
 

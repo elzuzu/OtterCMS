@@ -1,6 +1,6 @@
 # Guide de développement
 
-Ce document résume la mise en place d'un environnement local pour développer « Indi-Suivi » et les bonnes pratiques à adopter en 2025.
+Ce document résume la mise en place d'un environnement local pour développer « OtterCMS » et les bonnes pratiques à adopter en 2025.
 
 ## Prérequis
 

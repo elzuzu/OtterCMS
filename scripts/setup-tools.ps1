@@ -1,7 +1,7 @@
 ﻿# PowerShell script to download required tools (UPX and 7zip)
 param(
     # Dossier où installer UPX et 7-Zip. Par défaut dans l'espace utilisateur
-    [string]$ToolsDir = $(Join-Path $env:USERPROFILE 'AppData\Local\indi-suivi-tools')
+    [string]$ToolsDir = $(Join-Path $env:USERPROFILE 'AppData\Local\OtterCMS-tools')
 )
 
 function Test-Command {
