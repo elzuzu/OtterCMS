@@ -32,6 +32,27 @@ impl DatabasePool {
         Ok(Self { db: Arc::new(db) })
     }
 
+    #[cfg(feature = "use-libsql")]
+    pub async fn new_network_optimized(db_path: &str) -> Result<Self> {
+        let db = Database::open(db_path)
+            .await
+            .context("Impossible d'ouvrir la base")?;
+        let conn = db.connect()?;
+        conn.execute_batch(
+            "
+            PRAGMA journal_mode=WAL;
+            PRAGMA synchronous=NORMAL;
+            PRAGMA busy_timeout=30000;
+            PRAGMA cache_size=-16384;
+            PRAGMA temp_store=MEMORY;
+            PRAGMA wal_autocheckpoint=1000;
+            PRAGMA foreign_keys=ON;
+            ",
+        )
+        .await?;
+        Ok(Self { db: Arc::new(db) })
+    }
+
     #[cfg(not(feature = "use-libsql"))]
     pub fn new(db_path: &str) -> Result<Self> {
         let manager = SqliteConnectionManager::file(db_path);
@@ -40,6 +61,27 @@ impl DatabasePool {
             let conn = pool.get()?;
             conn.execute_batch(
                 "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
+            )?;
+        }
+        Ok(Self { pool })
+    }
+
+    #[cfg(not(feature = "use-libsql"))]
+    pub fn new_network_optimized(db_path: &str) -> Result<Self> {
+        let manager = SqliteConnectionManager::file(db_path);
+        let pool = Pool::new(manager)?;
+        {
+            let conn = pool.get()?;
+            conn.execute_batch(
+                "
+                PRAGMA journal_mode=WAL;
+                PRAGMA synchronous=NORMAL;
+                PRAGMA busy_timeout=30000;
+                PRAGMA cache_size=-16384;
+                PRAGMA temp_store=MEMORY;
+                PRAGMA wal_autocheckpoint=1000;
+                PRAGMA foreign_keys=ON;
+                ",
             )?;
         }
         Ok(Self { pool })

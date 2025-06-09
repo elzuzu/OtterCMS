@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import WindowControls from '../common/WindowControls';
+import DattaNetworkStatus from '../common/DattaNetworkStatus';
 import { PERMISSIONS } from '../../constants/permissions';
 import { hasPermission } from '../../utils/permissions';
 
@@ -142,8 +143,9 @@ export default function LayoutManager({
               </li>
             </ul>
           </div>
-          <div className="ms-auto">
-            <ul className="list-unstyled">
+          <div className="ms-auto d-flex align-items-center gap-3">
+            <DattaNetworkStatus />
+            <ul className="list-unstyled mb-0">
               <li className="dropdown pc-h-item">
                 <a
                   className="pc-head-link dropdown-toggle arrow-none me-0"
