@@ -2204,7 +2204,6 @@ export default function DattaKeyboardShortcuts() {
 
 ## 📝 Éléments à traiter ultérieurement
 
-- Personnaliser les TODOs du script `.git/hooks/sendemail-validate.sample` pour la validation des emails.
 - Passer en revue les placeholders d'interface :
   - Variable CSS `--current-text-placeholder` dans `src/renderer/styles/themes.css`.
   - Attributs `placeholder` dans de nombreux composants React (ex. `MassAttribution.jsx`, `ImportData.jsx`, `UserSettings.jsx`, etc.).
