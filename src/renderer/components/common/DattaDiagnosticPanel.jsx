@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DattaCard from './DattaCard';
 import DattaButton from './DattaButton';
+import DattaLoadingOverlay from './DattaLoadingOverlay';
 
 export default function DattaDiagnosticPanel() {
   const [diagnostics, setDiagnostics] = useState({});
@@ -19,15 +20,16 @@ export default function DattaDiagnosticPanel() {
   };
 
   return (
-    <DattaCard
-      title="Diagnostics systeme"
-      actions={
-        <DattaButton variant="primary" size="sm" onClick={runDiagnostics} loading={isRunning}>
-          <i className="feather icon-play me-2"></i>
-          Lancer diagnostic
-        </DattaButton>
-      }
-    >
+    <DattaLoadingOverlay isLoading={isRunning} message="Diagnostic...">
+      <DattaCard
+        title="Diagnostics systeme"
+        actions={
+          <DattaButton variant="primary" size="sm" onClick={runDiagnostics} disabled={isRunning}>
+            <i className="feather icon-refresh-cw me-2"></i>
+            {isRunning ? 'Diagnostic...' : 'Lancer diagnostic'}
+          </DattaButton>
+        }
+      >
       <div className="row">
         <div className="col-md-6">
           <h6><i className="feather icon-database me-2"></i>Base de donnees</h6>
@@ -57,5 +59,6 @@ export default function DattaDiagnosticPanel() {
         </div>
       </div>
     </DattaCard>
+    </DattaLoadingOverlay>
   );
 }
