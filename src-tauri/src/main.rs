@@ -19,10 +19,10 @@ fn main() {
                 .resolve_resource("../db/ottercms.sqlite")
                 .expect("Failed to resolve database path");
             #[cfg(feature = "use-libsql")]
-            let pool = block_on(DatabasePool::new(db_path.to_str().unwrap()))
+            let pool = block_on(DatabasePool::new_network_optimized(db_path.to_str().unwrap()))
                 .expect("failed to open database");
             #[cfg(not(feature = "use-libsql"))]
-            let pool = DatabasePool::new(db_path.to_str().unwrap())
+            let pool = DatabasePool::new_network_optimized(db_path.to_str().unwrap())
                 .expect("failed to open database");
             let state = AppState { db: Arc::new(pool) };
             app.manage(state);
@@ -46,7 +46,9 @@ fn main() {
             commands::roles::get_roles,
             commands::roles::create_role,
             commands::roles::update_role,
-            commands::roles::delete_role
+            commands::roles::delete_role,
+            commands::diagnostics::ping_database,
+            commands::diagnostics::run_diagnostics
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
