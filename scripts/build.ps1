@@ -10,7 +10,10 @@ param(
     [switch]$ForcePrebuilt,
     [switch]$UseForge,
     [switch]$UsePackager,
-    [switch]$DownloadTools
+    [switch]$DownloadTools,
+    [switch]$SetupTauriTools,
+    [switch]$BuildTauri,
+    [ValidateSet("release", "debug")][string]$TauriMode = "release"
 )
 
 # Couleurs pour la sortie
@@ -130,6 +133,108 @@ function Invoke-W64DevKitRebuild {
     } catch {
         Write-ColorText "   Erreur lors du rebuild w64devkit: $_" $Red
         throw
+    }
+}
+
+function Apply-UPX-Compression {
+    param([string]$ExePath)
+
+    if (-not (Test-Path $ExePath)) {
+        Write-ColorText "Fichier $ExePath introuvable" $Red
+        return
+    }
+
+    $upxCmd = "upx"
+    if (-not (Test-Command $upxCmd)) {
+        $localUpx = Join-Path $env:USERPROFILE "AppData\Local\indi-suivi-tools\upx\upx.exe"
+        if (Test-Path $localUpx) {
+            $upxCmd = "`"$localUpx`""
+        } else {
+            Write-ColorText "UPX non trouvé, compression ignorée" $Yellow
+            return
+        }
+    }
+
+    Write-ColorText "Compression UPX de $ExePath" $Cyan
+    & $upxCmd --ultra-brute --lzma -9 $ExePath
+    if ($LASTEXITCODE -eq 0) {
+        Write-ColorText "✅ Compression UPX réussie" $Green
+    } else {
+        Write-ColorText "⚠️ Compression UPX échouée" $Yellow
+    }
+}
+
+# --- FONCTIONS TAURI ---
+function Setup-Tauri-Environment {
+    $tauriSetupScript = Join-Path $PSScriptRoot "setup-tauri-tools.ps1"
+
+    if (-not (Test-Path $tauriSetupScript)) {
+        Write-ColorText "Script setup-tauri-tools.ps1 manquant!" $Red
+        return $false
+    }
+
+    $rustPortableDir = "D:\\tools\\rust-portable"
+    $cargoPath = Join-Path $rustPortableDir ".cargo\bin\cargo.exe"
+
+    if ($SetupTauriTools -or -not (Test-Path $cargoPath)) {
+        Write-ColorText "Installation des outils Tauri..." $Cyan
+        & $tauriSetupScript
+        if ($LASTEXITCODE -ne 0) {
+            Write-ColorText "Échec de l'installation des outils Tauri" $Red
+            return $false
+        }
+    }
+
+    $env:RUSTUP_HOME = Join-Path $rustPortableDir ".rustup"
+    $env:CARGO_HOME = Join-Path $rustPortableDir ".cargo"
+    $env:PATH = "$env:CARGO_HOME\bin;D:\\tools\\w64devkit\\bin;$env:PATH"
+
+    Set-W64DevKitEnvironment
+    return $true
+}
+
+function Build-Tauri-App {
+    param([string]$Mode = "release")
+
+    Write-ColorText "Build Tauri en mode $Mode..." $Cyan
+
+    $srcTauriPath = Join-Path $projectRoot "src-tauri"
+    if (-not (Test-Path $srcTauriPath)) {
+        Write-ColorText "Dossier src-tauri manquant!" $Red
+        return $false
+    }
+
+    Push-Location $srcTauriPath
+    try {
+        $buildCmd = "cargo tauri build"
+        if ($Mode -eq "debug") {
+            $buildCmd = "cargo tauri build --debug"
+        }
+
+        if ($Mode -eq "release") {
+            $env:RUSTFLAGS = "-C target-cpu=native -C link-arg=-s"
+        }
+
+        Write-ColorText "Exécution: $buildCmd" $Gray
+        Invoke-Expression $buildCmd
+
+        if ($LASTEXITCODE -eq 0) {
+            Write-ColorText "✅ Build Tauri réussi!" $Green
+
+            if ($Mode -eq "release" -and -not $SkipUPX) {
+                $exePath = Join-Path $srcTauriPath "target\release\indi-suivi.exe"
+                if (Test-Path $exePath) {
+                    Apply-UPX-Compression $exePath
+                }
+            }
+
+            return $true
+        } else {
+            Write-ColorText "❌ Build Tauri échoué" $Red
+            return $false
+        }
+    } finally {
+        Pop-Location
     }
 }
 
@@ -375,6 +480,25 @@ $electronLocalDownloadDir = Join-Path $PSScriptRoot "electron-local-temp"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $electronCacheDir = Join-Path $env:LOCALAPPDATA "electron\Cache"
 $electronTargetDistPath = Join-Path $projectRoot "node_modules\electron\dist"
+
+if ($SetupTauriTools) {
+    if (-not (Setup-Tauri-Environment)) {
+        exit 1
+    }
+}
+
+if ($BuildTauri) {
+    if (-not (Setup-Tauri-Environment)) {
+        exit 1
+    }
+
+    if (-not (Build-Tauri-App -Mode $TauriMode)) {
+        exit 1
+    }
+
+    Write-ColorText "Build Tauri terminé avec succès!" $Green
+    exit 0
+}
 
 if ($DownloadElectronLocally) {
     Write-ColorText "Telechargement local d'Electron $electronVersion pour $electronPlatform-$electronArch..." $Cyan

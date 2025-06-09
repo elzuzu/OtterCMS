@@ -278,9 +278,9 @@ if ($libsqlWorks) {
 ```
 
 - [x] Créer le script `scripts/setup-tauri-tools.ps1`
-- [ ] Tester le téléchargement et l'installation de w64devkit
-- [ ] Tester l'installation de Rust portable
-- [ ] Vérifier la configuration de Cargo
+- [ ] Tester le téléchargement et l'installation de w64devkit *(à faire sur une machine Windows)*
+- [ ] Tester l'installation de Rust portable *(à faire sur une machine Windows)*
+- [ ] Vérifier la configuration de Cargo *(à faire après installation)*
 - [x] Documenter dans le README
 
 ### 0.2 Intégration dans build.ps1
@@ -398,10 +398,10 @@ if ($BuildTauri) {
 }
 ```
 
-- [ ] Modifier `scripts/build.ps1` avec le support Tauri
+- [x] Modifier `scripts/build.ps1` avec le support Tauri
 - [ ] Tester `.\build.ps1 -SetupTauriTools`
 - [ ] Tester `.\build.ps1 -BuildTauri`
-- [ ] Documenter les nouvelles options
+- [x] Documenter les nouvelles options
 
 ### 0.3 Analyse des dépendances
 - [ ] Lister toutes les dépendances Electron-spécifiques
@@ -607,7 +607,7 @@ use rusqlite::{params, Connection};
 // ... code rusqlite du plan original ...
 ```
 
-- [ ] Implémenter le module de connexion
+ - [x] Implémenter le module de connexion
 - [ ] Gérer les chemins UNC Windows
 - [ ] Implémenter le pool de connexions
 - [ ] Tester avec plusieurs connexions simultanées
@@ -689,7 +689,7 @@ impl User {
 }
 ```
 
-- [ ] Créer tous les modèles (User, Category, Individu, Audit)
+ - [ ] Créer tous les modèles (User, Category, Individu, Audit) *(User implémenté)*
 - [ ] Implémenter les méthodes CRUD pour chaque modèle
 - [ ] Gérer la sérialisation JSON des champs dynamiques
 - [ ] Ajouter les tests unitaires

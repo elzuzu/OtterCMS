@@ -84,6 +84,16 @@ Sous Windows, le script PowerShell `scripts/build-tauri.ps1` permet d'automatise
 la configuration de l'environnement et la création de l'installateur NSIS.
 Il gère également la compression UPX en mode release.
 
+Vous pouvez désormais passer par `build.ps1` directement :
+
+```powershell
+# Installation des outils Rust/w64devkit
+./scripts/build.ps1 -SetupTauriTools
+
+# Construction de l'application Tauri
+./scripts/build.ps1 -BuildTauri -TauriMode release
+```
+
 ## Documentation
 
 Les guides détaillés se trouvent dans le dossier [`docs`](docs). Consultez en particulier `developpement.md` et `guide-utilisation.md`.

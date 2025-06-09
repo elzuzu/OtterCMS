@@ -13,6 +13,15 @@ serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 libsql = { version = "0.6", default-features = false, features = ["local_backend"] }
 
+r2d2 = { version = "0.8", optional = true }
+r2d2_sqlite = { version = "0.24", optional = true }
+rusqlite = { version = "0.32", features = ["bundled", "backup", "blob", "chrono", "serde_json"], optional = true }
+
+[features]
+default = ["use-libsql"]
+use-libsql = []
+use-rusqlite = ["r2d2", "r2d2_sqlite", "rusqlite"]
+
 [profile.release]
 opt-level = "z"
 lto = true
