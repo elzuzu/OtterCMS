@@ -52,9 +52,11 @@ La commande suivante crée un exécutable Tauri :
 npm run build
 ```
 Sous Windows, exécutez d'abord `scripts/setup-tauri-tools.ps1` pour préparer
-l'environnement, puis lancez `cargo tauri build --release` dans `src-tauri`. Le
-script facultatif `setup-tools.ps1` peut également installer UPX pour compresser
-l'exécutable.
+l'environnement (Rust portable et libSQL précompilé). Le script crée un
+fichier `start-tauri-env.ps1` qu'il faut charger dans votre terminal PowerShell
+(commande `. .\start-tauri-env.ps1`) avant d'appeler `cargo tauri build
+--release` dans `src-tauri`. Le script facultatif `setup-tools.ps1` peut
+également installer UPX pour compresser l'exécutable.
 
 ### Conseils 2025
 
