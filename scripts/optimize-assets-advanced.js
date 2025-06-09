@@ -6,7 +6,6 @@ function optimizeAssetsAdvanced() {
 
   const paths = {
     dist: './dist',
-    distElectron: './dist-electron',
     assets: './src/assets'
   };
 

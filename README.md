@@ -80,18 +80,12 @@ Génération d'un exécutable Tauri :
 npm run build
 ```
 
-Sous Windows, le script PowerShell `scripts/build-tauri.ps1` permet d'automatiser
-la configuration de l'environnement et la création de l'installateur NSIS.
-Il gère également la compression UPX en mode release.
-
-Vous pouvez désormais passer par `build.ps1` directement :
+Sous Windows, exécutez `scripts/setup-tauri-tools.ps1` pour installer
+l'environnement Rust portable et w64devkit. Vous pourrez ensuite lancer
+la commande suivante depuis `src-tauri` :
 
 ```powershell
-# Installation des outils Rust/w64devkit
-./scripts/build.ps1 -SetupTauriTools
-
-# Construction de l'application Tauri
-./scripts/build.ps1 -BuildTauri -TauriMode release
+cargo tauri build --release
 ```
 
 ## Documentation

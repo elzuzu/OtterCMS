@@ -41,7 +41,6 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ['electron'],
       input: {
         main: resolve(__dirname, 'src/renderer/index.html'),
       },
@@ -81,7 +80,7 @@ export default defineConfig({
     reportCompressedSize: true
   },
   optimizeDeps: {
-    exclude: ['electron']
+    exclude: []
   },
   resolve: {
     alias: {

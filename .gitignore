@@ -6,7 +6,6 @@ npm-debug.log*
 dist/
 out/
 .vite/
-release-builds/
 *.exe
 *.zip
 *.deb
@@ -40,9 +39,6 @@ logs/
 .env.local
 .env.*.local
 
-# electron-builder (si jamais réutilisé)
-build/
-release/
 
 # Datta Able images
 public/datta-able-assets/images/*

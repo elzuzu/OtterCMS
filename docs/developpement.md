@@ -8,7 +8,8 @@ Ce document résume la mise en place d'un environnement local pour développer �
 - **Rust stable** pour compiler le backend Tauri (installé automatiquement par le script).
 - **npm** est recommandé pour la gestion des dépendances. Yarn ou pnpm fonctionnent mais ne sont pas testés.
 - Un système Windows, macOS ou Linux récent.
-- Sous **Windows**, installez **w64devkit** dans `D:\tools\w64devkit` afin de compiler les dépendances natives. Le script `build.ps1` le configure automatiquement.
+ - Sous **Windows**, vous pouvez installer **w64devkit** et Rust portable via
+   `scripts/setup-tauri-tools.ps1` afin de compiler les dépendances natives.
 
 ## Installation des dépendances
 
@@ -50,7 +51,10 @@ La commande suivante crée un exécutable Tauri :
 ```bash
 npm run build
 ```
-Sous Windows, le script PowerShell `scripts/build.ps1` peut installer les outils nécessaires puis compiler l'application en mode release. Il propose également une compression UPX optionnelle.
+Sous Windows, exécutez d'abord `scripts/setup-tauri-tools.ps1` pour préparer
+l'environnement, puis lancez `cargo tauri build --release` dans `src-tauri`. Le
+script facultatif `setup-tools.ps1` peut également installer UPX pour compresser
+l'exécutable.
 
 ### Conseils 2025
 
