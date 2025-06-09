@@ -17,6 +17,9 @@ r2d2 = { version = "0.8", optional = true }
 r2d2_sqlite = { version = "0.24", optional = true }
 rusqlite = { version = "0.32", features = ["bundled", "backup", "blob", "chrono", "serde_json"], optional = true }
 
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winbase"] }
+
 [features]
 default = ["use-libsql"]
 use-libsql = []

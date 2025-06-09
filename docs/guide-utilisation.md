@@ -16,6 +16,12 @@ Ce guide explique les étapes principales pour prendre en main l'application **I
 - Depuis l'onglet **Utilisateurs**, ajoutez de nouveaux comptes et assignez-leur un rôle.
 - Vous pouvez associer un compte au login Windows local pour une connexion automatique.
 
+### Connexion automatique Windows
+
+Au lancement de l'application sous Windows, Indi‑Suivi tente de récupérer le nom d'utilisateur de la session en cours. Si un compte correspondant est associé via le champ **login Windows**, la connexion est effectuée automatiquement sans saisir de mot de passe.
+
+Si aucun compte n'est trouvé ou sur les autres plateformes, l'écran de connexion classique est affiché.
+
 ## Création des catégories
 
 Reportez-vous au [guide d'administration](guide-administration.md) pour définir des catégories et des champs dynamiques adaptés à votre contexte.
