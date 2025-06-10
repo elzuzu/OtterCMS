@@ -3,9 +3,9 @@ use std::fs;
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
-struct AppConfig {
+pub struct AppConfig {
     #[serde(rename = "dbPath")]
-    db_path: String,
+    pub db_path: String,
 }
 
 fn find_config_path() -> Result<PathBuf, String> {
@@ -16,9 +16,9 @@ fn find_config_path() -> Result<PathBuf, String> {
         }
     }
     let candidates = [
-        "config/app-config.json",
-        "../config/app-config.json",
-        "../../config/app-config.json",
+        "config/config.json",
+        "../config/config.json",
+        "../../config/config.json",
     ];
     for cand in &candidates {
         let path = PathBuf::from(cand);

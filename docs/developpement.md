@@ -22,7 +22,7 @@ Ce document résume la mise en place d'un environnement local pour développer �
    ```bash
    npm run install-app
    ```
-   Vous pouvez modifier `config/app-config.json` après cette étape pour ajuster le chemin de la base ou le niveau de journalisation.
+   Vous pouvez modifier `config/config.json` après cette étape pour ajuster le chemin de la base ou le niveau de journalisation.
 
 ## Lancer l'application en mode développement
 
