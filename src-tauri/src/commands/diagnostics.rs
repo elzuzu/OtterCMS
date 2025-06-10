@@ -32,7 +32,7 @@ fn get_system_and_disks() -> (System, Disks) {
 }
 
 #[tauri::command]
-pub async fn ping_database(app: AppHandle) -> Result<DiagnosticResult, String> {
+pub async fn ping_database(_app: AppHandle) -> Result<DiagnosticResult, String> {
     let start = std::time::Instant::now();
     let db_path = "../db/ottercms.sqlite";
     let connected = fs::metadata(db_path).is_ok();
