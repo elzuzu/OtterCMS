@@ -38,7 +38,9 @@
     "react-router-dom": "^7.6.2",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.5",
-    "@tauri-apps/plugin-sql": "^2.0.0"
+    "@tauri-apps/plugin-sql": "^2.0.0",
+    "bcryptjs": "^2.4.3"
+    
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.5.0",
@@ -47,7 +49,8 @@
     "rimraf": "^6.0.1",
     "terser": "^5.41.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "@types/bcryptjs": "^2.4.6"
   },
   "resolutions": {
     "glob-parent": ">=5.1.2",

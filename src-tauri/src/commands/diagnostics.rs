@@ -5,6 +5,8 @@ use std::net::ToSocketAddrs;
 use sysinfo::{Disks, System};
 use tauri::AppHandle;
 
+use super::config::load_config;
+
 #[derive(Debug, Serialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticResult {
@@ -34,8 +36,8 @@ fn get_system_and_disks() -> (System, Disks) {
 #[tauri::command]
 pub async fn ping_database(_app: AppHandle) -> Result<DiagnosticResult, String> {
     let start = std::time::Instant::now();
-    let db_path = "../db/ottercms.sqlite";
-    let connected = fs::metadata(db_path).is_ok();
+    let db_path = load_config()?.db_path;
+    let connected = fs::metadata(&db_path).is_ok();
     let duration = start.elapsed();
     let (sys, disks) = get_system_and_disks();
 
@@ -77,14 +79,26 @@ pub async fn run_diagnostics(app: AppHandle) -> Result<DiagnosticResult, String>
 }
 
 fn check_network_share() -> bool {
-    fs::metadata("../db").is_ok()
+    if let Ok(cfg) = load_config() {
+        if let Some(parent) = std::path::Path::new(&cfg.db_path).parent() {
+            return fs::metadata(parent).is_ok();
+        }
+    }
+    false
 }
 
 fn test_write_permissions() -> bool {
-    let path = "../db/__write_test";
-    match OpenOptions::new().create(true).write(true).open(path) {
+    let cfg = match load_config() {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    let parent = match std::path::Path::new(&cfg.db_path).parent() {
+        Some(p) => p.join("__write_test"),
+        None => return false,
+    };
+    match OpenOptions::new().create(true).write(true).open(&parent) {
         Ok(_) => {
-            let _ = fs::remove_file(path);
+            let _ = fs::remove_file(&parent);
             true
         }
         Err(_) => false,

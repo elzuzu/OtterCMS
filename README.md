@@ -42,7 +42,7 @@ Version **2.0** avec thèmes personnalisables, navigation revue et intégration 
 
 - **Node.js 20** ou version ultérieure
 - **Rust stable** avec toolchain MSVC (installé par le script)
-- Plugin **SQL officiel Tauri**
+- Plugin **SQL** Tauri (SQLite)
 - **npm** ou équivalent (pnpm, Yarn)
 
 ## Installation rapide
@@ -67,9 +67,8 @@ scripts/         Outils d'installation et de build
 config/          Fichiers de configuration
 ```
 
-L'accès à la base de données se fait désormais directement depuis le frontend en
-utilisant le plugin **SQL** officiel de Tauri. Les anciennes commandes Rust ont
-été retirées pour simplifier l'architecture.
+La base de données est gérée depuis le frontend avec le **plugin SQL** de Tauri.
+Les commandes Rust ont été réduites au minimum.
 
 ## Développement
 
@@ -168,7 +167,7 @@ npm run dev
 npm run build
 ```
 
-Les scripts utilisent Tauri 2 avec le backend Rust dans `src-tauri/` et la base de données SQLite gérée via le plugin SQL.
+Les scripts utilisent Tauri 2 avec un backend Rust minimal. La base de données SQLite est gérée via le **plugin SQL**.
 ## Licence
 
 MIT
