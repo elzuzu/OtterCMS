@@ -54,7 +54,7 @@ npm run install-app         # crée la configuration et la base SQLite
 
 ## Configuration
 
-Le fichier `config/app-config.json` définit notamment le chemin de la base de données et la langue de l'application. Modifiez-le après l'installation si nécessaire.
+Le fichier `config/config.json` définit notamment le chemin de la base de données et la langue de l'application. Modifiez-le après l'installation si nécessaire.
 
 ## Architecture
 

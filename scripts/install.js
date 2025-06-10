@@ -33,7 +33,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 // Écriture du fichier de configuration s'il n'existe pas
-const configPath = path.join(configDir, 'app-config.json');
+const configPath = path.join(configDir, 'config.json');
 if (!fs.existsSync(configPath)) {
   fs.writeFileSync(configPath, JSON.stringify(configTemplate, null, 2), 'utf8');
   console.log('Fichier de configuration créé à', configPath);
