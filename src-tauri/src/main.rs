@@ -8,6 +8,10 @@ async fn main() {
             commands::diagnostics::ping_database,
             commands::diagnostics::run_diagnostics,
             commands::config::get_db_path,
+            commands::oracle::test_oracle_connection,
+            commands::oracle::execute_oracle_query,
+            commands::oracle::get_oracle_configs,
+            commands::oracle::save_oracle_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -9,7 +9,7 @@
   },
   "plugins": {
     "sql": {
-      "preload": []
+      "preload": ["../src/preload/index.js"]
     }
   },
   "app": {
